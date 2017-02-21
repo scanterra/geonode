@@ -232,6 +232,7 @@ class RiskAnalysisDymensionInfoAssociation(models.Model):
     id = models.AutoField(primary_key=True)
     order = models.IntegerField()
     value = models.CharField(max_length=80, null=False, blank=False, db_index=True)
+    axis = models.CharField(max_length=10, null=False, blank=False, db_index=True)
 
     # Relationships
     riskanalysis = models.ForeignKey(RiskAnalysis)

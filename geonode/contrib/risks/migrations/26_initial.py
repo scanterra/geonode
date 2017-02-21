@@ -115,6 +115,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(serialize=False, primary_key=True)),
                 ('order', models.IntegerField()),
                 ('value', models.CharField(max_length=80, db_index=True)),
+                ('axis', models.CharField(max_length=10, db_index=True)),
                 ('layer_attribute', models.CharField(max_length=80)),
                 ('dymensioninfo', models.ForeignKey(to='risks.DymensionInfo')),
                 ('layer', models.ForeignKey(related_name='base_layer', to='layers.Layer')),
