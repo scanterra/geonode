@@ -276,6 +276,7 @@ GEONODE_CONTRIB_APPS = (
     # 'geonode.contrib.nlp',
     # 'geonode.contrib.slack',
     'geonode.contrib.metadataxsl',
+    'geonode.contrib.risks',
 )
 
 # Uncomment the following line to enable contrib apps

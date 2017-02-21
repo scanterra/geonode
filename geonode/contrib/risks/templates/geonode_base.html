@@ -1,0 +1,10 @@
+{% extends "site_base.html" %}
+{% load i18n %}
+{% load url from future %}
+
+{% block extra_tab %}
+<li id="nav_partenaires">
+  <a href="/about">Risk Management Tools</a>
+</li>
+{{ block.super }}
+{% endblock %}

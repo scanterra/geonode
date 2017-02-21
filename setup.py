@@ -128,7 +128,11 @@ setup(name='GeoNode',
         "django-bootstrap3-datetimepicker>=2.2.3",
 
         # AWS S3 dependencies
-        "django-storages>=1.1.8"
+        "django-storages>=1.1.8",
+
+        # Contribs
+        "xlrd==1.0.0"
+
         ],
       zip_safe=False,
       )
