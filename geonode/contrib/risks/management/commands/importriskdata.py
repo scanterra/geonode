@@ -24,6 +24,9 @@ import shutil
 import requests
 import simplejson as json
 
+import traceback
+import psycopg2
+
 from requests.auth import HTTPBasicAuth
 from optparse import make_option
 
@@ -33,24 +36,77 @@ from django.core.management.base import BaseCommand, CommandError
 from django.contrib.gis.gdal import DataSource
 from django.contrib.gis import geos
 
+from geonode.layers.models import Layer
+from geonode.contrib.risks.models import RiskAnalysis, HazardType
+from geonode.contrib.risks.models import AnalysisType, DymensionInfo
 from geonode.contrib.risks.models import Region, AdministrativeDivision
+from geonode.contrib.risks.models import RiskAnalysisDymensionInfoAssociation
+from geonode.contrib.risks.models import RiskAnalysisAdministrativeDivisionAssociation
+
+import xlrd
+from xlrd.sheet import ctype_text
 
 
 class Command(BaseCommand):
     """
+    For each Scenario / Round Period, check the Administrative Unit
+    and store the value on the db:
+
+    e.g.:
+
+      Feature ==> Layer {dim1: "Hospital", dim2: "10", adm_code: "AF", value: 30000000}
+      Feature ==> Layer {dim1: "Hospital", dim2: "10", adm_code: "AF15", value: 3000000}
+      Feature ==> Layer {dim1: "SSP2", dim2: "250", adm_code: "AF29", value: 44340000}
+
     Example Usage:
-    *** WORK IN PROGRESS ***
+    $> python manage.py importriskdata -r Afghanistan -k "WP6_future_proj_Hospital" -x WP6__Impact_analysis_results_future_projections_Hospital.xlsx
+    $> python manage.py importriskdata -r Afghanistan -k "WP6_future_proj_Population" -x WP6__Impact_analysis_results_future_projections_Population.xlsx
+    $> python manage.py importriskdata -r Afghanistan -k "WP6_loss_Afg_PML_split" -x WP6\ -\ 2050\ Scenarios\ -\ Loss\ Impact\ Results\ -\ Afghanistan\ PML\ Split.xlsx
+
+    The procedure requires a layer on GeoServer based on the following table definition:
+
+        CREATE SEQUENCE public.{layer_name}_fid_seq
+          INCREMENT 1
+          MINVALUE 1
+          MAXVALUE 9223372036854775807
+          START 1
+          CACHE 1;
+        ALTER TABLE public.{layer_name}_fid_seq
+          OWNER TO geonode;
+
+        CREATE TABLE public.{layer_name}
+        (
+          fid integer NOT NULL DEFAULT nextval('{layer_name}_fid_seq'::regclass),
+          the_geom geometry(MultiPolygon,4326),
+          dim1 character varying(80),
+          dim2 character varying(80),
+          dim3 character varying(80),
+          dim4 character varying(80),
+          dim5 character varying(80),
+          risk_analysis character varying(80),
+          hazard_type character varying(30),
+          admin character varying(150),
+          adm_code character varying(30),
+          region character varying(80),
+          value character varying(255),
+          CONSTRAINT {layer_name}_pkey PRIMARY KEY (fid)
+        )
+        WITH (
+          OIDS=FALSE
+        );
+        ALTER TABLE public.{layer_name}
+          OWNER TO geonode;
+
+        CREATE INDEX spatial_{layer_name}_the_geom
+          ON public.{layer_name}
+          USING gist
+          (the_geom);
+
     """
 
     help = 'Import Risk Data: Loss Impact and Impact Analysis Types.'
 
     option_list = BaseCommand.option_list + (
-        make_option(
-            '-a',
-            '--adm-level',
-            dest='adm_level',
-            type="int",
-            help='Administrative Unit Level.'),
         make_option(
             '-r',
             '--region',
@@ -58,105 +114,127 @@ class Command(BaseCommand):
             type="string",
             help='Destination Region.'),
         make_option(
-            '-l',
-            '--region-level',
-            dest='region_level',
-            type="int",
-            help='Region Level: {0 is global; 1 is continent; 2 is sub-continent; 3 is country}'),
-        make_option(
-            '-s',
-            '--shape-file',
-            dest='shape_file',
+            '-x',
+            '--excel-file',
+            dest='excel_file',
             type="string",
-            help='Input Administrative Unit Shapefile.'),
+            help='Input Risk Data Table as XLSX File.'),
         make_option(
-            '-t',
-            '--tolerance',
-            dest='tolerance',
-            type="float",
-            default=0.0001,
-            help='Geometry Simplify Tolerance. [0.0001]'))
+            '-k',
+            '--risk-analysis',
+            dest='risk_analysis',
+            type="string",
+            help='Name of the Risk Analysis associated to the File.'))
 
     def handle(self, **options):
-        adm_level = options.get('adm_level')
         region = options.get('region')
-        region_level = options.get('region_level')
-        shape_file = options.get('shape_file')
-        tolerance = options.get('tolerance')
-
-        if adm_level is None:
-            raise CommandError("Input Administrative Unit Level '--adm-level' is mandatory")
+        excel_file = options.get('excel_file')
+        risk_analysis = options.get('risk_analysis')
 
         if region is None:
             raise CommandError("Input Destination Region '--region' is mandatory")
 
-        if region_level is None:
-            raise CommandError("Input Region Level '--region-level' is mandatory")
+        if risk_analysis is None:
+            raise CommandError("Input Risk Analysis associated to the File '--risk_analysis' is mandatory")
 
-        if not shape_file or len(shape_file) == 0:
-            raise CommandError("Input Administrative Unit Shapefile '--shape-file' is mandatory")
+        if not excel_file or len(excel_file) == 0:
+            raise CommandError("Input Risk Data Table '--excel_file' is mandatory")
 
-        ds = DataSource(shape_file)
-        print ('Opening Data Source "%s"' % ds.name)
+        wb = xlrd.open_workbook(filename=excel_file)
+        risk = RiskAnalysis.objects.get(name=risk_analysis)
+        region = Region.objects.get(name=region)
+        region_code = region.administrative_divisions.filter(parent=None)[0].code
 
-        for layer in ds:
-            print('Layer "%s": %i %ss' % (layer.name, len(layer), layer.geom_type.name))
+        scenarios = RiskAnalysisDymensionInfoAssociation.objects.filter(riskanalysis=risk, axis='x')
+        round_periods = RiskAnalysisDymensionInfoAssociation.objects.filter(riskanalysis=risk, axis='y')
 
-            (region_obj,is_new_region) = Region.objects.get_or_create(
-                name=region,
-                defaults=dict(
-                    level=region_level
-                )
-            )
+        for scenario in scenarios:
+            # Dump Vectorial Data from DB
+            datastore = settings.OGC_SERVER['default']['DATASTORE']
+            if (datastore):
+                ogc_db_name = settings.DATABASES[datastore]['NAME']
+                ogc_db_user = settings.DATABASES[datastore]['USER']
+                ogc_db_passwd = settings.DATABASES[datastore]['PASSWORD']
+                ogc_db_host = settings.DATABASES[datastore]['HOST']
+                ogc_db_port = settings.DATABASES[datastore]['PORT']
 
-            for feat in layer:
-                # Simplify the Geometry
-                geom = geos.fromstr(feat.geom.wkt, srid=4326)
-                if tolerance > 0:
-                    geom = geom.simplify(tolerance, preserve_topology=True)
+            sheet = wb.sheet_by_name(scenario.value)
+            row_headers = sheet.row(0)
+            for rp in round_periods:
+                col_num = -1
+                for idx, cell_obj in enumerate(row_headers):
+                    # cell_type_str = ctype_text.get(cell_obj.ctype, 'unknown type')
+                    # print('(%s) %s %s' % (idx, cell_type_str, cell_obj.value))
+                    try:
+                        if int(cell_obj.value) == int(rp.value):
+                            # print('[%s] (%s) RP-%s' % (scenario.value, idx, rp.value))
+                            col_num = idx
+                            break
+                    except:
+                        pass
+                if col_num > 0:
+                    for row_num in range(1, sheet.nrows):
+                        cell_obj = sheet.cell(row_num, 5)
+                        cell_type_str = ctype_text.get(cell_obj.ctype, 'unknown type')
+                        if cell_obj.value:
+                            adm_code = cell_obj.value if cell_type_str == 'text' else region_code + '{:04d}'.format(int(cell_obj.value))
+                            adm_div = AdministrativeDivision.objects.get(code=adm_code)
+                            value = sheet.cell_value(row_num, col_num)
+                            print('[%s] (RP-%s) %s / %s' % (scenario.value, rp.value, adm_div.name, value))
 
-                # Generalize to 'Multiploygon'
-                geom = geos.MultiPolygon(geom)
+                            table_name = rp.layer.typename.split(":")[1] if ":" in rp.layer.typename else rp.layer.typename
+                            db_values = {
+                                'table': table_name, # From rp.layer
+                                'the_geom': geos.fromstr(adm_div.geom, srid=adm_div.srid),
+                                'dim1': scenario.value,
+                                'dim2': rp.value,
+                                'dim3': None,
+                                'dim4': None,
+                                'dim5': None,
+                                'risk_analysis': risk_analysis,
+                                'hazard_type': risk.hazard_type.mnemonic,
+                                'admin': adm_div.name,
+                                'adm_code': adm_code,
+                                'region': region.name,
+                                'value': value
+                            }
+                            self.insert_db(ogc_db_name, ogc_db_user, ogc_db_port, ogc_db_host, ogc_db_passwd, db_values)
 
-                if adm_level == 0:
-                    (adm_division, is_new_amdiv) = AdministrativeDivision.objects.get_or_create(
-                        code=feat.get('HRPcode'),
-                        defaults=dict(
-                            name=feat.get('HRname'),
-                            geom=geom.wkt,
-                            region=region_obj
-                        )
-                    )
 
-                    if is_new_amdiv:
-                        region_obj.administrative_divisions.add(adm_division)
+    def get_db_conn(self, db_name, db_user, db_port, db_host, db_passwd):
+        """Get db conn (GeoNode)"""
+        db_host = db_host if db_host is not None else 'localhost'
+        db_port = db_port if db_port is not None else 5432
+        conn = psycopg2.connect(
+            "dbname='%s' user='%s' port='%s' host='%s' password='%s'" % (db_name, db_user, db_port, db_host, db_passwd)
+        )
+        return conn
 
-                if adm_level == 1:
-                    adm_division_0 = AdministrativeDivision.objects.get(code=feat.get('HRparent')[:-2])
-                    (adm_division, is_new_amdiv) = AdministrativeDivision.objects.get_or_create(
-                        code=feat.get('HRpcode'),
-                        defaults=dict(
-                            name=feat.get('HRname'),
-                            geom=geom.wkt,
-                            region=region_obj,
-                            parent=adm_division_0
-                        )
-                    )
 
-                    if is_new_amdiv:
-                        region_obj.administrative_divisions.add(adm_division)
+    def insert_db(self, db_name, db_user, db_port, db_host, db_passwd, values):
+        """Remove spurious records from GeoNode DB"""
+        conn = self.get_db_conn(db_name, db_user, db_port, db_host, db_passwd)
+        curs = conn.cursor()
 
-                if adm_level == 2:
-                    adm_division_1 = AdministrativeDivision.objects.get(code=feat.get('HRparent'))
-                    (adm_division, is_new_amdiv) = AdministrativeDivision.objects.get_or_create(
-                        code=feat.get('HRpcode'),
-                        defaults=dict(
-                            name=feat.get('HRname'),
-                            geom=geom.wkt,
-                            region=region_obj,
-                            parent=adm_division_1
-                        )
-                    )
+        insert_template = """INSERT INTO {table}(
+                          the_geom,
+                              dim1, dim2, dim3, dim4, dim5,
+                              risk_analysis, hazard_type,
+                              admin, adm_code,
+                              region, value)
+                          VALUES ('{the_geom}',
+                              '{dim1}', '{dim2}', '{dim3}', '{dim4}', '{dim5}',
+                              '{risk_analysis}', '{hazard_type}',
+                              '{admin}', '{adm_code}',
+                              '{region}', '{value}');"""
+        try:
+            curs.execute(insert_template.format(**values))
+        except Exception:
+            try:
+                conn.rollback()
+            except:
+                pass
 
-                    if is_new_amdiv:
-                        region_obj.administrative_divisions.add(adm_division)
+            traceback.print_exc()
+
+        conn.commit()

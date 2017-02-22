@@ -1,0 +1,17 @@
+[{
+	"fields": {
+		"description": "Loss Impact Analysis",
+		"name": "loss_impact",
+		"title": "Loss Impact"
+	},
+	"model": "risks.analysistype",
+	"pk": 1
+}, {
+	"fields": {
+		"description": "Impact Analysis",
+		"name": "impact",
+		"title": "Impact Analysis"
+	},
+	"model": "risks.analysistype",
+	"pk": 2
+}]
