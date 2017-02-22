@@ -1,0 +1,9 @@
+[{
+	"fields": {
+		"mnemonic": "EQ",
+		"order": 0,
+		"title": "Earthquake"
+	},
+	"model": "risks.hazardtype",
+	"pk": 1
+}]
