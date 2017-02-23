@@ -211,6 +211,11 @@ class Command(BaseCommand):
                                 'value': value
                             }
                             self.insert_db(ogc_db_name, ogc_db_user, ogc_db_port, ogc_db_host, ogc_db_passwd, db_values)
+                            risk_adm = RiskAnalysisAdministrativeDivisionAssociation.objects.filter(riskanalysis=risk, administrativedivision=adm_div)
+                            if len(risk_adm) == 0:
+                                RiskAnalysisAdministrativeDivisionAssociation.objects.create(riskanalysis=risk, administrativedivision=adm_div)
+
+        risk.save()
 
         # Import or Update Metadata if Metadata File has been specified/found
         if excel_metadata_file:

@@ -265,4 +265,5 @@ class Command(BaseCommand):
         hazardset.author = author
 
         # Finalize
-        hazardset.save()
+        risk.hazardset = hazardset
+        risk.save()

@@ -41,6 +41,9 @@ class AnalysisType(models.Model):
     title = models.CharField(max_length=80, null=False, blank=False)
     description = models.TextField(default='', null=True, blank=False)
 
+    def __unicode__(self):
+        return u"{0}".format(self.name)
+
     class Meta:
         ordering = ['name']
         db_table = 'risks_analysistype'
@@ -60,7 +63,7 @@ class HazardType(models.Model):
     fa_class = models.CharField(max_length=64, default='fa-times')
 
     def __unicode__(self):
-        return u"{0}".format(self.gn_description)
+        return u"{0}".format(self.mnemonic)
 
     class Meta:
         ordering = ['order', 'mnemonic']
@@ -96,6 +99,14 @@ class RiskAnalysis(models.Model):
         null = False
     )
 
+    hazardset = models.ForeignKey(
+        'HazardSet',
+        related_name='hazardset',
+        on_delete = models.CASCADE,
+        blank = True,
+        null = True
+    )
+
     administrative_divisions = models.ManyToManyField(
         "AdministrativeDivision",
         through='RiskAnalysisAdministrativeDivisionAssociation'
@@ -106,9 +117,13 @@ class RiskAnalysis(models.Model):
         through='RiskAnalysisDymensionInfoAssociation'
     )
 
+    def __unicode__(self):
+        return u"{0}".format(self.name)
+
     class Meta:
         ordering = ['name']
         db_table = 'risks_riskanalysis'
+        verbose_name_plural = 'Risks Analysis'
 
 
 class AdministrativeDivisionManager(models.Manager):
@@ -138,7 +153,7 @@ class AdministrativeDivision(MPTTModel):
     )
 
     def __unicode__(self):
-        return self.name
+        return u"{0}".format(self.name)
 
     class Meta:
         ordering = ['code', 'name']
@@ -167,6 +182,9 @@ class Region(models.Model):
         AdministrativeDivision,
         related_name='administrative_divisions'
     )
+
+    def __unicode__(self):
+        return u"{0}".format(self.name)
 
     class Meta:
         ordering = ['name', 'level']
@@ -209,6 +227,9 @@ class DymensionInfo(models.Model):
         through='RiskAnalysisDymensionInfoAssociation'
     )
 
+    def __unicode__(self):
+        return u"{0}".format(self.name)
+
     class Meta:
         ordering = ['name']
         db_table = 'risks_dymensioninfo'
@@ -224,7 +245,8 @@ class RiskAnalysisAdministrativeDivisionAssociation(models.Model):
     riskanalysis = models.ForeignKey(RiskAnalysis)
     administrativedivision = models.ForeignKey(AdministrativeDivision)
 
-    # TODO : hazardsets
+    def __unicode__(self):
+        return u"{0}".format(self.riskanalysis.name + " - " + self.administrativedivision.name)
 
     class Meta:
         db_table = 'risks_riskanalysisadministrativedivisionassociation'
@@ -253,6 +275,9 @@ class RiskAnalysisDymensionInfoAssociation(models.Model):
     )
 
     layer_attribute = models.CharField(max_length=80, null=False, blank=False)
+
+    def __unicode__(self):
+        return u"{0}".format(self.riskanalysis.name + " - " + self.dymensioninfo.name)
 
     class Meta:
         ordering = ['order', 'value']
@@ -288,6 +313,9 @@ class PointOfContact(models.Model):
         null=True,
         blank=True
     )
+
+    def __unicode__(self):
+        return u"{0}".format(self.individual_name + " - " + self.organization_name)
 
     class Meta:
         db_table = 'risks_pointofcontact'
@@ -406,10 +434,12 @@ class HazardSet(models.Model):
     riskanalysis = models.ForeignKey(
         RiskAnalysis,
         related_name='riskanalysis',
-        on_delete = models.CASCADE,
         blank = False,
         null = False
     )
+
+    def __unicode__(self):
+        return u"{0}".format(self.title)
 
     class Meta:
         db_table = 'risks_hazardset'
@@ -434,6 +464,9 @@ class FurtherResource(models.Model):
         unique=False,
         related_name='resource')
 
+    def __unicode__(self):
+        return u"{0}".format(self.resource.title)
+
     class Meta:
         db_table = 'risks_further_resource'
 
@@ -449,11 +482,26 @@ class AnalysisTypeFurtherResourceAssociation(models.Model):
     id = models.AutoField(primary_key=True)
 
     # Relationships
-    region = models.ForeignKey(Region)
+    region = models.ForeignKey(
+        Region,
+        blank=True,
+        null=True,
+        unique=False,
+    )
 
-    hazard_type = models.ForeignKey(HazardType)
+    hazard_type = models.ForeignKey(
+        HazardType,
+        blank=True,
+        null=True,
+        unique=False,
+    )
 
-    analysis_type = models.ForeignKey(AnalysisType)
+    analysis_type = models.ForeignKey(
+        AnalysisType,
+        blank=True,
+        null=True,
+        unique=False,
+    )
 
     resource = models.ForeignKey(
         FurtherResource,
@@ -461,6 +509,9 @@ class AnalysisTypeFurtherResourceAssociation(models.Model):
         null=False,
         unique=False,
         related_name='further_resource')
+
+    def __unicode__(self):
+        return u"{0}".format(self.resource)
 
     class Meta:
         db_table = 'risks_analysisfurtheresourceassociation'
