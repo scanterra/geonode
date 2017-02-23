@@ -63,6 +63,11 @@ class Command(BaseCommand):
     $> python manage.py importriskdata -r Afghanistan -k "WP6_future_proj_Population" -x WP6__Impact_analysis_results_future_projections_Population.xlsx
     $> python manage.py importriskdata -r Afghanistan -k "WP6_loss_Afg_PML_split" -x WP6\ -\ 2050\ Scenarios\ -\ Loss\ Impact\ Results\ -\ Afghanistan\ PML\ Split.xlsx
 
+    To import Metadata also, specify the Risk Metadada File wih the 'm' option
+
+    $> python manage.py importriskdata -r Afghanistan -k "WP6_future_proj_Population"
+                    -x WP6__Impact_analysis_results_future_projections_Population.xlsx -m WP6_Impact_analysis_results_future_projections_Population\ -\ metadata.xlsx
+
     The procedure requires a layer on GeoServer based on the following table definition:
 
         CREATE SEQUENCE public.{layer_name}_fid_seq
@@ -120,6 +125,12 @@ class Command(BaseCommand):
             type="string",
             help='Input Risk Data Table as XLSX File.'),
         make_option(
+            '-m',
+            '--excel-metadata-file',
+            dest='excel_metadata_file',
+            type="string",
+            help='Input Risk Metadata Table as XLSX File.'),
+        make_option(
             '-k',
             '--risk-analysis',
             dest='risk_analysis',
@@ -130,6 +141,7 @@ class Command(BaseCommand):
         region = options.get('region')
         excel_file = options.get('excel_file')
         risk_analysis = options.get('risk_analysis')
+        excel_metadata_file = options.get('excel_metadata_file')
 
         if region is None:
             raise CommandError("Input Destination Region '--region' is mandatory")
@@ -199,6 +211,10 @@ class Command(BaseCommand):
                                 'value': value
                             }
                             self.insert_db(ogc_db_name, ogc_db_user, ogc_db_port, ogc_db_host, ogc_db_passwd, db_values)
+
+        # Import or Update Metadata if Metadata File has been specified/found
+        if excel_metadata_file:
+            call_command('importriskmetadata', region=region.name, excel_file=excel_metadata_file, risk_analysis=risk_analysis)
 
 
     def get_db_conn(self, db_name, db_user, db_port, db_host, db_passwd):

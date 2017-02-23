@@ -26,8 +26,7 @@ from django.conf import settings
 
 from mptt.models import MPTTModel, TreeForeignKey
 
-from geonode.base.models import ResourceBase
-from geonode.base.models import Link
+from geonode.base.models import ResourceBase, TopicCategory
 from geonode.layers.models import Layer
 from geonode.documents.models import Document
 
@@ -56,10 +55,17 @@ class HazardType(models.Model):
     mnemonic = models.CharField(max_length=30, null=False, blank=False, db_index=True)
     title = models.CharField(max_length=80, null=False, blank=False)
     order = models.IntegerField()
+    description = models.TextField(default='')
+    gn_description = models.TextField('GeoNode description', default='', null=True)
+    fa_class = models.CharField(max_length=64, default='fa-times')
+
+    def __unicode__(self):
+        return u"{0}".format(self.gn_description)
 
     class Meta:
         ordering = ['order', 'mnemonic']
         db_table = 'risks_hazardtype'
+        verbose_name_plural = 'Hazards'
 
 
 class RiskAnalysis(models.Model):
@@ -168,7 +174,6 @@ class Region(models.Model):
         verbose_name_plural = 'Regions'
 
 
-
 class DymensionInfo(models.Model):
     """
     Set of Dymensions (here we have the descriptors), to be used
@@ -244,9 +249,218 @@ class RiskAnalysisDymensionInfoAssociation(models.Model):
         blank=False,
         null=False,
         unique=False,
-        related_name='base_layer')
+        related_name='base_layer'
+    )
+
     layer_attribute = models.CharField(max_length=80, null=False, blank=False)
 
     class Meta:
         ordering = ['order', 'value']
         db_table = 'risks_riskanalysisdymensioninfoassociation'
+
+
+class PointOfContact(models.Model):
+    """
+    Risk Dataset Point of Contact; can be the poc or the author.
+    """
+    id = models.AutoField(primary_key=True)
+    individual_name = models.CharField(max_length=255, null=False, blank=False)
+    organization_name = models.CharField(max_length=255, null=False, blank=False)
+    position_name = models.CharField(max_length=255)
+    voice = models.CharField(max_length=255)
+    facsimile = models.CharField(max_length=30)
+    delivery_point = models.CharField(max_length=255)
+    city = models.CharField(max_length=80)
+    postal_code = models.CharField(max_length=30)
+    e_mail = models.CharField(max_length=255)
+    role = models.CharField(max_length=255, null=False, blank=False)
+    update_frequency = models.TextField()
+
+    # Relationships
+    administrative_area = models.ForeignKey(
+        AdministrativeDivision,
+        null=True,
+        blank=True
+    )
+
+    country = models.ForeignKey(
+        Region,
+        null=True,
+        blank=True
+    )
+
+    class Meta:
+        db_table = 'risks_pointofcontact'
+
+
+class HazardSet(models.Model):
+    """
+    Risk Dataset Metadata.
+
+    Assuming the following metadata model:
+
+    Section 1: Identification
+     Title  	                     [M]
+     Date  	                         [M]
+     Date Type                       [M]
+     Edition  	                     [O]
+     Abstract  	                     [M]
+     Purpose  	                     [O]
+    Section 2: Point of Contact
+     Individual Name  	             [M]
+     Organization Name               [M]
+     Position Name  	             [O]
+     Voice  	                     [O]
+     Facsimile  	                 [O]
+     Delivery Point  	             [O]
+     City  	                         [O]
+     Administrative Area             [O]
+     Postal Code  	                 [O]
+     Country  	                     [O]
+     Electronic Mail Address  	     [O]
+     Role  	                         [M]
+     Maintenance & Update Frequency  [O]
+    Section 3: Descriptive Keywords
+     Keyword  	                     [O]
+     Country & Regions  	         [M]
+     Use constraints  	             [M]
+     Other constraints  	         [O]
+     Spatial Representation Type  	 [O]
+    Section 4: Equivalent Scale
+     Language  	                     [M]
+     Topic Category Code  	         [M]
+    Section 5: Temporal Extent
+     Begin Date  	                 [O]
+     End Date  	                     [O]
+     Geographic Bounding Box  	     [M]
+     Supplemental Information  	     [M]
+    Section 6: Distribution Info
+     Online Resource  	             [O]
+     URL  	                         [O]
+     Description  	                 [O]
+    Section 7: Reference System Info
+     Code  	                         [O]
+    Section8: Data quality info
+     Statement	                     [O]
+    Section 9: Metadata Author
+     Individual Name  	             [M]
+     Organization Name  	         [M]
+     Position Name  	             [O]
+     Voice  	                     [O]
+     Facsimile  	                 [O]
+     Delivery Point  	             [O]
+     City  	                         [O]
+     Administrative Area  	         [O]
+     Postal Code  	                 [O]
+     Country  	                     [O]
+     Electronic Mail Address  	     [O]
+     Role  	                         [O]
+    """
+    id = models.AutoField(primary_key=True)
+    title = models.CharField(max_length=255, null=False, blank=False)
+    date = models.CharField(max_length=20, null=False, blank=False)
+    date_type = models.CharField(max_length=20, null=False, blank=False)
+    edition = models.CharField(max_length=30)
+    abstract = models.TextField(null=False, blank=False)
+    purpose = models.TextField()
+    keyword = models.TextField()
+    use_contraints = models.CharField(max_length=255, null=False, blank=False)
+    other_constraints = models.CharField(max_length=255)
+    spatial_representation_type = models.CharField(max_length=150)
+    language = models.CharField(max_length=80, null=False, blank=False)
+    begin_date = models.CharField(max_length=20)
+    end_date = models.CharField(max_length=20)
+    bounds = models.CharField(max_length=150, null=False, blank=False)
+    supplemental_information = models.CharField(max_length=255, null=False, blank=False)
+    online_resource = models.CharField(max_length=255)
+    url = models.CharField(max_length=255)
+    description = models.CharField(max_length=255)
+    reference_system_code = models.CharField(max_length=30)
+    data_quality_statement = models.TextField()
+
+    # Relationships
+    poc = models.ForeignKey(
+        PointOfContact,
+        related_name='point_of_contact'
+    )
+
+    author = models.ForeignKey(
+        PointOfContact,
+        related_name='metadata_author'
+    )
+
+    topic_category = models.ForeignKey(
+        TopicCategory,
+        blank=True,
+        null=True,
+        unique=False,
+        related_name='category'
+    )
+
+    country = models.ForeignKey(
+        Region,
+        null=False,
+        blank=False
+    )
+
+    riskanalysis = models.ForeignKey(
+        RiskAnalysis,
+        related_name='riskanalysis',
+        on_delete = models.CASCADE,
+        blank = False,
+        null = False
+    )
+
+    class Meta:
+        db_table = 'risks_hazardset'
+
+
+class FurtherResource(models.Model):
+    """
+    Additional GeoNode Resources which can be associated to:
+    - A Region / Country
+    - An Hazard
+    - An Analysis Type
+    - A Dymension Info
+    """
+    id = models.AutoField(primary_key=True)
+    text = models.TextField()
+
+    # Relationships
+    resource = models.ForeignKey(
+        ResourceBase,
+        blank=False,
+        null=False,
+        unique=False,
+        related_name='resource')
+
+    class Meta:
+        db_table = 'risks_further_resource'
+
+
+class AnalysisTypeFurtherResourceAssociation(models.Model):
+    """
+    Layers, Documents and other GeoNode Resources associated to:
+    - A Region / Country
+    - An Hazard
+    - An Analysis Type
+    - A Dymension Info
+    """
+    id = models.AutoField(primary_key=True)
+
+    # Relationships
+    region = models.ForeignKey(Region)
+
+    hazard_type = models.ForeignKey(HazardType)
+
+    analysis_type = models.ForeignKey(AnalysisType)
+
+    resource = models.ForeignKey(
+        FurtherResource,
+        blank=False,
+        null=False,
+        unique=False,
+        related_name='further_resource')
+
+    class Meta:
+        db_table = 'risks_analysisfurtheresourceassociation'
