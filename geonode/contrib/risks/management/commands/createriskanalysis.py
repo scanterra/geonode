@@ -177,6 +177,8 @@ class Command(BaseCommand):
                 rd.save()
                 print ("Created Risk Analysis Dymension %s [%s] (%s) - axis %s" % (rd.order, dim_value, rd.dymensioninfo.name, rd.axis))
 
+        return risk_name
+
 
 def ConfigSectionMap(section):
     dict1 = {}

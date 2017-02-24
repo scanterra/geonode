@@ -51,7 +51,7 @@ class Migration(migrations.Migration):
             name='AnalysisTypeFurtherResourceAssociation',
             fields=[
                 ('id', models.AutoField(serialize=False, primary_key=True)),
-                ('analysis_type', models.ForeignKey(to='risks.AnalysisType')),
+                ('analysis_type', models.ForeignKey(blank=True, to='risks.AnalysisType', null=True)),
             ],
             options={
                 'db_table': 'risks_analysisfurtheresourceassociation',
@@ -62,12 +62,22 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(serialize=False, primary_key=True)),
                 ('name', models.CharField(max_length=30, db_index=True)),
-                ('abstract', models.CharField(max_length=255)),
+                ('abstract', models.TextField()),
                 ('unit', models.CharField(max_length=30)),
             ],
             options={
                 'ordering': ['name'],
                 'db_table': 'risks_dymensioninfo',
+            },
+        ),
+        migrations.CreateModel(
+            name='DymensionInfoFurtherResourceAssociation',
+            fields=[
+                ('id', models.AutoField(serialize=False, primary_key=True)),
+                ('dymension_info', models.ForeignKey(blank=True, to='risks.DymensionInfo', null=True)),
+            ],
+            options={
+                'db_table': 'risks_dymensionfurtheresourceassociation',
             },
         ),
         migrations.CreateModel(
@@ -108,6 +118,16 @@ class Migration(migrations.Migration):
             ],
             options={
                 'db_table': 'risks_hazardset',
+            },
+        ),
+        migrations.CreateModel(
+            name='HazardSetFurtherResourceAssociation',
+            fields=[
+                ('id', models.AutoField(serialize=False, primary_key=True)),
+                ('hazardset', models.ForeignKey(blank=True, to='risks.HazardSet', null=True)),
+            ],
+            options={
+                'db_table': 'risks_hazardsetfurtheresourceassociation',
             },
         ),
         migrations.CreateModel(
@@ -167,6 +187,9 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(serialize=False, primary_key=True)),
                 ('name', models.CharField(max_length=30, db_index=True)),
+                ('descriptor_file', models.FileField(upload_to=b'descriptor_files')),
+                ('data_file', models.FileField(upload_to=b'metadata_files')),
+                ('metadata_file', models.FileField(upload_to=b'metadata_files')),
             ],
             options={
                 'ordering': ['name'],
@@ -186,6 +209,19 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
+            name='RiskAnalysisCreate',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('descriptor_file', models.FileField(upload_to=b'descriptor_files')),
+            ],
+            options={
+                'ordering': ['descriptor_file'],
+                'db_table': 'risks_descriptor_files',
+                'verbose_name': 'Risks Analysis: Create new through a .ini descriptor file',
+                'verbose_name_plural': 'Risks Analysis: Create new through a .ini descriptor file',
+            },
+        ),
+        migrations.CreateModel(
             name='RiskAnalysisDymensionInfoAssociation',
             fields=[
                 ('id', models.AutoField(serialize=False, primary_key=True)),
@@ -200,6 +236,36 @@ class Migration(migrations.Migration):
             options={
                 'ordering': ['order', 'value'],
                 'db_table': 'risks_riskanalysisdymensioninfoassociation',
+            },
+        ),
+        migrations.CreateModel(
+            name='RiskAnalysisImportData',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('data_file', models.FileField(upload_to=b'data_files')),
+                ('region', models.ForeignKey(to='risks.Region')),
+                ('riskanalysis', models.ForeignKey(to='risks.RiskAnalysis')),
+            ],
+            options={
+                'ordering': ['region', 'riskanalysis'],
+                'db_table': 'risks_data_files',
+                'verbose_name': 'Risks Analysis: Import Risk Data from XLSX file',
+                'verbose_name_plural': 'Risks Analysis: Import Risk Data from XLSX file',
+            },
+        ),
+        migrations.CreateModel(
+            name='RiskAnalysisImportMetadata',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('metadata_file', models.FileField(upload_to=b'metadata_files')),
+                ('region', models.ForeignKey(to='risks.Region')),
+                ('riskanalysis', models.ForeignKey(to='risks.RiskAnalysis')),
+            ],
+            options={
+                'ordering': ['region', 'riskanalysis'],
+                'db_table': 'risks_metadata_files',
+                'verbose_name': 'Risks Analysis: Import or Update Risk Metadata from XLSX file',
+                'verbose_name_plural': 'Risks Analysis: Import or Update Risk Metadata from XLSX file',
             },
         ),
         migrations.AddField(
@@ -233,6 +299,16 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(blank=True, to='risks.Region', null=True),
         ),
         migrations.AddField(
+            model_name='hazardsetfurtherresourceassociation',
+            name='region',
+            field=models.ForeignKey(blank=True, to='risks.Region', null=True),
+        ),
+        migrations.AddField(
+            model_name='hazardsetfurtherresourceassociation',
+            name='resource',
+            field=models.ForeignKey(related_name='additional_resource', to='risks.FurtherResource'),
+        ),
+        migrations.AddField(
             model_name='hazardset',
             name='author',
             field=models.ForeignKey(related_name='metadata_author', to='risks.PointOfContact'),
@@ -258,6 +334,21 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(related_name='category', blank=True, to='base.TopicCategory', null=True),
         ),
         migrations.AddField(
+            model_name='dymensioninfofurtherresourceassociation',
+            name='region',
+            field=models.ForeignKey(blank=True, to='risks.Region', null=True),
+        ),
+        migrations.AddField(
+            model_name='dymensioninfofurtherresourceassociation',
+            name='resource',
+            field=models.ForeignKey(related_name='linked_resource', to='risks.FurtherResource'),
+        ),
+        migrations.AddField(
+            model_name='dymensioninfofurtherresourceassociation',
+            name='riskanalysis',
+            field=models.ForeignKey(blank=True, to='risks.RiskAnalysis', null=True),
+        ),
+        migrations.AddField(
             model_name='dymensioninfo',
             name='risks_analysis',
             field=models.ManyToManyField(to='risks.RiskAnalysis', through='risks.RiskAnalysisDymensionInfoAssociation'),
@@ -265,12 +356,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='analysistypefurtherresourceassociation',
             name='hazard_type',
-            field=models.ForeignKey(to='risks.HazardType'),
+            field=models.ForeignKey(blank=True, to='risks.HazardType', null=True),
         ),
         migrations.AddField(
             model_name='analysistypefurtherresourceassociation',
             name='region',
-            field=models.ForeignKey(to='risks.Region'),
+            field=models.ForeignKey(blank=True, to='risks.Region', null=True),
         ),
         migrations.AddField(
             model_name='analysistypefurtherresourceassociation',

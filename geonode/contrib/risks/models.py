@@ -82,6 +82,10 @@ class RiskAnalysis(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=30, null=False, blank=False, db_index=True)
 
+    descriptor_file = models.FileField(upload_to='descriptor_files')
+    data_file = models.FileField(upload_to='metadata_files')
+    metadata_file = models.FileField(upload_to='metadata_files')
+
     # Relationships
     analysis_type = models.ForeignKey(
         AnalysisType,
@@ -218,7 +222,7 @@ class DymensionInfo(models.Model):
     """
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=30, null=False, blank=False, db_index=True)
-    abstract = models.CharField(max_length=255)
+    abstract = models.TextField()
     unit = models.CharField(max_length=30)
 
     # Relationships
@@ -452,6 +456,7 @@ class FurtherResource(models.Model):
     - An Hazard
     - An Analysis Type
     - A Dymension Info
+    - A Risk Analysis
     """
     id = models.AutoField(primary_key=True)
     text = models.TextField()
@@ -477,7 +482,6 @@ class AnalysisTypeFurtherResourceAssociation(models.Model):
     - A Region / Country
     - An Hazard
     - An Analysis Type
-    - A Dymension Info
     """
     id = models.AutoField(primary_key=True)
 
@@ -515,3 +519,178 @@ class AnalysisTypeFurtherResourceAssociation(models.Model):
 
     class Meta:
         db_table = 'risks_analysisfurtheresourceassociation'
+
+
+class DymensionInfoFurtherResourceAssociation(models.Model):
+    """
+    Layers, Documents and other GeoNode Resources associated to:
+    - A Region / Country
+    - A Dymension Info
+    - A Risk Analysis
+    """
+    id = models.AutoField(primary_key=True)
+
+    # Relationships
+    region = models.ForeignKey(
+        Region,
+        blank=True,
+        null=True,
+        unique=False,
+    )
+
+    riskanalysis = models.ForeignKey(
+        RiskAnalysis,
+        blank=True,
+        null=True,
+        unique=False,
+    )
+
+    dymension_info = models.ForeignKey(
+        DymensionInfo,
+        blank=True,
+        null=True,
+        unique=False,
+    )
+
+    resource = models.ForeignKey(
+        FurtherResource,
+        blank=False,
+        null=False,
+        unique=False,
+        related_name='linked_resource')
+
+    def __unicode__(self):
+        return u"{0}".format(self.resource)
+
+    class Meta:
+        db_table = 'risks_dymensionfurtheresourceassociation'
+
+
+class HazardSetFurtherResourceAssociation(models.Model):
+    """
+    Layers, Documents and other GeoNode Resources associated to:
+    - A Region / Country
+    - A Hazard Set
+    """
+    id = models.AutoField(primary_key=True)
+
+    # Relationships
+    region = models.ForeignKey(
+        Region,
+        blank=True,
+        null=True,
+        unique=False,
+    )
+
+    hazardset = models.ForeignKey(
+        HazardSet,
+        blank=True,
+        null=True,
+        unique=False,
+    )
+
+    resource = models.ForeignKey(
+        FurtherResource,
+        blank=False,
+        null=False,
+        unique=False,
+        related_name='additional_resource')
+
+    def __unicode__(self):
+        return u"{0}".format(self.resource)
+
+    class Meta:
+        db_table = 'risks_hazardsetfurtheresourceassociation'
+
+
+class RiskAnalysisCreate(models.Model):
+    descriptor_file = models.FileField(upload_to='descriptor_files')
+
+    def file_link(self):
+        if self.descriptor_file:
+            return "<a href='%s'>download</a>" % (self.descriptor_file.url,)
+        else:
+            return "No attachment"
+
+    file_link.allow_tags = True
+
+    def __unicode__(self):
+        return u"{0}".format(self.descriptor_file.name)
+
+    class Meta:
+        ordering = ['descriptor_file']
+        db_table = 'risks_descriptor_files'
+        verbose_name = 'Risks Analysis: Create new through a .ini descriptor file'
+        verbose_name_plural = 'Risks Analysis: Create new through a .ini descriptor file'
+
+
+class RiskAnalysisImportData(models.Model):
+    data_file = models.FileField(upload_to='data_files')
+
+    # Relationships
+    region = models.ForeignKey(
+        Region,
+        blank=False,
+        null=False,
+        unique=False,
+    )
+
+    riskanalysis = models.ForeignKey(
+        RiskAnalysis,
+        blank=False,
+        null=False,
+        unique=False,
+    )
+
+    def file_link(self):
+        if self.data_file:
+            return "<a href='%s'>download</a>" % (self.data_file.url,)
+        else:
+            return "No attachment"
+
+    file_link.allow_tags = True
+
+    def __unicode__(self):
+        return u"{0}".format(self.data_file.name)
+
+    class Meta:
+        ordering = ['region', 'riskanalysis']
+        db_table = 'risks_data_files'
+        verbose_name = 'Risks Analysis: Import Risk Data from XLSX file'
+        verbose_name_plural = 'Risks Analysis: Import Risk Data from XLSX file'
+
+
+class RiskAnalysisImportMetadata(models.Model):
+    metadata_file = models.FileField(upload_to='metadata_files')
+
+    # Relationships
+    region = models.ForeignKey(
+        Region,
+        blank=False,
+        null=False,
+        unique=False,
+    )
+
+    riskanalysis = models.ForeignKey(
+        RiskAnalysis,
+        blank=False,
+        null=False,
+        unique=False,
+    )
+
+    def file_link(self):
+        if self.metadata_file:
+            return "<a href='%s'>download</a>" % (self.metadata_file.url,)
+        else:
+            return "No attachment"
+
+    file_link.allow_tags = True
+
+    def __unicode__(self):
+        return u"{0}".format(self.metadata_file.name)
+
+    class Meta:
+        ordering = ['region', 'riskanalysis']
+        db_table = 'risks_metadata_files'
+        verbose_name = 'Risks Analysis: Import or Update Risk Metadata from XLSX file'
+        verbose_name_plural = 'Risks Analysis: Import or Update Risk Metadata from XLSX file'

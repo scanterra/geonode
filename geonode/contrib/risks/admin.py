@@ -19,13 +19,27 @@
 #########################################################################
 
 from django.contrib import admin
+from django.contrib import messages
+from django.conf.urls import patterns
+from django.http import HttpResponse
 
 from geonode.base.admin import MediaTranslationAdmin
 from geonode.contrib.risks.models import RiskAnalysis
 from geonode.contrib.risks.models import Region, AdministrativeDivision
 from geonode.contrib.risks.models import AnalysisType, HazardType, DymensionInfo
 from geonode.contrib.risks.models import PointOfContact, HazardSet
-from geonode.contrib.risks.models import FurtherResource, AnalysisTypeFurtherResourceAssociation
+from geonode.contrib.risks.models import FurtherResource
+from geonode.contrib.risks.models import AnalysisTypeFurtherResourceAssociation
+from geonode.contrib.risks.models import DymensionInfoFurtherResourceAssociation
+from geonode.contrib.risks.models import HazardSetFurtherResourceAssociation
+
+from geonode.contrib.risks.models import RiskAnalysisCreate
+from geonode.contrib.risks.models import RiskAnalysisImportData
+from geonode.contrib.risks.models import RiskAnalysisImportMetadata
+
+from geonode.contrib.risks.forms import CreateRiskAnalysisForm
+from geonode.contrib.risks.forms import ImportDataRiskAnalysisForm
+from geonode.contrib.risks.forms import ImportMetadataRiskAnalysisForm
 
 
 class DymensionInfoInline(admin.TabularInline):
@@ -41,6 +55,16 @@ class AdministrativeDivisionInline(admin.StackedInline):
 
 class FurtherResourceInline(admin.TabularInline):
     model = AnalysisTypeFurtherResourceAssociation
+    extra = 3
+
+
+class LinkedResourceInline(admin.TabularInline):
+    model = DymensionInfoFurtherResourceAssociation
+    extra = 3
+
+
+class AdditionalResourceInline(admin.TabularInline):
+    model = HazardSetFurtherResourceAssociation
     extra = 3
 
 
@@ -95,7 +119,7 @@ class DymensionInfoAdmin(admin.ModelAdmin):
     list_display = ('name', 'unit', 'abstract',)
     search_fields = ('name',)
     filter_vertical = ('risks_analysis',)
-    inlines = [DymensionInfoInline]
+    inlines = [LinkedResourceInline, DymensionInfoInline]
     group_fieldsets = True
 
 
@@ -104,9 +128,9 @@ class RiskAnalysisAdmin(admin.ModelAdmin):
     list_display_links = ('name',)
     list_display = ('name',)
     search_fields = ('name',)
-    readonly_fields = ('administrative_divisions',)
+    readonly_fields = ('administrative_divisions', 'descriptor_file', 'data_file', 'metadata_file')
     # inlines = [AdministrativeDivisionInline, DymensionInfoInline]
-    inlines = [DymensionInfoInline]
+    inlines = [LinkedResourceInline, DymensionInfoInline]
     group_fieldsets = True
 
     def has_add_permission(self, request):
@@ -126,10 +150,62 @@ class HazardSetAdmin(admin.ModelAdmin):
     list_display_links = ('title',)
     list_display = ('title',)
     search_fields = ('title', 'riskanalysis', 'country',)
+    inlines = [AdditionalResourceInline]
     group_fieldsets = True
 
     def has_add_permission(self, request):
         return False
+
+
+class RiskAnalysisCreateAdmin(admin.ModelAdmin):
+    model = RiskAnalysisCreate
+    list_display = ('descriptor_file', )
+    form = CreateRiskAnalysisForm
+    group_fieldsets = True
+
+    def get_actions(self, request):
+        actions = super(RiskAnalysisCreateAdmin, self).get_actions(request)
+        if 'delete_selected' in actions:
+            del actions['delete_selected']
+        return actions
+
+    def __init__(self, *args, **kwargs):
+        super(RiskAnalysisCreateAdmin, self).__init__(*args, **kwargs)
+        self.list_display_links = (None, )
+
+
+class RiskAnalysisImportDataAdmin(admin.ModelAdmin):
+    model = RiskAnalysisImportData
+    list_display = ('data_file', 'region', 'riskanalysis',)
+    form = ImportDataRiskAnalysisForm
+    group_fieldsets = True
+
+    def get_actions(self, request):
+        actions = super(RiskAnalysisImportDataAdmin, self).get_actions(request)
+        if 'delete_selected' in actions:
+            del actions['delete_selected']
+        return actions
+
+    def __init__(self, *args, **kwargs):
+        super(RiskAnalysisImportDataAdmin, self).__init__(*args, **kwargs)
+        self.list_display_links = (None, )
+
+
+class RiskAnalysisImportMetaDataAdmin(admin.ModelAdmin):
+    model = RiskAnalysisImportMetadata
+    list_display = ('metadata_file', 'region', 'riskanalysis',)
+    form = ImportMetadataRiskAnalysisForm
+    group_fieldsets = True
+
+    def get_actions(self, request):
+        actions = super(RiskAnalysisImportMetaDataAdmin, self).get_actions(request)
+        if 'delete_selected' in actions:
+            del actions['delete_selected']
+        return actions
+
+    def __init__(self, *args, **kwargs):
+        super(RiskAnalysisImportMetaDataAdmin, self).__init__(*args, **kwargs)
+        self.list_display_links = (None, )
 
 
 admin.site.register(Region, RegionAdmin)
@@ -141,3 +217,7 @@ admin.site.register(RiskAnalysis, RiskAnalysisAdmin)
 admin.site.register(PointOfContact, PointOfContactAdmin)
 admin.site.register(HazardSet, HazardSetAdmin)
 admin.site.register(FurtherResource, FurtherResourceAdmin)
+
+admin.site.register(RiskAnalysisCreate, RiskAnalysisCreateAdmin)
+admin.site.register(RiskAnalysisImportData, RiskAnalysisImportDataAdmin)
+admin.site.register(RiskAnalysisImportMetadata, RiskAnalysisImportMetaDataAdmin)

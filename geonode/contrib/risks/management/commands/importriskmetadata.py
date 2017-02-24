@@ -67,6 +67,13 @@ class Command(BaseCommand):
 
     option_list = BaseCommand.option_list + (
         make_option(
+            '-c',
+            '--commit',
+            action='store_true',
+            dest='commit',
+            default=True,
+            help='Commits Changes to the storage.'),
+        make_option(
             '-r',
             '--region',
             dest='region',
@@ -86,6 +93,7 @@ class Command(BaseCommand):
             help='Name of the Risk Analysis associated to the File.'))
 
     def handle(self, **options):
+        commit = options.get('commit')
         region = options.get('region')
         excel_file = options.get('excel_file')
         risk_analysis = options.get('risk_analysis')
@@ -263,7 +271,12 @@ class Command(BaseCommand):
             if len(poc_ctry) > 0:
                 author.country = poc_ctry[0]
         hazardset.author = author
+        hazardset.save()
 
         # Finalize
         risk.hazardset = hazardset
-        risk.save()
+        risk.metadata_file = excel_file
+        if commit:
+            risk.save()
+
+        return risk_analysis
