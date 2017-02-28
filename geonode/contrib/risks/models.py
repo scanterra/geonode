@@ -82,9 +82,9 @@ class RiskAnalysis(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=30, null=False, blank=False, db_index=True)
 
-    descriptor_file = models.FileField(upload_to='descriptor_files')
-    data_file = models.FileField(upload_to='metadata_files')
-    metadata_file = models.FileField(upload_to='metadata_files')
+    descriptor_file = models.FileField(upload_to='descriptor_files', max_length=255)
+    data_file = models.FileField(upload_to='metadata_files', max_length=255)
+    metadata_file = models.FileField(upload_to='metadata_files', max_length=255)
 
     # Relationships
     analysis_type = models.ForeignKey(
@@ -604,7 +604,7 @@ class HazardSetFurtherResourceAssociation(models.Model):
 
 
 class RiskAnalysisCreate(models.Model):
-    descriptor_file = models.FileField(upload_to='descriptor_files')
+    descriptor_file = models.FileField(upload_to='descriptor_files', max_length=255)
 
     def file_link(self):
         if self.descriptor_file:
@@ -625,7 +625,7 @@ class RiskAnalysisCreate(models.Model):
 
 
 class RiskAnalysisImportData(models.Model):
-    data_file = models.FileField(upload_to='data_files')
+    data_file = models.FileField(upload_to='data_files', max_length=255)
 
     # Relationships
     region = models.ForeignKey(
@@ -661,7 +661,7 @@ class RiskAnalysisImportData(models.Model):
 
 
 class RiskAnalysisImportMetadata(models.Model):
-    metadata_file = models.FileField(upload_to='metadata_files')
+    metadata_file = models.FileField(upload_to='metadata_files', max_length=255)
 
     # Relationships
     region = models.ForeignKey(
