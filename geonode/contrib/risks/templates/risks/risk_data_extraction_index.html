@@ -1,4 +1,74 @@
 {% extends 'risks_main.html' %}
-{% load i18n %}
+{% load i18n geonode_client_tags  %}
 
 {% block risks_page_title %}{% trans "Risk Data Extraction & Visualization" %}{% endblock %}
+
+{% block body %}
+    <div class="container">
+
+    {% block location_bar %}
+    <ol class="breadcrumb">
+        <li><a href="{% url "home" %}">Home</a></li>
+        {% for loc in location.get_parents_chain %}
+        <li class="{% if active.loc == loc.code %}active{% endif %}"><a href="{% url 'risks_risk_data_extraction' loc.code current.ht current.at %}">{{ loc.name }}</a></li>
+        {% endfor %}
+        <li class="{% if active.loc == location.code %}active{% endif %}"><a href="{% url 'risks_risk_data_extraction' location.code current.ht current.at %}">{{ location.name }}</a></li>
+        {% if location.children.exists %}
+        <li>
+                <a href="#sublocations-dropdown" data-toggle="dropdown" data-target="#">More..
+                <ul id="sublocations-dropdown" class="dropdown-menu">
+                {% for loc in location.children.all %}
+                    <li><a href="{% url 'risks_risk_data_extraction' loc.code current.ht current.at %}">{{ loc.name }}</a></li>
+                {% endfor %}
+                </ul>
+                </a>
+        </li>
+        {% endif %}
+    </ol>
+    {% endblock %}
+
+    {% block hazard_type_bar %}
+    <div class="hazard_type_bar">    
+    <ul class="">
+        <li><a href="#">Overview</a></li>
+        {% for ht in hazard_types %}
+        <li class="{% if active.ht == ht.mnemonic %}active{% endif %}"><a href="{% url 'risks_risk_data_extraction' current.loc ht.mnemonic current.at %}">{{ ht.title }}</a></li>
+        {% endfor %}
+     </ul>
+    </div>
+
+    {% endblock %}
+
+    {% block analysis_type_bar %}
+    <div class="analysis_type_bar">    
+    <ul class="">
+        {% for at in analysis_types %}
+        <li class="{% if active.at == at.name %}active{% endif %}"><a href="{% url 'risks_risk_data_extraction' current.loc current.ht at.name %}">{{ at.title }}</a></li>
+        {% endfor %}
+     </ul>
+    </div>
+    {% endblock %}
+
+
+    <div class="contents row">
+    {% for ra in risk_analysis_list %}
+
+        <p>{{ ra }}</p>
+    {% endfor %}
+
+
+    </div>
+
+
+
+
+
+    </div>
+{% endblock %}
+
+{% block sidebar %}
+
+<div id="mapview" class="" data-mapview="true">
+</div>
+
+{% endblock %}

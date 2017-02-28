@@ -167,6 +167,14 @@ class AdministrativeDivision(MPTTModel):
     class MPTTMeta:
         order_insertion_by = ['name']
 
+    def get_parents_chain(self):
+        parent = self.parent
+        out = []
+        while not parent is None:
+            out.append(parent)
+            parent = parent.parent
+        out.reverse()
+        return out
 
 class Region(models.Model):
     """

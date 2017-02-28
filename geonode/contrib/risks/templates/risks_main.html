@@ -1,5 +1,5 @@
 {% extends "geonode_base.html" %}
-{% load i18n %}
+{% load i18n static %}
 {% load url from future %}
 
 {% block title %} {{ block.super }} {% endblock %}
@@ -11,7 +11,21 @@
   <h2 class="page-title">{% block risks_page_title %}{% endblock %}</h2>
 </div>
 <div class="row">
-  {% block body %}{% endblock body %}
-  {% block sidebar %}{% endblock sidebar %}
+    <div class="col-xs-8">  {% block body %}{% endblock body %}</div>
+    <div class="col-xs-4">{% block sidebar %}{% endblock sidebar %}</div>
 </div>
 {% endblock body_outer %}
+
+
+
+
+
+
+{% block extra_script %}
+{{ block.super }}
+<link href="{% static "css/vendor/leaflet.css" %}" rel="stylesheet" />
+<script type="text/javascript" src="{% static "js/vendor/leaflet.js" %}">
+</script>
+<script type="text/javascript" src="{% static "js/risks-map.js" %}"></script>
+
+{% endblock %}
