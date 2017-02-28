@@ -26,8 +26,7 @@ from django.conf import settings
 
 from mptt.models import MPTTModel, TreeForeignKey
 
-from geonode.base.models import ResourceBase
-from geonode.base.models import Link
+from geonode.base.models import ResourceBase, TopicCategory
 from geonode.layers.models import Layer
 from geonode.documents.models import Document
 
@@ -41,6 +40,9 @@ class AnalysisType(models.Model):
     name = models.CharField(max_length=30, null=False, blank=False, db_index=True)
     title = models.CharField(max_length=80, null=False, blank=False)
     description = models.TextField(default='', null=True, blank=False)
+
+    def __unicode__(self):
+        return u"{0}".format(self.name)
 
     class Meta:
         ordering = ['name']
@@ -56,10 +58,17 @@ class HazardType(models.Model):
     mnemonic = models.CharField(max_length=30, null=False, blank=False, db_index=True)
     title = models.CharField(max_length=80, null=False, blank=False)
     order = models.IntegerField()
+    description = models.TextField(default='')
+    gn_description = models.TextField('GeoNode description', default='', null=True)
+    fa_class = models.CharField(max_length=64, default='fa-times')
+
+    def __unicode__(self):
+        return u"{0}".format(self.mnemonic)
 
     class Meta:
         ordering = ['order', 'mnemonic']
         db_table = 'risks_hazardtype'
+        verbose_name_plural = 'Hazards'
 
 
 class RiskAnalysis(models.Model):
@@ -72,6 +81,10 @@ class RiskAnalysis(models.Model):
     """
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=30, null=False, blank=False, db_index=True)
+
+    descriptor_file = models.FileField(upload_to='descriptor_files')
+    data_file = models.FileField(upload_to='metadata_files')
+    metadata_file = models.FileField(upload_to='metadata_files')
 
     # Relationships
     analysis_type = models.ForeignKey(
@@ -90,6 +103,14 @@ class RiskAnalysis(models.Model):
         null = False
     )
 
+    hazardset = models.ForeignKey(
+        'HazardSet',
+        related_name='hazardset',
+        on_delete = models.CASCADE,
+        blank = True,
+        null = True
+    )
+
     administrative_divisions = models.ManyToManyField(
         "AdministrativeDivision",
         through='RiskAnalysisAdministrativeDivisionAssociation'
@@ -100,9 +121,13 @@ class RiskAnalysis(models.Model):
         through='RiskAnalysisDymensionInfoAssociation'
     )
 
+    def __unicode__(self):
+        return u"{0}".format(self.name)
+
     class Meta:
         ordering = ['name']
         db_table = 'risks_riskanalysis'
+        verbose_name_plural = 'Risks Analysis'
 
 
 class AdministrativeDivisionManager(models.Manager):
@@ -132,7 +157,7 @@ class AdministrativeDivision(MPTTModel):
     )
 
     def __unicode__(self):
-        return self.name
+        return u"{0}".format(self.name)
 
     class Meta:
         ordering = ['code', 'name']
@@ -162,11 +187,13 @@ class Region(models.Model):
         related_name='administrative_divisions'
     )
 
+    def __unicode__(self):
+        return u"{0}".format(self.name)
+
     class Meta:
         ordering = ['name', 'level']
         db_table = 'risks_region'
         verbose_name_plural = 'Regions'
-
 
 
 class DymensionInfo(models.Model):
@@ -195,7 +222,7 @@ class DymensionInfo(models.Model):
     """
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=30, null=False, blank=False, db_index=True)
-    abstract = models.CharField(max_length=255)
+    abstract = models.TextField()
     unit = models.CharField(max_length=30)
 
     # Relationships
@@ -203,6 +230,9 @@ class DymensionInfo(models.Model):
         RiskAnalysis,
         through='RiskAnalysisDymensionInfoAssociation'
     )
+
+    def __unicode__(self):
+        return u"{0}".format(self.name)
 
     class Meta:
         ordering = ['name']
@@ -219,7 +249,8 @@ class RiskAnalysisAdministrativeDivisionAssociation(models.Model):
     riskanalysis = models.ForeignKey(RiskAnalysis)
     administrativedivision = models.ForeignKey(AdministrativeDivision)
 
-    # TODO : hazardsets
+    def __unicode__(self):
+        return u"{0}".format(self.riskanalysis.name + " - " + self.administrativedivision.name)
 
     class Meta:
         db_table = 'risks_riskanalysisadministrativedivisionassociation'
@@ -244,9 +275,422 @@ class RiskAnalysisDymensionInfoAssociation(models.Model):
         blank=False,
         null=False,
         unique=False,
-        related_name='base_layer')
+        related_name='base_layer'
+    )
+
     layer_attribute = models.CharField(max_length=80, null=False, blank=False)
+
+    def __unicode__(self):
+        return u"{0}".format(self.riskanalysis.name + " - " + self.dymensioninfo.name)
 
     class Meta:
         ordering = ['order', 'value']
         db_table = 'risks_riskanalysisdymensioninfoassociation'
+
+
+class PointOfContact(models.Model):
+    """
+    Risk Dataset Point of Contact; can be the poc or the author.
+    """
+    id = models.AutoField(primary_key=True)
+    individual_name = models.CharField(max_length=255, null=False, blank=False)
+    organization_name = models.CharField(max_length=255, null=False, blank=False)
+    position_name = models.CharField(max_length=255)
+    voice = models.CharField(max_length=255)
+    facsimile = models.CharField(max_length=30)
+    delivery_point = models.CharField(max_length=255)
+    city = models.CharField(max_length=80)
+    postal_code = models.CharField(max_length=30)
+    e_mail = models.CharField(max_length=255)
+    role = models.CharField(max_length=255, null=False, blank=False)
+    update_frequency = models.TextField()
+
+    # Relationships
+    administrative_area = models.ForeignKey(
+        AdministrativeDivision,
+        null=True,
+        blank=True
+    )
+
+    country = models.ForeignKey(
+        Region,
+        null=True,
+        blank=True
+    )
+
+    def __unicode__(self):
+        return u"{0}".format(self.individual_name + " - " + self.organization_name)
+
+    class Meta:
+        db_table = 'risks_pointofcontact'
+
+
+class HazardSet(models.Model):
+    """
+    Risk Dataset Metadata.
+
+    Assuming the following metadata model:
+
+    Section 1: Identification
+     Title  	                     [M]
+     Date  	                         [M]
+     Date Type                       [M]
+     Edition  	                     [O]
+     Abstract  	                     [M]
+     Purpose  	                     [O]
+    Section 2: Point of Contact
+     Individual Name  	             [M]
+     Organization Name               [M]
+     Position Name  	             [O]
+     Voice  	                     [O]
+     Facsimile  	                 [O]
+     Delivery Point  	             [O]
+     City  	                         [O]
+     Administrative Area             [O]
+     Postal Code  	                 [O]
+     Country  	                     [O]
+     Electronic Mail Address  	     [O]
+     Role  	                         [M]
+     Maintenance & Update Frequency  [O]
+    Section 3: Descriptive Keywords
+     Keyword  	                     [O]
+     Country & Regions  	         [M]
+     Use constraints  	             [M]
+     Other constraints  	         [O]
+     Spatial Representation Type  	 [O]
+    Section 4: Equivalent Scale
+     Language  	                     [M]
+     Topic Category Code  	         [M]
+    Section 5: Temporal Extent
+     Begin Date  	                 [O]
+     End Date  	                     [O]
+     Geographic Bounding Box  	     [M]
+     Supplemental Information  	     [M]
+    Section 6: Distribution Info
+     Online Resource  	             [O]
+     URL  	                         [O]
+     Description  	                 [O]
+    Section 7: Reference System Info
+     Code  	                         [O]
+    Section8: Data quality info
+     Statement	                     [O]
+    Section 9: Metadata Author
+     Individual Name  	             [M]
+     Organization Name  	         [M]
+     Position Name  	             [O]
+     Voice  	                     [O]
+     Facsimile  	                 [O]
+     Delivery Point  	             [O]
+     City  	                         [O]
+     Administrative Area  	         [O]
+     Postal Code  	                 [O]
+     Country  	                     [O]
+     Electronic Mail Address  	     [O]
+     Role  	                         [O]
+    """
+    id = models.AutoField(primary_key=True)
+    title = models.CharField(max_length=255, null=False, blank=False)
+    date = models.CharField(max_length=20, null=False, blank=False)
+    date_type = models.CharField(max_length=20, null=False, blank=False)
+    edition = models.CharField(max_length=30)
+    abstract = models.TextField(null=False, blank=False)
+    purpose = models.TextField()
+    keyword = models.TextField()
+    use_contraints = models.CharField(max_length=255, null=False, blank=False)
+    other_constraints = models.CharField(max_length=255)
+    spatial_representation_type = models.CharField(max_length=150)
+    language = models.CharField(max_length=80, null=False, blank=False)
+    begin_date = models.CharField(max_length=20)
+    end_date = models.CharField(max_length=20)
+    bounds = models.CharField(max_length=150, null=False, blank=False)
+    supplemental_information = models.CharField(max_length=255, null=False, blank=False)
+    online_resource = models.CharField(max_length=255)
+    url = models.CharField(max_length=255)
+    description = models.CharField(max_length=255)
+    reference_system_code = models.CharField(max_length=30)
+    data_quality_statement = models.TextField()
+
+    # Relationships
+    poc = models.ForeignKey(
+        PointOfContact,
+        related_name='point_of_contact'
+    )
+
+    author = models.ForeignKey(
+        PointOfContact,
+        related_name='metadata_author'
+    )
+
+    topic_category = models.ForeignKey(
+        TopicCategory,
+        blank=True,
+        null=True,
+        unique=False,
+        related_name='category'
+    )
+
+    country = models.ForeignKey(
+        Region,
+        null=False,
+        blank=False
+    )
+
+    riskanalysis = models.ForeignKey(
+        RiskAnalysis,
+        related_name='riskanalysis',
+        blank = False,
+        null = False
+    )
+
+    def __unicode__(self):
+        return u"{0}".format(self.title)
+
+    class Meta:
+        db_table = 'risks_hazardset'
+
+
+class FurtherResource(models.Model):
+    """
+    Additional GeoNode Resources which can be associated to:
+    - A Region / Country
+    - An Hazard
+    - An Analysis Type
+    - A Dymension Info
+    - A Risk Analysis
+    """
+    id = models.AutoField(primary_key=True)
+    text = models.TextField()
+
+    # Relationships
+    resource = models.ForeignKey(
+        ResourceBase,
+        blank=False,
+        null=False,
+        unique=False,
+        related_name='resource')
+
+    def __unicode__(self):
+        return u"{0}".format(self.resource.title)
+
+    class Meta:
+        db_table = 'risks_further_resource'
+
+
+class AnalysisTypeFurtherResourceAssociation(models.Model):
+    """
+    Layers, Documents and other GeoNode Resources associated to:
+    - A Region / Country
+    - An Hazard
+    - An Analysis Type
+    """
+    id = models.AutoField(primary_key=True)
+
+    # Relationships
+    region = models.ForeignKey(
+        Region,
+        blank=True,
+        null=True,
+        unique=False,
+    )
+
+    hazard_type = models.ForeignKey(
+        HazardType,
+        blank=True,
+        null=True,
+        unique=False,
+    )
+
+    analysis_type = models.ForeignKey(
+        AnalysisType,
+        blank=True,
+        null=True,
+        unique=False,
+    )
+
+    resource = models.ForeignKey(
+        FurtherResource,
+        blank=False,
+        null=False,
+        unique=False,
+        related_name='further_resource')
+
+    def __unicode__(self):
+        return u"{0}".format(self.resource)
+
+    class Meta:
+        db_table = 'risks_analysisfurtheresourceassociation'
+
+
+class DymensionInfoFurtherResourceAssociation(models.Model):
+    """
+    Layers, Documents and other GeoNode Resources associated to:
+    - A Region / Country
+    - A Dymension Info
+    - A Risk Analysis
+    """
+    id = models.AutoField(primary_key=True)
+
+    # Relationships
+    region = models.ForeignKey(
+        Region,
+        blank=True,
+        null=True,
+        unique=False,
+    )
+
+    riskanalysis = models.ForeignKey(
+        RiskAnalysis,
+        blank=True,
+        null=True,
+        unique=False,
+    )
+
+    dymension_info = models.ForeignKey(
+        DymensionInfo,
+        blank=True,
+        null=True,
+        unique=False,
+    )
+
+    resource = models.ForeignKey(
+        FurtherResource,
+        blank=False,
+        null=False,
+        unique=False,
+        related_name='linked_resource')
+
+    def __unicode__(self):
+        return u"{0}".format(self.resource)
+
+    class Meta:
+        db_table = 'risks_dymensionfurtheresourceassociation'
+
+
+class HazardSetFurtherResourceAssociation(models.Model):
+    """
+    Layers, Documents and other GeoNode Resources associated to:
+    - A Region / Country
+    - A Hazard Set
+    """
+    id = models.AutoField(primary_key=True)
+
+    # Relationships
+    region = models.ForeignKey(
+        Region,
+        blank=True,
+        null=True,
+        unique=False,
+    )
+
+    hazardset = models.ForeignKey(
+        HazardSet,
+        blank=True,
+        null=True,
+        unique=False,
+    )
+
+    resource = models.ForeignKey(
+        FurtherResource,
+        blank=False,
+        null=False,
+        unique=False,
+        related_name='additional_resource')
+
+    def __unicode__(self):
+        return u"{0}".format(self.resource)
+
+    class Meta:
+        db_table = 'risks_hazardsetfurtheresourceassociation'
+
+
+class RiskAnalysisCreate(models.Model):
+    descriptor_file = models.FileField(upload_to='descriptor_files')
+
+    def file_link(self):
+        if self.descriptor_file:
+            return "<a href='%s'>download</a>" % (self.descriptor_file.url,)
+        else:
+            return "No attachment"
+
+    file_link.allow_tags = True
+
+    def __unicode__(self):
+        return u"{0}".format(self.descriptor_file.name)
+
+    class Meta:
+        ordering = ['descriptor_file']
+        db_table = 'risks_descriptor_files'
+        verbose_name = 'Risks Analysis: Create new through a .ini descriptor file'
+        verbose_name_plural = 'Risks Analysis: Create new through a .ini descriptor file'
+
+
+class RiskAnalysisImportData(models.Model):
+    data_file = models.FileField(upload_to='data_files')
+
+    # Relationships
+    region = models.ForeignKey(
+        Region,
+        blank=False,
+        null=False,
+        unique=False,
+    )
+
+    riskanalysis = models.ForeignKey(
+        RiskAnalysis,
+        blank=False,
+        null=False,
+        unique=False,
+    )
+
+    def file_link(self):
+        if self.data_file:
+            return "<a href='%s'>download</a>" % (self.data_file.url,)
+        else:
+            return "No attachment"
+
+    file_link.allow_tags = True
+
+    def __unicode__(self):
+        return u"{0}".format(self.data_file.name)
+
+    class Meta:
+        ordering = ['region', 'riskanalysis']
+        db_table = 'risks_data_files'
+        verbose_name = 'Risks Analysis: Import Risk Data from XLSX file'
+        verbose_name_plural = 'Risks Analysis: Import Risk Data from XLSX file'
+
+
+class RiskAnalysisImportMetadata(models.Model):
+    metadata_file = models.FileField(upload_to='metadata_files')
+
+    # Relationships
+    region = models.ForeignKey(
+        Region,
+        blank=False,
+        null=False,
+        unique=False,
+    )
+
+    riskanalysis = models.ForeignKey(
+        RiskAnalysis,
+        blank=False,
+        null=False,
+        unique=False,
+    )
+
+    def file_link(self):
+        if self.metadata_file:
+            return "<a href='%s'>download</a>" % (self.metadata_file.url,)
+        else:
+            return "No attachment"
+
+    file_link.allow_tags = True
+
+    def __unicode__(self):
+        return u"{0}".format(self.metadata_file.name)
+
+    class Meta:
+        ordering = ['region', 'riskanalysis']
+        db_table = 'risks_metadata_files'
+        verbose_name = 'Risks Analysis: Import or Update Risk Metadata from XLSX file'
+        verbose_name_plural = 'Risks Analysis: Import or Update Risk Metadata from XLSX file'
