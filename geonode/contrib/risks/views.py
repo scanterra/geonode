@@ -133,6 +133,7 @@ class RiskDataExtractionView(TemplateView):
 
         additional_map_classes = {
                                   'axis': (None, None, 'axis',),
+                                  'an': (None, None, 'pk',),
                                 }
 
         filter_params = self._extract_args_from_request(map_classes, additional_map_classes, **kwargs)
@@ -165,8 +166,13 @@ class RiskDataExtractionView(TemplateView):
         out['current'] = current
 
         out['dymensioninfo_types'] = self.get_dymensioninfo(**current)
-        out['risk_analysis_list'] = self.get_analysis_list(**current)
+        analysis_list = out['risk_analysis_list'] = self.get_analysis_list(**current)
         out['location'] = self.get_location(current.get('loc'))
+
+        # we have one analysis
+        if len(analysis_list) == 1 and current.get('an'):
+            out['analysis'] = analysis_list[0]
         return out
 
 risk_data_extraction_index = RiskDataExtractionView.as_view()
+
