@@ -274,8 +274,8 @@ class RiskAnalysisDymensionInfoAssociation(models.Model):
     axis = models.CharField(max_length=10, null=False, blank=False, db_index=True)
 
     # Relationships
-    riskanalysis = models.ForeignKey(RiskAnalysis)
-    dymensioninfo = models.ForeignKey(DymensionInfo)
+    riskanalysis = models.ForeignKey(RiskAnalysis, related_name='dymensioninfo_associacion')
+    dymensioninfo = models.ForeignKey(DymensionInfo, related_name='riskanalysis_associacion')
 
     # GeoServer Layer referenced by GeoNode resource
     layer = models.ForeignKey(
