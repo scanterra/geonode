@@ -18,17 +18,8 @@
 #
 #########################################################################
 
-import os
-import time
-import shutil
-import requests
-import simplejson as json
-
-from requests.auth import HTTPBasicAuth
 from optparse import make_option
 
-from django.conf import settings
-from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
 from django.contrib.gis.gdal import DataSource
 from django.contrib.gis import geos
@@ -39,9 +30,12 @@ from geonode.contrib.risks.models import Region, AdministrativeDivision
 class Command(BaseCommand):
     """
     Example Usage:
-    $> python manage.py populateau -a 0 -r Afghanistan -l 3 -s /opt/data/wb_afg_data/i_AdminBoundaries_AGCHO/afg_admbnd_adm0_pol.shp
-    $> python manage.py populateau -a 1 -r Afghanistan -l 3 -s /opt/data/wb_afg_data/i_AdminBoundaries_AGCHO/afg_admbnd_adm1_pol.shp
-    $> python manage.py populateau -a 2 -r Afghanistan -l 3 -s /opt/data/wb_afg_data/i_AdminBoundaries_AGCHO/afg_admbnd_adm2_pol.shp
+    $> python manage.py populateau -a 0 -r Afghanistan -l 3 \
+         -s i_AdminBoundaries_AGCHO/afg_admbnd_adm0_pol.shp
+    $> python manage.py populateau -a 1 -r Afghanistan -l 3 \
+         -s i_AdminBoundaries_AGCHO/afg_admbnd_adm1_pol.shp
+    $> python manage.py populateau -a 2 -r Afghanistan -l 3 \
+         -s i_AdminBoundaries_AGCHO/afg_admbnd_adm2_pol.shp
     """
 
     help = 'Populate Administrative Units Dataset'
@@ -64,7 +58,8 @@ class Command(BaseCommand):
             '--region-level',
             dest='region_level',
             type="int",
-            help='Region Level: {0 is global; 1 is continent; 2 is sub-continent; 3 is country}'),
+            help='Region Level: {0 is global; 1 is continent; \
+2 is sub-continent; 3 is country}'),
         make_option(
             '-s',
             '--shape-file',
@@ -87,24 +82,29 @@ class Command(BaseCommand):
         tolerance = options.get('tolerance')
 
         if adm_level is None:
-            raise CommandError("Input Administrative Unit Level '--adm-level' is mandatory")
+            raise CommandError("Input Administrative Unit Level '--adm-level' \
+is mandatory")
 
         if region is None:
-            raise CommandError("Input Destination Region '--region' is mandatory")
+            raise CommandError("Input Destination Region '--region' \
+is mandatory")
 
         if region_level is None:
-            raise CommandError("Input Region Level '--region-level' is mandatory")
+            raise CommandError("Input Region Level '--region-level' \
+is mandatory")
 
         if not shape_file or len(shape_file) == 0:
-            raise CommandError("Input Administrative Unit Shapefile '--shape-file' is mandatory")
+            raise CommandError("Input Administrative Unit Shapefile \
+'--shape-file' is mandatory")
 
         ds = DataSource(shape_file)
         print ('Opening Data Source "%s"' % ds.name)
 
         for layer in ds:
-            print('Layer "%s": %i %ss' % (layer.name, len(layer), layer.geom_type.name))
+            print('Layer "%s": %i %ss' %
+                  (layer.name, len(layer), layer.geom_type.name))
 
-            (region_obj,is_new_region) = Region.objects.get_or_create(
+            (region_obj, is_new_region) = Region.objects.get_or_create(
                 name=region,
                 defaults=dict(
                     level=region_level
@@ -121,29 +121,33 @@ class Command(BaseCommand):
                 geom = geos.MultiPolygon(geom)
 
                 if adm_level == 0:
-                    (adm_division, is_new_amdiv) = AdministrativeDivision.objects.get_or_create(
-                        code=feat.get('HRPcode'),
-                        defaults=dict(
-                            name=feat.get('HRname'),
-                            geom=geom.wkt,
-                            region=region_obj
+                    (adm_division, is_new_amdiv) = \
+                        AdministrativeDivision.objects.get_or_create(
+                            code=feat.get('HRPcode'),
+                            defaults=dict(
+                                name=feat.get('HRname'),
+                                geom=geom.wkt,
+                                region=region_obj
+                            )
                         )
-                    )
 
                     if is_new_amdiv:
                         region_obj.administrative_divisions.add(adm_division)
 
                 if adm_level == 1:
-                    adm_division_0 = AdministrativeDivision.objects.get(code=feat.get('HRparent')[:-2])
-                    (adm_division, is_new_amdiv) = AdministrativeDivision.objects.get_or_create(
-                        code=feat.get('HRpcode'),
-                        defaults=dict(
-                            name=feat.get('HRname'),
-                            geom=geom.wkt,
-                            region=region_obj,
-                            parent=adm_division_0
+                    adm_division_0 = \
+                        AdministrativeDivision.objects.get(
+                            code=feat.get('HRparent')[:-2])
+                    (adm_division, is_new_amdiv) = \
+                        AdministrativeDivision.objects.get_or_create(
+                            code=feat.get('HRpcode'),
+                            defaults=dict(
+                                name=feat.get('HRname'),
+                                geom=geom.wkt,
+                                region=region_obj,
+                                parent=adm_division_0
+                            )
                         )
-                    )
 
                     if is_new_amdiv:
                         region_obj.administrative_divisions.add(adm_division)
