@@ -16,7 +16,7 @@ log = logging.getLogger(__name__)
 #risk_data_extraction_index = TemplateView.as_view(template_name='risks/risk_data_extraction_index.html')
 
 
-class RiskDataExtraction(TemplateView):
+class RiskDataExtractionView(TemplateView):
 
     template_name = 'risks/risk_data_extraction_index.html'
     DEFAULT_LOC = 'AF'
@@ -159,4 +159,4 @@ class RiskDataExtraction(TemplateView):
         out['location'] = self.get_location(kwargs.get('loc'))
         return out
 
-risk_data_extraction_index = RiskDataExtraction.as_view()
+risk_data_extraction_index = RiskDataExtractionView.as_view()
