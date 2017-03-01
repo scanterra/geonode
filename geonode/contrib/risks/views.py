@@ -145,7 +145,7 @@ class RiskDataExtractionView(TemplateView):
         return not val or val == cls.NO_VALUE
 
     def get_context_data(self, *args, **kwargs):
-        out = super(RiskDataExtraction, self).get_context_data(*args, **kwargs)
+        out = super(RiskDataExtractionView, self).get_context_data(*args, **kwargs)
         out['hazard_types'] = HazardType.objects.all()
         out['analysis_types'] = AnalysisType.objects.all()
         defaults = out['defaults'] = self.DEFAULTS
