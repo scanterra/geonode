@@ -21,9 +21,9 @@ class RiskDataExtractionView(TemplateView):
     template_name = 'risks/risk_data_extraction_index.html'
     DEFAULT_LOC = 'AF'
     NO_VALUE = '-'
-    DEFAULTS = {'loc': DEFAULT_LOC, 'ht': NO_VALUE, 'at': NO_VALUE}
     AXIS_X = 'x'
     AXIS_Y = 'y'
+    DEFAULTS = {'loc': DEFAULT_LOC, 'ht': NO_VALUE, 'at': NO_VALUE} # 'axis': AXIS_X}
 
     def get_location(self, loc=None):
         if self._ommit_value(loc):
@@ -38,9 +38,11 @@ class RiskDataExtractionView(TemplateView):
                        'at': (AnalysisType, 'name', 'riskanalysis__analysis_type'),
                        }
 
-        additional_map_classes = {'dym': (None, None, 'id',),}
+        #additional_map_classes = {'dym': (None, None, 'id',),}
 
-        filter_args = self._extract_args_from_request(map_classes, additional_map_classes, **kwargs)
+        filter_args = self._extract_args_from_request(map_classes, **kwargs)
+        if not filter_args:
+            return []
 
         return DymensionInfo.objects.filter(**filter_args).distinct()
 
@@ -126,13 +128,16 @@ class RiskDataExtractionView(TemplateView):
         map_classes = {'loc': (AdministrativeDivision, 'code', 'riskanalysis__administrative_divisions'),
                        'ht': (HazardType, 'mnemonic', 'riskanalysis__hazard_type'),
                        'at': (AnalysisType, 'name', 'riskanalysis__analysis_type'),
+                       'dym': (DymensionInfo, 'id', 'dymensioninfo',),
                        }
 
-        additional_map_classes = {'dym': (DymensionInfo, 'id', 'dymensioninfo',),
+        additional_map_classes = {
                                   'axis': (None, None, 'axis',),
                                 }
 
         filter_params = self._extract_args_from_request(map_classes, additional_map_classes, **kwargs)
+        if not filter_params:
+            return []
         
         q = RiskAnalysisDymensionInfoAssociation.objects.filter(**filter_params).select_related()
         return q
@@ -148,15 +153,20 @@ class RiskDataExtractionView(TemplateView):
         out = super(RiskDataExtractionView, self).get_context_data(*args, **kwargs)
         out['hazard_types'] = HazardType.objects.all()
         out['analysis_types'] = AnalysisType.objects.all()
+
         defaults = out['defaults'] = self.DEFAULTS
+
+        # we skip empty values from url
         filtered_kwargs = dict([(k,v,) for k,v in kwargs.iteritems() if not self._ommit_value(v)])
 
+        # and provide defaults 
         current = defaults.copy()
         current.update(filtered_kwargs)
         out['current'] = current
-        out['dymensioninfo_types'] = self.get_dymensioninfo(**kwargs)
-        out['risk_analysis_list'] = self.get_analysis_list(**kwargs)
-        out['location'] = self.get_location(kwargs.get('loc'))
+
+        out['dymensioninfo_types'] = self.get_dymensioninfo(**current)
+        out['risk_analysis_list'] = self.get_analysis_list(**current)
+        out['location'] = self.get_location(current.get('loc'))
         return out
 
 risk_data_extraction_index = RiskDataExtractionView.as_view()
