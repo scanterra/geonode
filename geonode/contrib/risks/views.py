@@ -102,7 +102,7 @@ class RiskDataExtraction(TemplateView):
             # do not return results if we don't have all required params
             if len(filter_params.keys()) != len(required_map.keys()):
                 log.warning("Returning empty list of analysis. Parsed params: %s are not covering all required keys", filter_params)
-                return []
+                return {}
         
         if optional_map:
             for k,v in kwargs.iteritems():
