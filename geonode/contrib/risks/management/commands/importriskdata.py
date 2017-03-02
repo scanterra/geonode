@@ -200,6 +200,47 @@ class Command(BaseCommand):
         format=application/openlayers&
         viewparams=ra:WP6_future_proj_Hospital;ha:EQ;region:Afghanistan;adm_code:AF;d1:Hospital;d2:10
 
+    Add the following parameter if you need to filter out geometries or some other field
+
+        propertyname=risk_analysis,hazard_type,region,adm_code,dim1_value,dim2_value,dim3_value,dim4_value,dim5_value,value
+
+
+    Tabbed Data can be obtained by defining a SQL Parametric View like this:
+
+    SELECT public.test.*, value,
+       	dim1_col, dim1_value,
+    	dim2_col, dim2_value,
+    	dim3_col, dim3_value,
+    	dim4_col, dim4_value,
+    	dim5_col, dim5_value
+      FROM public.test
+        JOIN (
+          SELECT join_table.test_fid, join_table.value,
+                 d1.dim_col dim1_col, d1.dim_value dim1_value,
+                 d2.dim_col dim2_col, d2.dim_value dim2_value,
+                 d3.dim_col dim3_col, d3.dim_value dim3_value,
+                 d4.dim_col dim4_col, d4.dim_value dim4_value,
+                 d5.dim_col dim5_col, d5.dim_value dim5_value
+            FROM
+    	  public.test_dimensions join_table
+    	    LEFT JOIN public.dimension d1 ON (d1.dim_id = join_table.dim1_id)
+    	    LEFT JOIN public.dimension d2 ON (d2.dim_id = join_table.dim2_id)
+    	    LEFT JOIN public.dimension d3 ON (d3.dim_id = join_table.dim3_id)
+    	    LEFT JOIN public.dimension d4 ON (d4.dim_id = join_table.dim4_id)
+    	    LEFT JOIN public.dimension d5 ON (d5.dim_id = join_table.dim5_id)
+        ) rd ON (rd.test_fid = fid)
+
+    And perform queries using "cql_filter" parameter
+
+    http://localhost:8080/geoserver/geonode/ows?
+        service=WFS&
+        version=1.0.0&
+        request=GetFeature&
+        typeName=geonode:test_data&
+        outputFormat=application%2Fjson&
+        cql_filter=(risk_analysis=%27WP6_future_proj_Hospital%27%20and%20hazard_type=%27EQ%27%20and%20adm_code=%27AF%27%20and%20dim1_value=%27Hospital%27)&
+        propertyname=risk_analysis,hazard_type,region,adm_code,dim1_value,dim2_value,dim3_value,dim4_value,dim5_value,value
+
     """
 
     help = 'Import Risk Data: Loss Impact and Impact Analysis Types.'
