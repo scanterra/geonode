@@ -52,36 +52,30 @@
     {% endblock %}
 
     
-    {% block dymensioninfo_bar %}
-    <div class="dymensioninfo_bar">
-    {% if dymensioninfo_types %}
-    <h4>Dymension Info</h4>
-
-    <ul class="">
-        {% for dym in dymensioninfo_types %}
-        <li class="{% if active.dym == dym.name %}active{% endif %}"><a href="{% url 'risks:data_extraction_dym' current.loc current.ht current.at dym.id %}">{{ dym.name }}</a></li>
-        {% endfor %}
-     </ul>
-
-
-
-    {% endif %}
-
-    </div>
-
-    {% endblock %}
 
     <div class="contents row">
     <h4>Available analysis</h4>
     <ul class="">
     {% for ra in risk_analysis_list %}
-        <li><a href="{% url 'risks:data_extraction_analysis' current.loc current.ht current.at current.dym ra.id %}">{{ ra.dymensioninfo.name }}: {{ ra.axis }} {{ ra.value }}</a></li>
+        <li><a href="{% url 'risks:data_extraction_analysis' current.loc current.ht current.at ra.id %}">{{ ra.name }}</a></li>
     {% endfor %}
     </ul>
     </div>
 
     {% if analysis %}
+        <h3><small>current</small> {{ analysis.name }}</h3>
 
+            {% block dymensioninfo_bar %}
+            <div class="dymensioninfo_bar">
+            <h4>Dymension Info</h4>
+
+            <ul class="">
+                {% for dym in dimensions %}
+                <li class="{% if active.dym == dym.name %}active{% endif %}"><a href="{% url 'risks:data_extraction_analysis_dym' current.loc current.ht current.at current.an dym.id %}">{{ dym.name }}</a></li>
+                {% endfor %}
+             </ul>
+            </div>
+            {% endblock %}
 
         <div id="chartview" class="">
         </div>
