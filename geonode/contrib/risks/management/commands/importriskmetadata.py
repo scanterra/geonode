@@ -18,37 +18,19 @@
 #
 #########################################################################
 
-import os
-import time
-import shutil
-import requests
-import simplejson as json
 
-import traceback
-import psycopg2
-
-from requests.auth import HTTPBasicAuth
 from optparse import make_option
 
-from django.conf import settings
-from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
-from django.contrib.gis.gdal import DataSource
-from django.contrib.gis import geos
 
 from django.db.models import Q
 
 from geonode.base.models import TopicCategory
-from geonode.layers.models import Layer
-from geonode.contrib.risks.models import RiskAnalysis, HazardType
-from geonode.contrib.risks.models import AnalysisType, DymensionInfo
+from geonode.contrib.risks.models import RiskAnalysis
 from geonode.contrib.risks.models import HazardSet, PointOfContact
 from geonode.contrib.risks.models import Region, AdministrativeDivision
-from geonode.contrib.risks.models import RiskAnalysisDymensionInfoAssociation
-from geonode.contrib.risks.models import RiskAnalysisAdministrativeDivisionAssociation
 
 import xlrd
-from xlrd.sheet import ctype_text
 
 
 class Command(BaseCommand):
@@ -57,9 +39,15 @@ class Command(BaseCommand):
     It requires as inputs an existing Risk Analysis and the XLSX Metadata file.
 
     Example Usage:
-    $> python manage.py importriskmetadata -r Afghanistan -k "WP6_future_proj_Hospital" -x WP6__Impact_analysis_results_future_projections_Hospital\ -\ metadata.xlsx
-    $> python manage.py importriskmetadata -r Afghanistan -k "WP6_future_proj_Population" -x WP6__Impact_analysis_results_future_projections_Population\ -\ metadata.xlsx
-    $> python manage.py importriskmetadata -r Afghanistan -k "WP6_loss_Afg_PML_split" -x WP6\ -\ 2050\ Scenarios\ -\ Loss\ Impact\ Results\ -\ Afghanistan\ PML\ Split\ -\ metadata.xlsx
+    $> python manage.py importriskmetadata -r Afghanistan \
+        -k "WP6_future_proj_Hospital" \
+        -x WP6__Impact_analysis_results_future_projections_Hospital\ -\ metadata.xlsx
+    $> python manage.py importriskmetadata -r Afghanistan \
+        -k "WP6_future_proj_Population" \
+        -x WP6__Impact_analysis_results_future_projections_Population\ -\ metadata.xlsx
+    $> python manage.py importriskmetadata -r Afghanistan \
+        -k "WP6_loss_Afg_PML_split" \
+        -x WP6\ -\ 2050\ Scenarios\ -...-\ Afghanistan\ PML\ Split\ -\ metadata.xlsx
 
     """
 
@@ -99,18 +87,21 @@ class Command(BaseCommand):
         risk_analysis = options.get('risk_analysis')
 
         if region is None:
-            raise CommandError("Input Destination Region '--region' is mandatory")
+            raise CommandError("Input Destination Region '--region' \
+is mandatory")
 
         if risk_analysis is None:
-            raise CommandError("Input Risk Analysis associated to the File '--risk_analysis' is mandatory")
+            raise CommandError("Input Risk Analysis associated to the File \
+'--risk_analysis' is mandatory")
 
         if not excel_file or len(excel_file) == 0:
-            raise CommandError("Input Risk Metadata Table '--excel_file' is mandatory")
+            raise CommandError("Input Risk Metadata Table '--excel_file' \
+is mandatory")
 
         wb = xlrd.open_workbook(filename=excel_file)
         risk = RiskAnalysis.objects.get(name=risk_analysis)
         region = Region.objects.get(name=region)
-        region_code = region.administrative_divisions.filter(parent=None)[0].code
+        # region_code = region.administrative_divisions.filter(parent=None)[0].code
 
         """
         Assuming the following metadata model:
@@ -221,12 +212,13 @@ class Command(BaseCommand):
             for value in values:
                 value = value.strip()
                 value = value[:-1] if value.endswith(";") or value.endswith("s") else value
-                topic_category = TopicCategory.objects.filter(Q(identifier__icontains=value) | Q(description__icontains=value))
+                topic_category = \
+                    TopicCategory.objects.filter(Q(identifier__icontains=value) | Q(description__icontains=value))
                 if len(topic_category) > 0:
                     hazardset.topic_category = topic_category[0]
 
         # Point Of Contact
-        poc, created = PointOfContact.objects.get_or_create(individual_name=d[8], organization_name=d[9])
+        (poc, created) = PointOfContact.objects.get_or_create(individual_name=d[8], organization_name=d[9])
         poc.position_name = d[10]
         poc.voice = d[11]
         poc.facsimile = d[12]

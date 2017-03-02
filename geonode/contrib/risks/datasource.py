@@ -3,12 +3,11 @@
 from __future__ import print_function
 
 import logging
-
-
 import json
 import urllib
 
 from owslib.wfs import WebFeatureService
+
 
 class GeoserverDataSource(object):
     """
@@ -29,7 +28,7 @@ class GeoserverDataSource(object):
 
     def prepare_vparams(self, vparams):
         u = urllib.quote
-        return [':'.join((u(k), u(v),)) for k,v in vparams.iteritems()]
+        return [':'.join((u(k), u(v),)) for k, v in vparams.iteritems()]
 
     def get_features(self, dim_name, **kwargs):
         """
@@ -46,5 +45,3 @@ class GeoserverDataSource(object):
     def deserialize(self, val):
         d = self.OUTPUT_FORMATS[self.output_format]
         return d(val)
-
-

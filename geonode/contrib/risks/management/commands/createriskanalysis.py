@@ -18,30 +18,13 @@
 #
 #########################################################################
 
-import os
-import time
-import shutil
-import requests
-import simplejson as json
-
-import traceback
-import psycopg2
-
-from requests.auth import HTTPBasicAuth
 from optparse import make_option
 
-from django.conf import settings
-from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
-from django.contrib.gis.gdal import DataSource
-from django.contrib.gis import geos
-
 from geonode.layers.models import Layer
 from geonode.contrib.risks.models import RiskAnalysis, HazardType
 from geonode.contrib.risks.models import AnalysisType, DymensionInfo
-from geonode.contrib.risks.models import Region, AdministrativeDivision
 from geonode.contrib.risks.models import RiskAnalysisDymensionInfoAssociation
-from geonode.contrib.risks.models import RiskAnalysisAdministrativeDivisionAssociation
 
 import ConfigParser
 
@@ -52,7 +35,7 @@ class Command(BaseCommand):
     """
     Allows to define a new Risk Analysis along with Dymentions descriptors.
 
-    The command needs an 'ini' file defined as follows (this is only an example):
+    The command needs an 'ini' file defined as follows (just an example):
 
         [DEFAULT]
         # unique and less than 30 characters
@@ -64,7 +47,8 @@ class Command(BaseCommand):
         # must use mnemonics
         hazard_type = EQ
 
-        # must exists on GeoNode and you have to use its native 'name' **not** the title
+        # must exists on GeoNode and you have to use its native 'name'
+        # **not** the title
         layer = test
 
         [DIM1]
@@ -112,13 +96,17 @@ class Command(BaseCommand):
         layer_attribute = dim2
 
     Example Usage:
-    $> python manage.py createriskanalysis -f WP6__Impact_analysis_results_future_projections_Hospital.ini
-    $> python manage.py createriskanalysis -f WP6__Impact_analysis_results_future_projections_Population.ini
-    $> python manage.py createriskanalysis -f WP6\ -\ 2050\ Scenarios\ -\ Loss\ Impact\ Results\ -\ Afghanistan\ PML\ Split.ini
+    $> python manage.py createriskanalysis \
+            -f WP6__Impact_analysis_results_future_projections_Hospital.ini
+    $> python manage.py createriskanalysis \
+            -f WP6__Impact_analysis_results_future_projections_Population.ini
+    $> python manage.py createriskanalysis \
+            -f WP6\ -\ 2050\ Scenarios\ -\ ...\ Afghanistan\ PML\ Split.ini
 
     """
 
-    help = 'Creates a new Risk Analysis descriptor: Loss Impact and Impact Analysis Types.'
+    help = 'Creates a new Risk Analysis descriptor: \
+Loss Impact and Impact Analysis Types.'
 
     option_list = BaseCommand.option_list + (
         make_option(
@@ -132,7 +120,8 @@ class Command(BaseCommand):
         descriptor_file = options.get('descriptor_file')
 
         if not descriptor_file or len(descriptor_file) == 0:
-            raise CommandError("Input Risk Analysis Descriptor INI File '--descriptor_file' is mandatory")
+            raise CommandError("Input Risk Analysis Descriptor INI File \
+'--descriptor_file' is mandatory")
 
         Config.read(descriptor_file)
         risk_name = Config.get('DEFAULT', 'name')
@@ -141,16 +130,20 @@ class Command(BaseCommand):
         layer_name = Config.get('DEFAULT', 'layer')
 
         if len(RiskAnalysis.objects.filter(name=risk_name)) > 0:
-            raise CommandError("A Risk Analysis with name '"+risk_name+"' already exists on DB!")
+            raise CommandError("A Risk Analysis with name '" + risk_name +
+                               "' already exists on DB!")
 
         if len(HazardType.objects.filter(mnemonic=hazard_type_name)) == 0:
-            raise CommandError("An Hazard Type with mnemonic '"+hazard_type_name+"' does not exist on DB!")
+            raise CommandError("An Hazard Type with mnemonic '" +
+                               hazard_type_name+"' does not exist on DB!")
 
         if len(AnalysisType.objects.filter(name=analysis_type_name)) == 0:
-            raise CommandError("An Analysis Type with name '"+analysis_type_name+"' does not exist on DB!")
+            raise CommandError("An Analysis Type with name '" +
+                               analysis_type_name + "' does not exist on DB!")
 
         if len(Layer.objects.filter(name=layer_name)) == 0:
-            raise CommandError("A Layer with name '"+layer_name+"' does not exist on DB!")
+            raise CommandError("A Layer with name '" + layer_name +
+                               "' does not exist on DB!")
 
         hazard = HazardType.objects.get(mnemonic=hazard_type_name)
         analysis = AnalysisType.objects.get(name=analysis_type_name)
@@ -160,22 +153,28 @@ class Command(BaseCommand):
         risk.analysis_type = analysis
         risk.hazard_type = hazard
         risk.save()
-        print ("Created Risk Analysis [%s] (%s) - %s" % (risk_name, hazard, analysis))
+        print ("Created Risk Analysis [%s] (%s) - %s" %
+               (risk_name, hazard, analysis))
 
         for section in Config.sections():
             dimension_values = ConfigSectionMap(section)
 
-            values = list(filter(None, (x.strip() for x in dimension_values['values'].splitlines())))
+            values = list(filter(None,
+                                 (x.strip() for x in
+                                  dimension_values['values'].splitlines())))
+
+            dim_name = dimension_values['dymensioninfo']
             for counter, dim_value in enumerate(values):
                 rd = RiskAnalysisDymensionInfoAssociation(value=dim_value)
-                rd.dymensioninfo = DymensionInfo.objects.get(name=dimension_values['dymensioninfo'])
+                rd.dymensioninfo = DymensionInfo.objects.get(name=dim_name)
                 rd.riskanalysis = risk
                 rd.order = counter
                 rd.axis = dimension_values['axis']
                 rd.layer = layer
                 rd.layer_attribute = dimension_values['layer_attribute']
                 rd.save()
-                print ("Created Risk Analysis Dymension %s [%s] (%s) - axis %s" % (rd.order, dim_value, rd.dymensioninfo.name, rd.axis))
+                print ("Created Risk Analysis Dym %s [%s] (%s) - axis %s" %
+                       (rd.order, dim_value, dim_name, rd.axis))
 
         return risk_name
 
@@ -187,7 +186,7 @@ def ConfigSectionMap(section):
         try:
             dict1[option] = Config.get(section, option)
             if dict1[option] == -1:
-                DebugPrint("skip: %s" % option)
+                print("skip: %s" % option)
         except:
             print("exception on %s!" % option)
             dict1[option] = None
