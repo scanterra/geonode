@@ -19,10 +19,7 @@
 #########################################################################
 
 import os
-import autocomplete_light
 import StringIO
-
-from autocomplete_light.contrib.taggit_field import TaggitField, TaggitWidget
 
 from django.conf import settings
 
@@ -33,16 +30,6 @@ from django.core.files.base import ContentFile
 from django import forms
 
 from django.forms import models
-from django.forms.fields import ChoiceField
-from django.forms.utils import flatatt
-from django.utils.html import format_html
-from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext as _
-from django.db.models import Q
-
-from django.utils.encoding import (
-    force_text,
-)
 
 from geonode.contrib.risks.models import HazardSet
 from geonode.contrib.risks.models import RiskAnalysis
@@ -52,18 +39,25 @@ from geonode.contrib.risks.models import RiskAnalysisImportMetadata
 
 
 class CreateRiskAnalysisForm(models.ModelForm):
+    """
+    """
+
     class Meta:
+        """
+        """
         model = RiskAnalysisCreate
         fields = ("descriptor_file",)
 
     def clean_descriptor_file(self):
         file_ini = self.cleaned_data['descriptor_file']
-        path = default_storage.save('tmp/'+file_ini.name, ContentFile(file_ini.read()))
+        path = default_storage.save('tmp/'+file_ini.name,
+                                    ContentFile(file_ini.read()))
         tmp_file = os.path.join(settings.MEDIA_ROOT, path)
 
         out = StringIO.StringIO()
         try:
-            call_command('createriskanalysis', descriptor_file=str(tmp_file).strip(), stdout=out)
+            call_command('createriskanalysis',
+                         descriptor_file=str(tmp_file).strip(), stdout=out)
             value = out.getvalue()
 
             risk = RiskAnalysis.objects.get(name=str(value).strip())
@@ -71,19 +65,26 @@ class CreateRiskAnalysisForm(models.ModelForm):
             risk.save()
         except Exception, e:
             value = None
-            raise forms.ValidationError("Sorry, the input file is not valid: " + str(e))
+            error_message = "Sorry, the input file is not valid: " + str(e)
+            raise forms.ValidationError(error_message)
 
         return file_ini
 
 
 class ImportDataRiskAnalysisForm(models.ModelForm):
+    """
+    """
+
     class Meta:
+        """
+        """
         model = RiskAnalysisImportData
         fields = ('region', 'riskanalysis', "data_file",)
 
     def clean_data_file(self):
         file_xlsx = self.cleaned_data['data_file']
-        path = default_storage.save('tmp/'+file_xlsx.name, ContentFile(file_xlsx.read()))
+        path = default_storage.save('tmp/'+file_xlsx.name,
+                                    ContentFile(file_xlsx.read()))
         tmp_file = os.path.join(settings.MEDIA_ROOT, path)
 
         region = self.cleaned_data['region']
@@ -91,27 +92,38 @@ class ImportDataRiskAnalysisForm(models.ModelForm):
 
         out = StringIO.StringIO()
         try:
-            call_command('importriskdata', commit=False, region=region.name, excel_file=str(tmp_file).strip(), risk_analysis=risk.name, stdout=out)
-            value = out.getvalue()
+            # value = out.getvalue()
+            call_command('importriskdata', commit=False,
+                         region=region.name,
+                         excel_file=str(tmp_file).strip(),
+                         risk_analysis=risk.name,
+                         stdout=out)
 
             # risk = RiskAnalysis.objects.get(name=str(value).strip())
             risk.data_file = file_xlsx
             risk.save()
         except Exception, e:
-            value = None
-            raise forms.ValidationError("Sorry, the input file is not valid: " + str(e))
+            # value = None
+            error_message = "Sorry, the input file is not valid: " + str(e)
+            raise forms.ValidationError(error_message)
 
         return file_xlsx
 
 
 class ImportMetadataRiskAnalysisForm(models.ModelForm):
+    """
+    """
+
     class Meta:
+        """
+        """
         model = RiskAnalysisImportMetadata
         fields = ('region', 'riskanalysis', "metadata_file",)
 
     def clean_metadata_file(self):
         file_xlsx = self.cleaned_data['metadata_file']
-        path = default_storage.save('tmp/'+file_xlsx.name, ContentFile(file_xlsx.read()))
+        path = default_storage.save('tmp/'+file_xlsx.name,
+                                    ContentFile(file_xlsx.read()))
         tmp_file = os.path.join(settings.MEDIA_ROOT, path)
 
         region = self.cleaned_data['region']
@@ -119,20 +131,27 @@ class ImportMetadataRiskAnalysisForm(models.ModelForm):
 
         out = StringIO.StringIO()
         try:
-            call_command('importriskmetadata', commit=False, region=region.name, excel_file=str(tmp_file).strip(), risk_analysis=risk.name, stdout=out)
-            value = out.getvalue()
+            call_command('importriskmetadata',
+                         commit=False,
+                         region=region.name,
+                         excel_file=str(tmp_file).strip(),
+                         risk_analysis=risk.name,
+                         stdout=out)
+            # value = out.getvalue()
 
             # risk = RiskAnalysis.objects.get(name=str(value).strip())
             risk.metadata_file = file_xlsx
 
-            hazardsets = HazardSet.objects.filter(riskanalysis=risk, country=region)
+            hazardsets = HazardSet.objects.filter(riskanalysis=risk,
+                                                  country=region)
             if len(hazardsets) > 0:
                 hazardset = hazardsets[0]
                 risk.hazardset = hazardset
 
             risk.save()
         except Exception, e:
-            value = None
-            raise forms.ValidationError("Sorry, the input file is not valid: " + str(e))
+            # value = None
+            error_message = "Sorry, the input file is not valid: " + str(e)
+            raise forms.ValidationError(error_message)
 
         return file_xlsx

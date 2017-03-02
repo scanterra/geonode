@@ -18,28 +18,18 @@
 #
 #########################################################################
 
-import os
-import time
-import shutil
-import requests
-import simplejson as json
-
 import traceback
 import psycopg2
 
-from requests.auth import HTTPBasicAuth
 from optparse import make_option
 
 from django.conf import settings
 from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
-from django.contrib.gis.gdal import DataSource
 from django.contrib.gis import geos
 
-from geonode.layers.models import Layer
-from geonode.contrib.risks.models import RiskAnalysis, HazardType
-from geonode.contrib.risks.models import AnalysisType, DymensionInfo
 from geonode.contrib.risks.models import Region, AdministrativeDivision
+from geonode.contrib.risks.models import RiskAnalysis
 from geonode.contrib.risks.models import RiskAnalysisDymensionInfoAssociation
 from geonode.contrib.risks.models import RiskAnalysisAdministrativeDivisionAssociation
 
@@ -59,14 +49,18 @@ class Command(BaseCommand):
       Feature ==> Layer {dim1: "SSP2", dim2: "250", adm_code: "AF29", value: 44340000}
 
     Example Usage:
-    $> python manage.py importriskdata -r Afghanistan -k "WP6_future_proj_Hospital" -x WP6__Impact_analysis_results_future_projections_Hospital.xlsx
-    $> python manage.py importriskdata -r Afghanistan -k "WP6_future_proj_Population" -x WP6__Impact_analysis_results_future_projections_Population.xlsx
-    $> python manage.py importriskdata -r Afghanistan -k "WP6_loss_Afg_PML_split" -x WP6\ -\ 2050\ Scenarios\ -\ Loss\ Impact\ Results\ -\ Afghanistan\ PML\ Split.xlsx
+    $> python manage.py importriskdata -r Afghanistan \
+        -k "WP6_future_proj_Hospital" -x WP6__Impact_analysis_results_future_projections_Hospital.xlsx
+    $> python manage.py importriskdata -r Afghanistan \
+        -k "WP6_future_proj_Population" -x WP6__Impact_analysis_results_future_projections_Population.xlsx
+    $> python manage.py importriskdata -r Afghanistan \
+        -k "WP6_loss_Afg_PML_split" -x WP6\ -\ 2050\ Scenarios\ -...\ Afghanistan\ PML\ Split.xlsx
 
     To import Metadata also, specify the Risk Metadada File wih the 'm' option
 
-    $> python manage.py importriskdata -r Afghanistan -k "WP6_future_proj_Population"
-                    -x WP6__Impact_analysis_results_future_projections_Population.xlsx -m WP6_Impact_analysis_results_future_projections_Population\ -\ metadata.xlsx
+    $> python manage.py importriskdata -r Afghanistan -k "WP6_future_proj_Population" \
+                    -x WP6__Impact_analysis_results_future_projections_Population.xlsx \
+                    -m WP6_Impact_analysis_results_future_projections_Population\ -\ metadata.xlsx
 
     The procedure requires a layer on GeoServer based on the following table definition:
 
@@ -155,7 +149,8 @@ class Command(BaseCommand):
             raise CommandError("Input Destination Region '--region' is mandatory")
 
         if risk_analysis is None:
-            raise CommandError("Input Risk Analysis associated to the File '--risk_analysis' is mandatory")
+            raise CommandError("Input Risk Analysis associated to the File \
+'--risk_analysis' is mandatory")
 
         if not excel_file or len(excel_file) == 0:
             raise CommandError("Input Risk Data Table '--excel_file' is mandatory")
@@ -199,14 +194,17 @@ class Command(BaseCommand):
                             cell_obj = sheet.cell(row_num, 5)
                             cell_type_str = ctype_text.get(cell_obj.ctype, 'unknown type')
                             if cell_obj.value:
-                                adm_code = cell_obj.value if cell_type_str == 'text' else region_code + '{:04d}'.format(int(cell_obj.value))
+                                adm_code = cell_obj.value \
+                                    if cell_type_str == 'text' \
+                                    else region_code + '{:04d}'.format(int(cell_obj.value))
                                 adm_div = AdministrativeDivision.objects.get(code=adm_code)
                                 value = sheet.cell_value(row_num, col_num)
                                 print('[%s] (RP-%s) %s / %s' % (scenario.value, rp.value, adm_div.name, value))
 
-                                table_name = rp.layer.typename.split(":")[1] if ":" in rp.layer.typename else rp.layer.typename
+                                table_name = rp.layer.typename.split(":")[1] \
+                                    if ":" in rp.layer.typename else rp.layer.typename
                                 db_values = {
-                                    'table': table_name, # From rp.layer
+                                    'table': table_name,  # From rp.layer
                                     'the_geom': geos.fromstr(adm_div.geom, srid=adm_div.srid),
                                     'dim1': scenario.value,
                                     'dim2': rp.value,
@@ -221,9 +219,13 @@ class Command(BaseCommand):
                                     'value': value
                                 }
                                 self.insert_db(conn, db_values)
-                                risk_adm = RiskAnalysisAdministrativeDivisionAssociation.objects.filter(riskanalysis=risk, administrativedivision=adm_div)
+                                risk_adm = RiskAnalysisAdministrativeDivisionAssociation.\
+                                    objects.\
+                                    filter(riskanalysis=risk, administrativedivision=adm_div)
                                 if len(risk_adm) == 0:
-                                    RiskAnalysisAdministrativeDivisionAssociation.objects.create(riskanalysis=risk, administrativedivision=adm_div)
+                                    RiskAnalysisAdministrativeDivisionAssociation.\
+                                        objects.\
+                                        create(riskanalysis=risk, administrativedivision=adm_div)
                         conn.commit()
                     except Exception:
                         try:
@@ -237,7 +239,10 @@ class Command(BaseCommand):
 
         # Import or Update Metadata if Metadata File has been specified/found
         if excel_metadata_file:
-            call_command('importriskmetadata', region=region.name, excel_file=excel_metadata_file, risk_analysis=risk_analysis)
+            call_command('importriskmetadata',
+                         region=region.name,
+                         excel_file=excel_metadata_file,
+                         risk_analysis=risk_analysis)
             risk.metadata_file = excel_metadata_file
 
         # Finalize
@@ -247,7 +252,6 @@ class Command(BaseCommand):
 
         return risk_analysis
 
-
     def get_db_conn(self, db_name, db_user, db_port, db_host, db_passwd):
         """Get db conn (GeoNode)"""
         db_host = db_host if db_host is not None else 'localhost'
@@ -256,7 +260,6 @@ class Command(BaseCommand):
             "dbname='%s' user='%s' port='%s' host='%s' password='%s'" % (db_name, db_user, db_port, db_host, db_passwd)
         )
         return conn
-
 
     def insert_db(self, conn, values):
         """Remove spurious records from GeoNode DB"""

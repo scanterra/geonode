@@ -19,25 +19,22 @@
 #########################################################################
 
 from django.db import models
-from django.contrib.gis.db import models as gismodels
-from django.db.models import signals
-from django.contrib.sites.models import Site
-from django.conf import settings
-
 from mptt.models import MPTTModel, TreeForeignKey
 
 from geonode.base.models import ResourceBase, TopicCategory
 from geonode.layers.models import Layer
-from geonode.documents.models import Document
+
 
 class AnalysisType(models.Model):
     """
-    For Risk Data Extraction it can be, as an instance, 'Loss Impact' or 'Impact Analysis'.
-    This object should also refer to any additional description and/or related resource
-    useful to the users to get details on the Analysis type.
+    For Risk Data Extraction it can be, as an instance, 'Loss Impact', 'Impact
+    Analysis'. This object should also refer to any additional description
+    and/or related resource useful to the users to get details on the
+    Analysis type.
     """
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=30, null=False, blank=False, db_index=True)
+    name = models.CharField(max_length=30, null=False, blank=False,
+                            db_index=True)
     title = models.CharField(max_length=80, null=False, blank=False)
     description = models.TextField(default='', null=True, blank=False)
 
@@ -45,27 +42,34 @@ class AnalysisType(models.Model):
         return u"{0}".format(self.name)
 
     class Meta:
+        """
+        """
         ordering = ['name']
         db_table = 'risks_analysistype'
 
 
 class HazardType(models.Model):
     """
-    Describes an Hazard related to an Analysis and a Risk and pointing to additional resources on GeoNode.
+    Describes an Hazard related to an Analysis and a Risk and pointing to
+    additional resources on GeoNode.
     e.g.: Earthquake, Flood, Landslide, ...
     """
     id = models.AutoField(primary_key=True)
-    mnemonic = models.CharField(max_length=30, null=False, blank=False, db_index=True)
+    mnemonic = models.CharField(max_length=30, null=False, blank=False,
+                                db_index=True)
     title = models.CharField(max_length=80, null=False, blank=False)
     order = models.IntegerField()
     description = models.TextField(default='')
-    gn_description = models.TextField('GeoNode description', default='', null=True)
+    gn_description = models.TextField('GeoNode description', default='',
+                                      null=True)
     fa_class = models.CharField(max_length=64, default='fa-times')
 
     def __unicode__(self):
         return u"{0}".format(self.mnemonic)
 
     class Meta:
+        """
+        """
         ordering = ['order', 'mnemonic']
         db_table = 'risks_hazardtype'
         verbose_name_plural = 'Hazards'
@@ -80,7 +84,8 @@ class RiskAnalysis(models.Model):
     to filter SQLViews values on GeoServer.
     """
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=30, null=False, blank=False, db_index=True)
+    name = models.CharField(max_length=30, null=False, blank=False,
+                            db_index=True)
 
     descriptor_file = models.FileField(upload_to='descriptor_files')
     data_file = models.FileField(upload_to='metadata_files')
@@ -90,25 +95,25 @@ class RiskAnalysis(models.Model):
     analysis_type = models.ForeignKey(
         AnalysisType,
         related_name='riskanalysis_analysistype',
-        on_delete = models.CASCADE,
-        blank = False,
-        null = False
+        on_delete=models.CASCADE,
+        blank=False,
+        null=False
     )
 
     hazard_type = models.ForeignKey(
         HazardType,
         related_name='riskanalysis_hazardtype',
-        on_delete = models.CASCADE,
-        blank = False,
-        null = False
+        on_delete=models.CASCADE,
+        blank=False,
+        null=False
     )
 
     hazardset = models.ForeignKey(
         'HazardSet',
         related_name='hazardset',
-        on_delete = models.CASCADE,
-        blank = True,
-        null = True
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True
     )
 
     administrative_divisions = models.ManyToManyField(
@@ -125,12 +130,16 @@ class RiskAnalysis(models.Model):
         return u"{0}".format(self.name)
 
     class Meta:
+        """
+        """
         ordering = ['name']
         db_table = 'risks_riskanalysis'
         verbose_name_plural = 'Risks Analysis'
 
 
 class AdministrativeDivisionManager(models.Manager):
+    """
+    """
     def get_by_natural_key(self, code):
         return self.get(code=code)
 
@@ -140,15 +149,18 @@ class AdministrativeDivision(MPTTModel):
     Administrative Division Gaul dataset.
     """
     id = models.AutoField(primary_key=True)
-    code = models.CharField(max_length=30, null=False, unique=True, db_index=True)
-    name = models.CharField(max_length=30, null=False, blank=False, db_index=True)
+    code = models.CharField(max_length=30, null=False, unique=True,
+                            db_index=True)
+    name = models.CharField(max_length=30, null=False, blank=False,
+                            db_index=True)
     # GeoDjango-specific: a geometry field (MultiPolygonField)
-    # geom = gismodels.MultiPolygonField() - does not work w/ default non-spatial db
+    # geom = gismodels.MultiPolygonField() - does not work w/ default db
     geom = models.TextField()  # As WKT
     srid = models.IntegerField(default=4326)
 
     # Relationships
-    parent = TreeForeignKey('self', null=True, blank=True, related_name='children')
+    parent = TreeForeignKey('self', null=True, blank=True,
+                            related_name='children')
     region = models.ForeignKey('Region')
 
     risks_analysis = models.ManyToManyField(
@@ -160,11 +172,15 @@ class AdministrativeDivision(MPTTModel):
         return u"{0}".format(self.name)
 
     class Meta:
+        """
+        """
         ordering = ['code', 'name']
         db_table = 'risks_administrativedivision'
         verbose_name_plural = 'Administrative Divisions'
 
     class MPTTMeta:
+        """
+        """
         order_insertion_by = ['name']
 
 
@@ -173,7 +189,8 @@ class Region(models.Model):
     Groups a set of AdministrativeDivisions
     """
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=30, null=False, blank=False, db_index=True)
+    name = models.CharField(max_length=30, null=False, blank=False,
+                            db_index=True)
     # level:
     # 0 is global
     # 1 is continent
@@ -201,27 +218,39 @@ class DymensionInfo(models.Model):
     Set of Dymensions (here we have the descriptors), to be used
     to filter SQLViews values on GeoServer.
 
-    The multi-dimensional vectorial layer in GeoServer will be something like this:
+    The multi-dimensional vectorial layer in GeoServer will be something
+    like this:
 
        {riskanalysis, dim1, dim2, ..., dimN, value}
 
     A set of DymensionInfo is something like:
 
-     {name:'Round Period', value: 'RP-10', order: 0, unit: 'Years', attribute_name: 'dim1'}
-     {name:'Round Period', value: 'RP-20', order: 1, unit: 'Years', attribute_name: 'dim1'}
-     {name:'Round Period', value: 'RP-50', order: 2, unit: 'Years', attribute_name: 'dim1'}
+     {name:'Round Period', value: 'RP-10', order: 0, unit: 'Years',
+      attribute_name: 'dim1'}
 
-     {name:'Scenario', value: 'Base', order: 0, unit: 'NA', attribute_name: 'dim2'}
-     {name:'Scenario', value: 'Scenario-1', order: 1, unit: 'NA', attribute_name: 'dim2'}
-     {name:'Scenario', value: 'Scenraio-2', order: 2, unit: 'NA', attribute_name: 'dim2'}
+     {name:'Round Period', value: 'RP-20', order: 1, unit: 'Years',
+      attribute_name: 'dim1'}
+
+     {name:'Round Period', value: 'RP-50', order: 2, unit: 'Years',
+      attribute_name: 'dim1'}
+
+     {name:'Scenario', value: 'Base', order: 0, unit: 'NA',
+      attribute_name: 'dim2'}
+
+     {name:'Scenario', value: 'Scenario-1', order: 1, unit: 'NA',
+      attribute_name: 'dim2'}
+
+     {name:'Scenario', value: 'Scenraio-2', order: 2, unit: 'NA',
+      attribute_name: 'dim2'}
 
     Values on GeoServer SQL View will be filtered like:
 
-        {riskanalysis: risk.identifier, dim1: 'RP-10', dim2: 'Base'} -> [values]
+     {riskanalysis: risk.identifier, dim1: 'RP-10', dim2: 'Base'} -> [values]
 
     """
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=30, null=False, blank=False, db_index=True)
+    name = models.CharField(max_length=30, null=False, blank=False,
+                            db_index=True)
     abstract = models.TextField()
     unit = models.CharField(max_length=30)
 
@@ -235,6 +264,8 @@ class DymensionInfo(models.Model):
         return u"{0}".format(self.name)
 
     class Meta:
+        """
+        """
         ordering = ['name']
         db_table = 'risks_dymensioninfo'
 
@@ -250,9 +281,12 @@ class RiskAnalysisAdministrativeDivisionAssociation(models.Model):
     administrativedivision = models.ForeignKey(AdministrativeDivision)
 
     def __unicode__(self):
-        return u"{0}".format(self.riskanalysis.name + " - " + self.administrativedivision.name)
+        return u"{0}".format(self.riskanalysis.name + " - " +
+                             self.administrativedivision.name)
 
     class Meta:
+        """
+        """
         db_table = 'risks_riskanalysisadministrativedivisionassociation'
 
 
@@ -262,8 +296,10 @@ class RiskAnalysisDymensionInfoAssociation(models.Model):
     """
     id = models.AutoField(primary_key=True)
     order = models.IntegerField()
-    value = models.CharField(max_length=80, null=False, blank=False, db_index=True)
-    axis = models.CharField(max_length=10, null=False, blank=False, db_index=True)
+    value = models.CharField(max_length=80, null=False, blank=False,
+                             db_index=True)
+    axis = models.CharField(max_length=10, null=False, blank=False,
+                            db_index=True)
 
     # Relationships
     riskanalysis = models.ForeignKey(RiskAnalysis)
@@ -281,9 +317,12 @@ class RiskAnalysisDymensionInfoAssociation(models.Model):
     layer_attribute = models.CharField(max_length=80, null=False, blank=False)
 
     def __unicode__(self):
-        return u"{0}".format(self.riskanalysis.name + " - " + self.dymensioninfo.name)
+        return u"{0}".format(self.riskanalysis.name + " - " +
+                             self.dymensioninfo.name)
 
     class Meta:
+        """
+        """
         ordering = ['order', 'value']
         db_table = 'risks_riskanalysisdymensioninfoassociation'
 
@@ -294,7 +333,8 @@ class PointOfContact(models.Model):
     """
     id = models.AutoField(primary_key=True)
     individual_name = models.CharField(max_length=255, null=False, blank=False)
-    organization_name = models.CharField(max_length=255, null=False, blank=False)
+    organization_name = models.CharField(max_length=255, null=False,
+                                         blank=False)
     position_name = models.CharField(max_length=255)
     voice = models.CharField(max_length=255)
     facsimile = models.CharField(max_length=30)
@@ -319,9 +359,12 @@ class PointOfContact(models.Model):
     )
 
     def __unicode__(self):
-        return u"{0}".format(self.individual_name + " - " + self.organization_name)
+        return u"{0}".format(self.individual_name + " - " +
+                             self.organization_name)
 
     class Meta:
+        """
+        """
         db_table = 'risks_pointofcontact'
 
 
@@ -403,7 +446,8 @@ class HazardSet(models.Model):
     begin_date = models.CharField(max_length=20)
     end_date = models.CharField(max_length=20)
     bounds = models.CharField(max_length=150, null=False, blank=False)
-    supplemental_information = models.CharField(max_length=255, null=False, blank=False)
+    supplemental_information = models.CharField(max_length=255, null=False,
+                                                blank=False)
     online_resource = models.CharField(max_length=255)
     url = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
@@ -438,14 +482,16 @@ class HazardSet(models.Model):
     riskanalysis = models.ForeignKey(
         RiskAnalysis,
         related_name='riskanalysis',
-        blank = False,
-        null = False
+        blank=False,
+        null=False
     )
 
     def __unicode__(self):
         return u"{0}".format(self.title)
 
     class Meta:
+        """
+        """
         db_table = 'risks_hazardset'
 
 
@@ -473,6 +519,8 @@ class FurtherResource(models.Model):
         return u"{0}".format(self.resource.title)
 
     class Meta:
+        """
+        """
         db_table = 'risks_further_resource'
 
 
@@ -563,6 +611,8 @@ class DymensionInfoFurtherResourceAssociation(models.Model):
         return u"{0}".format(self.resource)
 
     class Meta:
+        """
+        """
         db_table = 'risks_dymensionfurtheresourceassociation'
 
 
@@ -600,6 +650,8 @@ class HazardSetFurtherResourceAssociation(models.Model):
         return u"{0}".format(self.resource)
 
     class Meta:
+        """
+        """
         db_table = 'risks_hazardsetfurtheresourceassociation'
 
 
@@ -620,8 +672,10 @@ class RiskAnalysisCreate(models.Model):
     class Meta:
         ordering = ['descriptor_file']
         db_table = 'risks_descriptor_files'
-        verbose_name = 'Risks Analysis: Create new through a .ini descriptor file'
-        verbose_name_plural = 'Risks Analysis: Create new through a .ini descriptor file'
+        verbose_name = 'Risks Analysis: Create new through a .ini \
+                        descriptor file'
+        verbose_name_plural = 'Risks Analysis: Create new through a .ini \
+                               descriptor file'
 
 
 class RiskAnalysisImportData(models.Model):
@@ -654,6 +708,8 @@ class RiskAnalysisImportData(models.Model):
         return u"{0}".format(self.data_file.name)
 
     class Meta:
+        """
+        """
         ordering = ['region', 'riskanalysis']
         db_table = 'risks_data_files'
         verbose_name = 'Risks Analysis: Import Risk Data from XLSX file'
@@ -661,6 +717,8 @@ class RiskAnalysisImportData(models.Model):
 
 
 class RiskAnalysisImportMetadata(models.Model):
+    """
+    """
     metadata_file = models.FileField(upload_to='metadata_files')
 
     # Relationships
@@ -690,7 +748,11 @@ class RiskAnalysisImportMetadata(models.Model):
         return u"{0}".format(self.metadata_file.name)
 
     class Meta:
+        """
+        """
         ordering = ['region', 'riskanalysis']
         db_table = 'risks_metadata_files'
-        verbose_name = 'Risks Analysis: Import or Update Risk Metadata from XLSX file'
-        verbose_name_plural = 'Risks Analysis: Import or Update Risk Metadata from XLSX file'
+        verbose_name = 'Risks Analysis: Import or Update Risk Metadata from \
+                        XLSX file'
+        verbose_name_plural = 'Risks Analysis: Import or Update Risk Metadata \
+                               from XLSX file'

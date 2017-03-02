@@ -19,11 +19,7 @@
 #########################################################################
 
 from django.contrib import admin
-from django.contrib import messages
-from django.conf.urls import patterns
-from django.http import HttpResponse
 
-from geonode.base.admin import MediaTranslationAdmin
 from geonode.contrib.risks.models import RiskAnalysis
 from geonode.contrib.risks.models import Region, AdministrativeDivision
 from geonode.contrib.risks.models import AnalysisType, HazardType, DymensionInfo
