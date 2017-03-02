@@ -87,9 +87,9 @@ class RiskAnalysis(models.Model):
     name = models.CharField(max_length=30, null=False, blank=False,
                             db_index=True)
 
-    descriptor_file = models.FileField(upload_to='descriptor_files')
-    data_file = models.FileField(upload_to='metadata_files')
-    metadata_file = models.FileField(upload_to='metadata_files')
+    descriptor_file = models.FileField(upload_to='descriptor_files', max_length=255)
+    data_file = models.FileField(upload_to='metadata_files', max_length=255)
+    metadata_file = models.FileField(upload_to='metadata_files', max_length=255)
 
     # Relationships
     analysis_type = models.ForeignKey(
@@ -182,6 +182,15 @@ class AdministrativeDivision(MPTTModel):
         """
         """
         order_insertion_by = ['name']
+
+    def get_parents_chain(self):
+        parent = self.parent
+        out = []
+        while parent is not None:
+            out.append(parent)
+            parent = parent.parent
+        out.reverse()
+        return out
 
 
 class Region(models.Model):
@@ -302,8 +311,10 @@ class RiskAnalysisDymensionInfoAssociation(models.Model):
                             db_index=True)
 
     # Relationships
-    riskanalysis = models.ForeignKey(RiskAnalysis)
-    dymensioninfo = models.ForeignKey(DymensionInfo)
+    riskanalysis = models.ForeignKey(RiskAnalysis, related_name='dymensioninfo_associacion')
+    dymensioninfo = models.ForeignKey(DymensionInfo, related_name='riskanalysis_associacion')
+
+    DIM = {'x': 'dim1', 'y': 'dim2', 'z': 'dim3'}
 
     # GeoServer Layer referenced by GeoNode resource
     layer = models.ForeignKey(
@@ -325,6 +336,9 @@ class RiskAnalysisDymensionInfoAssociation(models.Model):
         """
         ordering = ['order', 'value']
         db_table = 'risks_riskanalysisdymensioninfoassociation'
+
+    def axis_to_dim(self):
+        return self.DIM[self.axis]
 
 
 class PointOfContact(models.Model):
@@ -656,7 +670,7 @@ class HazardSetFurtherResourceAssociation(models.Model):
 
 
 class RiskAnalysisCreate(models.Model):
-    descriptor_file = models.FileField(upload_to='descriptor_files')
+    descriptor_file = models.FileField(upload_to='descriptor_files', max_length=255)
 
     def file_link(self):
         if self.descriptor_file:
@@ -679,7 +693,7 @@ class RiskAnalysisCreate(models.Model):
 
 
 class RiskAnalysisImportData(models.Model):
-    data_file = models.FileField(upload_to='data_files')
+    data_file = models.FileField(upload_to='data_files', max_length=255)
 
     # Relationships
     region = models.ForeignKey(
@@ -719,7 +733,7 @@ class RiskAnalysisImportData(models.Model):
 class RiskAnalysisImportMetadata(models.Model):
     """
     """
-    metadata_file = models.FileField(upload_to='metadata_files')
+    metadata_file = models.FileField(upload_to='metadata_files', max_length=255)
 
     # Relationships
     region = models.ForeignKey(

@@ -179,7 +179,7 @@ is mandatory")
                 cell_id = row_num
                 cell_value = cell_obj.value.strip()
                 d[cell_id] = cell_value
-                print("[%s] (%s) %s" % (row_num, cell_title, d[row_num]))
+                print("[%s] (%s) %s: %s" % (row_num, cell_title, d[row_num], cell_value))
 
         # Create or Update the HazardSet
         hazardset.riskanalysis = risk
