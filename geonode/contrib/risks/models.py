@@ -277,6 +277,8 @@ class RiskAnalysisDymensionInfoAssociation(models.Model):
     riskanalysis = models.ForeignKey(RiskAnalysis, related_name='dymensioninfo_associacion')
     dymensioninfo = models.ForeignKey(DymensionInfo, related_name='riskanalysis_associacion')
 
+    DIM = {'x': 'dim1', 'y': 'dim2', 'z':'dim3'}
+
     # GeoServer Layer referenced by GeoNode resource
     layer = models.ForeignKey(
         Layer,
@@ -294,6 +296,9 @@ class RiskAnalysisDymensionInfoAssociation(models.Model):
     class Meta:
         ordering = ['order', 'value']
         db_table = 'risks_riskanalysisdymensioninfoassociation'
+
+    def axis_to_dim(self):
+        return self.DIM[self.axis]
 
 
 class PointOfContact(models.Model):

@@ -4,10 +4,14 @@ from __future__ import print_function
 
 import logging
 
+from django.conf import settings
 from django.views.generic import TemplateView
 from geonode.contrib.risks.models import (HazardType, AnalysisType, 
     AdministrativeDivision, RiskAnalysis, DymensionInfo, 
     RiskAnalysisDymensionInfoAssociation)
+
+from geonode.contrib.risks.datasource import GeoserverDataSource
+
 cost_benefit_index = TemplateView.as_view(template_name='risks/cost_benefit_index.html')
 
 
@@ -171,7 +175,16 @@ class RiskDataExtractionView(TemplateView):
 
         # we have one analysis
         if len(analysis_list) == 1 and current.get('an'):
-            out['analysis'] = analysis_list[0]
+            a = out['analysis'] = analysis_list[0]
+            s = settings.OGC_SERVER['default']
+            gs = GeoserverDataSource('{}/wfs'.format(s['LOCATION']),
+                                     username = s['USER'],
+                                     password = s['PASSWORD'])
+
+            dim_name = a.axis_to_dim()
+            dim_value = a.value
+            out['features'] = gs.get_features(a.axis_to_dim(), **{dim_name:dim_value})
+
         return out
 
 risk_data_extraction_index = RiskDataExtractionView.as_view()

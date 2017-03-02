@@ -81,8 +81,36 @@
     </div>
 
     {% if analysis %}
+
+
         <div id="chartview" class="">
         </div>
+
+
+         <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>dim1</th>
+                    <th>dim2</th>
+                    <th>value</th>
+                </tr>
+            </thead>
+            <tbody>
+                     
+         {% for feat in features.features %}
+            <tr>
+             {% with p=feat.properties%}
+                <td>{{ feat.id }}</td>
+                <td>{{ p.dim1 }}</td>
+                <td>{{ p.dim2 }}</td>
+                <td>{{ p.value }}</td>
+            {% endwith %}
+            </tr>
+        {% endfor %}
+        </table>
+
+
     {% endif %}
 
 
