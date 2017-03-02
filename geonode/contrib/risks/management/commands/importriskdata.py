@@ -64,42 +64,141 @@ class Command(BaseCommand):
 
     The procedure requires a layer on GeoServer based on the following table definition:
 
-        CREATE SEQUENCE public.{layer_name}_fid_seq
+        CREATE SEQUENCE public.test_fid_seq
           INCREMENT 1
           MINVALUE 1
           MAXVALUE 9223372036854775807
           START 1
           CACHE 1;
-        ALTER TABLE public.{layer_name}_fid_seq
+        ALTER TABLE public.test_fid_seq
           OWNER TO geonode;
 
-        CREATE TABLE public.{layer_name}
+
+        CREATE TABLE public.test
         (
-          fid integer NOT NULL DEFAULT nextval('{layer_name}_fid_seq'::regclass),
+          fid integer NOT NULL DEFAULT nextval('test_fid_seq'::regclass),
           the_geom geometry(MultiPolygon,4326),
-          dim1 character varying(80),
-          dim2 character varying(80),
-          dim3 character varying(80),
-          dim4 character varying(80),
-          dim5 character varying(80),
           risk_analysis character varying(80),
           hazard_type character varying(30),
           admin character varying(150),
           adm_code character varying(30),
           region character varying(80),
-          value character varying(255),
-          CONSTRAINT {layer_name}_pkey PRIMARY KEY (fid)
+          CONSTRAINT test_pkey PRIMARY KEY (fid)
         )
         WITH (
           OIDS=FALSE
         );
-        ALTER TABLE public.{layer_name}
+        ALTER TABLE public.test
           OWNER TO geonode;
 
-        CREATE INDEX spatial_{layer_name}_the_geom
-          ON public.{layer_name}
+        CREATE INDEX spatial_test_the_geom
+          ON public.test
           USING gist
           (the_geom);
+
+        CREATE INDEX test_idx_nulls_low
+          ON public.test (risk_analysis NULLS FIRST, hazard_type, adm_code, region);
+
+        --
+
+        CREATE SEQUENCE public.dimension_fid_seq
+          INCREMENT 1
+          MINVALUE 1
+          MAXVALUE 9223372036854775807
+          START 1
+          CACHE 1;
+        ALTER TABLE public.dimension_fid_seq
+          OWNER TO geonode;
+
+
+        CREATE TABLE public.dimension
+        (
+          dim_id integer NOT NULL DEFAULT nextval('dimension_fid_seq'::regclass),
+          dim_col character varying(30),
+          dim_value character varying(255),
+          CONSTRAINT dimension_pkey PRIMARY KEY (dim_id)
+        )
+        WITH (
+          OIDS=FALSE
+        );
+        ALTER TABLE public.dimension
+          OWNER TO geonode;
+
+        CREATE INDEX dimension_idx
+          ON public.dimension (dim_col, dim_value);
+
+        --
+
+        CREATE TABLE public.test_dimensions
+        (
+          test_fid integer REFERENCES public.test (fid) ON DELETE CASCADE,
+          dim1_id integer REFERENCES public.dimension (dim_id) ON DELETE CASCADE,
+          dim2_id integer REFERENCES public.dimension (dim_id) ON DELETE CASCADE,
+          dim3_id integer REFERENCES public.dimension (dim_id) ON DELETE CASCADE,
+          dim4_id integer REFERENCES public.dimension (dim_id) ON DELETE CASCADE,
+          dim5_id integer REFERENCES public.dimension (dim_id) ON DELETE CASCADE,
+          value character varying(255)
+        )
+        WITH (
+          OIDS=FALSE
+        );
+        ALTER TABLE public.test_dimensions
+          OWNER TO geonode;
+
+
+
+    The GeoServer Parametric Layer should be defined as follows
+
+    SELECT public.test.*, value, dim1_value, dim2_value, dim3_value, dim4_value, dim5_value
+      FROM public.test
+        JOIN (
+          SELECT join_table.test_fid, join_table.value,
+                 d1.dim_col dim1_col, d1.dim_value dim1_value,
+                 d2.dim_col dim2_col, d2.dim_value dim2_value,
+                 d3.dim_col dim3_col, d3.dim_value dim3_value,
+                 d4.dim_col dim4_col, d4.dim_value dim4_value,
+                 d5.dim_col dim5_col, d5.dim_value dim5_value
+            FROM
+    	  public.test_dimensions join_table
+    	    LEFT JOIN public.dimension d1 ON (d1.dim_id = join_table.dim1_id)
+    	    LEFT JOIN public.dimension d2 ON (d2.dim_id = join_table.dim2_id)
+    	    LEFT JOIN public.dimension d3 ON (d3.dim_id = join_table.dim3_id)
+    	    LEFT JOIN public.dimension d4 ON (d4.dim_id = join_table.dim4_id)
+    	    LEFT JOIN public.dimension d5 ON (d5.dim_id = join_table.dim5_id)
+        ) rd ON (rd.test_fid = fid)
+
+    WHERE
+      risk_analysis = '%ra%' AND
+      hazard_type = '%ha%' AND
+      hazard_type = '%ha%' AND
+      (admin = '%admin%' OR adm_code = '%adm_code%') AND
+      region = '%region%' AND
+      (dim1_value = '%d1%' OR dim1_value is NULL) AND
+      (dim2_value = '%d2%' OR dim2_value is NULL) AND
+      (dim3_value = '%d3%' OR dim3_value is NULL) AND
+      (dim4_value = '%d4%' OR dim4_value is NULL) AND
+      (dim5_value = '%d5%' OR dim5_value is NULL)
+
+
+    Querying GeoServer means passing through "viewparams" similar to the following ones:
+
+    viewparams=ra:WP6_future_proj_Hospital;ha:EQ;region:Afghanistan;adm_code:AF;d1:Hospital;d2:10
+
+
+    An example of a full WMS GetMap Request to the "test" Layer will be something like:
+
+    http://localhost:8080/geoserver/geonode/wms?
+        service=WMS&
+        version=1.1.0&
+        request=GetMap&
+        layers=geonode:test&
+        styles=&
+        bbox=-180,-90,180,90&
+        width=768&
+        height=768&
+        srs=EPSG:4326&
+        format=application/openlayers&
+        viewparams=ra:WP6_future_proj_Hospital;ha:EQ;region:Afghanistan;adm_code:AF;d1:Hospital;d2:10
 
     """
 
@@ -265,16 +364,84 @@ class Command(BaseCommand):
         """Remove spurious records from GeoNode DB"""
         curs = conn.cursor()
 
-        insert_template = """INSERT INTO {table}(
+        insert_template = """INSERT INTO {table} (
                           the_geom,
-                              dim1, dim2, dim3, dim4, dim5,
-                              risk_analysis, hazard_type,
-                              admin, adm_code,
-                              region, value)
-                          VALUES ('{the_geom}',
-                              '{dim1}', '{dim2}', '{dim3}', '{dim4}', '{dim5}',
-                              '{risk_analysis}', '{hazard_type}',
-                              '{admin}', '{adm_code}',
-                              '{region}', '{value}');"""
+                          risk_analysis, hazard_type,
+                          admin, adm_code,
+                          region)
+                  SELECT '{the_geom}',
+                          '{risk_analysis}', '{hazard_type}',
+                          '{admin}', '{adm_code}',
+                          '{region}'
+                  WHERE
+                  NOT EXISTS (SELECT fid FROM {table} WHERE
+                    risk_analysis = '{risk_analysis}' AND
+                    hazard_type = '{hazard_type}' AND
+                    admin = '{admin}' AND
+                    adm_code = '{adm_code}' AND
+                    region = '{region}')
+                  RETURNING fid;"""
 
         curs.execute(insert_template.format(**values))
+        id_of_new_row = curs.fetchone()
+        next_table_fid = None
+        if id_of_new_row:
+            next_table_fid = id_of_new_row[0]
+        else:
+            next_table_fid = None
+
+        if next_table_fid is None:
+            select_template = """SELECT fid FROM {table} WHERE
+                    risk_analysis = '{risk_analysis}' AND
+                    hazard_type = '{hazard_type}' AND
+                    admin = '{admin}' AND
+                    adm_code = '{adm_code}' AND
+                    region = '{region}'"""
+
+            curs.execute(select_template.format(**values))
+            id_of_new_row = curs.fetchone()
+            if id_of_new_row:
+                next_table_fid = id_of_new_row[0]
+            else:
+                raise CommandError("Could not find any suitable Risk Analysis on target DB!")
+
+        dim_ids = {
+            'table': values['table'],
+            'value': values['value']
+        }
+        for dim_idx in range(1, 6):
+            dim_col = 'dim' + str(dim_idx)
+            if values[dim_col]:
+                insert_dimension_template = "INSERT INTO public.dimension(dim_col, dim_value) " +\
+                                            "SELECT '" + dim_col + "', '{" + dim_col + "}' " +\
+                                            "WHERE " +\
+                                            "NOT EXISTS " +\
+                                            "(SELECT dim_id FROM public.dimension " +\
+                                            "WHERE dim_col = '" + dim_col + "' AND dim_value = '{" + dim_col + "}') " +\
+                                            "RETURNING dim_id;"
+
+                curs.execute(insert_dimension_template.format(**values))
+                id_of_new_row = curs.fetchone()
+                next_dim_id = None
+                if id_of_new_row:
+                    next_dim_id = id_of_new_row[0]
+
+                if next_dim_id is None:
+                    select_dimension_template = "SELECT dim_id FROM public.dimension " +\
+                        "WHERE dim_col = '" + dim_col + "' AND dim_value = '{" + dim_col + "}';"
+
+                    curs.execute(select_dimension_template.format(**values))
+                    id_of_new_row = curs.fetchone()
+                    if id_of_new_row:
+                        next_dim_id = id_of_new_row[0]
+                    else:
+                        raise CommandError("Could not find any suitable Dimension on target DB!")
+
+                dim_ids[dim_col] = next_dim_id
+            else:
+                dim_ids[dim_col] = 'NULL'
+
+        insert_dimension_value_template = "INSERT INTO {table}_dimensions(test_fid, dim1_id, dim2_id, dim3_id, dim4_id, dim5_id, value) " +\
+                                          "VALUES(" + str(next_table_fid) + ", {dim1}, {dim2}, {dim3}, {dim4}, {dim5}, '{value}');"
+
+        curs.execute(insert_dimension_value_template.format(**dim_ids))
