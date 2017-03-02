@@ -28,7 +28,7 @@ class GeoserverDataSource(object):
 
     def prepare_vparams(self, vparams):
         u = urllib.quote
-        return [':'.join((u(k), u(v),)) for k, v in vparams.iteritems()]
+        return [':'.join((u(k), u(str(v)),)) for k, v in vparams.iteritems()]
 
     def get_features(self, dim_name, **kwargs):
         """
@@ -40,7 +40,7 @@ class GeoserverDataSource(object):
         kwargs['dim'] = dim_name
         vparams_list = self.prepare_vparams(kwargs)
         vparams = {'viewparams': ';'.join(vparams_list)}
-        field_names = ['dim1', 'dim2', 'value']
+        field_names = ['dim1', 'dim2','value']
         r = self.wfs.getfeature(lname, propertyname=field_names, outputFormat=self.output_format, storedQueryParams=vparams, storedQueryID=1)
         return self.deserialize(r)
 

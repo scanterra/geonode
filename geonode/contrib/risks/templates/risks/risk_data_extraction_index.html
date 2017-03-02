@@ -3,6 +3,15 @@
 
 {% block risks_page_title %}{% trans "Risk Data Extraction & Visualization" %}{% endblock %}
 
+{% block extra_head %}
+
+<style type="text/css">
+    .active {font-weight: bold}
+
+</style>
+
+{% endblock %}
+
 {% block body %}
     <div class="container">
 
@@ -10,9 +19,9 @@
     <ol class="breadcrumb">
         <li><a href="{% url "home" %}">Home</a></li>
         {% for loc in location.get_parents_chain %}
-        <li class="{% if active.loc == loc.code %}active{% endif %}"><a href="{% url 'risks:data_extraction' loc.code current.ht current.at %}">{{ loc.name }}</a></li>
+        <li class="{% if current.loc == loc.code %}active{% endif %}"><a href="{% url 'risks:data_extraction' loc.code current.ht current.at %}">{{ loc.name }}</a></li>
         {% endfor %}
-        <li class="{% if active.loc == location.code %}active{% endif %}"><a href="{% url 'risks:data_extraction' location.code current.ht current.at %}">{{ location.name }}</a></li>
+        <li class="{% if current.loc == location.code %}active{% endif %}"><a href="{% url 'risks:data_extraction' location.code current.ht current.at %}">{{ location.name }}</a></li>
         {% if location.children.exists %}
         <li>
                 <a href="#sublocations-dropdown" data-toggle="dropdown" data-target="#">More..
@@ -33,7 +42,7 @@
     <ul class="">
         <li><a href="#">Overview</a></li>
         {% for ht in hazard_types %}
-        <li class="{% if active.ht == ht.mnemonic %}active{% endif %}"><a href="{% url 'risks:data_extraction' current.loc ht.mnemonic current.at %}">{{ ht.title }}</a></li>
+        <li class="{% if current.ht == ht.mnemonic %}active{% endif %}"><a href="{% url 'risks:data_extraction' current.loc ht.mnemonic current.at %}">{{ ht.title }}</a></li>
         {% endfor %}
      </ul>
     </div>
@@ -45,7 +54,7 @@
     <h4>Analysis type</h4>
     <ul class="">
         {% for at in analysis_types %}
-        <li class="{% if active.at == at.name %}active{% endif %}"><a href="{% url 'risks:data_extraction' current.loc current.ht at.name %}">{{ at.title }}</a></li>
+        <li class="{% if current.at == at.name %}active{% endif %}"><a href="{% url 'risks:data_extraction' current.loc current.ht at.name %}">{{ at.title }}</a></li>
         {% endfor %}
      </ul>
     </div>
@@ -57,7 +66,7 @@
     <h4>Available analysis</h4>
     <ul class="">
     {% for ra in risk_analysis_list %}
-        <li><a href="{% url 'risks:data_extraction_analysis' current.loc current.ht current.at ra.id %}">{{ ra.name }}</a></li>
+        <li class="{% if current.an_int == ra.id %}active{% endif %}"><a href="{% url 'risks:data_extraction_analysis' current.loc current.ht current.at ra.id %}">{{ ra.name }}</a></li>
     {% endfor %}
     </ul>
     </div>
@@ -71,7 +80,7 @@
 
             <ul class="">
                 {% for dym in dimensions %}
-                <li class="{% if active.dym == dym.name %}active{% endif %}"><a href="{% url 'risks:data_extraction_analysis_dym' current.loc current.ht current.at current.an dym.id %}">{{ dym.name }}</a></li>
+                <li class="{% if current.dym_int == dym.id %}active{% endif %}"><a href="{% url 'risks:data_extraction_analysis_dym' current.loc current.ht current.at current.an dym.id %}">{{ dym.name }}</a></li>
                 {% endfor %}
              </ul>
             </div>
@@ -80,24 +89,28 @@
         <div id="chartview" class="">
         </div>
 
-
          <table class="table">
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>dim1</th>
-                    <th>dim2</th>
+                    <th>{{ dyminfo }}</th>
+                    {% for dym in dimensions %}
+                        {% if dym != dyminfo %}
+                        <th>{{ dym }}</th>
+                        {% endif %}
+                    {% endfor %}
                     <th>value</th>
                 </tr>
             </thead>
             <tbody>
-                     
+                  
          {% for feat in features.features %}
             <tr>
              {% with p=feat.properties%}
                 <td>{{ feat.id }}</td>
-                <td>{{ p.dim1 }}</td>
-                <td>{{ p.dim2 }}</td>
+                {% for dval in p.dimensions %}
+                    <td>{{ dval }}</td>
+                {% endfor %}
                 <td>{{ p.value }}</td>
             {% endwith %}
             </tr>

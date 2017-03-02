@@ -39,9 +39,15 @@ class RiskDataExtractionView(TemplateView):
         """
 
         """
-        map_classes = {'an': (None, None, 'riskanalysis',),
-                       'axis': (None, None, 'riskanalysis_associacion__axis',),
-                       }
+        map_classes = {'an': (None, None, 'riskanalysis',)}
+        # a bit of hack:
+        # we use axis as a default value, because we don't know id value from db
+        # but we can get id from url, then we should not check by axis, but by id
+        if kwargs.get('dym'):
+            map_classes['dym'] = (None, None, 'id',)
+        else:
+            map_classes['axis'] = (None, None, 'riskanalysis_associacion__axis',)
+
         filter_args = self._extract_args_from_request(map_classes, **kwargs)
         if not filter_args:
             return None
@@ -160,18 +166,47 @@ class RiskDataExtractionView(TemplateView):
             pass
         return q
     
-    def get_features(self, analysis, dyminfo, **kwargs):
 
-        s = settings.OGC_SERVER['default']
+    def get_dim_name(self, analysis, dyminfo):
+
         ass_list = RiskAnalysisDymensionInfoAssociation.objects.filter(riskanalysis=analysis, dymensioninfo=dyminfo)
         dim_list = set([a.axis_to_dim() for a in ass_list])
         if len(dim_list) != 1:
             raise ValueError("Cannot query more than one dimension at the moment, got {}".format(len(dim_list)))
+
+        return list(dim_list)[0]
+
+    def get_dymlist_field_mapping(self, analysis, dimension, dymlist):
+        out = []
+        current_dim_name = self.get_dim_name(analysis, dimension)
+        out.append(current_dim_name)
+        for dym in dymlist:
+            if dym != dimension:
+                dim_name = self.get_dim_name(analysis, dym)
+                out.append(dim_name)
+        return out
+
+    def get_features(self, analysis, dimension, dymlist, **kwargs):
+
+        dymlist_to_fields = self.get_dymlist_field_mapping(analysis, dimension, dymlist)
+
+        s = settings.OGC_SERVER['default']
         gs = GeoserverDataSource('{}/wfs'.format(s['LOCATION']),
                                  username=s['USER'], 
                                  password=s['PASSWORD'])
+        dim_name = dymlist_to_fields[0]
 
-        return gs.get_features(list(dim_list)[0], **kwargs)
+        features = gs.get_features(dim_name, **kwargs)
+        out = dict((k, v,) for k, v in features.iteritems() if k != 'features')
+        out['features'] = []
+        for feat in features['features']:
+            p = feat['properties']
+            dimlist = []
+            for dim_name in dymlist_to_fields:
+                dimlist.append(p.get(dim_name))
+            p['dimensions'] = dimlist
+            out['features'].append(feat)
+        return out
 
     def get_analysis_list(self, **kwargs):
         """
@@ -212,6 +247,20 @@ class RiskDataExtractionView(TemplateView):
         current = defaults.copy()
         current.update(filtered_kwargs)
         out['current'] = current
+
+        # we need exact type for analysis id, otherwise comparison will fail in template
+        try:
+            current['an_int'] = int(current['an'])
+        except (KeyError, TypeError, ValueError,):
+            pass
+        try:
+            current['dym_int'] = int(current['dym'])
+        except (KeyError, TypeError, ValueError,):
+            pass
+
+
+
+
         out['location'] = self.get_location(current.get('loc'))
 
         #out['dymensioninfo_types'] = self.get_dymensioninfo(**current)
@@ -219,9 +268,10 @@ class RiskDataExtractionView(TemplateView):
         analysis_list = out['risk_analysis_list'] = self.get_analysis_list(**current)
         if analysis:
             out['analysis'] = analysis
-            out['dimensions'] = self.get_dymensioninfo_list(**current)
+            out['dimensions'] = dymlist = self.get_dymensioninfo_list(**current)
             out['dyminfo'] = dyminfo = self.get_dyminfo(**current)
-            out['features'] = self.get_features(analysis, dyminfo, **current)
+            out['dim_name'] = dim_name = self.get_dim_name(analysis, dyminfo)
+            out['features'] = self.get_features(analysis, dyminfo, dymlist, **current)
 
         return out
 
