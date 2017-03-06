@@ -13,7 +13,7 @@ class GeoserverDataSource(object):
     """
     Wrapper around WFS to get deserialized features for risk management app
     """
-    LAYER_TEMPLATE = 'geonode:risk_analysis_{}'
+    LAYER_TEMPLATE = 'geonode:risk_analysis'
     OUTPUT_FORMATS = {'application/json': json.load}
     WFCLASS = staticmethod(WebFeatureService)
 
@@ -23,12 +23,12 @@ class GeoserverDataSource(object):
 
         self.output_format = output_format
 
-    def get_layer_name(self, dim_name):
-        return self.LAYER_TEMPLATE.format(dim_name)
+    def get_layer_name(self):
+        return self.LAYER_TEMPLATE
 
     def prepare_vparams(self, vparams):
         u = urllib.quote
-        return [':'.join((u(k), u(v),)) for k, v in vparams.iteritems()]
+        return [':'.join((u(k), u(str(v)),)) for k, v in vparams.iteritems()]
 
     def get_features(self, dim_name, **kwargs):
         """
@@ -36,10 +36,12 @@ class GeoserverDataSource(object):
         @param dim_name dim value for query (layer) name
         @param kwargs keyword args used in viewparams
         """
-        lname = self.get_layer_name(dim_name)
+        lname = self.get_layer_name()
+        kwargs['dim'] = dim_name
         vparams_list = self.prepare_vparams(kwargs)
         vparams = {'viewparams': ';'.join(vparams_list)}
-        r = self.wfs.getfeature(lname, outputFormat=self.output_format, storedQueryParams=vparams, storedQueryID=1)
+        field_names = ['dim1', 'dim2','value']
+        r = self.wfs.getfeature(lname, propertyname=field_names, outputFormat=self.output_format, storedQueryParams=vparams, storedQueryID=1)
         return self.deserialize(r)
 
     def deserialize(self, val):
