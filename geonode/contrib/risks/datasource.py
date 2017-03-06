@@ -13,35 +13,49 @@ class GeoserverDataSource(object):
     """
     Wrapper around WFS to get deserialized features for risk management app
     """
-    LAYER_TEMPLATE = 'geonode:risk_analysis'
     OUTPUT_FORMATS = {'application/json': json.load}
     WFCLASS = staticmethod(WebFeatureService)
 
     def __init__(self, url, output_format='application/json', **kwargs):
-
         self.wfs = GeoserverDataSource.WFCLASS(url=url, version='2.0.0', **kwargs)
-
         self.output_format = output_format
 
-    def get_layer_name(self):
-        return self.LAYER_TEMPLATE
-
-    def prepare_vparams(self, vparams):
+    def prepare_vparams(self, vparams, separator=":"):
         u = urllib.quote
-        return [':'.join((u(k), u(str(v)),)) for k, v in vparams.iteritems()]
+        return [separator.join((u(k), u(str(v)),)) for k, v in vparams.iteritems()]
 
-    def get_features(self, dim_name, **kwargs):
+    def prepare_cql_params(self, vparams, separator="="):
+        u = urllib.quote
+        return [separator.join((u(k), "'{}'".format(v),)) for k, v in vparams.iteritems()]
+
+    def get_features(self, dim_name, layer_name, **kwargs):
         """
         Return deserialized featurelist for given params
         @param dim_name dim value for query (layer) name
         @param kwargs keyword args used in viewparams
         """
-        lname = self.get_layer_name()
-        kwargs['dim'] = dim_name
-        vparams_list = self.prepare_vparams(kwargs)
-        vparams = {'viewparams': ';'.join(vparams_list)}
-        field_names = ['dim1', 'dim2','value']
-        r = self.wfs.getfeature(lname, propertyname=field_names, outputFormat=self.output_format, storedQueryParams=vparams, storedQueryID=1)
+        # kwargs['dim'] = dim_name
+        # vparams_list = self.prepare_vparams(kwargs)
+        # vparams = {'viewparams': ';'.join(vparams_list)}
+        # field_names = ['dim1', 'dim2', 'value']
+        # r = self.wfs.getfeature(layer_name, propertyname=field_names, outputFormat=self.output_format, storedQueryParams=vparams, storedQueryID=1)
+
+        """
+        Using 'viewparams'
+        """
+        # vparams = {'viewparams': 'ra:WP6_future_proj_Hospital;ha:EQ;region:Afghanistan;adm_code:AF;d1:Hospital;d2:10'}
+        # field_names = ['risk_analysis','hazard_type','admin','adm_code','region','value','dim1_value','dim2_value','dim3_value','dim4_value','dim5_value', 'value']
+        # r = self.wfs.getfeature('{}'.format(layer_name), propertyname=field_names, outputFormat=self.output_format, storedQueryParams=vparams, storedQueryID=1)
+
+        """
+        Using 'cql_filter'
+        """
+        cql_params_list = self.prepare_cql_params(kwargs)
+        cql_filter = {'cql_filter': " and ".join(cql_params_list)}
+        # cql_filter = {'cql_filter': "(risk_analysis='WP6_future_proj_Hospital' and hazard_type='EQ' and adm_code='AF' and dim1_value='Hospital')"}
+        field_names = ['risk_analysis', 'hazard_type', 'admin', 'adm_code', 'region', 'dim1_value', 'dim2_value', 'dim3_value', 'dim4_value', 'dim5_value', 'value']
+        r = self.wfs.getfeature('{}_data'.format(layer_name), propertyname=field_names, outputFormat=self.output_format, storedQueryParams=cql_filter, storedQueryID=1)
+
         return self.deserialize(r)
 
     def deserialize(self, val):
