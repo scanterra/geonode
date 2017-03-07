@@ -11,7 +11,7 @@ class RisksViewTestCase(RisksTestCase):
 
     def test_location_view(self):
         client = Client()
-        url = '/risks/risk_data_extraction/loc/AF'
+        url = '/risks/risk_data_extraction/loc/AF/'
         resp = client.get(url)
         self.assertEqual(resp.status_code, 200)
         data = json.loads(resp.content)

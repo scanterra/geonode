@@ -25,15 +25,51 @@ from mptt.models import MPTTModel, TreeForeignKey
 from geonode.base.models import ResourceBase, TopicCategory
 from geonode.layers.models import Layer
 
-from geonode.utils import Exportable
+class Exportable(object):
+    EXPORT_FIELDS = []
 
-class AnalysisType(models.Model):
+    def export(self):
+        out = {}
+        for fname, fsource in self.EXPORT_FIELDS:
+            val = getattr(self, fsource, None)
+            if callable(val):
+                val = val()
+            out[fname] = val
+        return out
+
+class LocationAware(object):
+
+    # hack to set location context, so we can return 
+    # location-specific related objects
+    def set_location(self, loc):
+        self._location = loc
+        return self
+
+    def get_location(self):
+        if not getattr(self, '_location', None):
+            raise ValueError("Cannot use location-less {} here".format(self.__class__.__name__))
+        return self._location
+
+class HazardTypeAware(object):
+    def set_hazard_type(self, ht):
+        self._hazard_type = ht
+        return self
+
+    def get_hazard_type(self):
+        if not getattr(self, '_hazard_type', None):
+            raise ValueError("Cannot use location-less HazardType here")
+        return self._hazard_type
+
+class AnalysisType(HazardTypeAware, LocationAware, Exportable, models.Model):
     """
     For Risk Data Extraction it can be, as an instance, 'Loss Impact', 'Impact
     Analysis'. This object should also refer to any additional description
     and/or related resource useful to the users to get details on the
     Analysis type.
     """
+    EXPORT_FIELDS = (('name', 'name',),
+                     ('title', 'title',),
+                     ('href', 'href',),)
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=30, null=False, blank=False,
                             db_index=True)
@@ -49,8 +85,16 @@ class AnalysisType(models.Model):
         ordering = ['name']
         db_table = 'risks_analysistype'
 
+    def href(self):
+        loc = self.get_location()
+        ht = self.get_hazard_type()
+        return reverse('risks:analysis_type', args=(loc.code, ht.mnemonic, self.id,))
 
-class HazardType(Exportable, models.Model):
+
+    def get_analysis_details(self):
+        return {}
+
+class HazardType(LocationAware, Exportable, models.Model):
     """
     Describes an Hazard related to an Analysis and a Risk and pointing to
     additional resources on GeoNode.
@@ -83,34 +127,61 @@ class HazardType(Exportable, models.Model):
         db_table = 'risks_hazardtype'
         verbose_name_plural = 'Hazards'
 
-    # hack to set location context, so we can return 
-    # location-specific related objects
-    def _set_location(self, loc):
-        self._location = loc
-        return self
-
-    def _get_location(self):
-        if not getattr(self, '_location', None):
-            raise ValueError("Cannot use location-less HazardType here")
-        return self._location
 
     @property
     def risk_analysis_count(self):
-        loc = self._get_location()
+        loc = self.get_location()
+        ra = RiskAnalysis.objects.filter(administrative_divisions=loc,
+                                         hazard_type=self)
+        return ra.count()
+
+    def get_analysis_types(self):
+        loc = self.get_location()
+        ra = RiskAnalysis.objects.filter(administrative_divisions=loc,
+                                         hazard_type=self)
+
+        at = AnalysisType.objects.filter(riskanalysis_analysistype__in=ra)
+        return at
 
     def default_analysis_type(self):
-        loc = self._get_location()
-        at = AnalysisType.objects.filter(riskanalysis_analysistype__hazard_type__id=self.id,
-                                          riskanalysis_analysistype__administrative_division__id=loc.id)
-        
+        loc = self.get_location()
+        at = self.get_analysis_types()
         if at.exists():
+            at = at[0]
             return {'href': reverse('risks:data_extraction', args=(loc.code, self.mnemonic, at.id,))}
         else:
             return {}
 
     @property
     def href(self):
-        loc = self._get_location()
+        loc = self.get_location()
+        return reverse('risks:hazard_type', args=(loc.code, self.id,))
+
+
+    def get_hazard_details(self):
+        """
+    "hazardType": {
+        "mnemonic": "EQ",
+        "description": "Lorem ipsum dolor, .....",
+        "analysisTypes"[{
+            "name": "loss_impact",
+            "title": "Loss Impact",
+            "href": "http://disasterrisk-af.geo-solutions.it/risks/risk_data_extraction/loc/AF15/ht/EQ/at/loss_impact/"
+        }, {
+            "name": "impact",
+            "title": "Impact Analysis",
+            "href": "http://disasterrisk-af.geo-solutions.it/risks/risk_data_extraction/loc/AF15/ht/EQ/at/impact/"
+        }]
+    },
+
+
+        """
+        analysis_types = self.get_analysis_types()
+        loc = self.get_location()
+        out = {'mnemonic': self.mnemonic,
+               'description': self.description,
+               'analysisTypes': [at.set_location(loc).set_hazard_type(self).export() for at in analysis_types]}
+        return out
 
 
 class RiskAnalysis(models.Model):
