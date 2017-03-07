@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import print_function
-
 import logging
 
 from django.conf import settings
 from django.views.generic import TemplateView, View
+from django.core.urlresolvers import reverse
 
 
 from geonode.utils import json_response
@@ -304,7 +304,8 @@ class LocationView(View):
             return json_response(errors=['Invalid location code'])
         locations = loc.get_parents_chain() + [loc]
 
-        hazard_types = HazardType.objects.filter(administrative_division__id=loc.id)
+        risk_analysis = loc.riskanalysis_set.all()
+        hazard_types = HazardType.objects.filter(riskanalysis_hazardtype__in=risk_analysis)
 
         location_data = {'navItems': [location.export() for location in locations],
                          'overview': [ht._set_location(loc).export() for ht in hazard_types]}

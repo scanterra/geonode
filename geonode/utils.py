@@ -573,8 +573,10 @@ class Exportable(object):
     def export(self):
         out = {}
         for fname, fsource in self.EXPORT_FIELDS:
-            out[fname] = getattr(self, fsource, None)
-
+            val = getattr(self, fsource, None)
+            if callable(val):
+                val = val()
+            out[fname] = val
         return out
 
 def json_response(body=None, errors=None, redirect_to=None, exception=None,

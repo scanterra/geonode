@@ -22,13 +22,13 @@ import os
 import traceback
 import StringIO
 
-from django.test import TestCase
 from django.core.management import call_command
 
 from geonode.layers.models import Layer, Style
 from geonode.contrib.risks.models import RiskAnalysis, HazardType
 from geonode.contrib.risks.models import AnalysisType, DymensionInfo
 from geonode.contrib.risks.models import RiskAnalysisDymensionInfoAssociation
+from geonode.contrib.risks.tests import RisksTestCase
 
 TESTDATA_FILE_INI = os.path.join(
     os.path.dirname(__file__),
@@ -39,25 +39,14 @@ TESTDATA_FILE_DATA = os.path.join(
     'resources/impact_analysis_results_test.xlsx')
 
 
-class RisksSmokeTests(TestCase):
+
+class RisksSmokeTests(RisksTestCase):
     """
     To run the tests
 
       python manage.py test geonode.contrib.risks.tests.smoke
 
     """
-    fixtures = [
-        'sample_admin',
-        'default_oauth_apps',
-        'initial_data',
-        '001_risks_adm_divisions',
-        '002_risks_hazards',
-        '003_risks_analysis',
-        '004_risks_dymension_infos',
-        '005_risks_test_base',
-        '005_risks_test_layer'
-    ]
-
     def test_smoke_createanalysis(self):
         """Test model here"""
         self.assertTrue(os.path.isfile(TESTDATA_FILE_INI))

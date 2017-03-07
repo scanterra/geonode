@@ -18,6 +18,7 @@
 #
 #########################################################################
 
+from django.core.urlresolvers import reverse
 from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey
 
@@ -57,8 +58,8 @@ class HazardType(Exportable, models.Model):
     """
 
     EXPORT_FIELDS = (('mnemonic', 'mnemonic',),
-                     ('title': 'title',),
-                     ('riskAnalysis': 'risk_analysis_count',),
+                     ('title', 'title',),
+                     ('riskAnalysis', 'risk_analysis_count',),
                      ('defaultAnalysisType', 'default_analysis_type',),
                      ('href', 'href',))
 

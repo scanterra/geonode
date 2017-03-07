@@ -17,3 +17,19 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 #########################################################################
+
+from django.test import TestCase
+
+
+class RisksTestCase(TestCase):
+    fixtures = [
+        'sample_admin',
+        'default_oauth_apps',
+        'initial_data',
+        '001_risks_adm_divisions',
+        '002_risks_hazards',
+        '003_risks_analysis',
+        '004_risks_dymension_infos',
+        '005_risks_test_base',
+        '005_risks_test_layer'
+    ]
