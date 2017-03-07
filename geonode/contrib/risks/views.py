@@ -397,7 +397,7 @@ class HazardTypeView(LocationSource, View):
             return json_response(errors=['Invalid hazard type'], status=404)
 
         atypes = hazard_type.get_analysis_types()
-        atype = atypes[0]
+        atype = atypes[0].set_location(loc).set_hazard_type(hazard_type)
         
         out = {'navItems': [location.export() for location in locations],
                 'overview': [ht.set_location(loc).export() for ht in hazard_types],
@@ -409,4 +409,6 @@ class HazardTypeView(LocationSource, View):
 
 location_view = LocationView.as_view()
 hazard_type_view = HazardTypeView.as_view()
+# dummy views
 analysis_type_view = HazardTypeView.as_view()
+data_extraction = HazardTypeView.as_view()

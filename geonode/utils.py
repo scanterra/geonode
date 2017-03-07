@@ -567,18 +567,6 @@ def resolve_object(request, model, query, permission='base.view_resourcebase',
     return obj
 
 
-class Exportable(object):
-    EXPORT_FIELDS = []
-
-    def export(self):
-        out = {}
-        for fname, fsource in self.EXPORT_FIELDS:
-            val = getattr(self, fsource, None)
-            if callable(val):
-                val = val()
-            out[fname] = val
-        return out
-
 def json_response(body=None, errors=None, redirect_to=None, exception=None,
                   content_type=None, status=None):
     """Create a proper JSON response. If body is provided, this is the response.
