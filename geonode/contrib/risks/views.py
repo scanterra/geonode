@@ -29,6 +29,7 @@ class RiskDataExtractionView(TemplateView):
     AXIS_X = 'x'
     AXIS_Y = 'y'
     DEFAULTS = {'loc': DEFAULT_LOC, 'ht': NO_VALUE, 'at': NO_VALUE, 'axis': AXIS_X}
+    FEATURE_DEFAULTS = {'adm_code': DEFAULT_LOC, 'hazard_type': NO_VALUE}
 
     def get_location(self, loc=None):
         """
@@ -168,53 +169,57 @@ class RiskDataExtractionView(TemplateView):
         except Exception, err:
             pass
         return q
-    
 
-    def get_dim_name(self, analysis, dyminfo):
 
+    def get_dim_association(self, analysis, dyminfo):
         ass_list = RiskAnalysisDymensionInfoAssociation.objects.filter(riskanalysis=analysis, dymensioninfo=dyminfo)
         dim_list = set([a.axis_to_dim() for a in ass_list])
         if len(dim_list) != 1:
             raise ValueError("Cannot query more than one dimension at the moment, got {}".format(len(dim_list)))
 
-        return list(dim_list)[0]
+        return (ass_list[0], list(dim_list)[0])
 
     def get_dymlist_field_mapping(self, analysis, dimension, dymlist):
         out = []
-        current_dim_name = self.get_dim_name(analysis, dimension)
+        layers = []
+        current_dim_name = self.get_dim_association(analysis, dimension)[1]
         out.append(current_dim_name)
         for dym in dymlist:
             if dym != dimension:
-                dim_name = self.get_dim_name(analysis, dym)
-                out.append(dim_name)
-        return out
+                dim_association = self.get_dim_association(analysis, dym)
+                if dim_association[0].layer:
+                    layers.append(dim_association[0].layer.typename)
+                out.append(dim_association[1])
+        return (out, layers)
 
     def get_features(self, analysis, dimension, dymlist, **kwargs):
 
-        dymlist_to_fields = self.get_dymlist_field_mapping(analysis, dimension, dymlist)
+        (dymlist_to_fields, dym_layers) = self.get_dymlist_field_mapping(analysis, dimension, dymlist)
 
         s = settings.OGC_SERVER['default']
-        gs = GeoserverDataSource('{}/wfs'.format(s['LOCATION']),
-                                 username=s['USER'], 
+        gs = GeoserverDataSource('{}/wfs'.format(s['LOCATION'].strip("/")),
+                                 username=s['USER'],
                                  password=s['PASSWORD'])
         dim_name = dymlist_to_fields[0]
+        layer_name = dym_layers[0]
 
-        features = gs.get_features(dim_name, **kwargs)
+        features = gs.get_features(dim_name, layer_name, **kwargs)
         out = dict((k, v,) for k, v in features.iteritems() if k != 'features')
         out['features'] = []
         for feat in features['features']:
             p = feat['properties']
             dimlist = []
             for dim_name in dymlist_to_fields:
-                dimlist.append(p.get(dim_name))
+                dimlist.append(p.get('{}_value'.format(dim_name)))
             p['dimensions'] = dimlist
             out['features'].append(feat)
+
         return out
 
     def get_analysis_list(self, **kwargs):
         """
         Returns list of RiskAnalysis objects for given url args.
-        
+
         """
         map_classes = {'loc': (AdministrativeDivision, 'code', 'administrative_divisions'),
                        'ht': (HazardType, 'mnemonic', 'hazard_type'),
@@ -261,19 +266,25 @@ class RiskDataExtractionView(TemplateView):
         except (KeyError, TypeError, ValueError,):
             pass
 
+        out['location'] = self.get_location(filtered_kwargs.get('loc'))
 
-
-
-        out['location'] = self.get_location(current.get('loc'))
-
-        #out['dymensioninfo_types'] = self.get_dymensioninfo(**current)
         analysis = self.get_analysis(**current)
-        analysis_list = out['risk_analysis_list'] = self.get_analysis_list(**current)
+        out['risk_analysis_list'] = self.get_analysis_list(**current)
         if analysis:
             out['analysis'] = analysis
             out['dimensions'] = dymlist = self.get_dymensioninfo_list(**current)
             out['dyminfo'] = dyminfo = self.get_dyminfo(**current)
-            out['dim_name'] = dim_name = self.get_dim_name(analysis, dyminfo)
+            out['dim_name'] = dim_name = self.get_dim_association(analysis, dyminfo)[1]
+
+            current = self.FEATURE_DEFAULTS.copy()
+            current['risk_analysis'] = analysis.name
+            current['hazard_type'] = filtered_kwargs.get('ht')
+            current['adm_code'] = filtered_kwargs.get('loc')
+            # try:
+            #     if dyminfo:
+            #         current['dim{}_value'.format(int(filtered_kwargs['dym']))] = filtered_kwargs['dym']
+            # except (KeyError, TypeError, ValueError,):
+            #     pass
             out['features'] = self.get_features(analysis, dyminfo, dymlist, **current)
 
         return out
