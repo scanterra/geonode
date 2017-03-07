@@ -567,6 +567,16 @@ def resolve_object(request, model, query, permission='base.view_resourcebase',
     return obj
 
 
+class Exportable(object):
+    EXPORT_FIELDS = []
+
+    def export(self):
+        out = {}
+        for fname, fsource in self.EXPORT_FIELDS:
+            out[fname] = getattr(self, fsource, None)
+
+        return out
+
 def json_response(body=None, errors=None, redirect_to=None, exception=None,
                   content_type=None, status=None):
     """Create a proper JSON response. If body is provided, this is the response.
@@ -576,6 +586,8 @@ def json_response(body=None, errors=None, redirect_to=None, exception=None,
     exception message will be used as a format option to that string and the
     result will be a success=False, errors = body % exception
     """
+    if isinstance(body, HttpResponse):
+        return body
     if content_type is None:
         content_type = "application/json"
     if errors:

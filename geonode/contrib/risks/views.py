@@ -5,7 +5,10 @@ from __future__ import print_function
 import logging
 
 from django.conf import settings
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, View
+
+
+from geonode.utils import json_response
 from geonode.contrib.risks.models import (HazardType, AnalysisType,
                                           AdministrativeDivision, RiskAnalysis,
                                           DymensionInfo,
@@ -277,3 +280,24 @@ class RiskDataExtractionView(TemplateView):
 
 
 risk_data_extraction_index = RiskDataExtractionView.as_view()
+
+
+
+
+class LocationView(View):
+
+    def get(self, request, *args, **kwargs):
+        try:
+            loc = AdministrativeDivision.objects.get(code=kwargs['loc'])
+        except AdministrativeDivision.DoesNotExist:
+            return json_response(errors=['Invalid location code'])
+        locations = loc.get_parents_chain() + [loc]
+
+        hazard_types = HazardType.objects.filter(administrative_division__id=loc.id)
+
+        location_data = {'navItems': [location.export() for location in locations],
+                         'overview': [ht._set_location(loc).export() for ht in hazard_types]}
+
+        return json_response(location_data)
+
+location_view = LocationView.as_view()

@@ -24,6 +24,7 @@ from mptt.models import MPTTModel, TreeForeignKey
 from geonode.base.models import ResourceBase, TopicCategory
 from geonode.layers.models import Layer
 
+from geonode.utils import Exportable
 
 class AnalysisType(models.Model):
     """
@@ -48,12 +49,19 @@ class AnalysisType(models.Model):
         db_table = 'risks_analysistype'
 
 
-class HazardType(models.Model):
+class HazardType(Exportable, models.Model):
     """
     Describes an Hazard related to an Analysis and a Risk and pointing to
     additional resources on GeoNode.
     e.g.: Earthquake, Flood, Landslide, ...
     """
+
+    EXPORT_FIELDS = (('mnemonic', 'mnemonic',),
+                     ('title': 'title',),
+                     ('riskAnalysis': 'risk_analysis_count',),
+                     ('defaultAnalysisType', 'default_analysis_type',),
+                     ('href', 'href',))
+
     id = models.AutoField(primary_key=True)
     mnemonic = models.CharField(max_length=30, null=False, blank=False,
                                 db_index=True)
@@ -73,6 +81,35 @@ class HazardType(models.Model):
         ordering = ['order', 'mnemonic']
         db_table = 'risks_hazardtype'
         verbose_name_plural = 'Hazards'
+
+    # hack to set location context, so we can return 
+    # location-specific related objects
+    def _set_location(self, loc):
+        self._location = loc
+        return self
+
+    def _get_location(self):
+        if not getattr(self, '_location', None):
+            raise ValueError("Cannot use location-less HazardType here")
+        return self._location
+
+    @property
+    def risk_analysis_count(self):
+        loc = self._get_location()
+
+    def default_analysis_type(self):
+        loc = self._get_location()
+        at = AnalysisType.objects.filter(riskanalysis_analysistype__hazard_type__id=self.id,
+                                          riskanalysis_analysistype__administrative_division__id=loc.id)
+        
+        if at.exists():
+            return {'href': reverse('risks:data_extraction', args=(loc.code, self.mnemonic, at.id,))}
+        else:
+            return {}
+
+    @property
+    def href(self):
+        loc = self._get_location()
 
 
 class RiskAnalysis(models.Model):
@@ -144,10 +181,14 @@ class AdministrativeDivisionManager(models.Manager):
         return self.get(code=code)
 
 
-class AdministrativeDivision(MPTTModel):
+class AdministrativeDivision(Exportable, MPTTModel):
     """
     Administrative Division Gaul dataset.
     """
+
+    EXPORT_FIELDS = (('label', 'name',),
+                     ('href', 'href',),
+                     )
     id = models.AutoField(primary_key=True)
     code = models.CharField(max_length=30, null=False, unique=True,
                             db_index=True)
@@ -168,6 +209,11 @@ class AdministrativeDivision(MPTTModel):
         through='RiskAnalysisAdministrativeDivisionAssociation'
     )
 
+    @property
+    def href(self):
+        return reverse('risks:location_view', args=(self.code,))
+
+        
     def __unicode__(self):
         return u"{0}".format(self.name)
 
