@@ -25,7 +25,8 @@ class RiskDataExtractionView(TemplateView):
     NO_VALUE = '-'
     AXIS_X = 'x'
     AXIS_Y = 'y'
-    DEFAULTS = {'loc': DEFAULT_LOC, 'ht': NO_VALUE, 'at': NO_VALUE}
+    DEFAULTS = {'loc': DEFAULT_LOC, 'ht': NO_VALUE, 'at': NO_VALUE, 'axis': AXIS_X}
+    FEATURE_DEFAULTS = {'adm_code': DEFAULT_LOC, 'hazard_type': NO_VALUE}
 
     def get_location(self, loc=None):
         """
@@ -35,13 +36,30 @@ class RiskDataExtractionView(TemplateView):
             loc = self.DEFAULT_LOC
         return AdministrativeDivision.objects.get(code=loc)
 
-    def get_dymensioninfo(self, **kwargs):
+    def get_dyminfo(self, **kwargs):
         """
-        Returns DymensionInfo for given params
+
         """
-        map_classes = {'loc': (AdministrativeDivision, 'code', 'riskanalysis__administrative_divisions'),
-                       'ht': (HazardType, 'mnemonic', 'riskanalysis__hazard_type'),
-                       'at': (AnalysisType, 'name', 'riskanalysis__analysis_type'),
+        map_classes = {'an': (None, None, 'riskanalysis',)}
+        # a bit of hack:
+        # we use axis as a default value, because we don't know id value from db
+        # but we can get id from url, then we should not check by axis, but by id
+        if kwargs.get('dym'):
+            map_classes['dym'] = (None, None, 'id',)
+        else:
+            map_classes['axis'] = (None, None, 'riskanalysis_associacion__axis',)
+
+        filter_args = self._extract_args_from_request(map_classes, **kwargs)
+        if not filter_args:
+            return None
+
+        return DymensionInfo.objects.filter(**filter_args).distinct().get()
+
+    def get_dymensioninfo_list(self, **kwargs):
+        """
+        Returns DymensionInfo list for given params
+        """
+        map_classes = {'an': (None, None, 'riskanalysis',),
                        }
         filter_args = self._extract_args_from_request(map_classes, **kwargs)
         if not filter_args:
@@ -103,7 +121,10 @@ class RiskDataExtractionView(TemplateView):
                     klass, filter_field, filter_arg = required_map[k]
                 except KeyError:
                     continue
-                filter_params[filter_arg] = klass.objects.get(**{filter_field: v})
+                if klass is None:
+                    filter_params[filter_arg] = v
+                else:
+                    filter_params[filter_arg] = klass.objects.get(**{filter_field: v})
 
             # do not return results if we don't have all required params
             if len(filter_params.keys()) != len(required_map.keys()):
@@ -126,26 +147,88 @@ class RiskDataExtractionView(TemplateView):
                     filter_params[filter_arg] = klass.objects.get(**{filter_field: v})
         return filter_params
 
-    def get_analysis_list(self, **kwargs):
+    def get_analysis(self, **kwargs):
         """
         Returns list of RiskAnalysis objects for given url args.
         """
-        map_classes = {'loc': (AdministrativeDivision, 'code', 'riskanalysis__administrative_divisions'),
-                       'ht': (HazardType, 'mnemonic', 'riskanalysis__hazard_type'),
-                       'at': (AnalysisType, 'name', 'riskanalysis__analysis_type'),
-                       'dym': (DymensionInfo, 'id', 'dymensioninfo',),
+        map_classes = {'loc': (AdministrativeDivision, 'code', 'administrative_divisions'),
+                       'ht': (HazardType, 'mnemonic', 'hazard_type'),
+                       'at': (AnalysisType, 'name', 'analysis_type'),
+                       'an': (None, None, 'id'),
                        }
 
-        additional_map_classes = {
-                                  'axis': (None, None, 'axis',),
-                                  'an': (None, None, 'pk',),
-                                }
+        filter_params = self._extract_args_from_request(map_classes, **kwargs)
+        if not filter_params:
+            return
 
-        filter_params = self._extract_args_from_request(map_classes, additional_map_classes, **kwargs)
+        try:
+            q = RiskAnalysis.objects.get(**filter_params)
+        except Exception, err:
+            pass
+        return q
+
+
+    def get_dim_association(self, analysis, dyminfo):
+        ass_list = RiskAnalysisDymensionInfoAssociation.objects.filter(riskanalysis=analysis, dymensioninfo=dyminfo)
+        dim_list = set([a.axis_to_dim() for a in ass_list])
+        if len(dim_list) != 1:
+            raise ValueError("Cannot query more than one dimension at the moment, got {}".format(len(dim_list)))
+
+        return (ass_list[0], list(dim_list)[0])
+
+    def get_dymlist_field_mapping(self, analysis, dimension, dymlist):
+        out = []
+        layers = []
+        current_dim_name = self.get_dim_association(analysis, dimension)[1]
+        out.append(current_dim_name)
+        for dym in dymlist:
+            if dym != dimension:
+                dim_association = self.get_dim_association(analysis, dym)
+                if dim_association[0].layer:
+                    layers.append(dim_association[0].layer.typename)
+                out.append(dim_association[1])
+        return (out, layers)
+
+    def get_features(self, analysis, dimension, dymlist, **kwargs):
+
+        (dymlist_to_fields, dym_layers) = self.get_dymlist_field_mapping(analysis, dimension, dymlist)
+
+        s = settings.OGC_SERVER['default']
+        gs = GeoserverDataSource('{}/wfs'.format(s['LOCATION'].strip("/")),
+                                 username=s['USER'],
+                                 password=s['PASSWORD'])
+        dim_name = dymlist_to_fields[0]
+        layer_name = dym_layers[0]
+
+        features = gs.get_features(dim_name, layer_name, **kwargs)
+        out = dict((k, v,) for k, v in features.iteritems() if k != 'features')
+        out['features'] = []
+        for feat in features['features']:
+            p = feat['properties']
+            dimlist = []
+            for dim_name in dymlist_to_fields:
+                dimlist.append(p.get('{}_value'.format(dim_name)))
+            p['dimensions'] = dimlist
+            out['features'].append(feat)
+
+        return out
+
+    def get_analysis_list(self, **kwargs):
+        """
+        Returns list of RiskAnalysis objects for given url args.
+
+        """
+        map_classes = {'loc': (AdministrativeDivision, 'code', 'administrative_divisions'),
+                       'ht': (HazardType, 'mnemonic', 'hazard_type'),
+                       'at': (AnalysisType, 'name', 'analysis_type'),
+                       #'dym': (DymensionInfo, 'id', 'dymensioninfo',),
+                       }
+
+        filter_params = self._extract_args_from_request(map_classes, **kwargs)
         if not filter_params:
             return []
 
-        q = RiskAnalysisDymensionInfoAssociation.objects.filter(**filter_params).select_related()
+        q = RiskAnalysis.objects.filter(**filter_params)
         return q
 
     @classmethod
@@ -170,21 +253,36 @@ class RiskDataExtractionView(TemplateView):
         current.update(filtered_kwargs)
         out['current'] = current
 
-        out['dymensioninfo_types'] = self.get_dymensioninfo(**current)
-        analysis_list = out['risk_analysis_list'] = self.get_analysis_list(**current)
-        out['location'] = self.get_location(current.get('loc'))
+        # we need exact type for analysis id, otherwise comparison will fail in template
+        try:
+            current['an_int'] = int(current['an'])
+        except (KeyError, TypeError, ValueError,):
+            pass
+        try:
+            current['dym_int'] = int(current['dym'])
+        except (KeyError, TypeError, ValueError,):
+            pass
 
-        # we have one analysis
-        if len(analysis_list) == 1 and current.get('an'):
-            a = out['analysis'] = analysis_list[0]
-            s = settings.OGC_SERVER['default']
-            gs = GeoserverDataSource('{}/wfs'.format(s['LOCATION']),
-                                     username=s['USER'],
-                                     password=s['PASSWORD'])
+        out['location'] = self.get_location(filtered_kwargs.get('loc'))
 
-            dim_name = a.axis_to_dim()
-            dim_value = a.value
-            out['features'] = gs.get_features(a.axis_to_dim(), **{dim_name: dim_value})
+        analysis = self.get_analysis(**current)
+        out['risk_analysis_list'] = self.get_analysis_list(**current)
+        if analysis:
+            out['analysis'] = analysis
+            out['dimensions'] = dymlist = self.get_dymensioninfo_list(**current)
+            out['dyminfo'] = dyminfo = self.get_dyminfo(**current)
+            out['dim_name'] = dim_name = self.get_dim_association(analysis, dyminfo)[1]
+
+            current = self.FEATURE_DEFAULTS.copy()
+            current['risk_analysis'] = analysis.name
+            current['hazard_type'] = filtered_kwargs.get('ht')
+            current['adm_code'] = filtered_kwargs.get('loc')
+            # try:
+            #     if dyminfo:
+            #         current['dim{}_value'.format(int(filtered_kwargs['dym']))] = filtered_kwargs['dym']
+            # except (KeyError, TypeError, ValueError,):
+            #     pass
+            out['features'] = self.get_features(analysis, dyminfo, dymlist, **current)
 
         return out
 
