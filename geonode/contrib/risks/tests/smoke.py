@@ -24,7 +24,9 @@ import StringIO
 
 from django.core.management import call_command
 
-from geonode.layers.models import Layer, Style
+from geonode.utils import designals, resignals
+
+from geonode.layers.models import Layer
 from geonode.contrib.risks.models import RiskAnalysis, HazardType
 from geonode.contrib.risks.models import AnalysisType, DymensionInfo
 from geonode.contrib.risks.models import RiskAnalysisDymensionInfoAssociation
@@ -47,10 +49,31 @@ class RisksSmokeTests(RisksTestCase):
       python manage.py test geonode.contrib.risks.tests.smoke
 
     """
-    def test_smoke_createanalysis(self):
-        """Test model here"""
+    fixtures = [
+        'sample_admin',
+        'default_oauth_apps',
+        'initial_data',
+        '001_risks_adm_divisions',
+        '002_risks_hazards',
+        '003_risks_analysis',
+        '004_risks_dymension_infos',
+        '005_risks_test_base'
+    ]
+
+    def setUp(self):
+        # Test initialization
+        designals()
+        call_command('loaddata', '005_risks_test_layer')
+
+        # Sanity Checks
         self.assertTrue(os.path.isfile(TESTDATA_FILE_INI))
 
+    def tearDown(self):
+        # Test deinit
+        resignals()
+
+    def test_smoke_createanalysis(self):
+        """Test model here"""
         try:
             hazard = HazardType.objects.get(mnemonic="EQ")
             self.assertIsNotNone(hazard)
@@ -65,8 +88,7 @@ class RisksSmokeTests(RisksTestCase):
             self.assertTrue(False)
 
         out = StringIO.StringIO()
-        call_command('createriskanalysis',
-                     descriptor_file=TESTDATA_FILE_INI, stdout=out)
+        call_command('createriskanalysis', descriptor_file=TESTDATA_FILE_INI, stdout=out)
         value = out.getvalue()
         try:
             risk = RiskAnalysis.objects.get(name=str(value).strip())
