@@ -1,137 +1,37 @@
 {% extends 'risks_main.html' %}
-{% load i18n %}
+{% load i18n static %}
+{% load url from future %}
 
 {% block risks_page_title %}{% trans "Risk Data Extraction & Visualization" %}{% endblock %}
 
 {% block extra_head %}
 
-<style type="text/css">
-    .active {font-weight: bold}
-    .dropdown-menu {
-                    top: auto;
-                    left: auto}
+    <style type="text/css">
+        .active {font-weight: bold}
+        .dropdown-menu {
+                        top: auto;
+                        left: auto}
+    </style>
 
-</style>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.css" />
+    <link rel="stylesheet" href="https://rawgit.com/Leaflet/Leaflet.draw/v0.2.4/dist/leaflet.draw.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ol3/4.0.1/ol.css" />
+    <script src="https://maps.google.com/maps/api/js?v=3"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.3.10/proj4.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.js"></script>
+    <script src="https://rawgit.com/Leaflet/Leaflet.draw/v0.2.4/dist/leaflet.draw.js"></script>
+    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300,600' rel='stylesheet' type='text/css'>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ol3/4.0.1/ol.js"></script>
 
-{% endblock %}
+    <link rel="stylesheet" href="{% static "assets/css/mapstore2.css" %}" />
+    <link href="{% static "assets/css/common.css" %}" rel="stylesheet" />
+    <link href="{% static "assets/css/report.css" %}" rel="stylesheet" />
+{% endblock extra_head %}
 
 {% block body %}
-    <div class="container">
-
-    {% block location_bar %}
-    <ol class="breadcrumb">
-        <li><a href="{% url "home" %}">Home</a></li>
-        {% for loc in location.get_parents_chain %}
-        <li class="{% if current.loc == loc.code %}active{% endif %}"><a href="{% url 'risks:data_extraction' loc.code current.ht current.at %}">{{ loc.name }}</a></li>
-        {% endfor %}
-        <li class="{% if current.loc == location.code %}active{% endif %}"><a href="{% url 'risks:data_extraction' location.code current.ht current.at %}">{{ location.name }}</a></li>
-        {% if location.children.exists %}
-        <li>
-                <a href="#sublocations-dropdown" data-toggle="dropdown" data-target="#">More..
-                <ul id="sublocations-dropdown" class="dropdown-menu">
-                {% for loc in location.children.all %}
-                    <li><a href="{% url 'risks:data_extraction' loc.code current.ht current.at %}">{{ loc.name }}</a></li>
-                {% endfor %}
-                </ul>
-                </a>
-        </li>
-        {% endif %}
-    </ol>
-    {% endblock %}
-
-    {% block hazard_type_bar %}
-    <div class="hazard_type_bar">    
-    <h4>Hazard Type</h4>
-    <ul class="">
-        <li><a href="#">Overview</a></li>
-        {% for ht in hazard_types %}
-        <li class="{% if current.ht == ht.mnemonic %}active{% endif %}"><a href="{% url 'risks:data_extraction' current.loc ht.mnemonic current.at %}">{{ ht.title }}</a></li>
-        {% endfor %}
-     </ul>
-    </div>
-
-    {% endblock %}
-
-    {% block analysis_type_bar %}
-    <div class="analysis_type_bar">    
-    <h4>Analysis type</h4>
-    <ul class="">
-        {% for at in analysis_types %}
-        <li class="{% if current.at == at.name %}active{% endif %}"><a href="{% url 'risks:data_extraction' current.loc current.ht at.name %}">{{ at.title }}</a></li>
-        {% endfor %}
-     </ul>
-    </div>
-    {% endblock %}
-
-    
-
-    <div class="contents row">
-    <h4>Available analysis</h4>
-    <ul class="">
-    {% for ra in risk_analysis_list %}
-        <li class="{% if current.an_int == ra.id %}active{% endif %}"><a href="{% url 'risks:data_extraction_analysis' current.loc current.ht current.at ra.id %}">{{ ra.name }}</a></li>
-    {% endfor %}
-    </ul>
-    </div>
-
-    {% if analysis %}
-        <h3><small>current</small> {{ analysis.name }}</h3>
-
-            {% block dymensioninfo_bar %}
-            <div class="dymensioninfo_bar">
-            <h4>Dymension Info</h4>
-
-            <ul class="">
-                {% for dym in dimensions %}
-                <li class="{% if current.dym_int == dym.id %}active{% endif %}"><a href="{% url 'risks:data_extraction_analysis_dym' current.loc current.ht current.at current.an dym.id %}">{{ dym.name }}</a></li>
-                {% endfor %}
-             </ul>
-            </div>
-            {% endblock %}
-
-        <div id="chartview" class="">
-        </div>
-
-         <table class="table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>{{ dyminfo }}</th>
-                    {% for dym in dimensions %}
-                        {% if dym != dyminfo %}
-                        <th>{{ dym }}</th>
-                        {% endif %}
-                    {% endfor %}
-                    <th>value</th>
-                </tr>
-            </thead>
-            <tbody>
-                  
-         {% for feat in features.features %}
-            <tr>
-             {% with p=feat.properties%}
-                <td>{{ feat.id }}</td>
-                {% for dval in p.dimensions %}
-                    <td>{{ dval }}</td>
-                {% endfor %}
-                <td>{{ p.value }}</td>
-            {% endwith %}
-            </tr>
-        {% endfor %}
-        </table>
-
-
-    {% endif %}
-
-
-
-    </div>
-{% endblock %}
-
-{% block sidebar %}
-    {% if analysis %}
-        <div id="mapview" class="">
-        </div>
-    {% endif %}
-
-{% endblock %}
+    <div id="container"></div>
+    <script type="text/javascript" src="{% static "js/disastermanagement-client.js" %}"></script>
+{% endblock body %}
