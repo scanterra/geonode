@@ -505,55 +505,24 @@ class DataExtractionView(FeaturesSource, HazardTypeView):
 
     def reformat_features(self, risk, dimension, dimensions, features):
         """
-        "data": {
-            "dimensions": [
-                {
-                    "name": "Scenario",
-                    "abstract": "Lorem ipsum dolor,...",
-                    "unit": "NA",
-                    "values": [
-                        "Hospital",
-                        "SSP1",
-                        "SSP2",
-                        "SSP3",
-                        "SSP4",
-                        "SSP5"
-                    ]
-                },
-                {
-                    "name": "Round Period",
-                    "abstract": "Lorem ipsum dolor,...",
-                    "unit": "Years",
-                    "values": [
-                        "10",
-                        "20",
-                        "50",
-                        "100",
-                        "250",
-                        "500",
-                        "1000",
-                        "2500"
-                    ]
-                }
-            ],
-            "values":[
-                ["Hospital","10",0.0],
-                ["Hospital","20",0.0],
-                ["Hospital","50",0.0],
-                ["Hospital","100",0.0],
-                ["Hospital","250",6000000.0],
-                ["Hospital","500",6000000.0],
-                ["Hospital","1000",6000000.0],
-                ["Hospital","2500",6000000.0],
-
-                ["SSP1","10",0.0],
-                ["SSP1","20",0.0],
+        Returns risk data as proper structure
 
         """
-        out = {'dimensions': [dim.set_risk_analysis(risk).export() for dim in dimensions], 
-        
-        'values': []}
+        values = []
+        _fields = [self.get_dim_association(risk, dimension)] +\
+                  [self.get_dim_association(risk, dim) for dim in dimensions if dim.id != dimension.id]
 
+        fields = ['{}_value'.format(f[1]) for f in _fields]
+        
+        for feat in features:
+            p = feat['properties']
+            line = []
+            [line.append(p[f]) for f in fields]
+            line.append(p['value'])
+            values.append(line)
+
+        out = {'dimensions': [dim.set_risk_analysis(risk).export() for dim in dimensions], 
+               'values': values}
 
         return out
 
@@ -590,7 +559,7 @@ class DataExtractionView(FeaturesSource, HazardTypeView):
         feat_kwargs = self.url_kwargs_to_query_params(**kwargs)
         feat_kwargs['risk_analysis'] = risk.name
         features = self.get_features(risk, dimension, dymlist, **feat_kwargs)
-        out['riskAnalysisData']['data'] = self.reformat_features(risk, dimension, dymlist, features)
+        out['riskAnalysisData']['data'] = self.reformat_features(risk, dimension, dymlist, features['features'])
 
         return json_response(out)
 
