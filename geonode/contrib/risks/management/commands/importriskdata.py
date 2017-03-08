@@ -131,13 +131,32 @@ class Command(BaseCommand):
 
         CREATE TABLE public.test_dimensions
         (
-          test_fid integer REFERENCES public.test (fid) ON DELETE CASCADE,
-          dim1_id integer REFERENCES public.dimension (dim_id) ON DELETE CASCADE,
-          dim2_id integer REFERENCES public.dimension (dim_id) ON DELETE CASCADE,
-          dim3_id integer REFERENCES public.dimension (dim_id) ON DELETE CASCADE,
-          dim4_id integer REFERENCES public.dimension (dim_id) ON DELETE CASCADE,
-          dim5_id integer REFERENCES public.dimension (dim_id) ON DELETE CASCADE,
-          value character varying(255)
+          test_fid integer,
+          dim1_id integer,
+          dim2_id integer,
+          dim3_id integer,
+          dim4_id integer,
+          dim5_id integer,
+          value character varying(255),
+          CONSTRAINT test_dimensions_dim1_id_fkey FOREIGN KEY (dim1_id)
+              REFERENCES public.dimension (dim_id) MATCH SIMPLE
+              ON UPDATE NO ACTION ON DELETE CASCADE,
+          CONSTRAINT test_dimensions_dim2_id_fkey FOREIGN KEY (dim2_id)
+              REFERENCES public.dimension (dim_id) MATCH SIMPLE
+              ON UPDATE NO ACTION ON DELETE CASCADE,
+          CONSTRAINT test_dimensions_dim3_id_fkey FOREIGN KEY (dim3_id)
+              REFERENCES public.dimension (dim_id) MATCH SIMPLE
+              ON UPDATE NO ACTION ON DELETE CASCADE,
+          CONSTRAINT test_dimensions_dim4_id_fkey FOREIGN KEY (dim4_id)
+              REFERENCES public.dimension (dim_id) MATCH SIMPLE
+              ON UPDATE NO ACTION ON DELETE CASCADE,
+          CONSTRAINT test_dimensions_dim5_id_fkey FOREIGN KEY (dim5_id)
+              REFERENCES public.dimension (dim_id) MATCH SIMPLE
+              ON UPDATE NO ACTION ON DELETE CASCADE,
+          CONSTRAINT test_dimensions_test_fid_fkey FOREIGN KEY (test_fid)
+              REFERENCES public.test (fid) MATCH SIMPLE
+              ON UPDATE NO ACTION ON DELETE CASCADE,
+          CONSTRAINT test_dimensions_unique_constraint UNIQUE (test_fid, dim1_id, dim2_id, dim3_id, dim4_id, dim5_id)
         )
         WITH (
           OIDS=FALSE
@@ -483,6 +502,14 @@ class Command(BaseCommand):
                 dim_ids[dim_col] = 'NULL'
 
         insert_dimension_value_template = "INSERT INTO {table}_dimensions(test_fid, dim1_id, dim2_id, dim3_id, dim4_id, dim5_id, value) " +\
-                                          "VALUES(" + str(next_table_fid) + ", {dim1}, {dim2}, {dim3}, {dim4}, {dim5}, '{value}');"
+                                          "SELECT " + str(next_table_fid) + ", {dim1}, {dim2}, {dim3}, {dim4}, {dim5}, '{value}' " +\
+                                          "WHERE NOT EXISTS (SELECT test_fid FROM public.test_dimensions WHERE " +\
+                                          " test_fid = 18 AND " +\
+                                          " (dim1_id IS NULL OR dim1_id = {dim1}) AND " +\
+                                          " (dim2_id IS NULL OR dim2_id = {dim2}) AND " +\
+                                          " (dim3_id IS NULL OR dim3_id = {dim3}) AND " +\
+                                          " (dim4_id IS NULL OR dim4_id = {dim4}) AND " +\
+                                          " (dim5_id IS NULL OR dim5_id = {dim5}) " +\
+                                          ") RETURNING test_fid;"
 
         curs.execute(insert_dimension_value_template.format(**dim_ids))
