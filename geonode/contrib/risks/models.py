@@ -766,7 +766,7 @@ class HazardSet(Exportable, models.Model):
 
     def get_country(self):
         if self.country:
-            self.couyntry.name
+            self.country.name
 
 class FurtherResource(models.Model):
     """
