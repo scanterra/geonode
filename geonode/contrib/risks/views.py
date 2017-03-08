@@ -389,7 +389,7 @@ class HazardTypeView(LocationSource, View):
         if not atypes.exists():
             return None, None,
         if not kwargs.get('at'):
-            atype = atypes.first().set_location(loc).set_hazard_type(hazard_type)
+            atype = atypes.first().set_location(location).set_hazard_type(hazard_type)
         else:
             atype = atypes.get(name=kwargs['at']).set_location(location).set_hazard_type(hazard_type)
         return atype, atypes,
