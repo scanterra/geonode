@@ -24,7 +24,9 @@ import StringIO
 
 from django.core.management import call_command
 
-from geonode.layers.models import Layer, Style
+from geonode.utils import designals, resignals
+
+from geonode.layers.models import Layer
 from geonode.contrib.risks.models import RiskAnalysis, HazardType
 from geonode.contrib.risks.models import AnalysisType, DymensionInfo
 from geonode.contrib.risks.models import RiskAnalysisDymensionInfoAssociation
@@ -47,10 +49,31 @@ class RisksSmokeTests(RisksTestCase):
       python manage.py test geonode.contrib.risks.tests.smoke
 
     """
-    def test_smoke_createanalysis(self):
-        """Test model here"""
+    fixtures = [
+        'sample_admin',
+        'default_oauth_apps',
+        'initial_data',
+        '001_risks_adm_divisions',
+        '002_risks_hazards',
+        '003_risks_analysis',
+        '004_risks_dymension_infos',
+        '005_risks_test_base'
+    ]
+
+    def setUp(self):
+        # Test initialization
+        designals()
+        call_command('loaddata', '005_risks_test_layer')
+
+        # Sanity Checks
         self.assertTrue(os.path.isfile(TESTDATA_FILE_INI))
 
+    def tearDown(self):
+        # Test deinit
+        resignals()
+
+    def test_smoke_createanalysis(self):
+        """Test model here"""
         try:
             hazard = HazardType.objects.get(mnemonic="EQ")
             self.assertIsNotNone(hazard)
@@ -64,39 +87,39 @@ class RisksSmokeTests(RisksTestCase):
             traceback.print_exc()
             self.assertTrue(False)
 
-        out = StringIO.StringIO()
-        call_command('createriskanalysis',
-                     descriptor_file=TESTDATA_FILE_INI, stdout=out)
-        value = out.getvalue()
-        try:
-            risk = RiskAnalysis.objects.get(name=str(value).strip())
-            self.assertIsNotNone(risk)
+            out = StringIO.StringIO()
+            call_command('createriskanalysis',
+            descriptor_file=TESTDATA_FILE_INI, stdout=out)
+            value = out.getvalue()
+            try:
+                risk = RiskAnalysis.objects.get(name=str(value).strip())
+                self.assertIsNotNone(risk)
 
-            dim1 = DymensionInfo.objects.get(name="Scenario")
-            self.assertIsNotNone(dim1)
+                dim1 = DymensionInfo.objects.get(name="Scenario")
+                self.assertIsNotNone(dim1)
 
-            dim2 = DymensionInfo.objects.get(name="Round Period")
-            self.assertIsNotNone(dim2)
+                dim2 = DymensionInfo.objects.get(name="Round Period")
+                self.assertIsNotNone(dim2)
 
-            rd1 = RiskAnalysisDymensionInfoAssociation.objects.filter(dymensioninfo=dim1, riskanalysis=risk)
-            self.assertIsNotNone(rd1)
-            self.assertEqual(len(rd1), 2)
-            self.assertEqual(rd1[0].order, 0)
-            self.assertEqual(rd1[0].axis, u'x')
-            self.assertEqual(rd1[0].value, u'Hospital')
-            self.assertEqual(rd1[1].order, 1)
-            self.assertEqual(rd1[1].axis, u'x')
-            self.assertEqual(rd1[1].value, u'SSP1')
+                rd1 = RiskAnalysisDymensionInfoAssociation.objects.filter(dymensioninfo=dim1, riskanalysis=risk)
+                self.assertIsNotNone(rd1)
+                self.assertEqual(len(rd1), 2)
+                self.assertEqual(rd1[0].order, 0)
+                self.assertEqual(rd1[0].axis, u'x')
+                self.assertEqual(rd1[0].value, u'Hospital')
+                self.assertEqual(rd1[1].order, 1)
+                self.assertEqual(rd1[1].axis, u'x')
+                self.assertEqual(rd1[1].value, u'SSP1')
 
-            rd2 = RiskAnalysisDymensionInfoAssociation.objects.filter(dymensioninfo=dim2, riskanalysis=risk)
-            self.assertIsNotNone(rd2)
-            self.assertEqual(len(rd2), 2)
-            self.assertEqual(rd2[0].order, 0)
-            self.assertEqual(rd2[0].axis, u'y')
-            self.assertEqual(rd2[0].value, u'10')
-            self.assertEqual(rd2[1].order, 1)
-            self.assertEqual(rd2[1].axis, u'y')
-            self.assertEqual(rd2[1].value, u'20')
-        except:
-            traceback.print_exc()
-            self.assertTrue(False)
+                rd2 = RiskAnalysisDymensionInfoAssociation.objects.filter(dymensioninfo=dim2, riskanalysis=risk)
+                self.assertIsNotNone(rd2)
+                self.assertEqual(len(rd2), 2)
+                self.assertEqual(rd2[0].order, 0)
+                self.assertEqual(rd2[0].axis, u'y')
+                self.assertEqual(rd2[0].value, u'10')
+                self.assertEqual(rd2[1].order, 1)
+                self.assertEqual(rd2[1].axis, u'y')
+                self.assertEqual(rd2[1].value, u'20')
+            except:
+                traceback.print_exc()
+                self.assertTrue(False)
