@@ -22,7 +22,6 @@ import os
 import traceback
 import StringIO
 
-from django.test import TestCase
 from django.core.management import call_command
 
 from geonode.utils import designals, resignals
@@ -31,6 +30,7 @@ from geonode.layers.models import Layer
 from geonode.contrib.risks.models import RiskAnalysis, HazardType
 from geonode.contrib.risks.models import AnalysisType, DymensionInfo
 from geonode.contrib.risks.models import RiskAnalysisDymensionInfoAssociation
+from geonode.contrib.risks.tests import RisksTestCase
 
 TESTDATA_FILE_INI = os.path.join(
     os.path.dirname(__file__),
@@ -41,7 +41,8 @@ TESTDATA_FILE_DATA = os.path.join(
     'resources/impact_analysis_results_test.xlsx')
 
 
-class RisksSmokeTests(TestCase):
+
+class RisksSmokeTests(RisksTestCase):
     """
     To run the tests
 

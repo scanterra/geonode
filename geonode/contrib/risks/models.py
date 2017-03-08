@@ -18,20 +18,71 @@
 #
 #########################################################################
 
+from django.core.urlresolvers import reverse
 from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey
 
 from geonode.base.models import ResourceBase, TopicCategory
 from geonode.layers.models import Layer
 
+class Exportable(object):
+    EXPORT_FIELDS = []
 
-class AnalysisType(models.Model):
+    def export(self):
+        out = {}
+        for fname, fsource in self.EXPORT_FIELDS:
+            val = getattr(self, fsource, None)
+            if callable(val):
+                val = val()
+            out[fname] = val
+        return out
+
+class LocationAware(object):
+
+    # hack to set location context, so we can return 
+    # location-specific related objects
+    def set_location(self, loc):
+        self._location = loc
+        return self
+
+    def get_location(self):
+        if not getattr(self, '_location', None):
+            raise ValueError("Cannot use location-less {} here".format(self.__class__.__name__))
+        return self._location
+
+class HazardTypeAware(object):
+    def set_hazard_type(self, ht):
+        self._hazard_type = ht
+        return self
+
+    def get_hazard_type(self):
+        if not getattr(self, '_hazard_type', None):
+            raise ValueError("Cannot use hazard-type-less {} here".format(self.__class__.__name__))
+        return self._hazard_type
+
+class AnalysisTypeAware(object):
+
+    def set_analysis_type(self, ht):
+        self._analysis_type = ht
+        return self
+
+    def get_analysis_type(self):
+        if not getattr(self, '_analysis_type', None):
+            raise ValueError("Cannot use analysis-type-less {} here".format(self.__class__.__name__))
+        return self._analysis_type
+
+
+
+class AnalysisType(HazardTypeAware, LocationAware, Exportable, models.Model):
     """
     For Risk Data Extraction it can be, as an instance, 'Loss Impact', 'Impact
     Analysis'. This object should also refer to any additional description
     and/or related resource useful to the users to get details on the
     Analysis type.
     """
+    EXPORT_FIELDS = (('name', 'name',),
+                     ('title', 'title',),
+                     ('href', 'href',),)
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=30, null=False, blank=False,
                             db_index=True)
@@ -47,13 +98,40 @@ class AnalysisType(models.Model):
         ordering = ['name']
         db_table = 'risks_analysistype'
 
+    def href(self):
+        loc = self.get_location()
+        ht = self.get_hazard_type()
+        return reverse('risks:analysis_type', args=(loc.code, ht.mnemonic, self.name,))
 
-class HazardType(models.Model):
+    def get_analysis_details(self):
+        loc = self.get_location()
+        ht = self.get_hazard_type().set_location(loc)
+        ra = self.riskanalysis_analysistype.filter(hazard_type=ht, 
+                                      administrative_divisions__in=[loc])
+        out = self.export()
+        risk_analysis = [ r.set_location(loc)\
+                           .set_hazard_type(ht)\
+                           .set_analysis_type(self)\
+                           .export() 
+                           for r in ra]
+
+        out['riskAnalysis'] = risk_analysis
+
+        return out
+
+class HazardType(LocationAware, Exportable, models.Model):
     """
     Describes an Hazard related to an Analysis and a Risk and pointing to
     additional resources on GeoNode.
     e.g.: Earthquake, Flood, Landslide, ...
     """
+
+    EXPORT_FIELDS = (('mnemonic', 'mnemonic',),
+                     ('title', 'title',),
+                     ('riskAnalysis', 'risk_analysis_count',),
+                     ('defaultAnalysisType', 'default_analysis_type',),
+                     ('href', 'href',))
+
     id = models.AutoField(primary_key=True)
     mnemonic = models.CharField(max_length=30, null=False, blank=False,
                                 db_index=True)
@@ -75,7 +153,63 @@ class HazardType(models.Model):
         verbose_name_plural = 'Hazards'
 
 
-class RiskAnalysis(models.Model):
+    @property
+    def risk_analysis_count(self):
+        loc = self.get_location()
+        ra = RiskAnalysis.objects.filter(administrative_divisions=loc,
+                                         hazard_type=self)
+        return ra.count()
+
+    def get_analysis_types(self):
+        loc = self.get_location()
+        ra = RiskAnalysis.objects.filter(administrative_divisions=loc,
+                                         hazard_type=self)
+
+        at = AnalysisType.objects.filter(riskanalysis_analysistype__in=ra)
+        return at
+
+    def default_analysis_type(self):
+        loc = self.get_location()
+        at = self.get_analysis_types()
+        if at.exists():
+            at = at[0]
+            return {'href': reverse('risks:analysis_type', args=(loc.code, self.mnemonic, at.name,))}
+        else:
+            return {}
+
+    @property
+    def href(self):
+        loc = self.get_location()
+        return reverse('risks:hazard_type', args=(loc.code, self.mnemonic,))
+
+
+    def get_hazard_details(self):
+        """
+    "hazardType": {
+        "mnemonic": "EQ",
+        "description": "Lorem ipsum dolor, .....",
+        "analysisTypes"[{
+            "name": "loss_impact",
+            "title": "Loss Impact",
+            "href": "http://disasterrisk-af.geo-solutions.it/risks/risk_data_extraction/loc/AF15/ht/EQ/at/loss_impact/"
+        }, {
+            "name": "impact",
+            "title": "Impact Analysis",
+            "href": "http://disasterrisk-af.geo-solutions.it/risks/risk_data_extraction/loc/AF15/ht/EQ/at/impact/"
+        }]
+    },
+
+
+        """
+        analysis_types = self.get_analysis_types()
+        loc = self.get_location()
+        out = {'mnemonic': self.mnemonic,
+               'description': self.description,
+               'analysisTypes': [at.set_location(loc).set_hazard_type(self).export() for at in analysis_types]}
+        return out
+
+
+class RiskAnalysis(LocationAware, HazardTypeAware, AnalysisTypeAware, Exportable, models.Model):
     """
     A type of Analysis associated to an Hazard (Earthquake, Flood, ...) and
     an Administrative Division.
@@ -83,6 +217,10 @@ class RiskAnalysis(models.Model):
     It defines a set of Dymensions (here we have the descriptors), to be used
     to filter SQLViews values on GeoServer.
     """
+
+    EXPORT_FIELDS = (('name', 'name',),
+                     ('hazardSet', 'get_hazard_set',),
+                     ('href', 'href',),)
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=30, null=False, blank=False,
                             db_index=True)
@@ -136,6 +274,15 @@ class RiskAnalysis(models.Model):
         db_table = 'risks_riskanalysis'
         verbose_name_plural = 'Risks Analysis'
 
+    def get_hazard_set(self):
+        if self.hazardset:
+            return self.hazardset.export()
+
+    def href(self):
+        loc = self.get_location()
+        ht = self.get_hazard_type()
+        at = self.get_analysis_type()
+        return reverse('risks:analysis_view', args=(loc.code, ht.mnemonic, at.name, self.id,))
 
 class AdministrativeDivisionManager(models.Manager):
     """
@@ -144,10 +291,14 @@ class AdministrativeDivisionManager(models.Manager):
         return self.get(code=code)
 
 
-class AdministrativeDivision(MPTTModel):
+class AdministrativeDivision(Exportable, MPTTModel):
     """
     Administrative Division Gaul dataset.
     """
+
+    EXPORT_FIELDS = (('label', 'name',),
+                     ('href', 'href',),
+                     )
     id = models.AutoField(primary_key=True)
     code = models.CharField(max_length=30, null=False, unique=True,
                             db_index=True)
@@ -168,6 +319,11 @@ class AdministrativeDivision(MPTTModel):
         through='RiskAnalysisAdministrativeDivisionAssociation'
     )
 
+    @property
+    def href(self):
+        return reverse('risks:location', args=(self.code,))
+
+        
     def __unicode__(self):
         return u"{0}".format(self.name)
 
@@ -382,7 +538,7 @@ class PointOfContact(models.Model):
         db_table = 'risks_pointofcontact'
 
 
-class HazardSet(models.Model):
+class HazardSet(Exportable, models.Model):
     """
     Risk Dataset Metadata.
 
@@ -445,6 +601,11 @@ class HazardSet(models.Model):
      Electronic Mail Address  	     [O]
      Role  	                         [O]
     """
+    EXPORT_FIELDS = (('title', 'title',),
+                     ('abstract', 'abstract',),
+                     ('category', 'get_category',),
+                     ('fa_icon', 'get_fa_icon'),)
+
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=255, null=False, blank=False)
     date = models.CharField(max_length=20, null=False, blank=False)
@@ -507,6 +668,14 @@ class HazardSet(models.Model):
         """
         """
         db_table = 'risks_hazardset'
+
+    def get_category(self):
+        return self.topic_category.identifier
+
+    def get_fa_icon(self):
+        return self.topic_category.fa_class
+
+
 
 
 class FurtherResource(models.Model):
