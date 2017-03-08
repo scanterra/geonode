@@ -172,7 +172,7 @@ class HazardType(LocationAware, Exportable, models.Model):
         loc = self.get_location()
         at = self.get_analysis_types()
         if at.exists():
-            at = at[0]
+            at = at.first()
             return {'href': reverse('risks:analysis_type', args=(loc.code, self.mnemonic, at.name,))}
         else:
             return {}

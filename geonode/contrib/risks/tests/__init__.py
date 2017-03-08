@@ -20,7 +20,6 @@
 
 from django.test import TestCase
 
-
 class RisksTestCase(TestCase):
     fixtures = [
         'sample_admin',

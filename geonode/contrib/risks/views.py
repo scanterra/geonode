@@ -177,7 +177,7 @@ class RiskDataExtractionView(TemplateView):
         if len(dim_list) != 1:
             raise ValueError("Cannot query more than one dimension at the moment, got {}".format(len(dim_list)))
 
-        return (ass_list[0], list(dim_list)[0])
+        return (ass_list.first(), list(dim_list)[0])
 
     def get_dymlist_field_mapping(self, analysis, dimension, dymlist):
         out = []
@@ -383,6 +383,18 @@ class HazardTypeView(LocationSource, View):
         except (KeyError, HazardType.DoesNotExist,):
             return
 
+    def get_analysis_type(self, location, hazard_type, **kwargs):
+
+        atypes = hazard_type.get_analysis_types()
+        if not atypes.exists():
+            return None, None,
+        if not kwargs.get('at'):
+            atype = atypes.first().set_location(loc).set_hazard_type(hazard_type)
+        else:
+            atype = atypes.get(name=kwargs['at']).set_location(location).set_hazard_type(hazard_type)
+        return atype, atypes,
+
+
     def get(self, request, *args, **kwargs):
         locations = self.get_location(**kwargs)
         if not locations:
@@ -396,8 +408,10 @@ class HazardTypeView(LocationSource, View):
         if not hazard_type:
             return json_response(errors=['Invalid hazard type'], status=404)
 
-        atypes = hazard_type.get_analysis_types()
-        atype = atypes[0].set_location(loc).set_hazard_type(hazard_type)
+        (atype, atypes,) = self.get_analysis_type(loc, hazard_type, **kwargs)
+        if not atype:
+            return json_response(errors=['No analysis type available for location/hazard type'], status=404)
+
         
         out = {'navItems': [location.export() for location in locations],
                 'overview': [ht.set_location(loc).export() for ht in hazard_types],
@@ -407,8 +421,92 @@ class HazardTypeView(LocationSource, View):
         return json_response(out)
 
 
+class DataExtractionView(HazardView):
+    """
+
+{
+    "riskAnalysisData": {
+        "name": "",
+        "descriptorFile": "",
+        "dataFile": "",
+        "metadataFile": "",
+        "hazardSet": {
+            "title": "",
+            "abstract": "",
+            "purpose": "",
+            "category": "",
+            ... other metadata ...
+        },
+        "data": {
+            "dimensions": [
+                {
+                    "name": "Scenario",
+                    "abstract": "Lorem ipsum dolor,...",
+                    "unit": "NA",
+                    "values": [
+                        "Hospital",
+                        "SSP1",
+                        "SSP2",
+                        "SSP3",
+                        "SSP4",
+                        "SSP5"
+                    ]
+                },
+                {
+                    "name": "Round Period",
+                    "abstract": "Lorem ipsum dolor,...",
+                    "unit": "Years",
+                    "values": [
+                        "10",
+                        "20",
+                        "50",
+                        "100",
+                        "250",
+                        "500",
+                        "1000",
+                        "2500"
+                    ]
+                }
+            ],
+            "values":[
+                ["Hospital","10",0.0],
+                ["Hospital","20",0.0],
+                ["Hospital","50",0.0],
+                ["Hospital","100",0.0],
+                ["Hospital","250",6000000.0],
+                ["Hospital","500",6000000.0],
+                ["Hospital","1000",6000000.0],
+                ["Hospital","2500",6000000.0],
+
+                ["SSP1","10",0.0],
+                ["SSP1","20",0.0],
+                ["SSP1","50",0.0],
+                ["SSP1","100",64380000.0],
+                ["SSP1","250",64380000.0],
+                ["SSP1","500",64380000.0],
+                ["SSP1","1000",64380000.0],
+                ["SSP1","2500",64380000.0],
+
+                ...
+            ]
+        }
+    }
+}
+
+    """
+
+    def get(self, request, *args, **kwargs):
+
+
+
+
+        out = {}
+
+        return out
+
 location_view = LocationView.as_view()
 hazard_type_view = HazardTypeView.as_view()
-# dummy views
 analysis_type_view = HazardTypeView.as_view()
-data_extraction = HazardTypeView.as_view()
+
+
+data_extraction = DataExtractionView.as_view()
