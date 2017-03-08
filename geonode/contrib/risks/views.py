@@ -311,7 +311,7 @@ class LocationView(LocationSource, View):
             return json_response(errors=['Invalid location code'], status=404)
         loc = locations[-1]
         risk_analysis = loc.riskanalysis_set.all()
-        hazard_types = HazardType.objects.filter(riskanalysis_hazardtype__in=risk_analysis)
+        hazard_types = HazardType.objects.filter(riskanalysis_hazardtype__in=risk_analysis).distinct()
 
         location_data = {'navItems': [location.export() for location in locations],
                          'overview': [ht.set_location(loc).export() for ht in hazard_types]}
@@ -401,7 +401,7 @@ class HazardTypeView(LocationSource, View):
             return json_response(errors=['Invalid location code'], status=404)
         loc = locations[-1]
         risk_analysis = loc.riskanalysis_set.all()
-        hazard_types = HazardType.objects.filter(riskanalysis_hazardtype__in=risk_analysis)
+        hazard_types = HazardType.objects.filter(riskanalysis_hazardtype__in=risk_analysis).distinct()
 
         hazard_type = self.get_hazard_type(loc, **kwargs)
 
@@ -421,7 +421,7 @@ class HazardTypeView(LocationSource, View):
         return json_response(out)
 
 
-class DataExtractionView(HazardView):
+class DataExtractionView(HazardTypeView):
     """
 
 {

@@ -107,7 +107,7 @@ class AnalysisType(HazardTypeAware, LocationAware, Exportable, models.Model):
         loc = self.get_location()
         ht = self.get_hazard_type().set_location(loc)
         ra = self.riskanalysis_analysistype.filter(hazard_type=ht, 
-                                      administrative_divisions__in=[loc])
+                                      administrative_divisions__in=[loc]).distinct()
         out = self.export()
         risk_analysis = [ r.set_location(loc)\
                            .set_hazard_type(ht)\
@@ -165,7 +165,7 @@ class HazardType(LocationAware, Exportable, models.Model):
         ra = RiskAnalysis.objects.filter(administrative_divisions=loc,
                                          hazard_type=self)
 
-        at = AnalysisType.objects.filter(riskanalysis_analysistype__in=ra)
+        at = AnalysisType.objects.filter(riskanalysis_analysistype__in=ra).distinct()
         return at
 
     def default_analysis_type(self):
