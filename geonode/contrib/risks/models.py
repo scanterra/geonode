@@ -21,19 +21,26 @@
 from django.core.urlresolvers import reverse
 from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey
-
+from django.core import files
 from geonode.base.models import ResourceBase, TopicCategory
 from geonode.layers.models import Layer
 
 class Exportable(object):
     EXPORT_FIELDS = []
 
-    def export(self):
+    def export(self, fieldset=None):
         out = {}
-        for fname, fsource in self.EXPORT_FIELDS:
+        if fieldset is None:
+            fieldset = self.EXPORT_FIELDS
+        for fname, fsource in fieldset:
             val = getattr(self, fsource, None)
             if callable(val):
                 val = val()
+            elif isinstance(val, files.File):
+                try:
+                    val = val.url
+                except ValueError:
+                    val = None
             out[fname] = val
         return out
 
@@ -72,6 +79,16 @@ class AnalysisTypeAware(object):
         return self._analysis_type
 
 
+class RiskAnalysisAware(object):
+    def set_risk_analysis(self, ht):
+        self._risk_analysis = ht
+        return self
+
+    def get_risk_analysis(self):
+        if not getattr(self, '_risk_analysis', None):
+            raise ValueError("Cannot use analysis-type-less {} here".format(self.__class__.__name__))
+        return self._risk_analysis
+    
 
 class AnalysisType(HazardTypeAware, LocationAware, Exportable, models.Model):
     """
@@ -103,20 +120,23 @@ class AnalysisType(HazardTypeAware, LocationAware, Exportable, models.Model):
         ht = self.get_hazard_type()
         return reverse('risks:analysis_type', args=(loc.code, ht.mnemonic, self.name,))
 
-    def get_analysis_details(self):
+    def get_risk_analysis_list(self, **kwargs):
         loc = self.get_location()
         ht = self.get_hazard_type().set_location(loc)
         ra = self.riskanalysis_analysistype.filter(hazard_type=ht, 
                                       administrative_divisions__in=[loc])
-        out = self.export()
+        if kwargs:
+            ra = ra.filter(**kwargs)
         risk_analysis = [ r.set_location(loc)\
                            .set_hazard_type(ht)\
                            .set_analysis_type(self)\
-                           .export() 
-                           for r in ra]
+                           for r in ra.distinct()]
+        return risk_analysis
 
-        out['riskAnalysis'] = risk_analysis
-
+    def get_analysis_details(self):
+        risk_analysis = self.get_risk_analysis_list()
+        out = self.export()
+        out['riskAnalysis'] = [ra.export() for ra in risk_analysis]
         return out
 
 class HazardType(LocationAware, Exportable, models.Model):
@@ -165,14 +185,14 @@ class HazardType(LocationAware, Exportable, models.Model):
         ra = RiskAnalysis.objects.filter(administrative_divisions=loc,
                                          hazard_type=self)
 
-        at = AnalysisType.objects.filter(riskanalysis_analysistype__in=ra)
+        at = AnalysisType.objects.filter(riskanalysis_analysistype__in=ra).distinct()
         return at
 
     def default_analysis_type(self):
         loc = self.get_location()
         at = self.get_analysis_types()
         if at.exists():
-            at = at[0]
+            at = at.first()
             return {'href': reverse('risks:analysis_type', args=(loc.code, self.mnemonic, at.name,))}
         else:
             return {}
@@ -221,6 +241,12 @@ class RiskAnalysis(LocationAware, HazardTypeAware, AnalysisTypeAware, Exportable
     EXPORT_FIELDS = (('name', 'name',),
                      ('hazardSet', 'get_hazard_set',),
                      ('href', 'href',),)
+    EXPORT_FIELDS_EXTENDED = (('name', 'name',),
+                              ('descriptorFile', 'descriptor_file',),
+                              ('dataFile', 'data_file',),
+                              ('metadataFile',  'metadata_file',),
+                              ('hazardSet', 'get_hazard_set_extended',))
+
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=30, null=False, blank=False,
                             db_index=True)
@@ -274,15 +300,25 @@ class RiskAnalysis(LocationAware, HazardTypeAware, AnalysisTypeAware, Exportable
         db_table = 'risks_riskanalysis'
         verbose_name_plural = 'Risks Analysis'
 
-    def get_hazard_set(self):
+    def get_risk_details(self, dimension=None):
+        """
+        Returns dictionary with selected fields for 
+        """
+        out = self.export(self.EXPORT_FIELDS_EXTENDED)
+        return out
+
+    def get_hazard_set_extended(self):
+        return self.get_hazard_set(HazardSet.EXPORT_FIELDS_EXTENDED)
+
+    def get_hazard_set(self, fields=None):
         if self.hazardset:
-            return self.hazardset.export()
+            return self.hazardset.export(fields)
 
     def href(self):
         loc = self.get_location()
         ht = self.get_hazard_type()
         at = self.get_analysis_type()
-        return reverse('risks:analysis_view', args=(loc.code, ht.mnemonic, at.name, self.id,))
+        return reverse('risks:data_extraction', args=(loc.code, ht.mnemonic, at.name, self.id,))
 
 class AdministrativeDivisionManager(models.Manager):
     """
@@ -378,7 +414,7 @@ class Region(models.Model):
         verbose_name_plural = 'Regions'
 
 
-class DymensionInfo(models.Model):
+class DymensionInfo(RiskAnalysisAware, Exportable, models.Model):
     """
     Set of Dymensions (here we have the descriptors), to be used
     to filter SQLViews values on GeoServer.
@@ -413,6 +449,11 @@ class DymensionInfo(models.Model):
      {riskanalysis: risk.identifier, dim1: 'RP-10', dim2: 'Base'} -> [values]
 
     """
+    EXPORT_FIELDS = (('name', 'name',),
+                     ('abstract', 'abstract',),
+                     ('unit', 'unit',),
+                     ('values', 'get_axis_values',),)
+
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=30, null=False, blank=False,
                             db_index=True)
@@ -434,6 +475,9 @@ class DymensionInfo(models.Model):
         ordering = ['name']
         db_table = 'risks_dymensioninfo'
 
+    def get_axis_values(self):
+        risk = self.get_risk_analysis()
+        return list(self.riskanalysis_associacion.filter(riskanalysis=risk).values_list('value', flat=True))
 
 class RiskAnalysisAdministrativeDivisionAssociation(models.Model):
     """
@@ -497,10 +541,19 @@ class RiskAnalysisDymensionInfoAssociation(models.Model):
         return self.DIM[self.axis]
 
 
-class PointOfContact(models.Model):
+class PointOfContact(Exportable, models.Model):
     """
     Risk Dataset Point of Contact; can be the poc or the author.
     """
+    EXPORT_FILEDS = (('individualName', 'individual_name',),
+                     ('organizationName', 'organization_name',),
+                     ('positionName', 'position_name',),
+                     ('deliveryPoint', 'delivery_point',),
+                     ('city', 'city',),
+                     ('postalCode', 'postal_code',),
+                     ('email', 'e_mail',),
+                     ('role', 'role',),)
+
     id = models.AutoField(primary_key=True)
     individual_name = models.CharField(max_length=255, null=False, blank=False)
     organization_name = models.CharField(max_length=255, null=False,
@@ -606,6 +659,34 @@ class HazardSet(Exportable, models.Model):
                      ('category', 'get_category',),
                      ('fa_icon', 'get_fa_icon'),)
 
+    EXPORT_FIELDS_EXTENDED = (('title', 'title',),
+                              ('date', 'date',),
+                              ('dateType', 'date_type',),
+                              ('edition', 'edition',),
+                              ('abstract', 'abstract',),
+                              ('purpose', 'purpose',),
+                              ('keyword', 'keyword',),
+                              ('useConstraints', 'use_contraints',),
+                              ('otherConstraints', 'other_constraints',),
+                              ('spatialRepresentationType', 'spatial_representation_type',),
+                              ('language', 'language',),
+                              ('beginDate', 'begin_date',),
+                              ('endDate', 'end_date',),
+                              ('bounds', 'bounds',),
+                              ('supplementalInformation', 'supplemental_information',),
+                              ('onlineResource', 'online_resource',),
+                              ('url', 'url',),
+                              ('description', 'description',),
+                              ('referenceSystemCode', 'reference_system_code',),
+                              ('dataQualityStatement', 'data_quality_statement',),
+                              ('pointOfContact', 'get_poc',),
+                              ('author', 'get_author',),
+                              ('category', 'get_category',),
+                              ('country', 'get_country',),)
+
+
+
+
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=255, null=False, blank=False)
     date = models.CharField(max_length=20, null=False, blank=False)
@@ -675,8 +756,17 @@ class HazardSet(Exportable, models.Model):
     def get_fa_icon(self):
         return self.topic_category.fa_class
 
+    def get_poc(self):
+        if self.poc:
+            return self.poc.export()
 
+    def get_author(self):
+        if self.author:
+            self.author.export()
 
+    def get_country(self):
+        if self.country:
+            self.country.name
 
 class FurtherResource(models.Model):
     """

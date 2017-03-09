@@ -34,7 +34,6 @@ TESTDATA_SQL_TEARDOWN = os.path.join(
     os.path.dirname(__file__),
     'resources/test_data_teardown.sql')
 
-
 class RisksTestCase(TestCase):
     fixtures = [
         'sample_admin',

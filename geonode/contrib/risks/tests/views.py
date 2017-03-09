@@ -11,9 +11,27 @@ class RisksViewTestCase(RisksTestCase):
 
     def test_location_view(self):
         client = Client()
+        url = '/risks/risk_data_extraction/loc/INVALID/'
+        resp = client.get(url)
+        self.assertEqual(resp.status_code, 404)
+        data = json.loads(resp.content)
+        self.assertFalse(data.get('navItems'))
+        self.assertTrue(data.get('errors'))
+
         url = '/risks/risk_data_extraction/loc/AF/'
         resp = client.get(url)
         self.assertEqual(resp.status_code, 200)
         data = json.loads(resp.content)
-        self.assertTrue('navItems' in data)
+        self.assertTrue(data.get('navItems'))
+        self.assertTrue(data.get('overview'))
+        for ht in data['overview']:
+
+            url = ht['href']
+            resp = client.get(url)
         
+            self.assertEqual(resp.status_code, 200)
+            data = json.loads(resp.content)
+            self.assertTrue(data.get('navItems'))
+        
+
+
