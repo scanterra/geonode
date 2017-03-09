@@ -1,9 +1,12 @@
 #!/bin/bash
 
+set -x 
+set -h
+
 CURRENT=$(dirname $0)
 DEPLOY_BASE='../../../geonode/contrib/risks/static/'
-ASSETS_DIR="${BASE_NAME}assets"
-DIST_DIR="${BASE_NAME}js"
+ASSETS_DIR="${DEPLOY_BASE}assets"
+DIST_DIR="${DEPLOY_BASE}js"
 
 pushd ${CURRENT}
 mkdir -p tmp-dmc/
