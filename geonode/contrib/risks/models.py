@@ -316,6 +316,7 @@ class RiskAnalysis(LocationAware, HazardTypeAware, AnalysisTypeAware, Exportable
     def get_hazard_set(self, fields=None):
         if self.hazardset:
             return self.hazardset.export(fields)
+        return {}
 
     def href(self):
         loc = self.get_location()
@@ -489,9 +490,18 @@ class DymensionInfo(RiskAnalysisAware, Exportable, models.Model):
         ordering = ['name']
         db_table = 'risks_dymensioninfo'
 
-    def get_axis_values(self):
+    def get_axis(self):
         risk = self.get_risk_analysis()
-        return list(self.riskanalysis_associacion.filter(riskanalysis=risk).values_list('value', flat=True))
+        return self.riskanalysis_associacion.filter(riskanalysis=risk).order_by('order')
+
+    def get_axis_values(self):
+        axis = self.get_axis()
+        return list(axis.values_list('value', flat=True))
+
+    def get_axis_order(self):
+        axis = self.get_axis()
+        return list(axis.values_list('value', 'order'))
+
 
 
 class RiskAnalysisAdministrativeDivisionAssociation(models.Model):

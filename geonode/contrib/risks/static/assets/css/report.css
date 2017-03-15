@@ -496,7 +496,7 @@ footer:after {
 .analysis-tab li .arrow {
     position: relative;
     color: #58595b;
-    bottom: -15px;
+    bottom: -18px;
     width: 0;
     height: 0;
     border-left: 60px solid transparent;

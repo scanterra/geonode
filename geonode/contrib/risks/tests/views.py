@@ -60,7 +60,7 @@ class RisksViewTestCase(RisksTestCase):
 
         # let's check non-empty hazard types, there should be some risk analysis here!
         for ne in non_empty:
-            resp = client.get(url)
+            resp = client.get(ne)
             self.assertEqual(resp.status_code, 200,
                              'wrong status on non-empty hazard type {}: {}'.format(url, resp.content))
             data = json.loads(resp.content)

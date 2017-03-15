@@ -63,20 +63,9 @@ class Command(BaseCommand):
                     -m WP6_Impact_analysis_results_future_projections_Population\ -\ metadata.xlsx
 
     The procedure requires a layer on GeoServer based on the following table definition:
-
-        CREATE SEQUENCE public.test_fid_seq
-          INCREMENT 1
-          MINVALUE 1
-          MAXVALUE 9223372036854775807
-          START 1
-          CACHE 1;
-        ALTER TABLE public.test_fid_seq
-          OWNER TO geonode;
-
-
         CREATE TABLE public.test
         (
-          fid integer NOT NULL DEFAULT nextval('test_fid_seq'::regclass),
+          fid serial not null,
           the_geom geometry(MultiPolygon,4326),
           risk_analysis character varying(80),
           hazard_type character varying(30),
@@ -101,21 +90,12 @@ class Command(BaseCommand):
 
         --
 
-        CREATE SEQUENCE public.dimension_fid_seq
-          INCREMENT 1
-          MINVALUE 1
-          MAXVALUE 9223372036854775807
-          START 1
-          CACHE 1;
-        ALTER TABLE public.dimension_fid_seq
-          OWNER TO geonode;
-
-
         CREATE TABLE public.dimension
         (
-          dim_id integer NOT NULL DEFAULT nextval('dimension_fid_seq'::regclass),
+          dim_id serial not null, 
           dim_col character varying(30),
           dim_value character varying(255),
+          dim_order int not null default 0,
           CONSTRAINT dimension_pkey PRIMARY KEY (dim_id)
         )
         WITH (
@@ -172,11 +152,11 @@ class Command(BaseCommand):
       FROM public.test
         JOIN (
           SELECT join_table.test_fid, join_table.value,
-                 d1.dim_col dim1_col, d1.dim_value dim1_value,
-                 d2.dim_col dim2_col, d2.dim_value dim2_value,
-                 d3.dim_col dim3_col, d3.dim_value dim3_value,
-                 d4.dim_col dim4_col, d4.dim_value dim4_value,
-                 d5.dim_col dim5_col, d5.dim_value dim5_value
+                 d1.dim_col dim1_col, d1.dim_value dim1_value, d1.dim_order dim1_order,
+                 d2.dim_col dim2_col, d2.dim_value dim2_value, d2.dim_order dim2_order,
+                 d3.dim_col dim3_col, d3.dim_value dim3_value, d3.dim_order dim3_order,
+                 d4.dim_col dim4_col, d4.dim_value dim4_value, d4.dim_order dim4_order,
+                 d5.dim_col dim5_col, d5.dim_value dim5_value, d5.dim_order dim5_order
             FROM
     	  public.test_dimensions join_table
     	    LEFT JOIN public.dimension d1 ON (d1.dim_id = join_table.dim1_id)
@@ -197,6 +177,9 @@ class Command(BaseCommand):
       (dim3_value = '%d3%' OR dim3_value is NULL) AND
       (dim4_value = '%d4%' OR dim4_value is NULL) AND
       (dim5_value = '%d5%' OR dim5_value is NULL)
+
+      order by %order_by%
+
 
 
     Querying GeoServer means passing through "viewparams" similar to the following ones:
@@ -235,11 +218,11 @@ class Command(BaseCommand):
       FROM public.test
         JOIN (
           SELECT join_table.test_fid, join_table.value,
-                 d1.dim_col dim1_col, d1.dim_value dim1_value,
-                 d2.dim_col dim2_col, d2.dim_value dim2_value,
-                 d3.dim_col dim3_col, d3.dim_value dim3_value,
-                 d4.dim_col dim4_col, d4.dim_value dim4_value,
-                 d5.dim_col dim5_col, d5.dim_value dim5_value
+                 d1.dim_col dim1_col, d1.dim_value dim1_value, d1.dim_order dim1_order,
+                 d2.dim_col dim2_col, d2.dim_value dim2_value, d2.dim_order dim2_order,
+                 d3.dim_col dim3_col, d3.dim_value dim3_value, d3.dim_order dim3_order,
+                 d4.dim_col dim4_col, d4.dim_value dim4_value, d4.dim_order dim4_order,
+                 d5.dim_col dim5_col, d5.dim_value dim5_value, d5.dim_order dim5_order
             FROM
     	  public.test_dimensions join_table
     	    LEFT JOIN public.dimension d1 ON (d1.dim_id = join_table.dim1_id)
@@ -248,6 +231,9 @@ class Command(BaseCommand):
     	    LEFT JOIN public.dimension d4 ON (d4.dim_id = join_table.dim4_id)
     	    LEFT JOIN public.dimension d5 ON (d5.dim_id = join_table.dim5_id)
         ) rd ON (rd.test_fid = fid)
+        order by dim1_order, dim2_order
+
+
 
     And perform queries using "cql_filter" parameter
 
@@ -366,7 +352,9 @@ class Command(BaseCommand):
                                     'table': table_name,  # From rp.layer
                                     'the_geom': geos.fromstr(adm_div.geom, srid=adm_div.srid),
                                     'dim1': scenario.value,
+                                    'dim1_order': scenario.order,
                                     'dim2': rp.value,
+                                    'dim2_order': rp.order,
                                     'dim3': None,
                                     'dim4': None,
                                     'dim5': None,
@@ -470,17 +458,20 @@ class Command(BaseCommand):
             'value': values['value']
         }
         for dim_idx in range(1, 6):
-            dim_col = 'dim' + str(dim_idx)
+            dim_col = 'dim{}'.format(dim_idx)
+            dim_order = 'dim{}_order'.format(dim_idx)
             if values[dim_col]:
-                insert_dimension_template = "INSERT INTO public.dimension(dim_col, dim_value) " +\
-                                            "SELECT '" + dim_col + "', '{" + dim_col + "}' " +\
-                                            "WHERE " +\
-                                            "NOT EXISTS " +\
+                values['dim_col'] = dim_col
+                values['dim_order'] = values[dim_order]
+                values['dim_value'] = values[dim_col]
+                insert_dimension_template = "INSERT INTO public.dimension(dim_col, dim_value, dim_order) " +\
+                                            "SELECT %(dim_col)s, %(dim_value)s, %(dim_order)s " +\
+                                            "WHERE NOT EXISTS " +\
                                             "(SELECT dim_id FROM public.dimension " +\
-                                            "WHERE dim_col = '" + dim_col + "' AND dim_value = '{" + dim_col + "}') " +\
+                                            "WHERE dim_col = %(dim_col)s AND dim_value = %(dim_value)s) " +\
                                             "RETURNING dim_id;"
 
-                curs.execute(insert_dimension_template.format(**values))
+                curs.execute(insert_dimension_template.format(**values), values)
                 id_of_new_row = curs.fetchone()
                 next_dim_id = None
                 if id_of_new_row:
@@ -488,9 +479,10 @@ class Command(BaseCommand):
 
                 if next_dim_id is None:
                     select_dimension_template = "SELECT dim_id FROM public.dimension " +\
-                        "WHERE dim_col = '" + dim_col + "' AND dim_value = '{" + dim_col + "}';"
+                        "WHERE dim_col = %(dim_col)s AND dim_value = %(dim_value)s;"
 
-                    curs.execute(select_dimension_template.format(**values))
+                     
+                    curs.execute(select_dimension_template.format(**values), values)
                     id_of_new_row = curs.fetchone()
                     if id_of_new_row:
                         next_dim_id = id_of_new_row[0]

@@ -17,6 +17,23 @@ cost_benefit_index = TemplateView.as_view(template_name='risks/cost_benefit_inde
 log = logging.getLogger(__name__)
 
 
+class ContextAware(object):
+
+    def get_context_url(self, **kwargs):
+        keys = ['ht', 'at', 'an', 'dym']
+        out = []
+        for k in keys:
+            if kwargs.get(k):
+                out.extend([k, kwargs[k]])
+            else:
+                break
+        if out:
+            url = '{}/'.format('/'.join(out))
+        else:
+            url = None
+        return url
+
+
 class FeaturesSource(object):
 
     AXIS_X = 'x'
@@ -87,7 +104,7 @@ class LocationSource(object):
         return locations
 
 
-class LocationView(LocationSource, View):
+class LocationView(ContextAware, LocationSource, View):
 
     def get(self, request, *args, **kwargs):
         locations = self.get_location(**kwargs)
@@ -97,12 +114,13 @@ class LocationView(LocationSource, View):
         hazard_types = HazardType.objects.all()
 
         location_data = {'navItems': [location.export() for location in locations],
+                         'context': self.get_context_url(**kwargs),
                          'overview': [ht.set_location(loc).export() for ht in hazard_types]}
 
         return json_response(location_data)
 
 
-class HazardTypeView(LocationSource, View):
+class HazardTypeView(ContextAware, LocationSource, View):
     """
     loc/AF/ht/EQ/"
 {
@@ -195,6 +213,7 @@ class HazardTypeView(LocationSource, View):
 
         out = {'navItems': [location.export() for location in locations],
                'overview': [ht.set_location(loc).export() for ht in hazard_types],
+               'context': self.get_context_url(**kwargs),
                'hazardType': hazard_type.get_hazard_details(),
                'analysisType': atype.get_analysis_details()}
 
@@ -285,12 +304,41 @@ class DataExtractionView(FeaturesSource, HazardTypeView):
                   [self.get_dim_association(risk, dim) for dim in dimensions if dim.id != dimension.id]
         fields = ['{}_value'.format(f[1]) for f in _fields]
 
+        orders = [dict(dimension.set_risk_analysis(risk).get_axis_order())] +\
+                 [dict(d.set_risk_analysis(risk).get_axis_order()) for d in dimensions if d.id != dimension.id]
+
+        orders_len = len(orders)
+
+        def make_order_val(feat):
+            """
+            compute order value
+            """
+            _order_vals = []
+
+            for idx, o in enumerate(orders):
+                dim_name = 'dim{}_value'.format(idx+1)
+                val = feat['properties'].get(dim_name)
+                order_val = o.get(val)
+                if order_val is None:
+                    order_val = 1000
+                # 111 > 1, 1, 1
+                mag = 10 ** (orders_len - idx)
+                _order_vals.append('{}'.format(order_val * mag))
+            return ''.join(_order_vals)
+
+        def order_key(val):
+            # order by last val
+            return val.pop(-1)
+
         for feat in features:
             p = feat['properties']
             line = []
             [line.append(p[f]) for f in fields]
             line.append(p['value'])
+            line.append(make_order_val(feat))
             values.append(line)
+
+        values.sort(key=order_key)
 
         out = {'dimensions': [dim.set_risk_analysis(risk).export() for dim in dimensions],
                'values': values}
@@ -328,6 +376,7 @@ class DataExtractionView(FeaturesSource, HazardTypeView):
         feat_kwargs['risk_analysis'] = risk.name
         features = self.get_features(risk, dimension, dymlist, **feat_kwargs)
         out['riskAnalysisData']['data'] = self.reformat_features(risk, dimension, dymlist, features['features'])
+        out['context'] = self.get_context_url(**kwargs)
 
         return json_response(out)
 

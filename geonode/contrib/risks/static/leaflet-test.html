@@ -19,17 +19,10 @@
                     },
 
                     onAdd: function(map){
-
-                    
                         var that = this;
-
-
                         var onclick = function(evt){
                             var g = that.options.gsource;
-                            if (g.parent_url!=null){
-                                g.url = g.parent_url;
-                                g.init();
-                            }
+                            g.handle_layer_zoom_out();
                             return false;
                         };
                         var c = L.DomUtil.create('div', 'leaflet-control leaflet-control-zoomout');
@@ -38,10 +31,7 @@
                         this._container = c;
                         return c;
                     },
-        
-
                 });
-              
 
             var GeoJSONSource = function(initial_url, map){
                 this.url = initial_url;
@@ -60,7 +50,6 @@
                                    layer.on('click', that.handle_layer_click);
                                    }
                                }
-
                     var g = L.geoJson(data,opts);
                     g.addTo(map);
                     var b = g.getBounds();
@@ -68,6 +57,23 @@
                     this.layer = g;
                     this.map.fitBounds(b);
                     this.map.panTo(c);
+                    }, this);
+
+                this.handle_layer_zoom_out = _p(function(){
+                    if (this.layer == null){
+                        return;
+                    }
+                    var parent_url = null;
+                    var current_url = this.url;
+                    this.layer.eachLayer(function(l){
+                            if (l.feature.properties.geom == current_url){
+                                parent_url = l.feature.properties.parent_geom
+                            }
+                        });
+                    if (parent_url != null){
+                        this.url = parent_url;
+                        this.init();
+                    }
 
 
                     }, this);
@@ -85,7 +91,6 @@
                 this.init = _p(function(){
                     $.get(this.url, this.onload);
                     }, this);
-
                 this.init();
             }
 
@@ -93,10 +98,8 @@
                 var container = $('#map');
                 var layers = [ L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {minZoom: 5, maxZoom: 21}),
                                 ];
-
                 var map_opts = {'layers': layers, zoom: 10, center: [0, 0], };
                 var map = L.map(container[0], map_opts);
-
                 _gs = new GeoJSONSource('/risks/geom/loc/AF/', map);
                 var z = new ZoomOutControl({gsource: _gs});
                 z.addTo(map);
@@ -115,7 +118,6 @@
                 padding: 5px;
                 border-radius: 2px;
                 border: solid 1px #898;
-        
                 
                 }
 

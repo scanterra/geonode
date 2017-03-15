@@ -1,15 +1,6 @@
-CREATE SEQUENCE public.test_fid_seq
-  INCREMENT 1
-  MINVALUE 1
-  MAXVALUE 9223372036854775807
-  START 1
-  CACHE 1;
-ALTER TABLE public.test_fid_seq
-  OWNER TO geonode;
-
 CREATE TABLE public.test
 (
-  fid integer NOT NULL DEFAULT nextval('test_fid_seq'::regclass),
+  fid serial not null,
   the_geom geometry(MultiPolygon,4326),
   risk_analysis character varying(80),
   hazard_type character varying(30),
@@ -34,20 +25,12 @@ CREATE INDEX test_idx_nulls_low
 
 --
 
-CREATE SEQUENCE public.dimension_fid_seq
-  INCREMENT 1
-  MINVALUE 1
-  MAXVALUE 9223372036854775807
-  START 1
-  CACHE 1;
-ALTER TABLE public.dimension_fid_seq
-  OWNER TO geonode;
-
 CREATE TABLE public.dimension
 (
-  dim_id integer NOT NULL DEFAULT nextval('dimension_fid_seq'::regclass),
+  dim_id serial not null,
   dim_col character varying(30),
   dim_value character varying(255),
+  dim_order integer not null default 0,
   CONSTRAINT dimension_pkey PRIMARY KEY (dim_id)
 )
 WITH (
