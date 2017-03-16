@@ -16,8 +16,7 @@ const markerSelector = state => (state.mapInfo && state.mapInfo.showMarker && st
 const geoColderSelector = state => (state.search && state.search.markerPosition);
 const disasterSelector = state => ({
     riskAnalysis: state.disaster && state.disaster.riskAnalysis,
-    dim: state.disaster && state.disaster.dim || {dim1: 0, dim2: 1},
-    dimIdx: state.disaster && state.disaster.dimIdx || 0,
+    dim: state.disaster && state.disaster.dim || {dim1: 0, dim2: 1, dim1Idx: 0, dim2Idx: 0},
     loading: state.disaster && state.disaster.loading
 });
 // TODO currently loading flag causes a re-creation of the selector on any pan
@@ -31,7 +30,8 @@ function getLayerName(disaster) {
 }
 
 function getViewParam(disaster) {
-    return {"viewparams": disaster.riskAnalysis.wms.viewparams.replace('d1:{}/d2:{}', `d1:${disaster.dim.dim1}/d2:${disaster.dim.dim2}`)};
+    // d1 always Scenario, d2 always Round period
+    return {"viewparams": disaster.riskAnalysis.wms.viewparams.replace('d1:{};d2:{}', `d1:SSP1;d2:10`)};
 }
 
 const layerSelectorWithMarkers = createSelector(

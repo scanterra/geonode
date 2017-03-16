@@ -6,7 +6,7 @@ const riskItemsSel = ({disaster = {}}) => disaster.overview || [];
 const hazardTypeSel = ({disaster = {}}) => disaster.hazardType || {};
 const analysisTypeSel = ({disaster = {}}) => disaster.analysisType || {};
 const riskAnalysisDataSel = ({disaster = {}}) => disaster.riskAnalysis && disaster.riskAnalysis.riskAnalysisData || {};
-const dimSelector = ({disaster = {}}) => ({dim: disaster.dim || {dim1: 0, dim2: 1}, dimIdx: disaster.dimIdx || 0});
+const dimSelector = ({disaster = {}}) => disaster.dim || {dim1: 0, dim2: 1, dim1Idx: 0, dim2Idx: 0};
 const contextSel = ({disaster = {}}) => disaster.context && !isNull(disaster.context) && disaster.context || '';
 const topBarSelector = createSelector([navItemsSel, riskItemsSel, hazardTypeSel, contextSel],
      (navItems, riskItems, hazardType, context) => ({
@@ -24,8 +24,7 @@ const dataContainerSelector = createSelector([riskItemsSel, hazardTypeSel, analy
         hazardType,
         analysisType,
         riskAnalysisData,
-        dim: dim.dim,
-        dimIdx: dim.dimIdx
+        dim
     }));
 const drillUpSelector = createSelector([navItemsSel, contextSel],
      (navItems, context) => ({
@@ -37,12 +36,18 @@ const drillUpSelector = createSelector([navItemsSel, contextSel],
     }));
 const switchDimSelector = createSelector([riskAnalysisDataSel, dimSelector],
     (riskAnalysisData, dim) => ({
-    dimName: riskAnalysisData.data && riskAnalysisData.data.dimensions && riskAnalysisData.data.dimensions[dim.dim.dim2].name
+    dimName: riskAnalysisData.data && riskAnalysisData.data.dimensions && riskAnalysisData.data.dimensions[dim.dim2].name
+    }));
+const axesSelector = createSelector([riskAnalysisDataSel, dimSelector],
+    (riskAnalysisData, dim) => ({
+    dimension: riskAnalysisData.data && riskAnalysisData.data.dimensions && riskAnalysisData.data.dimensions[dim.dim2],
+        activeAxis: dim.dim2Idx
     }));
 module.exports = {
     drillUpSelector,
     topBarSelector,
     dataContainerSelector,
-    switchDimSelector
+    switchDimSelector,
+    axesSelector
 };
 

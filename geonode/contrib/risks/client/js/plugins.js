@@ -8,8 +8,7 @@
 
 module.exports = {
     plugins: {
-        MapPlugin: require('../MapStore2/web/client/plugins/Map'),
-        HomePlugin: require('../MapStore2/web/client/plugins/Home')
+        MapPlugin: require('../MapStore2/web/client/plugins/Map')
     },
     requires: {}
 };

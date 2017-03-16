@@ -164,9 +164,10 @@ function loadMapConfig(configName, mapId, featuresUrl) {
         });
     };
 }
-function setDimIdx(idx) {
+function setDimIdx(dim, idx) {
     return {
         type: SET_DIM_IDX,
+        dim,
         idx
     };
 }

@@ -5527,3 +5527,19 @@
   font-size: 18px;
   float: right;
 }
+.disaster .map-axis {
+  width: 86px;
+  border: 1px solid gray;
+  margin-left: 1px;
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow-y: hidden;
+  text-overflow: ellipsis;
+  padding: 3px;
+  cursor: pointer;
+  color: blue;
+}
+.disaster .map-axis.active {
+  cursor: auto;
+  color: black;
+}

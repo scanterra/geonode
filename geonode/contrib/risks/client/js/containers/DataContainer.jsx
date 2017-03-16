@@ -24,7 +24,6 @@ const DataContainer = React.createClass({
         analysisType: React.PropTypes.object,
         riskAnalysisData: React.PropTypes.object,
         dim: React.PropTypes.object,
-        dimIdx: React.PropTypes.number,
         hazardType: React.PropTypes.shape({
             mnemonic: React.PropTypes.string,
             description: React.PropTypes.string,
@@ -40,8 +39,7 @@ const DataContainer = React.createClass({
             showHazard: false,
             getData: () => {},
             getAnalysis: () => {},
-            className: "col-sm-7",
-            dimVal: 0
+            className: "col-sm-7"
         };
     },
     getRandomColor() {
@@ -58,7 +56,7 @@ const DataContainer = React.createClass({
         return data.filter((d) => d[nameIdx] === val ).map((v) => {return {"name": v[dim], "value": parseInt(v[2], 10)}; });
     },
     renderAnalysisData() {
-        const {dim, dimIdx, setDimIdx: sIdx} = this.props;
+        const {dim, setDimIdx: sIdx} = this.props;
         const {hazardSet, data} = this.props.riskAnalysisData;
         return (<div>
             <h4>{hazardSet.title}</h4><br/>
@@ -66,13 +64,13 @@ const DataContainer = React.createClass({
                 <br/>
                 <ul>
                     {data.dimensions[dim.dim1].values.map((val, idx) => {
-                        return idx === dimIdx ? (
+                        return idx === dim.dim1Idx ? (
                             <li key={val} style={{marginBottom: 30}}>
                                 <span>{`${data.dimensions[dim.dim1].name} ${val}`}</span>
                                 <Chart dimension={data.dimensions} values={data.values} val={val} dim={dim}/>
                             </li>) : (
                             <li key={val} style={{marginBottom: 20}}>
-                                <span style={{color: 'blue', cursor: 'pointer'}} onClick={() => sIdx(idx)}>{`${data.dimensions[dim.dim1].name} ${val}`}</span>
+                                <span style={{color: 'blue', cursor: 'pointer'}} onClick={() => sIdx('dim1Idx', idx)}>{`${data.dimensions[dim.dim1].name} ${val}`}</span>
                             </li>);
                     })}
                     </ul>

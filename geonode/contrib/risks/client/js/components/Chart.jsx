@@ -13,11 +13,7 @@ const Chart = React.createClass({
     propTypes: {
         values: React.PropTypes.array,
         dimension: React.PropTypes.array,
-        dim: React.PropTypes.shape({
-            dim1: React.PropTypes.number.isRequired,
-            dim2: React.PropTypes.number.isRequired
-
-        }),
+        dim: React.PropTypes.object,
         val: React.PropTypes.string
     },
     getDefaultProps() {
