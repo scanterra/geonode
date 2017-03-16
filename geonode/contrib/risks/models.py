@@ -23,7 +23,7 @@ from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey
 from django.core import files
 from geonode.base.models import ResourceBase, TopicCategory
-from geonode.layers.models import Layer
+from geonode.layers.models import Layer, Style
 
 
 class Exportable(object):
@@ -472,6 +472,7 @@ class DymensionInfo(RiskAnalysisAware, Exportable, models.Model):
                      ('layers', 'get_axis_layers',),
                      ('values', 'get_axis_values',),
                      ('layerAttributes', 'get_axis_layer_attributes',),
+                     ('styles', 'get_axis_styles',),
                      )
 
     id = models.AutoField(primary_key=True)
@@ -515,6 +516,10 @@ class DymensionInfo(RiskAnalysisAware, Exportable, models.Model):
         axis = self.get_axis()
         return dict((v.value, v.axis_attribute(),) for v in axis)
 
+    def get_axis_styles(self):
+        axis = self.get_axis()
+        return dict((v.value, v.get_style(),) for v in axis)
+        
 
 class RiskAnalysisAdministrativeDivisionAssociation(models.Model):
     """
@@ -564,6 +569,13 @@ class RiskAnalysisDymensionInfoAssociation(models.Model):
 
     layer_attribute = models.CharField(max_length=80, null=False, blank=False)
 
+    style = models.ForeignKey(Style,
+                              blank=True,
+                              null=True,
+                              unique=False,
+                              related_name='style_layer'
+    )
+
     def __unicode__(self):
         return u"{0}".format(self.riskanalysis.name + " - " +
                              self.dymensioninfo.name)
@@ -586,6 +598,13 @@ class RiskAnalysisDymensionInfoAssociation(models.Model):
         """
         return 'd{}'.format(self.DIM[self.axis][3:])
 
+    def get_style(self):
+        if self.style:
+            return {'name': self.style.name,
+                    'title': self.style.sld_title,
+                    'url': self.style.sld_url,
+                    'sld': self.style.sld_text}
+        return {}
 
 class PointOfContact(Exportable, models.Model):
     """
