@@ -166,5 +166,20 @@ class RisksViewTestCase(RisksTestCase):
                 for d in data['riskAnalysisData']['data']['dimensions']:
                     self.assertEqual(DymensionInfo.objects.filter(name=d['name']).count(), 1)
 
+                    # layerAttributes/layers should be in pair with values from 
+                    # RiskAnalysisDymensionInfoAssociacion.value
+                    la_keys = d['layerAttributes'].keys()
+                    l_keys = d['layers'].keys()
+
+                    self.assertTrue(len(d['values'])> 0)
+                    self.assertTrue(isinstance(d['layerAttributes'], dict))
+                    self.assertTrue(d['layerAttributes'])
+
+                    self.assertTrue(isinstance(d['layers'], dict))
+                    self.assertTrue(d['layers'])
+
+                    self.assertTrue(la_keys == d['values'])
+                    self.assertTrue(l_keys == d['values'])
+
                 # cannot evaluate
                 #self.assertTrue(len(data['riskAnalysisData']['data']['values'])>0)

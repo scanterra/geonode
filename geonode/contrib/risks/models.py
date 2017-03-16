@@ -470,7 +470,9 @@ class DymensionInfo(RiskAnalysisAware, Exportable, models.Model):
                      ('abstract', 'abstract',),
                      ('unit', 'unit',),
                      ('layers', 'get_axis_layers',),
-                     ('values', 'get_axis_values',),)
+                     ('values', 'get_axis_values',),
+                     ('layerAttributes', 'get_axis_layer_attributes',),
+                     )
 
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=30, null=False, blank=False,
@@ -509,6 +511,9 @@ class DymensionInfo(RiskAnalysisAware, Exportable, models.Model):
         axis = self.get_axis()
         return list(axis.values_list('value', 'order'))
 
+    def get_axis_layer_attributes(self):
+        axis = self.get_axis()
+        return dict((v.value, v.axis_attribute(),) for v in axis)
 
 
 class RiskAnalysisAdministrativeDivisionAssociation(models.Model):
@@ -570,7 +575,16 @@ class RiskAnalysisDymensionInfoAssociation(models.Model):
         db_table = 'risks_riskanalysisdymensioninfoassociation'
 
     def axis_to_dim(self):
+        """
+        return dimX_value for axis
+        """
         return self.DIM[self.axis]
+
+    def axis_attribute(self):
+        """
+        return dX for axis
+        """
+        return 'd{}'.format(self.DIM[self.axis][3:])
 
 
 class PointOfContact(Exportable, models.Model):
