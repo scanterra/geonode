@@ -20,10 +20,15 @@ geometry_urls = [
     url(r'loc/(?P<adm_code>[\w\-]+)/$', geometry_views.administrative_division_view, name='location'),
 ]
 
+api_urls = [
+    url(r'risk/(?P<risk_id>[\d]+)/layers/$', views.risk_layers, name='layers'),
+]
+
 
 urlpatterns = [
     url(r'^cost_benefit/$', views.cost_benefit_index, name='risks_cost_benefit_index'),
     url(r'^risk_data_extraction/', include(extraction_urls, namespace='risks')),
     url(r'^geom/', include(geometry_urls, namespace="risks-geom")),
+    url(r'^api/', include(api_urls, namespace='risks-api')),
 
 ]

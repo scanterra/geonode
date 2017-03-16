@@ -156,7 +156,6 @@ if 'geonode.contrib.risks' in settings.INSTALLED_APPS:
     urlpatterns += patterns('',
                            (r'^risks/', include('geonode.contrib.risks.urls')),
                            )
-
 # Set up proxy
 urlpatterns += geonode.proxy.urls.urlpatterns
 

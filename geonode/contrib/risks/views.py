@@ -4,11 +4,14 @@ from __future__ import print_function
 import logging
 
 from django.conf import settings
-from django.views.generic import TemplateView, View
+from django import forms
+from django.views.generic import TemplateView, View, FormView
 
+from geonode.layers.models import Layer
 from geonode.utils import json_response
 from geonode.contrib.risks.models import (HazardType, AdministrativeDivision,
-                                          RiskAnalysisDymensionInfoAssociation)
+                                          RiskAnalysisDymensionInfoAssociation, 
+                                          RiskAnalysis)
 
 from geonode.contrib.risks.datasource import GeoserverDataSource
 
@@ -300,12 +303,12 @@ class DataExtractionView(FeaturesSource, HazardTypeView):
 
         """
         values = []
-        _fields = [self.get_dim_association(risk, dimension)] +\
-                  [self.get_dim_association(risk, dim) for dim in dimensions if dim.id != dimension.id]
+        dims = [dimension.set_risk_analysis(risk)] + [d.set_risk_analysis(risk) for d in dimensions if d.id != dimension.id]
+
+        _fields = [self.get_dim_association(risk, d) for d in dims]
         fields = ['{}_value'.format(f[1]) for f in _fields]
 
-        orders = [dict(dimension.set_risk_analysis(risk).get_axis_order())] +\
-                 [dict(d.set_risk_analysis(risk).get_axis_order()) for d in dimensions if d.id != dimension.id]
+        orders = [dict(d.get_axis_order()) for d in dims]
 
         orders_len = len(orders)
 
@@ -314,10 +317,10 @@ class DataExtractionView(FeaturesSource, HazardTypeView):
             compute order value
             """
             _order_vals = []
-
+            
             for idx, o in enumerate(orders):
-                dim_name = 'dim{}_value'.format(idx+1)
-                val = feat['properties'].get(dim_name)
+                field_name = fields[idx]
+                val = feat['properties'].get(field_name)
                 order_val = o.get(val)
                 if order_val is None:
                     order_val = 1000
@@ -340,7 +343,7 @@ class DataExtractionView(FeaturesSource, HazardTypeView):
 
         values.sort(key=order_key)
 
-        out = {'dimensions': [dim.set_risk_analysis(risk).export() for dim in dimensions],
+        out = {'dimensions': [dim.set_risk_analysis(risk).export() for dim in dims],
                'values': values}
 
         return out
@@ -377,11 +380,88 @@ class DataExtractionView(FeaturesSource, HazardTypeView):
         features = self.get_features(risk, dimension, dymlist, **feat_kwargs)
         out['riskAnalysisData']['data'] = self.reformat_features(risk, dimension, dymlist, features['features'])
         out['context'] = self.get_context_url(**kwargs)
+        out['wms'] = {'style': None,
+                      'viewparams': self.get_viewparams(risk, hazard_type, loc),
+                      'geonode': settings.OGC_SERVER['default']['PUBLIC_LOCATION']}
 
+        out['riskAnalysisData']['additionalLayers'] = [(l.id, l.typename,) for l in risk.additional_layers.all()]
         return json_response(out)
 
+    def get_viewparams(self, risk, htype, loc):
+        return 'ra:{};ha:{};adm_code:{};d1:{{}};d2:{{}}'.format(risk.name, htype.mnemonic, loc.code)
 
+
+class LayersListForm(forms.Form):
+    layers = forms.MultipleChoiceField(required=False, choices=())
+
+    def get_layers(self):
+        if not self.is_valid():
+            return []
+        d = self.cleaned_data
+        return Layer.objects.filter(id__in=d['layers'])
+
+
+class RiskLayersView(FormView):
+    form_class = LayersListForm
+
+    def get_risk(self):
+        rid = self.kwargs['risk_id']
+        try:
+            return RiskAnalysis.objects.get(id=rid)
+        except RiskAnalysis.DoesNotExist:
+            pass
+
+    def get_layer_choices(self):
+        r = self.get_risk()
+        r_layers = r.dymensioninfo_associacion.all().values_list('layer__id', flat=True)
+        if r is None:
+            q = Layer.objects.all().values_list('id', flat=True)
+        else:
+            q = Layer.objects.exclude(id__in=r_layers).values_list('id', flat=True)
+
+        return [(str(val), str(val),) for val in q]
+
+    def get_form(self, form_class=None):
+        f = super(RiskLayersView, self).get_form(form_class)
+        choices = self.get_layer_choices()
+        f.fields['layers'].choices = choices
+        return f
+        
+
+    def form_invalid(self, form):
+        err = form.errors
+        return json_response({'errors': err}, status=400)
+
+    def form_valid(self, form):
+        rid = self.kwargs['risk_id']
+        risk = self.get_risk()
+        if risk is None:
+            return json_response({'errors': ['Invalid risk id']}, status=404)
+
+        data = form.cleaned_data
+
+        risk.additional_layers.clear()
+        layers = form.get_layers()
+        risk.additional_layers.add(*layers)
+        risk.save()
+        return self.get()
+
+
+    def get(self, *args, **kwargs):
+        rid = self.kwargs['risk_id']
+        risk = self.get_risk()
+        if risk is None:
+            return json_response({'errors': ['Invalid risk id']}, status=404)
+        out = {}
+        out['success'] = True
+        out['data'] = {'layers': list(risk.additional_layers.all().values_list('typename', flat=True))}
+        print('out', out)
+        return json_response(out)
+        
+        
 location_view = LocationView.as_view()
 hazard_type_view = HazardTypeView.as_view()
 analysis_type_view = HazardTypeView.as_view()
 data_extraction = DataExtractionView.as_view()
+
+risk_layers = RiskLayersView.as_view()

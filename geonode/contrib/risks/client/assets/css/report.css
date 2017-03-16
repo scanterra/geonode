@@ -504,3 +504,12 @@ footer:after {
     border-top: 10px solid;
     -moz-transform: scale(0.999);
 }
+.leaflet-clickable {
+    cursor: zoom-in;
+}
+.switch-dim {
+    cursor: pointer;
+    color: blue;
+    font-size: 18px;
+    float: right;
+}

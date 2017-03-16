@@ -293,6 +293,8 @@ class RiskAnalysis(LocationAware, HazardTypeAware, AnalysisTypeAware, Exportable
         through='RiskAnalysisDymensionInfoAssociation'
     )
 
+    additional_layers = models.ManyToManyField(Layer)
+
     def __unicode__(self):
         return u"{0}".format(self.name)
 
@@ -467,6 +469,7 @@ class DymensionInfo(RiskAnalysisAware, Exportable, models.Model):
     EXPORT_FIELDS = (('name', 'name',),
                      ('abstract', 'abstract',),
                      ('unit', 'unit',),
+                     ('layers', 'get_axis_layers',),
                      ('values', 'get_axis_values',),)
 
     id = models.AutoField(primary_key=True)
@@ -497,6 +500,10 @@ class DymensionInfo(RiskAnalysisAware, Exportable, models.Model):
     def get_axis_values(self):
         axis = self.get_axis()
         return list(axis.values_list('value', flat=True))
+
+    def get_axis_layers(self):
+        axis = self.get_axis()
+        return dict((a.value, a.layer.typename,) for a in axis)
 
     def get_axis_order(self):
         axis = self.get_axis()

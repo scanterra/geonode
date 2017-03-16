@@ -5518,3 +5518,12 @@
   border-top: 10px solid;
   -moz-transform: scale(0.999);
 }
+.disaster .leaflet-clickable {
+  cursor: zoom-in;
+}
+.disaster .switch-dim {
+  cursor: pointer;
+  color: blue;
+  font-size: 18px;
+  float: right;
+}

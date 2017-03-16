@@ -1,0 +1,36 @@
+{
+  "map": {
+    "projection": "EPSG:900913",
+    "units": "m",
+    "center": {"x": 0.0, "y": 0.0, "crs": "EPSG:4326"},
+    "zoom":1,
+    "maxExtent": [
+      -90, -180,
+      90, 180
+    ],
+    "layers": [{
+      "type": "osm",
+      "title": "Open Street Map",
+      "name": "mapnik",
+            "source": "osm",
+      "group": "background",
+            "visibility": true
+        }, {
+            "type": "vector",
+            "position": 1,
+            "queryable": false,
+            "visibility": true,
+            "name": "adminunits",
+            "id": "adminunits",
+            "group": "hidden",
+            "style": {
+                "color": "black",
+                "weight": 1,
+                "opacity": 1,
+                "fillOpacity": 0
+              },
+            "features" : []
+        }
+    ]
+  }
+}

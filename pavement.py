@@ -131,6 +131,16 @@ def static(options):
     with pushd('geonode/static'):
         sh('grunt production')
 
+@task
+def risks_static(options):
+    # risks app
+    with pushd('geonode/contrib/risks/client'):
+        sh('npm install')
+        sh('npm run compile')
+        sh('mkdir -p ../static/assets/')
+        sh('cp -rvv assets/* ../static/assets/')
+        sh('cp -rvv dist/* ../static/js/')
+
 
 @task
 @needs([
