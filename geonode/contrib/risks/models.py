@@ -293,7 +293,7 @@ class RiskAnalysis(LocationAware, HazardTypeAware, AnalysisTypeAware, Exportable
         through='RiskAnalysisDymensionInfoAssociation'
     )
 
-    additional_layers = models.ManyToManyField(Layer)
+    additional_layers = models.ManyToManyField(Layer, blank=True)
 
     def __unicode__(self):
         return u"{0}".format(self.name)
@@ -603,7 +603,7 @@ class RiskAnalysisDymensionInfoAssociation(models.Model):
             return {'name': self.style.name,
                     'title': self.style.sld_title,
                     'url': self.style.sld_url,
-                    'sld': self.style.sld_text}
+                    'sld': self.style.sld_body}
         return {}
 
 class PointOfContact(Exportable, models.Model):
