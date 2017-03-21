@@ -23,15 +23,25 @@ const disasterSelector = state => ({
 // to avoid this separate loading from the layer object
 
 
-function getLayerName(disaster) {
-    const {data} = disaster.riskAnalysis.riskAnalysisData;
-    const dimVal = data.dimensions[disaster.dim.dim2].values[0];
-    return data.dimensions[disaster.dim.dim2].layers[dimVal];
+function getLayerName({dim, riskAnalysis}) {
+    const {dimensions} = riskAnalysis.riskAnalysisData.data;
+    const dim1Val = dimensions[dim.dim1].values[dim.dim1Idx];
+    return dimensions[dim.dim1].layers[dim1Val];
 }
-
-function getViewParam(disaster) {
-    // d1 always Scenario, d2 always Round period
-    return {"viewparams": disaster.riskAnalysis.wms.viewparams.replace('d1:{};d2:{}', `d1:SSP1;d2:10`)};
+function getStyle({dim, riskAnalysis}) {
+    const {dimensions} = riskAnalysis.riskAnalysisData.data;
+    const dim1Val = dimensions[dim.dim1].values[dim.dim1Idx];
+    return dimensions[dim.dim1].styles[dim1Val] && dimensions[dim.dim1].styles[dim1Val].name;
+}
+function getViewParam({dim, riskAnalysis} = {}) {
+    const {dimensions} = riskAnalysis.riskAnalysisData.data;
+    const {wms} = riskAnalysis;
+    const dim1Val = dimensions[dim.dim1].values[dim.dim1Idx];
+    const dim2Val = dimensions[dim.dim2].values[dim.dim2Idx];
+    const dim1SearchDim = dimensions[dim.dim1].layerAttributes[dim1Val];
+    const dim2SearchDim = dimensions[dim.dim2].layerAttributes[dim2Val];
+    const viewparams = wms.viewparams.replace(`${dim1SearchDim}:{}`, `${dim1SearchDim}:${dim1Val}`).replace(`${dim2SearchDim}:{}`, `${dim2SearchDim}:${dim2Val}`);
+    return {viewparams};
 }
 
 const layerSelectorWithMarkers = createSelector(
@@ -41,12 +51,14 @@ const layerSelectorWithMarkers = createSelector(
         if (disaster.riskAnalysis && !disaster.loading && layers.length > 0) {
 
             const wms = {
+            "id": "disasterrisk",
             "type": "wms",
             "url": disaster.riskAnalysis.wms.geonode + "wms",
             "name": getLayerName(disaster),
             "title": "disasterrisk",
             "visibility": true,
             "format": "image/png",
+            "style": getStyle(disaster),
             "tiled": true,
             "params": getViewParam(disaster)
             };
@@ -76,11 +88,15 @@ const layerSelectorWithMarkers = createSelector(
         return newLayers;
     }
 );
-
+const disasterRiskLayerSelector = createSelector([layerSelectorWithMarkers],
+    (layers) => ({
+        layer: head(layers.filter((l) => l.id === "disasterrisk"))
+    }));
 const groupsSelector = (state) => state.layers && state.layers.flat && state.layers.groups && LayersUtils.denormalizeGroups(state.layers.flat, state.layers.groups).groups || [];
 
 module.exports = {
     layersSelector,
     layerSelectorWithMarkers,
-    groupsSelector
+    groupsSelector,
+    disasterRiskLayerSelector
 };

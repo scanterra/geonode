@@ -10,7 +10,7 @@ const React = require('react');
 
 const AxesSelector = React.createClass({
     propTypes: {
-        dimension: React.PropTypes.object.isRequired,
+        dimension: React.PropTypes.object,
         activeAxis: React.PropTypes.number,
         setDimIdx: React.PropTypes.func
     },

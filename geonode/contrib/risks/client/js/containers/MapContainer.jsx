@@ -9,10 +9,11 @@
 const React = require('react');
 const {connect} = require('react-redux');
 const {loadMapConfig} = require('../actions/disaster');
+const {disasterRiskLayerSelector} = require('../../MapStore2/web/client/selectors/layers');
 const MapViewer = connect(() => ({}), {
     loadMapConfig: loadMapConfig.bind(null, "/static/js/config.json", false, "/risks/geom/loc/AF/")
 })(require('../../MapStore2/web/client/containers/MapViewer'));
-
+const Legend = connect(disasterRiskLayerSelector)(require('../../MapStore2/web/client/components/TOC/fragments/legend/Legend'));
 const {drillUpSelector, switchDimSelector, axesSelector} = require('../selectors/disaster');
 const {zoom, toggleDim, setDimIdx} = require('../actions/disaster');
 
@@ -28,8 +29,11 @@ const MapContainer = (props) => (
                 <DrillUpBtn/>
                 <SwitchDimension/>
             </div>
-            <div style={{height: 40, width: '100%', marginTop: 10}}>
+            <div style={{minHeight: 40, width: '100%', marginTop: 10}}>
                 <AxesSelector/>
+            </div>
+            <div style={{height: 40, width: '100%', marginTop: 10}}>
+                <Legend legendHeigth={20} legendWidth={100}/>
             </div>
 
         </div>
