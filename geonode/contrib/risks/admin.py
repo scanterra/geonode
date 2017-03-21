@@ -122,9 +122,10 @@ class DymensionInfoAdmin(admin.ModelAdmin):
 class RiskAnalysisAdmin(admin.ModelAdmin):
     model = RiskAnalysis
     list_display_links = ('name',)
-    list_display = ('name',)
+    list_display = ('name', 'state',)
     search_fields = ('name',)
-    readonly_fields = ('administrative_divisions', 'descriptor_file', 'data_file', 'metadata_file')
+    list_filter = ('state', 'hazard_type', 'analysis_type',)
+    readonly_fields = ('administrative_divisions', 'descriptor_file', 'data_file', 'metadata_file', 'state',)
     # inlines = [AdministrativeDivisionInline, DymensionInfoInline]
     inlines = [LinkedResourceInline, DymensionInfoInline]
     group_fieldsets = True

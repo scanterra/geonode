@@ -108,13 +108,14 @@ class Command(BaseCommand):
     help = 'Creates a new Risk Analysis descriptor: \
 Loss Impact and Impact Analysis Types.'
 
-    option_list = BaseCommand.option_list + (
-        make_option(
-            '-f',
-            '--descriptor-file',
-            dest='descriptor_file',
-            type="string",
-            help='Input Risk Analysis Descriptor INI File.'),)
+
+    def add_arguments(self, parser):
+        parser.add_argument('-f',
+                            '--descriptor-file',
+                            dest='descriptor_file',
+                            type=str,
+                            help='Input Risk Analysis Descriptor INI File.')
+        return parser
 
     def handle(self, **options):
         descriptor_file = options.get('descriptor_file')
@@ -153,6 +154,7 @@ Loss Impact and Impact Analysis Types.'
         risk.analysis_type = analysis
         risk.hazard_type = hazard
         risk.save()
+        risk.set_queued()
         print ("Created Risk Analysis [%s] (%s) - %s" %
                (risk_name, hazard, analysis))
 
@@ -176,6 +178,7 @@ Loss Impact and Impact Analysis Types.'
                 print ("Created Risk Analysis Dym %s [%s] (%s) - axis %s" %
                        (rd.order, dim_value, dim_name, rd.axis))
 
+        risk.set_ready()
         return risk_name
 
 

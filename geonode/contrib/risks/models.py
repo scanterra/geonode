@@ -26,6 +26,52 @@ from geonode.base.models import ResourceBase, TopicCategory
 from geonode.layers.models import Layer, Style
 
 
+class Schedulable(models.Model):
+    STATE_QUEUED = 'queued'
+    STATE_PROCESSING = 'processing'
+    STATE_READY = 'ready'
+    STATE_ERROR = 'error'
+
+    STATES = ((STATE_QUEUED, 'Queued',),
+              (STATE_PROCESSING, 'Processing',),
+              (STATE_READY, 'Ready',),
+              (STATE_ERROR, 'Error',),
+             )
+
+    state = models.CharField(max_length=64, choices=STATES, null=False, default=STATE_READY)
+
+    class Meta:
+        abstract = True
+
+    def schedule(self):
+        self.refresh_from_db()
+        self.set_queued()
+        self.run_scheduled()
+
+    def run_scheduled(self):
+        self._run_scheduled.apply_async(args=(self,))
+
+    def _run_scheduled(self):
+        raise NotImplemented("You should override this method in subclass")
+
+    def set_ready(self):
+        self.refresh_from_db()
+        self.set_state(self.STATE_READY, save=True)
+    
+    def set_queued(self):
+        self.refresh_from_db()
+        self.set_state(self.STATE_QUEUED, save=True)
+
+    def set_processing(self):
+        self.refresh_from_db()
+        self.set_state(self.STATE_PROCESSING, save=True)
+
+    def set_state(self, state, save=False):
+        self.state = state
+        if save:
+            self.save()
+
+
 class Exportable(object):
     EXPORT_FIELDS = []
 
@@ -232,7 +278,7 @@ class HazardType(LocationAware, Exportable, models.Model):
         return out
 
 
-class RiskAnalysis(LocationAware, HazardTypeAware, AnalysisTypeAware, Exportable, models.Model):
+class RiskAnalysis(Schedulable, LocationAware, HazardTypeAware, AnalysisTypeAware, Exportable, models.Model):
     """
     A type of Analysis associated to an Hazard (Earthquake, Flood, ...) and
     an Administrative Division.

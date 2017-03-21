@@ -250,38 +250,39 @@ class Command(BaseCommand):
 
     help = 'Import Risk Data: Loss Impact and Impact Analysis Types.'
 
-    option_list = BaseCommand.option_list + (
-        make_option(
+    def add_arguments(self, parser):
+        parser.add_argument(
             '-c',
             '--commit',
             action='store_true',
             dest='commit',
             default=True,
-            help='Commits Changes to the storage.'),
-        make_option(
+            help='Commits Changes to the storage.')
+        parser.add_argument(
             '-r',
             '--region',
             dest='region',
-            type="string",
-            help='Destination Region.'),
-        make_option(
+            type=str,
+            help='Destination Region.')
+        parser.add_argument(
             '-x',
             '--excel-file',
             dest='excel_file',
-            type="string",
-            help='Input Risk Data Table as XLSX File.'),
-        make_option(
+            type=str,
+            help='Input Risk Data Table as XLSX File.')
+        parser.add_argument(
             '-m',
             '--excel-metadata-file',
             dest='excel_metadata_file',
-            type="string",
-            help='Input Risk Metadata Table as XLSX File.'),
-        make_option(
+            type=str,
+            help='Input Risk Metadata Table as XLSX File.')
+        parser.add_argument(
             '-k',
             '--risk-analysis',
             dest='risk_analysis',
-            type="string",
-            help='Name of the Risk Analysis associated to the File.'))
+            type=str,
+            help='Name of the Risk Analysis associated to the File.')
+        return parser
 
     def handle(self, **options):
         commit = options.get('commit')
@@ -300,8 +301,10 @@ class Command(BaseCommand):
         if not excel_file or len(excel_file) == 0:
             raise CommandError("Input Risk Data Table '--excel_file' is mandatory")
 
-        wb = xlrd.open_workbook(filename=excel_file)
         risk = RiskAnalysis.objects.get(name=risk_analysis)
+        risk.set_processing()
+
+        wb = xlrd.open_workbook(filename=excel_file)
         region = Region.objects.get(name=region)
         region_code = region.administrative_divisions.filter(parent=None)[0].code
 
@@ -394,6 +397,7 @@ class Command(BaseCommand):
 
         # Finalize
         risk.data_file = excel_file
+        risk.set_ready()
         if commit:
             risk.save()
 

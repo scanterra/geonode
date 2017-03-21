@@ -36,6 +36,7 @@ from geonode.contrib.risks.models import RiskAnalysis
 from geonode.contrib.risks.models import RiskAnalysisCreate
 from geonode.contrib.risks.models import RiskAnalysisImportData
 from geonode.contrib.risks.models import RiskAnalysisImportMetadata
+from geonode.contrib.risks.tasks import create_risk_analysis, import_risk_data
 
 
 class CreateRiskAnalysisForm(models.ModelForm):
@@ -53,21 +54,7 @@ class CreateRiskAnalysisForm(models.ModelForm):
         path = default_storage.save('tmp/'+file_ini.name,
                                     ContentFile(file_ini.read()))
         tmp_file = os.path.join(settings.MEDIA_ROOT, path)
-
-        out = StringIO.StringIO()
-        try:
-            call_command('createriskanalysis',
-                         descriptor_file=str(tmp_file).strip(), stdout=out)
-            value = out.getvalue()
-
-            risk = RiskAnalysis.objects.get(name=str(value).strip())
-            risk.descriptor_file = file_ini
-            risk.save()
-        except Exception, e:
-            value = None
-            error_message = "Sorry, the input file is not valid: " + str(e)
-            raise forms.ValidationError(error_message)
-
+        create_risk_analysis(tmp_file, file_ini)
         return file_ini
 
 
@@ -89,23 +76,7 @@ class ImportDataRiskAnalysisForm(models.ModelForm):
 
         region = self.cleaned_data['region']
         risk = self.cleaned_data['riskanalysis']
-
-        out = StringIO.StringIO()
-        try:
-            # value = out.getvalue()
-            call_command('importriskdata', commit=False,
-                         region=region.name,
-                         excel_file=str(tmp_file).strip(),
-                         risk_analysis=risk.name,
-                         stdout=out)
-
-            # risk = RiskAnalysis.objects.get(name=str(value).strip())
-            risk.data_file = file_xlsx
-            risk.save()
-        except Exception, e:
-            # value = None
-            error_message = "Sorry, the input file is not valid: " + str(e)
-            raise forms.ValidationError(error_message)
+        import_risk_data(tmp_file, risk, region, file_xlsx)
 
         return file_xlsx
 
@@ -129,29 +100,7 @@ class ImportMetadataRiskAnalysisForm(models.ModelForm):
         region = self.cleaned_data['region']
         risk = self.cleaned_data['riskanalysis']
 
-        out = StringIO.StringIO()
-        try:
-            call_command('importriskmetadata',
-                         commit=False,
-                         region=region.name,
-                         excel_file=str(tmp_file).strip(),
-                         risk_analysis=risk.name,
-                         stdout=out)
-            # value = out.getvalue()
+        import_risk_metadata(tmp_file, risk, region, final_path)
 
-            # risk = RiskAnalysis.objects.get(name=str(value).strip())
-            risk.metadata_file = file_xlsx
-
-            hazardsets = HazardSet.objects.filter(riskanalysis=risk,
-                                                  country=region)
-            if len(hazardsets) > 0:
-                hazardset = hazardsets[0]
-                risk.hazardset = hazardset
-
-            risk.save()
-        except Exception, e:
-            # value = None
-            error_message = "Sorry, the input file is not valid: " + str(e)
-            raise forms.ValidationError(error_message)
 
         return file_xlsx
