@@ -17,6 +17,7 @@ const geoColderSelector = state => (state.search && state.search.markerPosition)
 const disasterSelector = state => ({
     riskAnalysis: state.disaster && state.disaster.riskAnalysis,
     dim: state.disaster && state.disaster.dim || {dim1: 0, dim2: 1, dim1Idx: 0, dim2Idx: 0},
+    showSubUnit: state.disaster.showSubUnit,
     loading: state.disaster && state.disaster.loading
 });
 // TODO currently loading flag causes a re-creation of the selector on any pan
@@ -33,14 +34,20 @@ function getStyle({dim, riskAnalysis}) {
     const dim1Val = dimensions[dim.dim1].values[dim.dim1Idx];
     return dimensions[dim.dim1].styles[dim1Val] && dimensions[dim.dim1].styles[dim1Val].name;
 }
-function getViewParam({dim, riskAnalysis} = {}) {
+function getViewParam({dim, showSubUnit, riskAnalysis} = {}) {
     const {dimensions} = riskAnalysis.riskAnalysisData.data;
     const {wms} = riskAnalysis;
     const dim1Val = dimensions[dim.dim1].values[dim.dim1Idx];
     const dim2Val = dimensions[dim.dim2].values[dim.dim2Idx];
     const dim1SearchDim = dimensions[dim.dim1].layerAttributes[dim1Val];
     const dim2SearchDim = dimensions[dim.dim2].layerAttributes[dim2Val];
-    const viewparams = wms.viewparams.replace(`${dim1SearchDim}:{}`, `${dim1SearchDim}:${dim1Val}`).replace(`${dim2SearchDim}:{}`, `${dim2SearchDim}:${dim2Val}`);
+    let viewparams = wms.viewparams.replace(`${dim1SearchDim}:{}`, `${dim1SearchDim}:${dim1Val}`).replace(`${dim2SearchDim}:{}`, `${dim2SearchDim}:${dim2Val}`);
+    if (showSubUnit) {
+        const admCode = viewparams.match(/(adm_code:)\w+/g)[0];
+        const supCode = admCode.replace(/(adm_code:)/, "sub_adm_code:");
+        const superCode = admCode.replace(/(adm_code:)/, "super_adm_code:");
+        viewparams = viewparams.replace(admCode, `${supCode};${superCode}`);
+    }
     return {viewparams};
 }
 

@@ -21,7 +21,7 @@ const SET_DIM_IDX = 'SET_DIM_IDX';
 const FEATURES_LOADING = 'FEATURES_LOADING';
 const FEATURES_LOADED = 'FEATURES_LOADED';
 const FEATURES_ERROR = 'FEATURES_ERROR';
-
+const TOGGLE_ADMIN_UNITS = 'TOGGLE_ADMIN_UNITS';
 
 function toggleDim() {
     return {
@@ -171,6 +171,11 @@ function setDimIdx(dim, idx) {
         idx
     };
 }
+function toggleAdminUnit() {
+    return {
+        type: TOGGLE_ADMIN_UNITS
+    };
+}
 module.exports = {
     DATA_LOADING,
     DATA_LOADED,
@@ -178,6 +183,7 @@ module.exports = {
     ANALYSIS_DATA_LOADED,
     TOGGLE_DIM,
     SET_DIM_IDX,
+    TOGGLE_ADMIN_UNITS,
     dataError,
     dataLoaded,
     dataLoading,
@@ -188,5 +194,6 @@ module.exports = {
     zoomTo,
     zoom,
     loadMapConfig,
-    setDimIdx
+    setDimIdx,
+    toggleAdminUnit
 };

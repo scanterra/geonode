@@ -27,9 +27,6 @@ const Chart = React.createClass({
         const {dim, values, val} = this.props;
         return values.filter((d) => d[dim.dim1] === val ).map((v) => {return {"name": v[dim.dim2], "value": parseInt(v[2], 10)}; });
     },
-    handleClick(data, index) {
-        this.props.setDimIdx('dim2Idx', index);
-    },
     render() {
         const {dim, dimension} = this.props;
         const chartData = this.getChartData();
@@ -50,6 +47,9 @@ const Chart = React.createClass({
                     }
                 </Bar>
             </BarChart>);
+    },
+    handleClick(data, index) {
+        this.props.setDimIdx('dim2Idx', index);
     }
 });
 

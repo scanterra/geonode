@@ -6919,6 +6919,9 @@
   border: 1px solid #cccccc;
   white-space: nowrap;
 }
+.disaster .leaflet-clickable {
+  cursor: zoom-in;
+}
 @font-face {
   font-family: 'thinkhazard';
   src: url('../webfonts/thinkhazard/fonts/thinkhazard.eot?-xr90r9');

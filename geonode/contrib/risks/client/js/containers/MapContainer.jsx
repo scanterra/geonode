@@ -15,11 +15,15 @@ const MapViewer = connect(() => ({}), {
 })(require('../../MapStore2/web/client/containers/MapViewer'));
 const Legend = connect(disasterRiskLayerSelector)(require('../../MapStore2/web/client/components/TOC/fragments/legend/Legend'));
 const {drillUpSelector, switchDimSelector, axesSelector} = require('../selectors/disaster');
-const {zoom, toggleDim, setDimIdx} = require('../actions/disaster');
+const {zoom, toggleDim, setDimIdx, toggleAdminUnit} = require('../actions/disaster');
 
 const DrillUpBtn = connect(drillUpSelector, {zoomOut: zoom})(require('../components/DrillUpBtn'));
 const SwitchDimension = connect(switchDimSelector, {toggleDim})(require('../components/SwitchDimension'));
 const AxesSelector = connect(axesSelector, {setDimIdx})(require('../components/AxesSelector'));
+const SwitchAdminU = connect(({disaster}) => ({
+    showSubUnit: disaster.showSubUnit,
+    show: disaster.riskAnalysis ? true : false
+}), {toggleAdminUnit})(require('../components/SwitchAdminU'));
 const MapContainer = (props) => (
         <div className="col-sm-5">
             <div className="disaster-map-container">
@@ -32,6 +36,7 @@ const MapContainer = (props) => (
                     </div>
                     <div className="row text-center">
                         <SwitchDimension/>
+                        <SwitchAdminU/>
                     </div>
                 </div>
                 <div className="container-fluid">
