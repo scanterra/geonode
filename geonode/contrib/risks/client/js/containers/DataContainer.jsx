@@ -68,7 +68,7 @@ const DataContainer = React.createClass({
                         return idx === dim.dim1Idx ? (
                             <li key={val} style={{marginBottom: 30}}>
                                 <span>{`${data.dimensions[dim.dim1].name} ${val}`}</span>
-                                <Chart dimension={data.dimensions} values={data.values} val={val} dim={dim}/>
+                                <Chart dimension={data.dimensions} values={data.values} val={val} dim={dim} setDimIdx={sIdx}/>
                             </li>) : (
                             <li key={val} style={{marginBottom: 20}}>
                                 <span style={{color: 'blue', cursor: 'pointer'}} onClick={() => sIdx('dim1Idx', idx)}>{`${data.dimensions[dim.dim1].name} ${val}`}</span>

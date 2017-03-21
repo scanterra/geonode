@@ -79,6 +79,7 @@
     "babel-standalone": "6.7.7",
     "bootstrap": "3.3.6",
     "canvas-to-blob": "0.0.0",
+    "chroma-js": "^1.2.2",
     "classnames": "2.2.5",
     "colorbrewer": "1.0.0",
     "es6-promise": "2.3.0",
@@ -154,8 +155,7 @@
   "scripts": {
     "clean": "rimraf dist",
     "compile": "npm run clean && mkdirp ./dist && webpack --config prod-webpack.config.js",
-    "genCss": "lessc assets/css/disaster.less assets/css/disaster.css",
-    "genRiskCss": "lessc assets/css/risk.less assets/css/risk.css && lessc assets/css/risk-disaster.less assets/css/risk.css",
+    "genRiskCss": "lessc assets/css/risk.less assets/css/risk.css && lessc assets/css/risk-disaster.less assets/css/disaster.css",
     "start": "webpack-dev-server --progress --colors --port 8081 --hot --inline --content-base .",
     "test": "karma start ./karma.conf.single-run.js",
     "continuoustest": "karma start ./karma.conf.continuous-test.js",
