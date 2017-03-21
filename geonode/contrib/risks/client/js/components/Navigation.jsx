@@ -38,12 +38,11 @@ const Navigation = React.createClass({
     },
     render() {
         return (
-        <div className="breadcrumb">
-            <div className="btn-group btn-group-xs">
+            <div className="btn-group">
                 <button className="btn btn-default"><i className="icon-pin"></i></button>
                 {this.renderItem()}
             </div>
-        </div>);
+        );
     }
 });
 

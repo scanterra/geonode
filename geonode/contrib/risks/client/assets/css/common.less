@@ -1,0 +1,111 @@
+#map {
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 400px;
+}
+
+.disaster-breadcrumbs {
+  margin: 10px 0;
+}
+
+.disaster-breadcrumbs .btn-group .btn {
+  color: #333;
+  border-color: transparent;
+  border-right: 1px solid #333;
+  border-left: 1px solid #333;
+  font-weight: normal;
+  background-color: transparent;
+}
+
+.disaster-breadcrumbs .btn-group .btn.disabled {
+  color: #000;
+  border-color: transparent;
+  border-left: 1px solid #333;
+  font-weight: bold;
+}
+
+.disaster-breadcrumbs .btn-group > .btn:first-child {
+  border: none;
+}
+
+.disaster-risk-selector {
+    padding: 20px 10px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+    margin-bottom: 20px;
+}
+
+.disaster-map-container {
+  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+  overflow: hidden;
+}
+
+.disaster-map-container .row{
+  margin: 10px 0;
+}
+
+.disaster-analysis .disaster-category {
+  font-size: 25px;
+  margin-top: 10px;
+}
+
+.disaster-analysis i:hover {
+  color: @brand-primary;
+  cursor: pointer;
+}
+
+.disaster-analysis-title:hover {
+  color: @brand-primary;
+  cursor: pointer;
+}
+
+.disaster-header-title {
+  font-size: 22px;
+  margin-bottom: 15px;
+}
+
+.disaster-level {
+    background: #f2f2f2;
+    color: @text-color;
+    outline: .2em solid white;
+    position: absolute;
+    right: 40px;
+    text-align: center;
+    text-transform: uppercase;
+    transform: rotate(-90deg);
+    -webkit-transform: rotate(-90deg);
+    -ms-transform: rotate(-90deg);
+    transform-origin: right top;
+    -webkit-transform-origin: right top;
+    -ms-transform-origin: right top;
+    width: calc(31.7em);
+    z-index: 2;
+}
+.disaster-level-container .level {
+  margin-right: 20px;
+  font-size: @font-size-base;
+}
+
+.disaster-level-container .row {
+  border-bottom: 1px dashed #ddd;
+  font-size: @font-size-h3;
+  margin-bottom: 10px;
+}
+
+.disaster-level-container .level-no-data {
+  color: #ccc;
+}
+
+.disaster-level-container .level-no-data .level{
+  font-style: italic;
+}
+
+.disaster-level-container .level-data .level {
+  font-size: @font-size-h3;
+}
+
+.disaster-level-container .level-data:hover {
+  cursor: pointer;
+  color: @brand-primary;
+}

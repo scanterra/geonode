@@ -38,16 +38,16 @@ const RiskSelector = React.createClass({
             const active = activeRisk === mnemonic;
             const noData = !(riskAnalysis > 0);
             return (
-            <li key={idx} className={`${noData ? 'no-data' : ''} text-center  ${active ? 'active' : ''}`} onClick={active || noData ? undefined : () => getData(href, true)}>
-                    <i className={`fa hazard-icon icon-${mnemonic.toLowerCase()}`}></i><br/>
-                    {title}
-                    {active ? (<div className="arrow"></div>) : null}
+            <li key={idx} className={`${noData ? 'no-data disabled' : ''} text-center  ${active ? 'active' : ''}`} onClick={active || noData ? undefined : () => getData(href, true)}>
+                  <a href="#" data-toggle="tab">
+                    <i className={`icon-${mnemonic.toLowerCase()}`}></i> &nbsp; {title}
+                  </a>
             </li>);
         });
     },
     render() {
         return (
-            <ul className="hazard-types-list horizontal list-unstyled" role="tablist">
+            <ul className="nav nav-pills" role="tablist">
             {this.getItems()}
             </ul> );
     }

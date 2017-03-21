@@ -21,21 +21,30 @@ const DrillUpBtn = connect(drillUpSelector, {zoomOut: zoom})(require('../compone
 const SwitchDimension = connect(switchDimSelector, {toggleDim})(require('../components/SwitchDimension'));
 const AxesSelector = connect(axesSelector, {setDimIdx})(require('../components/AxesSelector'));
 const MapContainer = (props) => (
-        <div className="col-sm-5" style={{padding: 0}}>
-            <div style={{height: 400}}>
-            <MapViewer plugins={props.plugins} params={{mapType: "leaflet"}}/>
+        <div className="col-sm-5">
+            <div className="disaster-map-container">
+                <div style={{height: 400}}>
+                    <MapViewer plugins={props.plugins} params={{mapType: "leaflet"}}/>
+                </div>
+                <div className="container-fluid">
+                    <div className="row text-center">
+                        <DrillUpBtn/>
+                    </div>
+                    <div className="row text-center">
+                        <SwitchDimension/>
+                    </div>
+                </div>
+                <div className="container-fluid">
+                    <div className="row">
+                        <div className="col-xs-12">
+                            <AxesSelector/>
+                        </div>
+                    </div>
+                    <div className="row">
+                          <Legend legendHeigth={20} legendWidth={100}/>
+                    </div>
+                </div>
             </div>
-            <div style={{height: 40, width: '100%', marginTop: 10}}>
-                <DrillUpBtn/>
-                <SwitchDimension/>
-            </div>
-            <div style={{minHeight: 40, width: '100%', marginTop: 10}}>
-                <AxesSelector/>
-            </div>
-            <div style={{height: 40, width: '100%', marginTop: 10}}>
-                <Legend legendHeigth={20} legendWidth={100}/>
-            </div>
-
         </div>
 );
 

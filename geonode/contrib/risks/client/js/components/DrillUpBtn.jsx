@@ -25,7 +25,7 @@ const DrillUpBtn = React.createClass({
     render() {
         const {label, disabled} = this.props;
         return disabled ? null : (
-            <button className="btn btn-xs btn-default drillup" onClick={this.onClick}>
+            <button className="btn btn-default drillup" onClick={this.onClick}>
                 <i className="btn-xs icon-zoom-out"/>
                 {`Zoom out to ${label}`}
             </button>);

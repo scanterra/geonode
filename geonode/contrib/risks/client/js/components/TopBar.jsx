@@ -30,19 +30,16 @@ const TopBar = React.createClass({
         };
     },
     render() {
-        const {navItems, context, riskItems, title, overviewHref, activeRisk, getData, zoom} = this.props;
+        const {navItems, context, riskItems, overviewHref, activeRisk, getData, zoom} = this.props;
         return (
-            <div className="jumbotron">
-                <div className="container">
+            <div className="container-fluid">
+                <div className="disaster-breadcrumbs">
+                    <Navigation items={navItems} zoom={zoom} context={context}/>
                     <div className="pull-right">
                         <DownloadBtn/>
                     </div>
-                    <Navigation items={navItems} zoom={zoom} context={context}/>
                 </div>
-                <div className="container text-center">
-                    <h2>
-                    {title}
-                    </h2>
+                <div className="disaster-risk-selector">
                     <RiskSelector riskItems={riskItems} overviewHref={overviewHref} activeRisk={activeRisk} getData={getData}/>
                 </div>
             </div>);

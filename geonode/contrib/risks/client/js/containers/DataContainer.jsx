@@ -12,6 +12,7 @@ const {dataContainerSelector} = require('../selectors/disaster');
 const {getAnalysisData, getData, setDimIdx} = require('../actions/disaster');
 const Chart = require('../components/Chart');
 const Overview = connect(({disaster = {}}) => ({riskItems: disaster.overview || [] }) )(require('../components/Overview'));
+const {Panel} = require('react-bootstrap');
 
 const DataContainer = React.createClass({
     propTypes: {
@@ -58,7 +59,7 @@ const DataContainer = React.createClass({
     renderAnalysisData() {
         const {dim, setDimIdx: sIdx} = this.props;
         const {hazardSet, data} = this.props.riskAnalysisData;
-        return (<div>
+        return (<div className="container-fluid">
             <h4>{hazardSet.title}</h4><br/>
                 <p>{hazardSet.purpose}</p>
                 <br/>
@@ -76,18 +77,34 @@ const DataContainer = React.createClass({
                     </ul>
                     </div>);
     },
+    renderRiskAnalysisHeader(title, getAnalysis, rs) {
+        return (
+          <div className="row">
+            <div className="col-xs-10">
+              <div className="disaster-analysis-title" onClick={()=> getAnalysis(rs.href)}>{title}</div>
+            </div>
+            <div className="col-xs-2">
+                <i className="pull-right fa fa-chevron-down"></i>
+            </div>
+          </div>
+        );
+    },
     renderRiskAnalysis() {
         const {analysisType = {}, getAnalysis} = this.props;
         return analysisType.riskAnalysis.map((rs, idx) => {
             const {title, fa_icon: faIcon, abstract} = rs.hazardSet;
             return (
-                <li key={idx} style={{marginBottom: 20}}>
-                    <h4 style={{cursor: 'pointer'}}onClick={()=> getAnalysis(rs.href)}>{title}</h4>
-                    {<i clasName={faIcon}></i>}
-                    <br/>
-                    {abstract}
-                </li>
-                );
+              <div className="row">
+                  <div className="col-xs-1 text-center">
+                      <i className={'disaster-category fa ' + faIcon} onClick={()=> getAnalysis(rs.href)}></i>
+                  </div>
+                  <div className="col-xs-11">
+                    <Panel key={idx} collapsible header={this.renderRiskAnalysisHeader(title, getAnalysis, rs)}>
+                        {abstract}
+                    </Panel>
+                  </div>
+              </div>
+            );
         });
     },
     renderAnalysisTab() {
@@ -96,26 +113,24 @@ const DataContainer = React.createClass({
             const {href, name, title} = type;
             const active = name === analysisType.name;
             return (<li key={name} className={`text-center ${active ? 'active' : ''}`} onClick={() => loadData(href, true)}>
-                    <span>{title}</span>
-                    {active ? (<div className="arrow"/>) : null}
+                    <a href="#" data-toggle="tab"><span>{title}</span></a>
                     </li>);
         });
     },
     renderHazard() {
-        const {analysisType = {}, hazardTitle, riskAnalysisData} = this.props;
+        const {hazardTitle, riskAnalysisData} = this.props;
         return (<div className={this.props.className}>
-                <div className="analysis-header">
-                <h2 className="page-header">{hazardTitle}</h2>
-                <ul className="analysis-tab horizontal list-unstyled pull-right">
-                {this.renderAnalysisTab()}
-                </ul>
-
+                <div className="disaster-header">
+                  <div className="disaster-header-title"><i className={`icon-${this.props.hazardType.mnemonic.toLowerCase()}`}/>&nbsp;{hazardTitle}</div>
+                  <ul className="nav nav-tabs">
+                    {this.renderAnalysisTab()}
+                  </ul>
+                  <br/>
                 </div>
-                    {riskAnalysisData.name ? this.renderAnalysisData() : (<div>
-                        <h3>{analysisType.title}</h3>
-                        <ul>
+                    {riskAnalysisData.name ? this.renderAnalysisData() : (<div className="disaster-analysis">
+                        <div className="container-fluid">
                         {this.renderRiskAnalysis()}
-                    </ul></div>)}
+                    </div></div>)}
             </div>);
     },
     render() {

@@ -31,7 +31,7 @@ const Home = React.createClass({
         return (
                <div className="disaster">
                     <TopBar/>
-                    <div className="container">
+                    <div className="container-fluid">
                         <div className="row">
                             <DataContainer/>
                             {<MapContainer plugins={plugins}/>}

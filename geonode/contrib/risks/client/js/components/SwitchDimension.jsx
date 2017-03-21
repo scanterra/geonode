@@ -20,8 +20,9 @@ const SwitchDim = React.createClass({
     },
     render() {
         return this.props.dimName ? (
-            <div className="switch-dim" onClick={this.props.toggleDim}>{`Switch to ${this.props.dimName}`}
-            </div>) : null;
+
+            <button className="btn btn-default" onClick={this.props.toggleDim}>{`Switch to ${this.props.dimName}`}
+            </button>) : null;
     }
 });
 

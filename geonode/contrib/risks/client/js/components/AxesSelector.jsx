@@ -24,11 +24,11 @@ const AxesSelector = React.createClass({
         const {values = []} = this.props.dimension || {};
         return values.map((val, idx) => {
             return idx === this.props.activeAxis ? (
-                <li key={idx}className="map-axis active text-center">{val}</li>) : (<li key={idx} className="map-axis text-center" onClick={() => this.props.setDimIdx('dim2Idx', idx)}>{val}</li>);
+                <li key={idx}className="map-axis active text-center"><a href="#" data-toggle="tab">{val}</a></li>) : (<li key={idx} className="map-axis text-center" onClick={() => this.props.setDimIdx('dim2Idx', idx)}><a href="#" data-toggle="tab">{val}</a></li>);
         });
     },
     render() {
-        return this.props.dimension ? (<ul className="map-axes horizontal list-unstyled">
+        return this.props.dimension ? (<ul className="nav nav-pills">
             {this.getAxes()}
             </ul>) : null;
     }
