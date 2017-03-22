@@ -92,7 +92,7 @@ class Command(BaseCommand):
 
         CREATE TABLE public.dimension
         (
-          dim_id serial not null, 
+          dim_id serial not null,
           dim_col character varying(30),
           dim_value character varying(255),
           dim_order int not null default 0,
@@ -145,8 +145,40 @@ class Command(BaseCommand):
           OWNER TO geonode;
 
 
-
     The GeoServer Parametric Layer should be defined as follows
+
+    SELECT public.test.*, value, dim1_value, dim2_value, dim3_value, dim4_value, dim5_value
+      FROM public.test
+        JOIN (
+          SELECT join_table.test_fid, join_table.value,
+                 d1.dim_col dim1_col, d1.dim_value dim1_value,
+                 d2.dim_col dim2_col, d2.dim_value dim2_value,
+                 d3.dim_col dim3_col, d3.dim_value dim3_value,
+                 d4.dim_col dim4_col, d4.dim_value dim4_value,
+                 d5.dim_col dim5_col, d5.dim_value dim5_value
+            FROM
+    	  public.test_dimensions join_table
+    	    LEFT JOIN public.dimension d1 ON (d1.dim_id = join_table.dim1_id)
+    	    LEFT JOIN public.dimension d2 ON (d2.dim_id = join_table.dim2_id)
+    	    LEFT JOIN public.dimension d3 ON (d3.dim_id = join_table.dim3_id)
+    	    LEFT JOIN public.dimension d4 ON (d4.dim_id = join_table.dim4_id)
+    	    LEFT JOIN public.dimension d5 ON (d5.dim_id = join_table.dim5_id)
+        ) rd ON (rd.test_fid = fid)
+    WHERE
+      risk_analysis = '%ra%' AND
+      hazard_type = '%ha%' AND
+      (region = '%region%' OR admin = '%admin%' OR adm_code = '%adm_code%' OR
+         (coalesce('%adm_code%', '') = '' AND
+           adm_code LIKE '%sub_adm_code%__' AND adm_code <> '%super_adm_code%')
+      ) AND
+      (dim1_value = '%d1%' OR dim1_value is NULL) AND
+      (dim2_value = '%d2%' OR dim2_value is NULL) AND
+      (dim3_value = '%d3%' OR dim3_value is NULL) AND
+      (dim4_value = '%d4%' OR dim4_value is NULL) AND
+      (dim5_value = '%d5%' OR dim5_value is NULL)
+
+
+    With ordering:
 
     SELECT public.test.*, value, dim1_value, dim2_value, dim3_value, dim4_value, dim5_value
       FROM public.test
@@ -169,9 +201,10 @@ class Command(BaseCommand):
     WHERE
       risk_analysis = '%ra%' AND
       hazard_type = '%ha%' AND
-      hazard_type = '%ha%' AND
-      (admin = '%admin%' OR adm_code = '%adm_code%') AND
-      region = '%region%' AND
+      (region = '%region%' OR admin = '%admin%' OR adm_code = '%adm_code%' OR
+        (coalesce('%adm_code%', '') = '' AND
+         adm_code LIKE '%sub_adm_code%__' AND adm_code <> '%super_adm_code%')
+      ) AND
       (dim1_value = '%d1%' OR dim1_value is NULL) AND
       (dim2_value = '%d2%' OR dim2_value is NULL) AND
       (dim3_value = '%d3%' OR dim3_value is NULL) AND
@@ -485,7 +518,7 @@ class Command(BaseCommand):
                     select_dimension_template = "SELECT dim_id FROM public.dimension " +\
                         "WHERE dim_col = %(dim_col)s AND dim_value = %(dim_value)s;"
 
-                     
+
                     curs.execute(select_dimension_template.format(**values), values)
                     id_of_new_row = curs.fetchone()
                     if id_of_new_row:
