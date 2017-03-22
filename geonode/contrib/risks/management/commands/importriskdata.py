@@ -335,7 +335,6 @@ class Command(BaseCommand):
             raise CommandError("Input Risk Data Table '--excel_file' is mandatory")
 
         risk = RiskAnalysis.objects.get(name=risk_analysis)
-        risk.set_processing()
 
         wb = xlrd.open_workbook(filename=excel_file)
         region = Region.objects.get(name=region)
@@ -430,7 +429,6 @@ class Command(BaseCommand):
 
         # Finalize
         risk.data_file = excel_file
-        risk.set_ready()
         if commit:
             risk.save()
 

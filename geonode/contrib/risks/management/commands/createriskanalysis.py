@@ -177,7 +177,7 @@ Loss Impact and Impact Analysis Types.'
                 rd.save()
                 print ("Created Risk Analysis Dym %s [%s] (%s) - axis %s" %
                        (rd.order, dim_value, dim_name, rd.axis))
-
+        risk.save()
         risk.set_ready()
         return risk_name
 

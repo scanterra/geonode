@@ -55,6 +55,11 @@ class Schedulable(models.Model):
     def _run_scheduled(self):
         raise NotImplemented("You should override this method in subclass")
 
+    def set_error(self):
+        self.refresh_from_db()
+        self.set_state(self.STATE_ERROR, save=True)
+
+
     def set_ready(self):
         self.refresh_from_db()
         self.set_state(self.STATE_READY, save=True)
