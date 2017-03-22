@@ -11,7 +11,8 @@ from geonode.layers.models import Layer
 from geonode.utils import json_response
 from geonode.contrib.risks.models import (HazardType, AdministrativeDivision,
                                           RiskAnalysisDymensionInfoAssociation, 
-                                          RiskAnalysis)
+                                          RiskAnalysis, DymensionInfo, AnalysisType,
+                                          FurtherResource)
 
 from geonode.contrib.risks.datasource import GeoserverDataSource
 
@@ -22,10 +23,11 @@ log = logging.getLogger(__name__)
 
 class ContextAware(object):
 
+    CONTEXT_KEYS = ['ht', 'at', 'an', 'dym']
+
     def get_context_url(self, **kwargs):
-        keys = ['ht', 'at', 'an', 'dym']
         out = []
-        for k in keys:
+        for k in self.CONTEXT_KEYS:
             if kwargs.get(k):
                 out.extend([k, kwargs[k]])
             else:
@@ -36,6 +38,129 @@ class ContextAware(object):
             url = None
         return url
 
+    def fr_for_an(self, an, **kwargs):
+        """
+        .. py:method: ft_for_an(an, **kwargs)
+
+        :param an: Risk Analysis object
+        :param dict kwargs: other parameters available
+        :type an: :py:class: geonode.contrib.risks.models.RiskAnalysis
+
+        Returns list of :py:class: geonode.contrib.risks.models.FurtherResource 
+            related to Hazard type (assigned to Risk Analysis). Region may be used to narrow results.
+        
+        """
+        if an.hazardset is None:
+            return []
+        region = None
+        if kwargs.get('loc'):
+            region = kwargs['loc'].region
+
+        return FurtherResource.for_hazardset(an.hazardset, region=region)
+
+
+    def fr_for_dym(self, dym, **kwargs):
+        """
+        .. py:method: fr_for_dym(dym, **kwargs)
+        
+        :param dym: DymensionInfo object
+        :param dict kwargs: other parameters for query
+        :type dym: :py:class: geonode.contrib.risks.models.DymensionInfo
+
+        Returns list of :py:class: geonode.contrib.risks.models.FurtherResource 
+            related to DymensionInfo. Region and Risk Analysis may be used to 
+            narrow results.
+        """
+
+
+        if dym is None:
+            return []
+        ranalysis = kwargs.get('ra')        
+        region = None
+        if kwargs.get('loc'):
+            region = kwargs['loc'].region
+        return FurtherResource.for_dymension_info(dym, region=region, ranalysis=ranalysis)
+
+
+    def fr_for_at(self, at, **kwargs):
+        """
+        .. py:method: fr_for_at(dym, **kwargs)
+        
+        :param at: AnalysisType object
+        :param dict kwargs: other parameters for query
+        :type dym: :py:class: geonode.contrib.risks.models.DymensionInfo
+
+        Returns list of :py:class: geonode.contrib.risks.models.FurtherResource 
+            related to DymensionInfo. Region and Risk Analysis may be used to 
+            narrow results.
+        """
+        if at is None:
+            return []
+        htype = kwargs.get('ht')
+        region = None
+        if kwargs.get('loc'):
+            region = kwargs['loc'].region
+        return FurtherResource.for_analysis_type(at, region=region, htype=htype)
+
+
+    # maps url captured argument to specific class and field for lookup
+    CONTEXT_KEYS_CLASSES = (('ht', HazardType, 'mnemonic'),
+                            ('at', AnalysisType, 'name',),
+                            ('an', RiskAnalysis, 'id',),
+                            ('dym', DymensionInfo, 'id',),
+                            ('loc', AdministrativeDivision, 'code',)
+                            )
+
+
+    def get_further_resources_inputs(self, **kwargs):
+        """
+        .. py:method:: get_further_resources_inputs(self, **kwargs)
+
+        :param dict kwargs: keyword arguments obtained from url parser
+        :return: dictionary with objects for keyword and criteria
+
+        This will check each pair of (key, value) from url kwargs and, 
+        using map between key and class, will get specific object identified
+        by value.
+
+        """
+
+        out = {}
+        for k, klass, field in self.CONTEXT_KEYS_CLASSES:
+            if not kwargs.get(k):
+                continue
+            related = self._get_from_kwargs(klass, field, kwargs[k])
+            out[k] = related
+        return out
+
+    def get_further_resources(self, **kwargs):
+        """
+        .. py:method:: get_further_resources(self, **kwargs)
+
+        returns map of criteria and further resources available for given criteria
+
+        :param dict kwargs: keyword arguments obtained from url parser (see CONTEXT_KEY_CLASSES)
+        :return: dictionary with object type name and list of related resources
+        :rtype: dict
+        
+        """
+        inputs = self.get_further_resources_inputs(**kwargs)
+        out = {}
+        for res_type, key_name in (('at', 'analysisType',),
+                                    ('dym', 'hazardSet',),
+                                    ('an', 'hazardType',)):
+            res_type_handler = getattr(self, 'fr_for_{}'.format(res_type))
+            if kwargs.get(res_type):
+                out[key_name] = self._fr_serialize(res_type_handler(**inputs))
+        return out
+
+
+    def _fr_serialize(self, items):
+        return [i.export() for i in items]
+
+    def _get_from_kwargs(self, klass, field, field_val):
+        return klass.objects.get(**{field: field_val})
+        
 
 class FeaturesSource(object):
 
@@ -118,6 +243,7 @@ class LocationView(ContextAware, LocationSource, View):
 
         location_data = {'navItems': [location.export() for location in locations],
                          'context': self.get_context_url(**kwargs),
+                         'furtherResources': self.get_further_resources(**kwargs),
                          'overview': [ht.set_location(loc).export() for ht in hazard_types]}
 
         return json_response(location_data)
@@ -217,6 +343,7 @@ class HazardTypeView(ContextAware, LocationSource, View):
         out = {'navItems': [location.export() for location in locations],
                'overview': [ht.set_location(loc).export() for ht in hazard_types],
                'context': self.get_context_url(**kwargs),
+               'furtherResources': self.get_further_resources(**kwargs),
                'hazardType': hazard_type.get_hazard_details(),
                'analysisType': atype.get_analysis_details()}
 
@@ -385,6 +512,7 @@ class DataExtractionView(FeaturesSource, HazardTypeView):
                       'geonode': settings.OGC_SERVER['default']['PUBLIC_LOCATION']}
 
         out['riskAnalysisData']['additionalLayers'] = [(l.id, l.typename,) for l in risk.additional_layers.all()]
+        out['furtherResources'] = self.get_further_resources(**kwargs)
         return json_response(out)
 
     def get_viewparams(self, risk, htype, loc):

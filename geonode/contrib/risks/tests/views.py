@@ -5,22 +5,43 @@ from __future__ import print_function
 
 import json
 from StringIO import StringIO
+
 from django.test import Client
 from django.core.urlresolvers import reverse
+from factory.django import DjangoModelFactory
+from factory import SubFactory
+from factory.fuzzy import FuzzyText
+
+from geonode.base.models import ResourceBase
 from geonode.utils import designals, resignals
-from geonode.contrib.risks.models import DymensionInfo, RiskAnalysis, Layer
+from geonode.contrib.risks.models import (DymensionInfo, AnalysisType, RiskAnalysis, 
+                                          Layer, FurtherResource, AdministrativeDivision,
+                                          AnalysisTypeFurtherResourceAssociation,
+                                          HazardType)
 from geonode.contrib.risks.tests import RisksTestCase
 from geonode.contrib.risks.tests.smoke import (TESTDATA_FILE_INI, TESTDATA_FILE_DATA,
                                                TEST_RISK_ANALYSIS, TEST_REGION, call_command)
 
 
+
+
+class ResourceBaseFactory(DjangoModelFactory):
+    class Meta:
+        model = ResourceBase
+    title = FuzzyText()
+
+class FurtherResourceFactory(DjangoModelFactory):
+    class Meta:
+        model = FurtherResource
+
+    text = 'test resource'
+    resource = SubFactory(ResourceBaseFactory)
+
 class RisksViewTestCase(RisksTestCase):
 
+    def setUp(self):
+        super(RisksViewTestCase, self).setUp()
 
-    def test_risk_layers(self):
-        """
-        Check if layers are saved correctly along with risk analysis
-        """
         out = StringIO()
         call_command('createriskanalysis', descriptor_file=TESTDATA_FILE_INI, stdout=out)
         call_command(
@@ -31,8 +52,49 @@ class RisksViewTestCase(RisksTestCase):
             risk_analysis=TEST_RISK_ANALYSIS,
             stdout=out)
 
-        client = Client()
+        self.client = Client()
+    
+    def test_further_resources(self):
+        """
+        Check if further resources work 
 
+        """
+        fr = [FurtherResourceFactory.create() for f in range(0, 10)]
+        loc = AdministrativeDivision.objects.get(code='AF')
+        htype = HazardType.objects.get(mnemonic='EQ')
+        atypes = htype.set_location(loc).get_analysis_types()
+        atype = atypes[0]
+
+        afra = AnalysisTypeFurtherResourceAssociation.objects.create
+        afra(resource=fr[0], analysis_type=atype)
+        afra(resource=fr[1], analysis_type=atype, region=loc.region)
+        afra(resource=fr[2], analysis_type=atype, hazard_type=htype)
+
+        for_atype1 = FurtherResource.for_analysis_type(atype)
+        self.assertTrue(for_atype1.count() == 1)
+
+        for_atype3 = FurtherResource.for_analysis_type(atype, region=loc.region)
+        self.assertTrue(for_atype3.count() == 2)
+
+        for_atype2 = FurtherResource.for_analysis_type(atype, htype=htype)
+        self.assertTrue(for_atype2.count() == 2)
+
+        self.assertNotEqual(for_atype2, for_atype3)
+
+        for_atype = FurtherResource.for_analysis_type(atype, region=loc.region, htype=htype)
+        url = '/risks/risk_data_extraction/loc/AF/ht/EQ/at/{}/'.format(atype.name)
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        data = json.loads(resp.content)
+        self.assertEqual(len(data['furtherResources']['analysisType']), for_atype.count())
+        self.assertEqual(set([d['title'] for d in data['furtherResources']['analysisType']]), set([a.export()['title'] for a in for_atype]))
+
+
+    def test_risk_layers(self):
+        """
+        Check if layers are saved correctly along with risk analysis
+        """
+        client = self.client
         url = '/risks/risk_data_extraction/loc/AF/'
         resp = client.get(url)
         self.assertEqual(resp.status_code, 200)
@@ -105,17 +167,7 @@ class RisksViewTestCase(RisksTestCase):
         Check if data views returns proper data
 
         """
-        out = StringIO()
-        call_command('createriskanalysis', descriptor_file=TESTDATA_FILE_INI, stdout=out)
-        call_command(
-            'importriskdata',
-            commit=True,
-            excel_file=TESTDATA_FILE_DATA,
-            region=TEST_REGION,
-            risk_analysis=TEST_RISK_ANALYSIS,
-            stdout=out)
-
-        client = Client()
+        client = self.client
         url = '/risks/risk_data_extraction/loc/INVALID/'
         resp = client.get(url)
         self.assertEqual(resp.status_code, 404)

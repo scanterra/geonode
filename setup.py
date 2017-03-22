@@ -131,7 +131,9 @@ setup(name='GeoNode',
         "django-storages>=1.1.8",
 
         # Contribs
-        "xlrd==1.0.0"
+        "xlrd==1.0.0",
+        # tests
+        "factory_boy",
 
         ],
       zip_safe=False,
