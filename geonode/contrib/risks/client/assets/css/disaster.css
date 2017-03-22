@@ -7,6 +7,7 @@
  */
   /*! normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css */
   /*! Source: https://github.com/h5bp/html5-boilerplate/blob/master/src/css/main.css */
+  /* Leaflet custom style*/
 }
 .disaster html {
   font-family: sans-serif;
@@ -6952,6 +6953,17 @@
 }
 .disaster .leaflet-clickable {
   cursor: zoom-in;
+}
+.disaster .disaster-map-tooltip > .leaflet-popup-tip-container {
+  display: none;
+}
+.disaster .disaster-map-tooltip > .leaflet-popup-content-wrapper {
+  padding: 0px;
+}
+.disaster .disaster-map-tooltip > .leaflet-popup-content-wrapper > .leaflet-popup-content {
+  min-width: 100px;
+  max-width: 100px;
+  text-align: center;
 }
 @font-face {
   font-family: 'thinkhazard';

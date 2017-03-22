@@ -143,6 +143,7 @@
     white-space: nowrap;
 }
 
+
 .disaster-chart-accordion .panel-title a {
   cursor: pointer;
   text-decoration: none;
@@ -157,6 +158,20 @@
   margin-top: 10px;
 }
 
+
+/* Leaflet custom style*/
 .leaflet-clickable {
     cursor: zoom-in;
 }
+.disaster-map-tooltip > .leaflet-popup-tip-container {
+    display: none;
+}
+.disaster-map-tooltip > .leaflet-popup-content-wrapper {
+    padding: 0px;
+}
+.disaster-map-tooltip > .leaflet-popup-content-wrapper > .leaflet-popup-content {
+    min-width: 100px;
+    max-width: 100px;
+    text-align: center;
+}
+

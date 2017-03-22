@@ -145,6 +145,7 @@ let Feature = React.createClass({
     },
     componentDidMount() {
         if (this.props.container) {
+            this._tooltip = L.popup({closeButton: false, offset: [85, 35], className: 'disaster-map-tooltip'});
             let style = this.props.style;
             this._layer = geometryToLayer({
                 type: this.props.type,
@@ -208,10 +209,17 @@ let Feature = React.createClass({
             });
         }
     },
-    onOver() {
+    onOver(event) {
         this._layer.setStyle({weight: 4});
+        this._tooltip.setLatLng(event.latlng)
+            .setContent(`Zoom to ${this.props.properties && this.props.properties.label}`);
+        this._layer.addLayer(this._tooltip);
+    },
+    onMousemove(event) {
+        this._tooltip.setLatLng(event.latlng);
     },
     onOut() {
+        this._layer.removeLayer(this._tooltip);
         this._layer.setStyle({weight: 1});
     },
     render() {
@@ -221,11 +229,13 @@ let Feature = React.createClass({
         this._layer.on('click', this.onClick);
         this._layer.on('mouseover', this.onOver);
         this._layer.on('mouseout', this.onOut);
+        this._layer.on('mousemove', this.onMousemove);
     },
     removeEvents() {
         this._layer.off('click', this.onClick);
         this._layer.off('mouseover', this.onOver);
         this._layer.off('mouseout', this.onOut);
+        this._layer.off('mousemove', this.onMousemove);
     }
 });
 
