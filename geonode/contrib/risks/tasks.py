@@ -9,7 +9,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.core.management import call_command
 
-from geonode.contrib.risks.models import RiskAnalysis
+from geonode.contrib.risks.models import RiskAnalysis, HazardSet
 
 def create_risk_analysis(input_file, file_ini):
     _create_risk_analysis.apply_async(args=(input_file, file_ini))

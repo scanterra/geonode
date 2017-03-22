@@ -36,7 +36,7 @@ from geonode.contrib.risks.models import RiskAnalysis
 from geonode.contrib.risks.models import RiskAnalysisCreate
 from geonode.contrib.risks.models import RiskAnalysisImportData
 from geonode.contrib.risks.models import RiskAnalysisImportMetadata
-from geonode.contrib.risks.tasks import create_risk_analysis, import_risk_data
+from geonode.contrib.risks.tasks import create_risk_analysis, import_risk_data, import_risk_metadata
 
 
 class CreateRiskAnalysisForm(models.ModelForm):
@@ -100,7 +100,7 @@ class ImportMetadataRiskAnalysisForm(models.ModelForm):
         region = self.cleaned_data['region']
         risk = self.cleaned_data['riskanalysis']
 
-        import_risk_metadata(tmp_file, risk, region, final_path)
+        import_risk_metadata(tmp_file, risk, region, file_xlsx)
 
 
         return file_xlsx
