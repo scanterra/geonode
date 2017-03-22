@@ -56,7 +56,7 @@ class ContextAware(object):
         if kwargs.get('loc'):
             region = kwargs['loc'].region
 
-        return FurtherResource.for_hazardset(an.hazardset, region=region)
+        return FurtherResource.for_hazard_set(an.hazardset, region=region)
 
 
     def fr_for_dym(self, dym, **kwargs):
