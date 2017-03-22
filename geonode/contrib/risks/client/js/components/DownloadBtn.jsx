@@ -23,7 +23,7 @@ const DownloadBtn = React.createClass({
     render() {
         const {label, downloading, downloadAction} = this.props;
         return (
-            <button disabled={!downloadAction} className="btn btn-default" onClick={downloadAction}>
+            <button disabled={!downloadAction} className="btn btn-primary" onClick={downloadAction}>
                   {downloading ? (<i className="icon-spinner fa-spin"/>) : (<i className="icon-download-arrow"/>)}&nbsp;
                   {label}
             </button>);

@@ -7,6 +7,7 @@
  */
 
 const React = require('react');
+const {Tooltip, OverlayTrigger} = require('react-bootstrap');
 
 const SwitchDim = React.createClass({
     propTypes: {
@@ -19,10 +20,13 @@ const SwitchDim = React.createClass({
         };
     },
     render() {
+        const tooltip = (
+            <Tooltip id="tooltip-switch" className="disaster">{`Switch to ${this.props.dimName}`}</Tooltip>
+          );
         return this.props.dimName ? (
-
-            <button className="btn btn-default" onClick={this.props.toggleDim}>{`Switch to ${this.props.dimName}`}
-            </button>) : null;
+            <OverlayTrigger className="disaster" placement="bottom" overlay={tooltip}>
+              <button className="btn btn-primary" onClick={this.props.toggleDim}><i className="fa fa-exchange"/>
+            </button></OverlayTrigger>) : null;
     }
 });
 

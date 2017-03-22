@@ -7,6 +7,7 @@
  */
 
 const React = require('react');
+const {Tooltip, OverlayTrigger} = require('react-bootstrap');
 
 const DrillUpBtn = React.createClass({
     propTypes: {
@@ -24,11 +25,16 @@ const DrillUpBtn = React.createClass({
     },
     render() {
         const {label, disabled} = this.props;
+        const tooltip = (
+            <Tooltip id="tooltip-drillup" className="disaster">{`Zoom out to ${label}`}</Tooltip>
+        );
         return disabled ? null : (
-            <button className="btn btn-default drillup" onClick={this.onClick}>
-                <i className="btn-xs icon-zoom-out"/>
-                {`Zoom out to ${label}`}
-            </button>);
+          <OverlayTrigger className="disaster" placement="bottom" overlay={tooltip}>
+            <button className="btn btn-primary" onClick={this.onClick}>
+              <i className="icon-zoom-out"/>
+            </button>
+          </OverlayTrigger>
+        );
     },
     onClick() {
         const {href, context, zoomOut, geom} = this.props;

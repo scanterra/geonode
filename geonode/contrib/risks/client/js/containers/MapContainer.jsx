@@ -31,22 +31,16 @@ const MapContainer = (props) => (
                     <MapViewer plugins={props.plugins} params={{mapType: "leaflet"}}/>
                 </div>
                 <div className="container-fluid">
-                    <div className="row text-center">
-                        <DrillUpBtn/>
-                    </div>
-                    <div className="row text-center">
-                        <SwitchDimension/>
-                        <SwitchAdminU/>
-                    </div>
+                    <div className="btn-group pull-right"><DrillUpBtn/><SwitchAdminU/><SwitchDimension/></div>
                 </div>
                 <div className="container-fluid">
+                    <div className="row">
+                        <Legend legendHeigth={20} legendWidth={100}/>
+                    </div>
                     <div className="row">
                         <div className="col-xs-12">
                             <AxesSelector/>
                         </div>
-                    </div>
-                    <div className="row">
-                          <Legend legendHeigth={20} legendWidth={100}/>
                     </div>
                 </div>
             </div>

@@ -9,7 +9,7 @@
 const React = require('react');
 const {BarChart, Bar, XAxis, Cell, YAxis, Tooltip, CartesianGrid} = require('recharts');
 const ChartTooltip = require("./ChartTooltip");
-const chromaJs = require("chroma-js");
+/*const chromaJs = require("chroma-js");*/
 
 const Chart = React.createClass({
     propTypes: {
@@ -30,7 +30,7 @@ const Chart = React.createClass({
     render() {
         const {dim, dimension} = this.props;
         const chartData = this.getChartData();
-        const colors = chromaJs.scale('OrRd').colors(chartData.length);
+        /*const colors = chromaJs.scale('OrRd').colors(chartData.length);*/
         return (
             <BarChart width={500} height={200} data={chartData}
                 margin={{top: 20, right: 30, left: 30, bottom: 5}}>
@@ -42,7 +42,7 @@ const Chart = React.createClass({
                     {chartData.map((entry, index) => {
                         const active = index === dim.dim2Idx;
                         return (
-                            <Cell cursor="pointer" stroke={"black"} strokeWidth={active ? 1 : 0}fill={colors[index]} key={`cell-${index}`}/>);
+                            <Cell cursor="pointer" stroke={"black"} strokeWidth={active ? 1 : 0}fill={'#ff8f31'} key={`cell-${index}`}/>);
                     })
                     }
                 </Bar>
@@ -54,4 +54,3 @@ const Chart = React.createClass({
 });
 
 module.exports = Chart;
-

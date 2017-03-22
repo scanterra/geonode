@@ -12,7 +12,7 @@ const {dataContainerSelector} = require('../selectors/disaster');
 const {getAnalysisData, getData, setDimIdx} = require('../actions/disaster');
 const Chart = require('../components/Chart');
 const Overview = connect(({disaster = {}}) => ({riskItems: disaster.overview || [] }) )(require('../components/Overview'));
-const {Panel} = require('react-bootstrap');
+const {Panel, Accordion, Tooltip, OverlayTrigger} = require('react-bootstrap');
 
 const DataContainer = React.createClass({
     propTypes: {
@@ -63,44 +63,49 @@ const DataContainer = React.createClass({
             <h4>{hazardSet.title}</h4><br/>
                 <p>{hazardSet.purpose}</p>
                 <br/>
-                <ul>
+                <Accordion className="disaster-chart-accordion" defaultActiveKey={0}>
                     {data.dimensions[dim.dim1].values.map((val, idx) => {
-                        return idx === dim.dim1Idx ? (
-                            <li key={val} style={{marginBottom: 30}}>
-                                <span>{`${data.dimensions[dim.dim1].name} ${val}`}</span>
-                                <Chart dimension={data.dimensions} values={data.values} val={val} dim={dim} setDimIdx={sIdx}/>
-                            </li>) : (
-                            <li key={val} style={{marginBottom: 20}}>
-                                <span style={{color: 'blue', cursor: 'pointer'}} onClick={() => sIdx('dim1Idx', idx)}>{`${data.dimensions[dim.dim1].name} ${val}`}</span>
-                            </li>);
+                        const header = (<span><i className="fa fa-bar-chart" />&nbsp;{`${data.dimensions[dim.dim1].name} ${val}`}</span>);
+                        return (
+                            <Panel key={val} header={header} eventKey={idx}>
+                              <Chart dimension={data.dimensions} values={data.values} val={val} dim={dim} setDimIdx={sIdx}/>
+                            </Panel>);
                     })}
-                    </ul>
+                    </Accordion>
                     </div>);
     },
-    renderRiskAnalysisHeader(title, getAnalysis, rs) {
+    renderRiskAnalysisHeader(title, getAnalysis, rs, idx) {
+        const tooltip = (<Tooltip id={"tooltip-abstract-" + idx} className="disaster">{'Show Abstract'}</Tooltip>);
         return (
+          <OverlayTrigger placement="top" overlay={tooltip}>
           <div className="row">
             <div className="col-xs-10">
-              <div className="disaster-analysis-title" onClick={()=> getAnalysis(rs.href)}>{title}</div>
+              <div className="disaster-analysis-title">{title}</div>
             </div>
             <div className="col-xs-2">
                 <i className="pull-right fa fa-chevron-down"></i>
             </div>
           </div>
+          </OverlayTrigger>
         );
     },
     renderRiskAnalysis() {
         const {analysisType = {}, getAnalysis} = this.props;
         return analysisType.riskAnalysis.map((rs, idx) => {
             const {title, fa_icon: faIcon, abstract} = rs.hazardSet;
+            const tooltip = (<Tooltip id={"tooltip-icon-cat-" + idx} className="disaster">{'Analysis Data'}</Tooltip>);
             return (
-              <div className="row">
+              <div key={idx} className="row">
                   <div className="col-xs-1 text-center">
-                      <i className={'disaster-category fa ' + faIcon} onClick={()=> getAnalysis(rs.href)}></i>
+                      <OverlayTrigger placement="bottom" overlay={tooltip}>
+                        <i className={'disaster-category fa ' + faIcon} onClick={()=> getAnalysis(rs.href)}></i>
+                      </OverlayTrigger>
                   </div>
                   <div className="col-xs-11">
-                    <Panel key={idx} collapsible header={this.renderRiskAnalysisHeader(title, getAnalysis, rs)}>
+                    <Panel collapsible header={this.renderRiskAnalysisHeader(title, getAnalysis, rs, idx)}>
                         {abstract}
+                        <br/>
+                        <button className="btn btn-default pull-right" onClick={()=> getAnalysis(rs.href)}><i className="fa fa-bar-chart"/>&nbsp;{'Analysis Data'}</button>
                     </Panel>
                   </div>
               </div>
@@ -118,13 +123,20 @@ const DataContainer = React.createClass({
         });
     },
     renderHazard() {
-        const {hazardTitle, riskAnalysisData} = this.props;
+        const {riskAnalysisData} = this.props;
         return (<div className={this.props.className}>
                 <div className="disaster-header">
-                  <div className="disaster-header-title"><i className={`icon-${this.props.hazardType.mnemonic.toLowerCase()}`}/>&nbsp;{hazardTitle}</div>
-                  <ul className="nav nav-tabs">
-                    {this.renderAnalysisTab()}
-                  </ul>
+                  {riskAnalysisData.name ? (
+                    <div className="container-fluid">
+                    <button onClick={()=> this.props.getData(this.props.analysisType.href, true)} className="btn btn-primary">
+                      <i className="fa fa-arrow-left"/> &nbsp; Back to Analysis Table
+                    </button>
+                    </div>
+                    ) : (
+                    <ul className="nav nav-tabs">
+                      {this.renderAnalysisTab()}
+                    </ul>
+                  )}
                   <br/>
                 </div>
                     {riskAnalysisData.name ? this.renderAnalysisData() : (<div className="disaster-analysis">

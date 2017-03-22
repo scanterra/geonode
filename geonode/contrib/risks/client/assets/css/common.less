@@ -11,7 +11,7 @@
 }
 
 .disaster-breadcrumbs .btn-group .btn {
-  color: #333;
+  color: @brand-primary;
   border-color: transparent;
   border-right: 1px solid #333;
   border-left: 1px solid #333;
@@ -20,7 +20,7 @@
 }
 
 .disaster-breadcrumbs .btn-group .btn.disabled {
-  color: #000;
+  color: @brand-geonode-b;
   border-color: transparent;
   border-left: 1px solid #333;
   font-weight: bold;
@@ -31,9 +31,18 @@
 }
 
 .disaster-risk-selector {
-    padding: 20px 10px;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-    margin-bottom: 20px;
+  padding: 20px 10px;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+  margin-bottom: 20px;
+}
+
+.disaster-risk-selector li.disabled > a {
+  color: #ddd;
+  font-style: italic;
+}
+
+.disaster-risk-selector li.disabled > a:hover {
+  color: #ddd;
 }
 
 .disaster-map-container {
@@ -43,6 +52,25 @@
 
 .disaster-map-container .row{
   margin: 10px 0;
+}
+
+.disaster-analysis .panel-heading .row{
+  color: @text-color;
+}
+
+.disaster-analysis .panel-heading .row:hover{
+  color: @brand-primary;
+}
+
+.disaster-analysis .panel-body button{
+  color: @brand-geonode-o;
+  background-color: @brand-geonode-b;
+  margin-top: 10px;
+}
+
+.disaster-analysis .panel-body button:hover{
+  color: @brand-geonode-b;
+  background-color: @brand-geonode-o;
 }
 
 .disaster-analysis .disaster-category {
@@ -95,14 +123,11 @@
 
 .disaster-level-container .level-no-data {
   color: #ccc;
-}
-
-.disaster-level-container .level-no-data .level{
   font-style: italic;
 }
 
-.disaster-level-container .level-data .level {
-  font-size: @font-size-h3;
+.disaster-level-container .level-no-data .row {
+  font-size: @font-size-base;
 }
 
 .disaster-level-container .level-data:hover {
@@ -117,6 +142,21 @@
     border: 1px solid rgb(204, 204, 204);
     white-space: nowrap;
 }
+
+.disaster-chart-accordion .panel-title a {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.disaster-chart-accordion .panel-title a:hover {
+  color: @brand-primary;
+}
+
+.disaster-header-type {
+  text-transform: capitalize;
+  margin-top: 10px;
+}
+
 .leaflet-clickable {
     cursor: zoom-in;
 }
