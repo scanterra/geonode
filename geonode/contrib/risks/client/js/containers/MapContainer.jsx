@@ -27,20 +27,18 @@ const SwitchAdminU = connect(({disaster}) => ({
 const MapContainer = (props) => (
         <div className="col-sm-5">
             <div className="disaster-map-container">
-                <div style={{height: 400}}>
+                <div style={{height: 400, padding: 10}}>
                     <MapViewer plugins={props.plugins} params={{mapType: "leaflet"}}/>
                 </div>
                 <div className="container-fluid">
-                    <div className="btn-group pull-right"><DrillUpBtn/><SwitchAdminU/><SwitchDimension/></div>
+                    <div className="btn-group pull-right disaster-map-tools"><SwitchAdminU/><DrillUpBtn/><SwitchDimension/></div>
                 </div>
                 <div className="container-fluid">
                     <div className="row">
-                        <Legend legendHeigth={20} legendWidth={100}/>
+                        <AxesSelector/>
                     </div>
                     <div className="row">
-                        <div className="col-xs-12">
-                            <AxesSelector/>
-                        </div>
+                        <Legend legendHeigth={20} legendWidth={100}/>
                     </div>
                 </div>
             </div>

@@ -7,6 +7,7 @@
  */
 
 const React = require('react');
+const Nouislider = require('react-nouislider');
 
 const AxesSelector = React.createClass({
     propTypes: {
@@ -20,17 +21,32 @@ const AxesSelector = React.createClass({
             setDimIdx: () => {}
         };
     },
-    getAxes() {
-        const {values = []} = this.props.dimension || {};
-        return values.map((val, idx) => {
-            return idx === this.props.activeAxis ? (
-                <li key={idx}className="map-axis active text-center"><a href="#" data-toggle="tab">{val}</a></li>) : (<li key={idx} className="map-axis text-center" onClick={() => this.props.setDimIdx('dim2Idx', idx)}><a href="#" data-toggle="tab">{val}</a></li>);
-        });
-    },
     render() {
-        return this.props.dimension ? (<ul className="nav nav-pills">
-            {this.getAxes()}
-            </ul>) : null;
+        const {values = []} = this.props.dimension || {};
+        return this.props.dimension ? (
+            <div className="text-center slider-box">
+                <div className="slider-lab">{values[this.props.activeAxis]}
+                </div>
+                <Nouislider
+                    range={{min: 0, max: values.length - 1}}
+                    start={[this.props.activeAxis]}
+                    step={1}
+                    tooltips={false}
+                    onChange={(idx) => this.props.setDimIdx('dim2Idx', Number.parseInt(idx[0]))}
+                    pips= {{
+                        mode: 'steps',
+                        density: 20,
+                        format: {
+                            to: (value) => {
+                                let val = values[value].split(" ")[0];
+                                return val.length > 8 ? val.substring(0, 8) + '...' : val;
+                            },
+                            from: (value) => {
+                                return value;
+                            }
+                        }
+                    }}/>
+            </div>) : null;
     }
 });
 

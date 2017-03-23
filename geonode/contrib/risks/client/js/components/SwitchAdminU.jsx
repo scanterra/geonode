@@ -7,6 +7,7 @@
  */
 
 const React = require('react');
+const {Tooltip, OverlayTrigger} = require('react-bootstrap');
 
 const SwitchAdminU = React.createClass({
     propTypes: {
@@ -21,9 +22,16 @@ const SwitchAdminU = React.createClass({
        },
         render() {
             const {toggleAdminUnit, showSubUnit, show} = this.props;
-            const lalbel = showSubUnit ? "Hide Sub-units values" : "Show Sub-units values";
-            return show ? (<button className="btn btn-default" onClick={toggleAdminUnit}>{lalbel}
-               </button>) : null;
+            const icon = showSubUnit ? "stop" : "th";
+            const label = showSubUnit ? "Hide Sub-units values" : "Show Sub-units values";
+            const tooltip = (<Tooltip id={"tooltip-sub-value"} className="disaster">{label}</Tooltip>);
+            return show ? (
+                <OverlayTrigger placement="bottom" overlay={tooltip}>
+                    <button className="btn btn-primary" onClick={toggleAdminUnit}>
+                        <i className={"fa fa-" + icon}/>
+                    </button>
+                </OverlayTrigger>
+            ) : null;
         }
 });
 

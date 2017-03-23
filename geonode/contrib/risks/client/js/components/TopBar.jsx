@@ -37,6 +37,7 @@ const TopBar = React.createClass({
                     <Navigation items={navItems} zoom={zoom} context={context}/>
                     <div className="pull-right">
                         <DownloadBtn/>
+                        <button className="btn btn-primary"><i className="fa fa-question"/></button>
                     </div>
                 </div>
                 <div className="disaster-risk-selector">

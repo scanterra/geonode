@@ -33,7 +33,7 @@ const Overview = React.createClass({
             <div key={idx} className={`${noData ? 'level-no-data' : 'level-data'} overview container-fluid`} onClick={noData ? undefined : () => getData(href, true)}>
                 <div className="row">
                       <div className="col-xs-6"><i className={`icon-${mnemonic.toLowerCase()}`}/>&nbsp;{title}</div>
-                      <div className="col-xs-6 text-right"><span className="level">{riskAnalysis ? 'Overall Risk Analysis Available' : 'No Data Available'}</span></div>
+                      <div className="col-xs-6 text-right"><span className="level">{riskAnalysis ? 'Overall Risk Analysis Available ' + riskAnalysis : 'No Data Available'}</span></div>
                 </div>
             </div>);
         });

@@ -12,7 +12,8 @@ const {dataContainerSelector} = require('../selectors/disaster');
 const {getAnalysisData, getData, setDimIdx} = require('../actions/disaster');
 const Chart = require('../components/Chart');
 const Overview = connect(({disaster = {}}) => ({riskItems: disaster.overview || [] }) )(require('../components/Overview'));
-const {Panel, Accordion, Tooltip, OverlayTrigger} = require('react-bootstrap');
+const {Panel, Tooltip, OverlayTrigger} = require('react-bootstrap');
+const Nouislider = require('react-nouislider');
 
 const DataContainer = React.createClass({
     propTypes: {
@@ -59,20 +60,56 @@ const DataContainer = React.createClass({
     renderAnalysisData() {
         const {dim, setDimIdx: sIdx} = this.props;
         const {hazardSet, data} = this.props.riskAnalysisData;
-        return (<div className="container-fluid">
-            <h4>{hazardSet.title}</h4><br/>
+        const tooltip = (<Tooltip id={"tooltip-back"} className="disaster">{'Back to Analysis Table'}</Tooltip>);
+        const val = data.dimensions[dim.dim1].values[dim.dim1Idx];
+        const header = (<div>{`${data.dimensions[dim.dim1].name} ${val}`}</div>);
+        return (
+            <div className="container-fluid">
+                <div className="row">
+                <OverlayTrigger placement="bottom" overlay={tooltip}>
+                    <button onClick={()=> this.props.getData(this.props.analysisType.href, true)} className="btn btn-primary">
+                        <i className="fa fa-arrow-left"/>
+                    </button>
+                </OverlayTrigger>
+                </div>
+                <div className="row">
+                <h4 style={{margin: 0}}>{hazardSet.title}</h4>
+                </div>
+                <div className="row">
                 <p>{hazardSet.purpose}</p>
-                <br/>
-                <Accordion className="disaster-chart-accordion" defaultActiveKey={0}>
-                    {data.dimensions[dim.dim1].values.map((val, idx) => {
-                        const header = (<span><i className="fa fa-bar-chart" />&nbsp;{`${data.dimensions[dim.dim1].name} ${val}`}</span>);
-                        return (
-                            <Panel key={val} header={header} eventKey={idx}>
-                              <Chart dimension={data.dimensions} values={data.values} val={val} dim={dim} setDimIdx={sIdx}/>
-                            </Panel>);
-                    })}
-                    </Accordion>
-                    </div>);
+                </div>
+                <div className="row">
+                <Panel className="chart-panel">
+                    <Chart dimension={data.dimensions} values={data.values} val={val} dim={dim} setDimIdx={sIdx}/>
+                </Panel>
+                <div className="slider-box">
+                <div className="slider-lab text-center">
+                  {header}
+                </div>
+                <Nouislider
+                    range={{min: 0, max: data.dimensions[dim.dim1].values.length - 1}}
+                    start={[dim.dim1Idx]}
+                    step={1}
+                    tooltips={false}
+                    onChange={(idx) => this.props.setDimIdx('dim1Idx', Number.parseInt(idx[0]))}
+                    pips= {{
+                        mode: 'steps',
+                        density: 20,
+                        format: {
+                            to: (value) => {
+                                let valF = data.dimensions[dim.dim1].values[value].split(" ")[0];
+                                return valF.length > 8 ? valF.substring(0, 8) + '...' : valF;
+                            },
+                            from: (value) => {
+                                return value;
+                            }
+                        }
+                    }}/>
+                    </div>
+                    <hr/>
+                    </div>
+            </div>
+        );
     },
     renderRiskAnalysisHeader(title, getAnalysis, rs, idx) {
         const tooltip = (<Tooltip id={"tooltip-abstract-" + idx} className="disaster">{'Show Abstract'}</Tooltip>);
@@ -124,26 +161,28 @@ const DataContainer = React.createClass({
     },
     renderHazard() {
         const {riskAnalysisData} = this.props;
+
         return (<div className={this.props.className}>
                 <div className="disaster-header">
                   {riskAnalysisData.name ? (
                     <div className="container-fluid">
-                    <button onClick={()=> this.props.getData(this.props.analysisType.href, true)} className="btn btn-primary">
-                      <i className="fa fa-arrow-left"/> &nbsp; Back to Analysis Table
-                    </button>
+                        {this.renderAnalysisData()}
                     </div>
                     ) : (
-                    <ul className="nav nav-tabs">
-                      {this.renderAnalysisTab()}
-                    </ul>
+                    <div className="container-fluid">
+                        <ul className="nav nav-tabs">
+                            {this.renderAnalysisTab()}
+                        </ul>
+                        <div className="disaster-analysis">
+                            <div className="container-fluid">
+                                {this.renderRiskAnalysis()}
+                            </div>
+                        </div>
+                    </div>
                   )}
-                  <br/>
                 </div>
-                    {riskAnalysisData.name ? this.renderAnalysisData() : (<div className="disaster-analysis">
-                        <div className="container-fluid">
-                        {this.renderRiskAnalysis()}
-                    </div></div>)}
-            </div>);
+            </div>
+        );
     },
     render() {
         const {showHazard, getData: loadData} = this.props;

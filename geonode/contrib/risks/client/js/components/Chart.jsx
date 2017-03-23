@@ -7,7 +7,7 @@
  */
 
 const React = require('react');
-const {BarChart, Bar, XAxis, Cell, YAxis, Tooltip, CartesianGrid} = require('recharts');
+const {BarChart, Bar, XAxis, Cell, YAxis, Tooltip, CartesianGrid, ResponsiveContainer} = require('recharts');
 const ChartTooltip = require("./ChartTooltip");
 /*const chromaJs = require("chroma-js");*/
 
@@ -32,6 +32,7 @@ const Chart = React.createClass({
         const chartData = this.getChartData();
         /*const colors = chromaJs.scale('OrRd').colors(chartData.length);*/
         return (
+          <ResponsiveContainer width="100%" height={200}>
             <BarChart width={500} height={200} data={chartData}
                 margin={{top: 20, right: 30, left: 30, bottom: 5}}>
                 <XAxis dataKey="name"/>
@@ -42,11 +43,11 @@ const Chart = React.createClass({
                     {chartData.map((entry, index) => {
                         const active = index === dim.dim2Idx;
                         return (
-                            <Cell cursor="pointer" stroke={"black"} strokeWidth={active ? 1 : 0}fill={'#ff8f31'} key={`cell-${index}`}/>);
+                            <Cell cursor="pointer" stroke={"#ff8f31"} strokeWidth={active ? 2 : 0}fill={active ? '#2c689c' : '#ff8f31'} key={`cell-${index}`}/>);
                     })
                     }
                 </Bar>
-            </BarChart>);
+            </BarChart></ResponsiveContainer>);
     },
     handleClick(data, index) {
         this.props.setDimIdx('dim2Idx', index);
