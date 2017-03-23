@@ -522,10 +522,8 @@ class DymensionInfo(RiskAnalysisAware, Exportable, models.Model):
     EXPORT_FIELDS = (('name', 'name',),
                      ('abstract', 'abstract',),
                      ('unit', 'unit',),
-                     ('layers', 'get_axis_layers',),
+                     ('layers', 'get_axis_descriptions',),
                      ('values', 'get_axis_values',),
-                     ('layerAttributes', 'get_axis_layer_attributes',),
-                     ('styles', 'get_axis_styles',),
                      )
 
     id = models.AutoField(primary_key=True)
@@ -552,6 +550,20 @@ class DymensionInfo(RiskAnalysisAware, Exportable, models.Model):
     def get_axis(self):
         risk = self.get_risk_analysis()
         return self.riskanalysis_associacion.filter(riskanalysis=risk).order_by('order')
+
+
+    def get_axis_descriptions(self):
+        axis = self.get_axis()
+        out = {}
+        for ax in axis:
+            n = ax.value
+            layer_name = ax.layer.typename
+            layer_attribute = ax.axis_attribute()
+            layer_style = ax.get_style()
+            out[n] = {'layerName': layer_name,
+                      'layerAttribute': layer_attribute,
+                      'layerStyle': layer_style}
+        return out
 
     def get_axis_values(self):
         axis = self.get_axis()

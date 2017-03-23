@@ -4,6 +4,8 @@
 from __future__ import print_function
 
 import json
+import types
+
 from StringIO import StringIO
 
 from django.test import Client
@@ -220,18 +222,23 @@ class RisksViewTestCase(RisksTestCase):
 
                     # layerAttributes/layers should be in pair with values from 
                     # RiskAnalysisDymensionInfoAssociacion.value
-                    la_keys = d['layerAttributes'].keys()
                     l_keys = d['layers'].keys()
 
                     self.assertTrue(len(d['values'])> 0)
-                    self.assertTrue(isinstance(d['layerAttributes'], dict))
-                    self.assertTrue(d['layerAttributes'])
+                    self.assertEqual(len(d['values']), len(l_keys))
+                    self.assertEqual(set(d['values']), set(l_keys))
+                    
+                    for lname, ldict in d['layers'].iteritems():
+                        self.assertTrue(isinstance(ldict, types.DictType))
 
-                    self.assertTrue(isinstance(d['layers'], dict))
-                    self.assertTrue(d['layers'])
+                        self.assertTrue(isinstance(ldict['layerName'], types.StringTypes))
+                        self.assertTrue(ldict['layerName'])
+                        self.assertTrue(isinstance(ldict['layerAttribute'], types.StringTypes))
+                        self.assertTrue(ldict['layerAttribute'])
+                        self.assertTrue(isinstance(ldict['layerStyle'], types.DictType))
 
-                    self.assertTrue(la_keys == d['values'])
-                    self.assertTrue(l_keys == d['values'])
+
+                        
 
                 # cannot evaluate
                 #self.assertTrue(len(data['riskAnalysisData']['data']['values'])>0)
