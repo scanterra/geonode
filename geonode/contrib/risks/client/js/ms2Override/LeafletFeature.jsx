@@ -145,7 +145,7 @@ let Feature = React.createClass({
     },
     componentDidMount() {
         if (this.props.container) {
-            this._tooltip = L.popup({closeButton: false, offset: [85, 35], className: 'disaster-map-tooltip'});
+            this._tooltip = L.popup({closeButton: false, offset: [85, 35], className: 'disaster-map-tooltip', autoPan: false});
             let style = this.props.style;
             this._layer = geometryToLayer({
                 type: this.props.type,

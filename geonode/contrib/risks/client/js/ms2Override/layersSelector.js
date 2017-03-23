@@ -27,20 +27,20 @@ const disasterSelector = state => ({
 function getLayerName({dim, riskAnalysis}) {
     const {dimensions} = riskAnalysis.riskAnalysisData.data;
     const dim1Val = dimensions[dim.dim1].values[dim.dim1Idx];
-    return dimensions[dim.dim1].layers[dim1Val];
+    return dimensions[dim.dim1].layers[dim1Val].layerName;
 }
 function getStyle({dim, riskAnalysis}) {
     const {dimensions} = riskAnalysis.riskAnalysisData.data;
     const dim1Val = dimensions[dim.dim1].values[dim.dim1Idx];
-    return dimensions[dim.dim1].styles[dim1Val] && dimensions[dim.dim1].styles[dim1Val].name;
+    return dimensions[dim.dim1].layers[dim1Val] && dimensions[dim.dim1].layers[dim1Val].layerStyle && dimensions[dim.dim1].layers[dim1Val].layerStyle.name;
 }
 function getViewParam({dim, showSubUnit, riskAnalysis} = {}) {
     const {dimensions} = riskAnalysis.riskAnalysisData.data;
     const {wms} = riskAnalysis;
     const dim1Val = dimensions[dim.dim1].values[dim.dim1Idx];
     const dim2Val = dimensions[dim.dim2].values[dim.dim2Idx];
-    const dim1SearchDim = dimensions[dim.dim1].layerAttributes[dim1Val];
-    const dim2SearchDim = dimensions[dim.dim2].layerAttributes[dim2Val];
+    const dim1SearchDim = dimensions[dim.dim1].layers[dim1Val].layerAttribute;
+    const dim2SearchDim = dimensions[dim.dim2].layers[dim2Val].layerAttribute;
     let viewparams = wms.viewparams.replace(`${dim1SearchDim}:{}`, `${dim1SearchDim}:${dim1Val}`).replace(`${dim2SearchDim}:{}`, `${dim2SearchDim}:${dim2Val}`);
     if (showSubUnit) {
         const admCode = viewparams.match(/(adm_code:)\w+/g)[0];
