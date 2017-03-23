@@ -65,7 +65,7 @@ def _import_risk_data(input_file, risk_analysis_name, region_name, final_name):
 
 def import_risk_metadata(input_file, risk_analysis, region, final_name):
     risk_analysis.set_queued()
-    _import_risk_metadata(input_file, risk_analysis.name, region.name, final_name)
+    _import_risk_metadata.apply_async(args=(input_file, risk_analysis.name, region.name, final_name,))
 
 
 @task(name='geonode.contrib.risks.tasks.import_risk_metadata')

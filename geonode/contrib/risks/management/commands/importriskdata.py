@@ -489,6 +489,7 @@ class Command(BaseCommand):
                 raise CommandError("Could not find any suitable Risk Analysis on target DB!")
 
         dim_ids = {
+            'fid': next_table_fid,
             'table': values['table'],
             'value': values['value']
         }
@@ -529,9 +530,9 @@ class Command(BaseCommand):
                 dim_ids[dim_col] = 'NULL'
 
         insert_dimension_value_template = "INSERT INTO {table}_dimensions(test_fid, dim1_id, dim2_id, dim3_id, dim4_id, dim5_id, value) " +\
-                                          "SELECT " + str(next_table_fid) + ", {dim1}, {dim2}, {dim3}, {dim4}, {dim5}, '{value}' " +\
+                                          "SELECT {fid}, {dim1}, {dim2}, {dim3}, {dim4}, {dim5}, '{value}' " +\
                                           "WHERE NOT EXISTS (SELECT test_fid FROM public.test_dimensions WHERE " +\
-                                          " test_fid = 18 AND " +\
+                                          " test_fid = {fid} AND " +\
                                           " (dim1_id IS NULL OR dim1_id = {dim1}) AND " +\
                                           " (dim2_id IS NULL OR dim2_id = {dim2}) AND " +\
                                           " (dim3_id IS NULL OR dim3_id = {dim3}) AND " +\
