@@ -22,10 +22,10 @@ const AxesSelector = React.createClass({
         };
     },
     render() {
-        const {values = []} = this.props.dimension || {};
+        const {name = '', values = []} = this.props.dimension || {};
         return this.props.dimension ? (
             <div className="text-center slider-box">
-                <div className="slider-lab">{values[this.props.activeAxis]}
+                <div className="slider-lab">{name + ' ' + values[this.props.activeAxis]}
                 </div>
                 <Nouislider
                     range={{min: 0, max: values.length - 1}}

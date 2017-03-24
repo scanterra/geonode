@@ -6926,6 +6926,10 @@
   margin-right: 20px;
   font-size: 14px;
 }
+.disaster .disaster-level-container .level-count {
+  font-size: 24px;
+  font-weight: bold;
+}
 .disaster .disaster-level-container .row {
   border-bottom: 1px dashed #ddd;
   font-size: 24px;

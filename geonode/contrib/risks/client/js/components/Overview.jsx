@@ -29,11 +29,12 @@ const Overview = React.createClass({
         return riskItems.map((item, idx) => {
             const {title, mnemonic, href, riskAnalysis} = item;
             const noData = !(riskAnalysis > 0);
+            const count = <span>{'Overall Risk Analysis Available '}<span className="level-count">{riskAnalysis}</span></span>;
             return (
             <div key={idx} className={`${noData ? 'level-no-data' : 'level-data'} overview container-fluid`} onClick={noData ? undefined : () => getData(href, true)}>
                 <div className="row">
                       <div className="col-xs-6"><i className={`icon-${mnemonic.toLowerCase()}`}/>&nbsp;{title}</div>
-                      <div className="col-xs-6 text-right"><span className="level">{riskAnalysis ? 'Overall Risk Analysis Available ' + riskAnalysis : 'No Data Available'}</span></div>
+                      <div className="col-xs-6 text-right"><span className="level">{riskAnalysis ? count : 'No Data Available'}</span></div>
                 </div>
             </div>);
         });
