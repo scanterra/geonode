@@ -24,6 +24,9 @@ const SwitchAdminU = connect(({disaster}) => ({
     showSubUnit: disaster.showSubUnit,
     show: disaster.riskAnalysis ? true : false
 }), {toggleAdminUnit})(require('../components/SwitchAdminU'));
+const FurtherResources = connect(({disaster} = {}) => ({
+    analysisResourecs: disaster.riskAnalysis && disaster.riskAnalysis.furtherResources && disaster.riskAnalysis.furtherResources.analysisType
+}))(require('../components/FurtherResources'));
 const MapContainer = (props) => (
         <div className="col-sm-5">
             <div className="disaster-map-container">
@@ -42,6 +45,7 @@ const MapContainer = (props) => (
                     </div>
                 </div>
             </div>
+            <FurtherResources/>
         </div>
 );
 
