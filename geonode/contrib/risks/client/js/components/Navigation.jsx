@@ -15,7 +15,6 @@ const Navigation = React.createClass({
             href: React.PropTypes.string,
             geom: React.PropTypes.string
         })),
-        context: React.PropTypes.string,
         zoom: React.PropTypes.func
     },
     getDefaultProps() {
@@ -28,12 +27,12 @@ const Navigation = React.createClass({
         this.props.zoom(href, geomHref);
     },
     renderItem() {
-        const {items, context} = this.props;
+        const {items} = this.props;
         const length = items.length;
         return items.map((el, idx) => {
             const classes = `btn btn-default ${length - 1 === idx ? 'disabled' : ''}`;
             return (
-            <button key={idx} className={classes} onClick={() => this.onClick(`${el.href}${context}`, el.geom)}>{el.label}</button>);
+            <button key={idx} className={classes} onClick={() => this.onClick(`${el.href}`, el.geom)}>{el.label}</button>);
         });
     },
     render() {

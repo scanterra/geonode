@@ -15,9 +15,9 @@ const MapViewer = connect(() => ({}), {
 })(require('../../MapStore2/web/client/containers/MapViewer'));
 const Legend = connect(disasterRiskLayerSelector)(require('../../MapStore2/web/client/components/TOC/fragments/legend/Legend'));
 const {drillUpSelector, switchDimSelector, axesSelector} = require('../selectors/disaster');
-const {zoom, toggleDim, setDimIdx, toggleAdminUnit} = require('../actions/disaster');
+const {zoomInOut, toggleDim, setDimIdx, toggleAdminUnit} = require('../actions/disaster');
 
-const DrillUpBtn = connect(drillUpSelector, {zoomOut: zoom})(require('../components/DrillUpBtn'));
+const DrillUpBtn = connect(drillUpSelector, {zoomOut: zoomInOut})(require('../components/DrillUpBtn'));
 const SwitchDimension = connect(switchDimSelector, {toggleDim})(require('../components/SwitchDimension'));
 const AxesSelector = connect(axesSelector, {setDimIdx})(require('../components/AxesSelector'));
 const SwitchAdminU = connect(({disaster}) => ({

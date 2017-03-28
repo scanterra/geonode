@@ -26,13 +26,12 @@ const dataContainerSelector = createSelector([riskItemsSel, hazardTypeSel, analy
         riskAnalysisData,
         dim
     }));
-const drillUpSelector = createSelector([navItemsSel, contextSel],
-     (navItems, context) => ({
+const drillUpSelector = createSelector([navItemsSel],
+     (navItems) => ({
         disabled: navItems.length < 2,
         label: navItems.length > 1 ? (navItems[navItems.length - 2]).label : '',
         href: navItems.length > 1 ? (navItems[navItems.length - 2]).href : '',
-        geom: navItems.length > 1 ? (navItems[navItems.length - 2]).geom : '',
-        context
+        geom: navItems.length > 1 ? (navItems[navItems.length - 2]).geom : ''
     }));
 const switchDimSelector = createSelector([riskAnalysisDataSel, dimSelector],
     (riskAnalysisData, dim) => ({

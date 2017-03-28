@@ -19,6 +19,7 @@ const {
     DATA_LOADED,
     DATA_ERROR,
     TOGGLE_DIM,
+    GET_DATA,
     dataError,
     dataLoaded,
     dataLoading,
@@ -46,25 +47,11 @@ describe('Test correctness of the disaster actions', () => {
         expect(action.error.message).toBe("MESSAGE");
         expect(action.type).toBe(DATA_ERROR);
     });
-    it('get data', (done) => {
-        getData('base/js/test-resources/mockupData.json')((e) => {
-            if (e.type === DATA_LOADING) {
-                try {
-                    expect(e).toExist();
-                    expect(e.type).toBe(DATA_LOADING);
-                } catch(ex) {
-                    done(ex);
-                }
-            } else if (e.type === DATA_LOADED) {
-                try {
-                    expect(e).toExist();
-                    expect(e.type).toBe(DATA_LOADED);
-                    expect(e.data).toExist();
-                    done();
-                } catch(ex) {
-                    done(ex);
-                }
-            }
-        });
+    it('get data', () => {
+        const url = 'test.url';
+        const action = getData(url);
+        expect(action.type).toBe(GET_DATA);
+        expect(action.url).toBe(url);
+        expect(action.cleanState).toBeFalsy();
     });
 });

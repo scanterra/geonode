@@ -7,9 +7,9 @@
  */
 const React = require('react');
 const {connect} = require('react-redux');
-const {getData, zoom} = require('../actions/disaster');
+const {getData, zoomInOut} = require('../actions/disaster');
 const {topBarSelector} = require('../selectors/disaster');
-const TopBar = connect(topBarSelector, {zoom, getData})(require('../components/TopBar'));
+const TopBar = connect(topBarSelector, {zoom: zoomInOut, getData})(require('../components/TopBar'));
 const DataContainer = require('../containers/DataContainer');
 const MapContainer = require('../containers/MapContainer');
 

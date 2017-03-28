@@ -11,7 +11,7 @@ var {connect} = require('react-redux');
 var L = require('leaflet');
 const {isEqual} = require('lodash');
 
-const {zoomTo} = require('../actions/disaster');
+const {zoomInOut} = require('../actions/disaster');
 var coordsToLatLngF = function(coords) {
     return new L.LatLng(coords[1], coords[0], coords[2]);
 };
@@ -201,12 +201,10 @@ let Feature = React.createClass({
             this.props.container.removeLayer(this._layer);
         }
     },
-    onClick(event) {
-        if (this.props.onClick) {
-            this.props.onClick({
-                layerId: this.props.container.layerId,
-                fId: event.layer.msId
-            });
+    onClick() {
+        const {properties, onClick} = this.props;
+        if (onClick) {
+            onClick(properties.href, properties.geom);
         }
     },
     onOver(event) {
@@ -239,4 +237,4 @@ let Feature = React.createClass({
     }
 });
 
-module.exports = connect(()=> ({}), {onClick: zoomTo})(Feature);
+module.exports = connect(()=> ({}), {onClick: zoomInOut})(Feature);
