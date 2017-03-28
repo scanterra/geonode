@@ -20,6 +20,17 @@ const LOAD_RISK_MAP_CONFIG = 'LOAD_RISK_MAP_CONFIG';
 const GET_RISK_FEATURES = 'GET_RISK_FEATURES';
 const GET_ANALYSIS_DATA = 'GET_ANALYSIS_DATA';
 const ZOOM_IN_OUT = 'ZOOM_IN_OUT';
+const INIT_RISK_APP = 'INIT_RISK_APP';
+
+function initState({href, gc, ac}) {
+    return {
+        type: INIT_RISK_APP,
+        href,
+        gc,
+        ac
+    };
+
+}
 
 function toggleDim() {
     return {
@@ -127,6 +138,7 @@ module.exports = {
     GET_RISK_FEATURES,
     GET_ANALYSIS_DATA,
     ZOOM_IN_OUT,
+    INIT_RISK_APP,
     featuresLoaded,
     featuresLoading,
     featuresError,
@@ -141,5 +153,6 @@ module.exports = {
     zoomInOut,
     loadMapConfig,
     setDimIdx,
-    toggleAdminUnit
+    toggleAdminUnit,
+    initState
 };

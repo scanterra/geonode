@@ -7002,6 +7002,13 @@
   padding: 27px 30px;
   overflow: hidden;
 }
+.disaster .link-sharing {
+  position: relative;
+  float: right;
+}
+.disaster .link-input {
+  display: none;
+}
 @font-face {
   font-family: 'thinkhazard';
   src: url('../webfonts/thinkhazard/fonts/thinkhazard.eot?-xr90r9');

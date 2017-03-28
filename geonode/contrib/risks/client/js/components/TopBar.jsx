@@ -6,10 +6,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 const React = require('react');
+const {connect} = require('react-redux');
 const Navigation = require('./Navigation');
 const DownloadBtn = require('./DownloadBtn');
 const RiskSelector = require('./RiskSelector');
-
+const {shareUrlSelector} = require('../selectors/disaster');
+const SharingLink = connect(shareUrlSelector)(require('./ShareLink'));
 const TopBar = React.createClass({
     propTypes: {
         navItems: React.PropTypes.array,
@@ -36,6 +38,7 @@ const TopBar = React.createClass({
                 <div className="disaster-breadcrumbs">
                     <Navigation items={navItems} zoom={zoom} context={context}/>
                     <div className="pull-right">
+                    <SharingLink bsSize=""/>
                         <DownloadBtn/>
                         <button className="btn btn-primary"><i className="fa fa-question"/></button>
                     </div>

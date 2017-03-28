@@ -1,6 +1,6 @@
 const {createSelector} = require('reselect');
 const {last, head, isNull} = require('lodash');
-
+const url = require('url');
 const navItemsSel = ({disaster = {}}) => disaster.navItems || [];
 const riskItemsSel = ({disaster = {}}) => disaster.overview || [];
 const hazardTypeSel = ({disaster = {}}) => disaster.hazardType || {};
@@ -8,6 +8,7 @@ const analysisTypeSel = ({disaster = {}}) => disaster.analysisType || {};
 const riskAnalysisDataSel = ({disaster = {}}) => disaster.riskAnalysis && disaster.riskAnalysis.riskAnalysisData || {};
 const dimSelector = ({disaster = {}}) => disaster.dim || {dim1: 0, dim2: 1, dim1Idx: 0, dim2Idx: 0};
 const contextSel = ({disaster = {}}) => disaster.context && !isNull(disaster.context) && disaster.context || '';
+const riskAnalysisContextSelector = ({disaster = {}}) => disaster.riskAnalysis && disaster.riskAnalysis.context;
 const topBarSelector = createSelector([navItemsSel, riskItemsSel, hazardTypeSel, contextSel],
      (navItems, riskItems, hazardType, context) => ({
         navItems,
@@ -42,11 +43,17 @@ const axesSelector = createSelector([riskAnalysisDataSel, dimSelector],
     dimension: riskAnalysisData.data && riskAnalysisData.data.dimensions && riskAnalysisData.data.dimensions[dim.dim2],
         activeAxis: dim.dim2Idx
     }));
+const shareUrlSelector = createSelector([navItemsSel, contextSel, riskAnalysisContextSelector, dimSelector],
+    (navItems, context, riskAnalysisContext, dim) => {
+        const {host, pathname, protocol} = url.parse(window.location.href, false);
+        return {shareUrl: `${protocol}//${host}${pathname}?init=${JSON.stringify({href: (last(navItems) || {href: ''}).href, gc: context, ac: riskAnalysisContext, d: dim})}`};
+    });
 module.exports = {
     drillUpSelector,
     topBarSelector,
     dataContainerSelector,
     switchDimSelector,
-    axesSelector
+    axesSelector,
+    shareUrlSelector
 };
 

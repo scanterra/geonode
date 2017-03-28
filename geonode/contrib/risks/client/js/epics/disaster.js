@@ -16,6 +16,7 @@ const {
     LOAD_RISK_MAP_CONFIG,
     GET_RISK_FEATURES,
     GET_ANALYSIS_DATA,
+    INIT_RISK_APP,
     dataLoaded,
     dataLoading,
     dataError,
@@ -24,7 +25,8 @@ const {
     featuresError,
     getFeatures,
     getAnalysisData,
-    analysisDataLoaded
+    analysisDataLoaded,
+    getData
 } = require('../actions/disaster');
 const {configureMap, configureError} = require('../../MapStore2/web/client/actions/config');
 const getRiskDataEpic = action$ =>
@@ -72,5 +74,14 @@ const zoomInOutEpic = (action$, store) =>
                 .startWith(dataLoading(true))
                 .catch(e => Rx.Observable.of(dataError(e)));
         });
+const initStateEpic = action$ =>
+    action$.ofType(INIT_RISK_APP) // Wait untile map config is loaded
+        .audit( () => action$.ofType('MAP_CONFIG_LOADED'))
+        .map(action => {
+            const geomHref = action.href.replace('risk_data_extraction', 'geom');
+            const analysisHref = action.ac && `${action.href}${action.ac}`;
+            return [getData(`${action.href}${action.gc || ''}`), getFeatures(geomHref)].concat(analysisHref && getAnalysisData(analysisHref) || [] );
+        }).
+        mergeAll();
 
-module.exports = {getRiskDataEpic, getRiskMapConfig, getRiskFeatures, getAnalysisEpic, zoomInOutEpic};
+module.exports = {getRiskDataEpic, getRiskMapConfig, getRiskFeatures, getAnalysisEpic, zoomInOutEpic, initStateEpic};
