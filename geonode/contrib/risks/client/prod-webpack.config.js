@@ -3,20 +3,17 @@ var path = require("path");
 var LoaderOptionsPlugin = require("webpack/lib/LoaderOptionsPlugin");
 var ParallelUglifyPlugin = require("webpack-parallel-uglify-plugin");
 var DefinePlugin = require("webpack/lib/DefinePlugin");
+var OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 var NormalModuleReplacementPlugin = require("webpack/lib/NormalModuleReplacementPlugin");
 const extractThemesPlugin = require('./MapStore2/themes.js').extractThemesPlugin;
-var CopyWebpackPlugin = require('copy-webpack-plugin');
 
 webpackConfig.plugins = [
-    new CopyWebpackPlugin([
-        { from: path.join(__dirname, 'node_modules', 'bootstrap', 'less'), to: path.join(__dirname, "MapStore2", "web", "client", "dist", "bootstrap", "less") }
-    ]),
     new LoaderOptionsPlugin({
         debug: false,
         options: {
             postcss: {
                 plugins: [
-                  require('postcss-prefix-selector')({prefix: '.disastermanagement-client', exclude: ['.disastermanagement-client']})
+                  require('postcss-prefix-selector')({prefix: '.drc', exclude: ['.drc']})
                 ]
             },
             context: __dirname
@@ -44,12 +41,15 @@ webpackConfig.plugins = [
             mangle: true
         }
     }),
-    extractThemesPlugin
+    extractThemesPlugin,
+    new OptimizeCssAssetsPlugin({
+        cssProcessorOptions: { discardComments: { removeAll: true } }
+      })
 ];
 webpackConfig.devtool = undefined;
 
 // this is a workaround for this issue https://github.com/webpack/file-loader/issues/3
 // use `__webpack_public_path__` in the index.html when fixed
-webpackConfig.output.publicPath = "/disastermanagement-client/dist/";
+webpackConfig.output.publicPath = "/static/js";
 
 module.exports = webpackConfig;
