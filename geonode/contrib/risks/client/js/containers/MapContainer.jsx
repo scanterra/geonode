@@ -8,7 +8,7 @@
 
 const React = require('react');
 const {connect} = require('react-redux');
-const {loadMapConfig} = require('../actions/disaster');
+const {loadMapConfig} = require('../../MapStore2/web/client/actions/config');
 const {disasterRiskLayerSelector} = require('../../MapStore2/web/client/selectors/layers');
 const MapViewer = connect(() => ({}), {
     loadMapConfig: loadMapConfig.bind(null, "/static/js/config.json", false, "/risks/geom/loc/AF/")

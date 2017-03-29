@@ -44,16 +44,21 @@ const getRiskMapConfig = action$ =>
                 .mergeAll()
                 .catch(e => Rx.Observable.of(configureError(e)))
         );
-const getRiskFeatures = action$ =>
-    action$.ofType(GET_RISK_FEATURES).switchMap(action =>
+const getRiskFeatures = (action$, store) =>
+    action$.ofType(GET_RISK_FEATURES)
+    .audit(() => {
+        const isMapConfigured = (store.getState()).mapInitialConfig && true;
+        return isMapConfigured && Rx.Observable.of(isMapConfigured) || action$.ofType('MAP_CONFIG_LOADED');
+    })
+    .switchMap(action =>
         Rx.Observable.defer(() => Api.getData(action.url))
-            .retry(1)
-            .map(val => [zoomToExtent(bbox(val.features[0]), "EPSG:4326"),
+        .retry(1)
+        .map(val => [zoomToExtent(bbox(val.features[0]), "EPSG:4326"),
                 changeLayerProperties("adminunits", {features: val.features.map((f, idx) => (assign({}, f, {id: idx}))) || []}),
                 featuresLoaded(val.features)])
-            .mergeAll()
-            .startWith(featuresLoading())
-            .catch(e => Rx.Observable.of(featuresError(e)))
+        .mergeAll()
+        .startWith(featuresLoading())
+        .catch(e => Rx.Observable.of(featuresError(e)))
     );
 const getAnalysisEpic = action$ =>
     action$.ofType(GET_ANALYSIS_DATA).switchMap(action =>

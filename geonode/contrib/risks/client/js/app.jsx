@@ -12,7 +12,7 @@ const assign = require('object-assign');
 const appReducers = {
      disaster: require('./reducers/disaster')
  };
-const {getData, initState} = require('./actions/disaster');
+const {getData, initState, getFeatures} = require('./actions/disaster');
 const epics = require('./epics/disaster');
 
 const ConfigUtils = require('../MapStore2/web/client/utils/ConfigUtils');
@@ -38,12 +38,12 @@ const StandardRouter = connect((state) => ({
 
 const appStore = require('../MapStore2/web/client/stores/StandardStore').bind(null, newInitState, appReducers, epics);
 
-const initAction = init ? () => initState(init) : () => getData("/risks/risk_data_extraction/loc/AF/");
+const initialActions = init ? [() => initState(init)] : [() => getData("/risks/risk_data_extraction/loc/AF/"), () => getFeatures("/risks/geom/loc/AF/")];
 const appConfig = {
     storeOpts,
     appStore,
     pluginsDef,
-    initialActions: [initAction],
+    initialActions,
     appComponent: StandardRouter
 };
 
