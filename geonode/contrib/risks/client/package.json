@@ -166,7 +166,7 @@
   "scripts": {
     "clean": "rimraf dist",
     "compile": "npm run clean && mkdirp ./dist && webpack --progress --config prod-webpack.config.js",
-    "genRiskCss": "lessc assets/css/risk.less assets/css/risk.css && lessc assets/css/risk-disaster.less assets/css/disaster.css",
+    "genCss": "lessc assets/css/disaster.less assets/css/disaster.css",
     "start": "webpack-dev-server --progress --colors --port 8081 --hot --inline --content-base .",
     "test": "karma start ./karma.conf.single-run.js",
     "continuoustest": "karma start ./karma.conf.continuous-test.js",
