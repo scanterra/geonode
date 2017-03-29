@@ -509,7 +509,7 @@ class DataExtractionView(FeaturesSource, HazardTypeView):
         out['context'] = self.get_context_url(**kwargs)
         out['wms'] = {'style': None,
                       'viewparams': self.get_viewparams(risk, hazard_type, loc),
-                      'geonode': settings.OGC_SERVER['default']['PUBLIC_LOCATION']}
+                      'baseurl': settings.OGC_SERVER['default']['PUBLIC_LOCATION']}
 
         out['riskAnalysisData']['additionalLayers'] = [(l.id, l.typename,) for l in risk.additional_layers.all()]
         out['furtherResources'] = self.get_further_resources(**kwargs)

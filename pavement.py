@@ -140,7 +140,7 @@ def risks_static(options):
         sh('mkdir -p ../static/assets/')
         sh('cp -rvv assets/* ../static/assets/')
         sh('cp -rvv dist/* ../static/js/')
-
+        sh('cp -rvv MapStore2/web/client/translations ../static/assets/')
 
 @task
 @needs([
