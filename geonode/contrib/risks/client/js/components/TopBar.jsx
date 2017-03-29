@@ -8,6 +8,7 @@
 const React = require('react');
 const {connect} = require('react-redux');
 const Navigation = require('./Navigation');
+const HelpBtn = require('./HelpBtn');
 const DownloadBtn = require('./DownloadBtn');
 const RiskSelector = require('./RiskSelector');
 const {shareUrlSelector} = require('../selectors/disaster');
@@ -21,7 +22,8 @@ const TopBar = React.createClass({
         activeRisk: React.PropTypes.string,
         overviewHref: React.PropTypes.string,
         title: React.PropTypes.string.isRequired,
-        context: React.PropTypes.string
+        context: React.PropTypes.string,
+        toggleTutorial: () => {}
     },
     getDefaultProps() {
         return {
@@ -32,15 +34,15 @@ const TopBar = React.createClass({
         };
     },
     render() {
-        const {navItems, context, riskItems, overviewHref, activeRisk, getData, zoom} = this.props;
+        const {navItems, context, riskItems, overviewHref, activeRisk, getData, zoom, toggleTutorial} = this.props;
         return (
             <div className="container-fluid">
                 <div className="disaster-breadcrumbs">
                     <Navigation items={navItems} zoom={zoom} context={context}/>
                     <div className="pull-right">
-                    <SharingLink bsSize=""/>
                         <DownloadBtn/>
-                        <button className="btn btn-primary"><i className="fa fa-question"/></button>
+                        <SharingLink bsSize=""/>
+                        <HelpBtn toggleTutorial={toggleTutorial}/>
                     </div>
                 </div>
                 <div className="disaster-risk-selector">

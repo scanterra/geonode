@@ -9,9 +9,12 @@ const React = require('react');
 const {connect} = require('react-redux');
 const {getData, zoomInOut} = require('../actions/disaster');
 const {topBarSelector} = require('../selectors/disaster');
-const TopBar = connect(topBarSelector, {zoom: zoomInOut, getData})(require('../components/TopBar'));
+const {toggleControl} = require('../../MapStore2/web/client/actions/controls');
+const TopBar = connect(topBarSelector, {zoom: zoomInOut, getData, toggleTutorial: toggleControl.bind(null, 'tutorial', null)})(require('../components/TopBar'));
 const DataContainer = require('../containers/DataContainer');
 const MapContainer = require('../containers/MapContainer');
+const Page = require('../../MapStore2/web/client/containers/Page');
+const ConfigUtils = require('../../MapStore2/web/client/utils/ConfigUtils');
 
 const Home = React.createClass({
     propTypes: {
@@ -28,8 +31,24 @@ const Home = React.createClass({
     },
     render() {
         const {plugins} = this.props;
+        let pluginsHome = ConfigUtils.getConfigProp("plugins") || {};
+        let pagePlugins = {
+            "desktop": pluginsHome.common || [],
+            "mobile": pluginsHome.common || []
+        };
+        let pluginsConfig = {
+            "desktop": pluginsHome.home || [],
+            "mobile": pluginsHome.home || []
+        };
         return (
                <div className="disaster">
+                    <Page
+                      id="home"
+                      pagePluginsConfig={pagePlugins}
+                      pluginsConfig={pluginsConfig}
+                      plugins={plugins}
+                      params={this.props.params}
+                      />
                     <TopBar/>
                     <div className="container-fluid">
                         <div className="row">

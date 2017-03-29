@@ -5,6 +5,25 @@
 	"bingApiKey": "AhuXBu7ipR1gNbBfXhtUAyCZ6rkC5PkWpxs2MnMRZ1ZupxQfivjLCch22ozKSCAn",
 	"translationsPath": "/static/assets/translations",
 	"plugins": {
+			"home": [
+				{
+					"name": "Tutorial",
+					"cfg": {
+						"rawSteps": [
+							{
+								"title": "Welcome",
+								"text": "test text",
+								"selector": "#intro-tutorial"
+							},
+							{
+								"title": "test title",
+								"text": "this is the container",
+								"selector": "#container"
+							}
+						]
+					}
+				}
+			],
 			"desktop": [
                 {
                 "cfg": {

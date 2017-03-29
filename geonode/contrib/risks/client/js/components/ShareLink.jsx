@@ -25,7 +25,7 @@ const ShareLink = React.createClass({
         return {copied: false};
     },
     render() {
-        const tooltip = (<Tooltip className="in" placement="bottom" id="tooltip-share" style={{zIndex: 2001}}>
+        const tooltip = (<Tooltip className="disaster" placement="bottom" id="tooltip-share" style={{zIndex: 2001}}>
           {this.state.copied ? <Message msgId="share.msgCopiedUrl"/> : <Message msgId="share.msgToCopyUrl"/>}
       </Tooltip>);
         return (<OverlayTrigger placement="bottom" overlay={tooltip}>
