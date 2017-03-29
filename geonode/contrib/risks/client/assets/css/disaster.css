@@ -1,5 +1,10 @@
-@import "font-awesome.min.css";
 .disaster {
+  font-family: 'Lato', sans-serif;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.42857143;
+  color: #333333;
+  background-color: #fff;
   /*!
  * Bootstrap v3.3.6 (http://getbootstrap.com)
  * Copyright 2011-2015 Twitter, Inc.
@@ -15,7 +20,44 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
  */
+  /*https://github.com/leongersen/noUiSlider/tree/2faa227afa74b724a4537d2a655a10183f92c30c/src*/
+  /* Functional styling;
+ * These styles are required for noUiSlider to function.
+ * You don't need to change these rules to apply your design.
+ */
+  /* Painting and performance;
+ * Browsers can paint handles in their own layer.
+ */
+  /* Slider size and handle placement;
+ */
+  /* Styling;
+ */
+  /* Handles and cursors;
+ */
+  /* Handle stripes;
+ */
+  /* Disabled state;
+ */
+  /* Pips
+ */
+  /* Values;
+ *
+ */
+  /* Markings;
+ *
+ */
+  /* Horizontal layout;
+ *
+ */
+  /* Vertical layout;
+ *
+ */
+  /*!
+ *  Font Awesome 4.7.0 by @davegandy - http://fontawesome.io - @fontawesome
+ *  License - http://fontawesome.io/license (Font: SIL OFL 1.1, CSS: MIT License)
+ */
   /* Leaflet custom style*/
+  /* Slider */
 }
 .disaster html {
   font-family: sans-serif;
@@ -1117,11 +1159,7 @@
 .disaster img {
   vertical-align: middle;
 }
-.disaster .img-responsive,
-.disaster .thumbnail > img,
-.disaster .thumbnail a > img,
-.disaster .carousel-inner > .item > img,
-.disaster .carousel-inner > .item > a > img {
+.disaster .img-responsive {
   display: block;
   max-width: 100%;
   height: auto;
@@ -1341,72 +1379,72 @@
 .disaster .text-primary {
   color: #2c689c;
 }
-.disaster a.text-primary:hover,
-.disaster a.text-primary:focus {
+a.disaster .text-primary:hover,
+a.disaster .text-primary:focus {
   color: #214d74;
 }
 .disaster .text-success {
   color: #3c763d;
 }
-.disaster a.text-success:hover,
-.disaster a.text-success:focus {
+a.disaster .text-success:hover,
+a.disaster .text-success:focus {
   color: #2b542c;
 }
 .disaster .text-info {
   color: #31708f;
 }
-.disaster a.text-info:hover,
-.disaster a.text-info:focus {
+a.disaster .text-info:hover,
+a.disaster .text-info:focus {
   color: #245269;
 }
 .disaster .text-warning {
   color: #8a6d3b;
 }
-.disaster a.text-warning:hover,
-.disaster a.text-warning:focus {
+a.disaster .text-warning:hover,
+a.disaster .text-warning:focus {
   color: #66512c;
 }
 .disaster .text-danger {
   color: #a94442;
 }
-.disaster a.text-danger:hover,
-.disaster a.text-danger:focus {
+a.disaster .text-danger:hover,
+a.disaster .text-danger:focus {
   color: #843534;
 }
 .disaster .bg-primary {
   color: #fff;
   background-color: #2c689c;
 }
-.disaster a.bg-primary:hover,
-.disaster a.bg-primary:focus {
+a.disaster .bg-primary:hover,
+a.disaster .bg-primary:focus {
   background-color: #214d74;
 }
 .disaster .bg-success {
   background-color: #dff0d8;
 }
-.disaster a.bg-success:hover,
-.disaster a.bg-success:focus {
+a.disaster .bg-success:hover,
+a.disaster .bg-success:focus {
   background-color: #c1e2b3;
 }
 .disaster .bg-info {
   background-color: #d9edf7;
 }
-.disaster a.bg-info:hover,
-.disaster a.bg-info:focus {
+a.disaster .bg-info:hover,
+a.disaster .bg-info:focus {
   background-color: #afd9ee;
 }
 .disaster .bg-warning {
   background-color: #fcf8e3;
 }
-.disaster a.bg-warning:hover,
-.disaster a.bg-warning:focus {
+a.disaster .bg-warning:hover,
+a.disaster .bg-warning:focus {
   background-color: #f7ecb5;
 }
 .disaster .bg-danger {
   background-color: #f2dede;
 }
-.disaster a.bg-danger:hover,
-.disaster a.bg-danger:focus {
+a.disaster .bg-danger:hover,
+a.disaster .bg-danger:focus {
   background-color: #e4b9b9;
 }
 .disaster .page-header {
@@ -1612,71 +1650,13 @@
   margin-left: -15px;
   margin-right: -15px;
 }
-.disaster .col-xs-1,
-.disaster .col-sm-1,
-.disaster .col-md-1,
-.disaster .col-lg-1,
-.disaster .col-xs-2,
-.disaster .col-sm-2,
-.disaster .col-md-2,
-.disaster .col-lg-2,
-.disaster .col-xs-3,
-.disaster .col-sm-3,
-.disaster .col-md-3,
-.disaster .col-lg-3,
-.disaster .col-xs-4,
-.disaster .col-sm-4,
-.disaster .col-md-4,
-.disaster .col-lg-4,
-.disaster .col-xs-5,
-.disaster .col-sm-5,
-.disaster .col-md-5,
-.disaster .col-lg-5,
-.disaster .col-xs-6,
-.disaster .col-sm-6,
-.disaster .col-md-6,
-.disaster .col-lg-6,
-.disaster .col-xs-7,
-.disaster .col-sm-7,
-.disaster .col-md-7,
-.disaster .col-lg-7,
-.disaster .col-xs-8,
-.disaster .col-sm-8,
-.disaster .col-md-8,
-.disaster .col-lg-8,
-.disaster .col-xs-9,
-.disaster .col-sm-9,
-.disaster .col-md-9,
-.disaster .col-lg-9,
-.disaster .col-xs-10,
-.disaster .col-sm-10,
-.disaster .col-md-10,
-.disaster .col-lg-10,
-.disaster .col-xs-11,
-.disaster .col-sm-11,
-.disaster .col-md-11,
-.disaster .col-lg-11,
-.disaster .col-xs-12,
-.disaster .col-sm-12,
-.disaster .col-md-12,
-.disaster .col-lg-12 {
+.disaster .col-xs-1, .col-sm-1, .col-md-1, .col-lg-1, .col-xs-2, .col-sm-2, .col-md-2, .col-lg-2, .col-xs-3, .col-sm-3, .col-md-3, .col-lg-3, .col-xs-4, .col-sm-4, .col-md-4, .col-lg-4, .col-xs-5, .col-sm-5, .col-md-5, .col-lg-5, .col-xs-6, .col-sm-6, .col-md-6, .col-lg-6, .col-xs-7, .col-sm-7, .col-md-7, .col-lg-7, .col-xs-8, .col-sm-8, .col-md-8, .col-lg-8, .col-xs-9, .col-sm-9, .col-md-9, .col-lg-9, .col-xs-10, .col-sm-10, .col-md-10, .col-lg-10, .col-xs-11, .col-sm-11, .col-md-11, .col-lg-11, .col-xs-12, .col-sm-12, .col-md-12, .col-lg-12 {
   position: relative;
   min-height: 1px;
   padding-left: 15px;
   padding-right: 15px;
 }
-.disaster .col-xs-1,
-.disaster .col-xs-2,
-.disaster .col-xs-3,
-.disaster .col-xs-4,
-.disaster .col-xs-5,
-.disaster .col-xs-6,
-.disaster .col-xs-7,
-.disaster .col-xs-8,
-.disaster .col-xs-9,
-.disaster .col-xs-10,
-.disaster .col-xs-11,
-.disaster .col-xs-12 {
+.disaster .col-xs-1, .col-xs-2, .col-xs-3, .col-xs-4, .col-xs-5, .col-xs-6, .col-xs-7, .col-xs-8, .col-xs-9, .col-xs-10, .col-xs-11, .col-xs-12 {
   float: left;
 }
 .disaster .col-xs-12 {
@@ -1833,18 +1813,7 @@
   margin-left: 0%;
 }
 @media (min-width: 768px) {
-  .disaster .col-sm-1,
-  .disaster .col-sm-2,
-  .disaster .col-sm-3,
-  .disaster .col-sm-4,
-  .disaster .col-sm-5,
-  .disaster .col-sm-6,
-  .disaster .col-sm-7,
-  .disaster .col-sm-8,
-  .disaster .col-sm-9,
-  .disaster .col-sm-10,
-  .disaster .col-sm-11,
-  .disaster .col-sm-12 {
+  .disaster .col-sm-1, .col-sm-2, .col-sm-3, .col-sm-4, .col-sm-5, .col-sm-6, .col-sm-7, .col-sm-8, .col-sm-9, .col-sm-10, .col-sm-11, .col-sm-12 {
     float: left;
   }
   .disaster .col-sm-12 {
@@ -2002,18 +1971,7 @@
   }
 }
 @media (min-width: 992px) {
-  .disaster .col-md-1,
-  .disaster .col-md-2,
-  .disaster .col-md-3,
-  .disaster .col-md-4,
-  .disaster .col-md-5,
-  .disaster .col-md-6,
-  .disaster .col-md-7,
-  .disaster .col-md-8,
-  .disaster .col-md-9,
-  .disaster .col-md-10,
-  .disaster .col-md-11,
-  .disaster .col-md-12 {
+  .disaster .col-md-1, .col-md-2, .col-md-3, .col-md-4, .col-md-5, .col-md-6, .col-md-7, .col-md-8, .col-md-9, .col-md-10, .col-md-11, .col-md-12 {
     float: left;
   }
   .disaster .col-md-12 {
@@ -2171,18 +2129,7 @@
   }
 }
 @media (min-width: 1200px) {
-  .disaster .col-lg-1,
-  .disaster .col-lg-2,
-  .disaster .col-lg-3,
-  .disaster .col-lg-4,
-  .disaster .col-lg-5,
-  .disaster .col-lg-6,
-  .disaster .col-lg-7,
-  .disaster .col-lg-8,
-  .disaster .col-lg-9,
-  .disaster .col-lg-10,
-  .disaster .col-lg-11,
-  .disaster .col-lg-12 {
+  .disaster .col-lg-1, .col-lg-2, .col-lg-3, .col-lg-4, .col-lg-5, .col-lg-6, .col-lg-7, .col-lg-8, .col-lg-9, .col-lg-10, .col-lg-11, .col-lg-12 {
     float: left;
   }
   .disaster .col-lg-12 {
@@ -2652,15 +2599,15 @@
   border-radius: 4px;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-  -webkit-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
-  -o-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
-  transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+  -webkit-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+  -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+  transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
 }
 .disaster .form-control:focus {
   border-color: #66afe9;
   outline: 0;
-  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);
-  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, 0.6);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, 0.6);
 }
 .disaster .form-control::-moz-placeholder {
   color: #999;
@@ -2678,15 +2625,15 @@
 }
 .disaster .form-control[disabled],
 .disaster .form-control[readonly],
-.disaster fieldset[disabled] .form-control {
+fieldset[disabled] .disaster .form-control {
   background-color: #eeeeee;
   opacity: 1;
 }
 .disaster .form-control[disabled],
-.disaster fieldset[disabled] .form-control {
+fieldset[disabled] .disaster .form-control {
   cursor: not-allowed;
 }
-.disaster textarea.form-control {
+textarea.disaster .form-control {
   height: auto;
 }
 .disaster input[type="search"] {
@@ -2703,20 +2650,20 @@
   .disaster input[type="time"].input-sm,
   .disaster input[type="datetime-local"].input-sm,
   .disaster input[type="month"].input-sm,
-  .disaster .input-group-sm input[type="date"],
-  .disaster .input-group-sm input[type="time"],
-  .disaster .input-group-sm input[type="datetime-local"],
-  .disaster .input-group-sm input[type="month"] {
+  .input-group-sm .disaster input[type="date"],
+  .input-group-sm .disaster input[type="time"],
+  .input-group-sm .disaster input[type="datetime-local"],
+  .input-group-sm .disaster input[type="month"] {
     line-height: 30px;
   }
   .disaster input[type="date"].input-lg,
   .disaster input[type="time"].input-lg,
   .disaster input[type="datetime-local"].input-lg,
   .disaster input[type="month"].input-lg,
-  .disaster .input-group-lg input[type="date"],
-  .disaster .input-group-lg input[type="time"],
-  .disaster .input-group-lg input[type="datetime-local"],
-  .disaster .input-group-lg input[type="month"] {
+  .input-group-lg .disaster input[type="date"],
+  .input-group-lg .disaster input[type="time"],
+  .input-group-lg .disaster input[type="datetime-local"],
+  .input-group-lg .disaster input[type="month"] {
     line-height: 46px;
   }
 }
@@ -2769,20 +2716,20 @@
 .disaster input[type="checkbox"][disabled],
 .disaster input[type="radio"].disabled,
 .disaster input[type="checkbox"].disabled,
-.disaster fieldset[disabled] input[type="radio"],
-.disaster fieldset[disabled] input[type="checkbox"] {
+fieldset[disabled] .disaster input[type="radio"],
+fieldset[disabled] .disaster input[type="checkbox"] {
   cursor: not-allowed;
 }
 .disaster .radio-inline.disabled,
 .disaster .checkbox-inline.disabled,
-.disaster fieldset[disabled] .radio-inline,
-.disaster fieldset[disabled] .checkbox-inline {
+fieldset[disabled] .disaster .radio-inline,
+fieldset[disabled] .disaster .checkbox-inline {
   cursor: not-allowed;
 }
 .disaster .radio.disabled label,
 .disaster .checkbox.disabled label,
-.disaster fieldset[disabled] .radio label,
-.disaster fieldset[disabled] .checkbox label {
+fieldset[disabled] .disaster .radio label,
+fieldset[disabled] .disaster .checkbox label {
   cursor: not-allowed;
 }
 .disaster .form-control-static {
@@ -2803,12 +2750,12 @@
   line-height: 1.5;
   border-radius: 3px;
 }
-.disaster select.input-sm {
+select.disaster .input-sm {
   height: 30px;
   line-height: 30px;
 }
-.disaster textarea.input-sm,
-.disaster select[multiple].input-sm {
+textarea.disaster .input-sm,
+select[multiple].disaster .input-sm {
   height: auto;
 }
 .disaster .form-group-sm .form-control {
@@ -2840,12 +2787,12 @@
   line-height: 1.3333333;
   border-radius: 6px;
 }
-.disaster select.input-lg {
+select.disaster .input-lg {
   height: 46px;
   line-height: 46px;
 }
-.disaster textarea.input-lg,
-.disaster select[multiple].input-lg {
+textarea.disaster .input-lg,
+select[multiple].disaster .input-lg {
   height: auto;
 }
 .disaster .form-group-lg .form-control {
@@ -3137,15 +3084,15 @@
 }
 .disaster .btn.disabled,
 .disaster .btn[disabled],
-.disaster fieldset[disabled] .btn {
+fieldset[disabled] .disaster .btn {
   cursor: not-allowed;
   opacity: 0.65;
   filter: alpha(opacity=65);
   -webkit-box-shadow: none;
   box-shadow: none;
 }
-.disaster a.btn.disabled,
-.disaster fieldset[disabled] a.btn {
+a.disaster .btn.disabled,
+fieldset[disabled] a.disaster .btn {
   pointer-events: none;
 }
 .disaster .btn-default {
@@ -3166,38 +3113,38 @@
 }
 .disaster .btn-default:active,
 .disaster .btn-default.active,
-.disaster .open > .dropdown-toggle.btn-default {
+.open > .dropdown-toggle.disaster .btn-default {
   color: #333;
   background-color: #e6e6e6;
   border-color: #adadad;
 }
 .disaster .btn-default:active:hover,
 .disaster .btn-default.active:hover,
-.disaster .open > .dropdown-toggle.btn-default:hover,
+.open > .dropdown-toggle.disaster .btn-default:hover,
 .disaster .btn-default:active:focus,
 .disaster .btn-default.active:focus,
-.disaster .open > .dropdown-toggle.btn-default:focus,
+.open > .dropdown-toggle.disaster .btn-default:focus,
 .disaster .btn-default:active.focus,
 .disaster .btn-default.active.focus,
-.disaster .open > .dropdown-toggle.btn-default.focus {
+.open > .dropdown-toggle.disaster .btn-default.focus {
   color: #333;
   background-color: #d4d4d4;
   border-color: #8c8c8c;
 }
 .disaster .btn-default:active,
 .disaster .btn-default.active,
-.disaster .open > .dropdown-toggle.btn-default {
+.open > .dropdown-toggle.disaster .btn-default {
   background-image: none;
 }
 .disaster .btn-default.disabled:hover,
 .disaster .btn-default[disabled]:hover,
-.disaster fieldset[disabled] .btn-default:hover,
+fieldset[disabled] .disaster .btn-default:hover,
 .disaster .btn-default.disabled:focus,
 .disaster .btn-default[disabled]:focus,
-.disaster fieldset[disabled] .btn-default:focus,
+fieldset[disabled] .disaster .btn-default:focus,
 .disaster .btn-default.disabled.focus,
 .disaster .btn-default[disabled].focus,
-.disaster fieldset[disabled] .btn-default.focus {
+fieldset[disabled] .disaster .btn-default.focus {
   background-color: #fff;
   border-color: #ccc;
 }
@@ -3223,38 +3170,38 @@
 }
 .disaster .btn-primary:active,
 .disaster .btn-primary.active,
-.disaster .open > .dropdown-toggle.btn-primary {
+.open > .dropdown-toggle.disaster .btn-primary {
   color: #fff;
   background-color: #214d74;
   border-color: #193b58;
 }
 .disaster .btn-primary:active:hover,
 .disaster .btn-primary.active:hover,
-.disaster .open > .dropdown-toggle.btn-primary:hover,
+.open > .dropdown-toggle.disaster .btn-primary:hover,
 .disaster .btn-primary:active:focus,
 .disaster .btn-primary.active:focus,
-.disaster .open > .dropdown-toggle.btn-primary:focus,
+.open > .dropdown-toggle.disaster .btn-primary:focus,
 .disaster .btn-primary:active.focus,
 .disaster .btn-primary.active.focus,
-.disaster .open > .dropdown-toggle.btn-primary.focus {
+.open > .dropdown-toggle.disaster .btn-primary.focus {
   color: #fff;
   background-color: #193b58;
   border-color: #0a1825;
 }
 .disaster .btn-primary:active,
 .disaster .btn-primary.active,
-.disaster .open > .dropdown-toggle.btn-primary {
+.open > .dropdown-toggle.disaster .btn-primary {
   background-image: none;
 }
 .disaster .btn-primary.disabled:hover,
 .disaster .btn-primary[disabled]:hover,
-.disaster fieldset[disabled] .btn-primary:hover,
+fieldset[disabled] .disaster .btn-primary:hover,
 .disaster .btn-primary.disabled:focus,
 .disaster .btn-primary[disabled]:focus,
-.disaster fieldset[disabled] .btn-primary:focus,
+fieldset[disabled] .disaster .btn-primary:focus,
 .disaster .btn-primary.disabled.focus,
 .disaster .btn-primary[disabled].focus,
-.disaster fieldset[disabled] .btn-primary.focus {
+fieldset[disabled] .disaster .btn-primary.focus {
   background-color: #2c689c;
   border-color: #265b88;
 }
@@ -3280,38 +3227,38 @@
 }
 .disaster .btn-success:active,
 .disaster .btn-success.active,
-.disaster .open > .dropdown-toggle.btn-success {
+.open > .dropdown-toggle.disaster .btn-success {
   color: #fff;
   background-color: #449d44;
   border-color: #398439;
 }
 .disaster .btn-success:active:hover,
 .disaster .btn-success.active:hover,
-.disaster .open > .dropdown-toggle.btn-success:hover,
+.open > .dropdown-toggle.disaster .btn-success:hover,
 .disaster .btn-success:active:focus,
 .disaster .btn-success.active:focus,
-.disaster .open > .dropdown-toggle.btn-success:focus,
+.open > .dropdown-toggle.disaster .btn-success:focus,
 .disaster .btn-success:active.focus,
 .disaster .btn-success.active.focus,
-.disaster .open > .dropdown-toggle.btn-success.focus {
+.open > .dropdown-toggle.disaster .btn-success.focus {
   color: #fff;
   background-color: #398439;
   border-color: #255625;
 }
 .disaster .btn-success:active,
 .disaster .btn-success.active,
-.disaster .open > .dropdown-toggle.btn-success {
+.open > .dropdown-toggle.disaster .btn-success {
   background-image: none;
 }
 .disaster .btn-success.disabled:hover,
 .disaster .btn-success[disabled]:hover,
-.disaster fieldset[disabled] .btn-success:hover,
+fieldset[disabled] .disaster .btn-success:hover,
 .disaster .btn-success.disabled:focus,
 .disaster .btn-success[disabled]:focus,
-.disaster fieldset[disabled] .btn-success:focus,
+fieldset[disabled] .disaster .btn-success:focus,
 .disaster .btn-success.disabled.focus,
 .disaster .btn-success[disabled].focus,
-.disaster fieldset[disabled] .btn-success.focus {
+fieldset[disabled] .disaster .btn-success.focus {
   background-color: #5cb85c;
   border-color: #4cae4c;
 }
@@ -3337,38 +3284,38 @@
 }
 .disaster .btn-info:active,
 .disaster .btn-info.active,
-.disaster .open > .dropdown-toggle.btn-info {
+.open > .dropdown-toggle.disaster .btn-info {
   color: #fff;
   background-color: #31b0d5;
   border-color: #269abc;
 }
 .disaster .btn-info:active:hover,
 .disaster .btn-info.active:hover,
-.disaster .open > .dropdown-toggle.btn-info:hover,
+.open > .dropdown-toggle.disaster .btn-info:hover,
 .disaster .btn-info:active:focus,
 .disaster .btn-info.active:focus,
-.disaster .open > .dropdown-toggle.btn-info:focus,
+.open > .dropdown-toggle.disaster .btn-info:focus,
 .disaster .btn-info:active.focus,
 .disaster .btn-info.active.focus,
-.disaster .open > .dropdown-toggle.btn-info.focus {
+.open > .dropdown-toggle.disaster .btn-info.focus {
   color: #fff;
   background-color: #269abc;
   border-color: #1b6d85;
 }
 .disaster .btn-info:active,
 .disaster .btn-info.active,
-.disaster .open > .dropdown-toggle.btn-info {
+.open > .dropdown-toggle.disaster .btn-info {
   background-image: none;
 }
 .disaster .btn-info.disabled:hover,
 .disaster .btn-info[disabled]:hover,
-.disaster fieldset[disabled] .btn-info:hover,
+fieldset[disabled] .disaster .btn-info:hover,
 .disaster .btn-info.disabled:focus,
 .disaster .btn-info[disabled]:focus,
-.disaster fieldset[disabled] .btn-info:focus,
+fieldset[disabled] .disaster .btn-info:focus,
 .disaster .btn-info.disabled.focus,
 .disaster .btn-info[disabled].focus,
-.disaster fieldset[disabled] .btn-info.focus {
+fieldset[disabled] .disaster .btn-info.focus {
   background-color: #5bc0de;
   border-color: #46b8da;
 }
@@ -3394,38 +3341,38 @@
 }
 .disaster .btn-warning:active,
 .disaster .btn-warning.active,
-.disaster .open > .dropdown-toggle.btn-warning {
+.open > .dropdown-toggle.disaster .btn-warning {
   color: #fff;
   background-color: #ec971f;
   border-color: #d58512;
 }
 .disaster .btn-warning:active:hover,
 .disaster .btn-warning.active:hover,
-.disaster .open > .dropdown-toggle.btn-warning:hover,
+.open > .dropdown-toggle.disaster .btn-warning:hover,
 .disaster .btn-warning:active:focus,
 .disaster .btn-warning.active:focus,
-.disaster .open > .dropdown-toggle.btn-warning:focus,
+.open > .dropdown-toggle.disaster .btn-warning:focus,
 .disaster .btn-warning:active.focus,
 .disaster .btn-warning.active.focus,
-.disaster .open > .dropdown-toggle.btn-warning.focus {
+.open > .dropdown-toggle.disaster .btn-warning.focus {
   color: #fff;
   background-color: #d58512;
   border-color: #985f0d;
 }
 .disaster .btn-warning:active,
 .disaster .btn-warning.active,
-.disaster .open > .dropdown-toggle.btn-warning {
+.open > .dropdown-toggle.disaster .btn-warning {
   background-image: none;
 }
 .disaster .btn-warning.disabled:hover,
 .disaster .btn-warning[disabled]:hover,
-.disaster fieldset[disabled] .btn-warning:hover,
+fieldset[disabled] .disaster .btn-warning:hover,
 .disaster .btn-warning.disabled:focus,
 .disaster .btn-warning[disabled]:focus,
-.disaster fieldset[disabled] .btn-warning:focus,
+fieldset[disabled] .disaster .btn-warning:focus,
 .disaster .btn-warning.disabled.focus,
 .disaster .btn-warning[disabled].focus,
-.disaster fieldset[disabled] .btn-warning.focus {
+fieldset[disabled] .disaster .btn-warning.focus {
   background-color: #f0ad4e;
   border-color: #eea236;
 }
@@ -3451,38 +3398,38 @@
 }
 .disaster .btn-danger:active,
 .disaster .btn-danger.active,
-.disaster .open > .dropdown-toggle.btn-danger {
+.open > .dropdown-toggle.disaster .btn-danger {
   color: #fff;
   background-color: #c9302c;
   border-color: #ac2925;
 }
 .disaster .btn-danger:active:hover,
 .disaster .btn-danger.active:hover,
-.disaster .open > .dropdown-toggle.btn-danger:hover,
+.open > .dropdown-toggle.disaster .btn-danger:hover,
 .disaster .btn-danger:active:focus,
 .disaster .btn-danger.active:focus,
-.disaster .open > .dropdown-toggle.btn-danger:focus,
+.open > .dropdown-toggle.disaster .btn-danger:focus,
 .disaster .btn-danger:active.focus,
 .disaster .btn-danger.active.focus,
-.disaster .open > .dropdown-toggle.btn-danger.focus {
+.open > .dropdown-toggle.disaster .btn-danger.focus {
   color: #fff;
   background-color: #ac2925;
   border-color: #761c19;
 }
 .disaster .btn-danger:active,
 .disaster .btn-danger.active,
-.disaster .open > .dropdown-toggle.btn-danger {
+.open > .dropdown-toggle.disaster .btn-danger {
   background-image: none;
 }
 .disaster .btn-danger.disabled:hover,
 .disaster .btn-danger[disabled]:hover,
-.disaster fieldset[disabled] .btn-danger:hover,
+fieldset[disabled] .disaster .btn-danger:hover,
 .disaster .btn-danger.disabled:focus,
 .disaster .btn-danger[disabled]:focus,
-.disaster fieldset[disabled] .btn-danger:focus,
+fieldset[disabled] .disaster .btn-danger:focus,
 .disaster .btn-danger.disabled.focus,
 .disaster .btn-danger[disabled].focus,
-.disaster fieldset[disabled] .btn-danger.focus {
+fieldset[disabled] .disaster .btn-danger.focus {
   background-color: #d9534f;
   border-color: #d43f3a;
 }
@@ -3499,7 +3446,7 @@
 .disaster .btn-link:active,
 .disaster .btn-link.active,
 .disaster .btn-link[disabled],
-.disaster fieldset[disabled] .btn-link {
+fieldset[disabled] .disaster .btn-link {
   background-color: transparent;
   -webkit-box-shadow: none;
   box-shadow: none;
@@ -3517,28 +3464,25 @@
   background-color: transparent;
 }
 .disaster .btn-link[disabled]:hover,
-.disaster fieldset[disabled] .btn-link:hover,
+fieldset[disabled] .disaster .btn-link:hover,
 .disaster .btn-link[disabled]:focus,
-.disaster fieldset[disabled] .btn-link:focus {
+fieldset[disabled] .disaster .btn-link:focus {
   color: #777777;
   text-decoration: none;
 }
-.disaster .btn-lg,
-.disaster .btn-group-lg > .btn {
+.disaster .btn-lg {
   padding: 10px 16px;
   font-size: 18px;
   line-height: 1.3333333;
   border-radius: 6px;
 }
-.disaster .btn-sm,
-.disaster .btn-group-sm > .btn {
+.disaster .btn-sm {
   padding: 5px 10px;
   font-size: 12px;
   line-height: 1.5;
   border-radius: 3px;
 }
-.disaster .btn-xs,
-.disaster .btn-group-xs > .btn {
+.disaster .btn-xs {
   padding: 1px 5px;
   font-size: 12px;
   line-height: 1.5;
@@ -3571,10 +3515,10 @@
 .disaster .collapse.in {
   display: block;
 }
-.disaster tr.collapse.in {
+tr.disaster .collapse.in {
   display: table-row;
 }
-.disaster tbody.collapse.in {
+tbody.disaster .collapse.in {
   display: table-row-group;
 }
 .disaster .collapsing {
@@ -3670,7 +3614,7 @@
   text-decoration: none;
   background-color: transparent;
   background-image: none;
-  filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
+  filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
   cursor: not-allowed;
 }
 .disaster .open > .dropdown-menu {
@@ -3930,18 +3874,18 @@
   line-height: 1.3333333;
   border-radius: 6px;
 }
-.disaster select.input-group-lg > .form-control,
-.disaster select.input-group-lg > .input-group-addon,
-.disaster select.input-group-lg > .input-group-btn > .btn {
+select.disaster .input-group-lg > .form-control,
+select.disaster .input-group-lg > .input-group-addon,
+select.disaster .input-group-lg > .input-group-btn > .btn {
   height: 46px;
   line-height: 46px;
 }
-.disaster textarea.input-group-lg > .form-control,
-.disaster textarea.input-group-lg > .input-group-addon,
-.disaster textarea.input-group-lg > .input-group-btn > .btn,
-.disaster select[multiple].input-group-lg > .form-control,
-.disaster select[multiple].input-group-lg > .input-group-addon,
-.disaster select[multiple].input-group-lg > .input-group-btn > .btn {
+textarea.disaster .input-group-lg > .form-control,
+textarea.disaster .input-group-lg > .input-group-addon,
+textarea.disaster .input-group-lg > .input-group-btn > .btn,
+select[multiple].disaster .input-group-lg > .form-control,
+select[multiple].disaster .input-group-lg > .input-group-addon,
+select[multiple].disaster .input-group-lg > .input-group-btn > .btn {
   height: auto;
 }
 .disaster .input-group-sm > .form-control,
@@ -3953,18 +3897,18 @@
   line-height: 1.5;
   border-radius: 3px;
 }
-.disaster select.input-group-sm > .form-control,
-.disaster select.input-group-sm > .input-group-addon,
-.disaster select.input-group-sm > .input-group-btn > .btn {
+select.disaster .input-group-sm > .form-control,
+select.disaster .input-group-sm > .input-group-addon,
+select.disaster .input-group-sm > .input-group-btn > .btn {
   height: 30px;
   line-height: 30px;
 }
-.disaster textarea.input-group-sm > .form-control,
-.disaster textarea.input-group-sm > .input-group-addon,
-.disaster textarea.input-group-sm > .input-group-btn > .btn,
-.disaster select[multiple].input-group-sm > .form-control,
-.disaster select[multiple].input-group-sm > .input-group-addon,
-.disaster select[multiple].input-group-sm > .input-group-btn > .btn {
+textarea.disaster .input-group-sm > .form-control,
+textarea.disaster .input-group-sm > .input-group-addon,
+textarea.disaster .input-group-sm > .input-group-btn > .btn,
+select[multiple].disaster .input-group-sm > .form-control,
+select[multiple].disaster .input-group-sm > .input-group-addon,
+select[multiple].disaster .input-group-sm > .input-group-btn > .btn {
   height: auto;
 }
 .disaster .input-group-addon,
@@ -4293,9 +4237,9 @@
   .disaster .navbar-collapse.in {
     overflow-y: visible;
   }
-  .disaster .navbar-fixed-top .navbar-collapse,
-  .disaster .navbar-static-top .navbar-collapse,
-  .disaster .navbar-fixed-bottom .navbar-collapse {
+  .navbar-fixed-top .disaster .navbar-collapse,
+  .navbar-static-top .disaster .navbar-collapse,
+  .navbar-fixed-bottom .disaster .navbar-collapse {
     padding-left: 0;
     padding-right: 0;
   }
@@ -4372,8 +4316,8 @@
   display: block;
 }
 @media (min-width: 768px) {
-  .disaster .navbar > .container .navbar-brand,
-  .disaster .navbar > .container-fluid .navbar-brand {
+  .navbar > .container .disaster .navbar-brand,
+  .navbar > .container-fluid .disaster .navbar-brand {
     margin-left: -15px;
   }
 }
@@ -4568,9 +4512,11 @@
 @media (min-width: 768px) {
   .disaster .navbar-left {
     float: left !important;
+    float: left;
   }
   .disaster .navbar-right {
     float: right !important;
+    float: right;
     margin-right: -15px;
   }
   .disaster .navbar-right ~ .navbar-right {
@@ -4668,9 +4614,9 @@
   color: #333;
 }
 .disaster .navbar-default .btn-link[disabled]:hover,
-.disaster fieldset[disabled] .navbar-default .btn-link:hover,
+fieldset[disabled] .disaster .navbar-default .btn-link:hover,
 .disaster .navbar-default .btn-link[disabled]:focus,
-.disaster fieldset[disabled] .navbar-default .btn-link:focus {
+fieldset[disabled] .disaster .navbar-default .btn-link:focus {
   color: #ccc;
 }
 .disaster .navbar-inverse {
@@ -4770,9 +4716,9 @@
   color: #fff;
 }
 .disaster .navbar-inverse .btn-link[disabled]:hover,
-.disaster fieldset[disabled] .navbar-inverse .btn-link:hover,
+fieldset[disabled] .disaster .navbar-inverse .btn-link:hover,
 .disaster .navbar-inverse .btn-link[disabled]:focus,
-.disaster fieldset[disabled] .navbar-inverse .btn-link:focus {
+fieldset[disabled] .disaster .navbar-inverse .btn-link:focus {
   color: #444;
 }
 .disaster .breadcrumb {
@@ -4939,8 +4885,8 @@
   vertical-align: baseline;
   border-radius: .25em;
 }
-.disaster a.label:hover,
-.disaster a.label:focus {
+a.disaster .label:hover,
+a.disaster .label:focus {
   color: #fff;
   text-decoration: none;
   cursor: pointer;
@@ -4948,7 +4894,7 @@
 .disaster .label:empty {
   display: none;
 }
-.disaster .btn .label {
+.btn .disaster .label {
   position: relative;
   top: -1px;
 }
@@ -5011,33 +4957,33 @@
 .disaster .badge:empty {
   display: none;
 }
-.disaster .btn .badge {
+.btn .disaster .badge {
   position: relative;
   top: -1px;
 }
-.disaster .btn-xs .badge,
-.disaster .btn-group-xs > .btn .badge {
+.btn-xs .disaster .badge,
+.btn-group-xs > .btn .disaster .badge {
   top: 0;
   padding: 1px 5px;
 }
-.disaster a.badge:hover,
-.disaster a.badge:focus {
+a.disaster .badge:hover,
+a.disaster .badge:focus {
   color: #fff;
   text-decoration: none;
   cursor: pointer;
 }
-.disaster .list-group-item.active > .badge,
-.disaster .nav-pills > .active > a > .badge {
+.list-group-item.active > .disaster .badge,
+.nav-pills > .active > a > .disaster .badge {
   color: #2c689c;
   background-color: #fff;
 }
-.disaster .list-group-item > .badge {
+.list-group-item > .disaster .badge {
   float: right;
 }
-.disaster .list-group-item > .badge + .badge {
+.list-group-item > .disaster .badge + .disaster .badge {
   margin-right: 5px;
 }
-.disaster .nav-pills > li > a > .badge {
+.nav-pills > li > a > .disaster .badge {
   margin-left: 3px;
 }
 .disaster .jumbotron {
@@ -5059,8 +5005,8 @@
 .disaster .jumbotron > hr {
   border-top-color: #d5d5d5;
 }
-.disaster .container .jumbotron,
-.disaster .container-fluid .jumbotron {
+.container .disaster .jumbotron,
+.container-fluid .disaster .jumbotron {
   border-radius: 6px;
   padding-left: 15px;
   padding-right: 15px;
@@ -5073,8 +5019,8 @@
     padding-top: 48px;
     padding-bottom: 48px;
   }
-  .disaster .container .jumbotron,
-  .disaster .container-fluid .jumbotron {
+  .container .disaster .jumbotron,
+  .container-fluid .disaster .jumbotron {
     padding-left: 60px;
     padding-right: 60px;
   }
@@ -5100,9 +5046,9 @@
   margin-left: auto;
   margin-right: auto;
 }
-.disaster a.thumbnail:hover,
-.disaster a.thumbnail:focus,
-.disaster a.thumbnail.active {
+a.disaster .thumbnail:hover,
+a.disaster .thumbnail:focus,
+a.disaster .thumbnail.active {
   border-color: #2c689c;
 }
 .disaster .thumbnail .caption {
@@ -5240,7 +5186,7 @@
 .disaster .progress-bar-success {
   background-color: #5cb85c;
 }
-.disaster .progress-striped .progress-bar-success {
+.progress-striped .disaster .progress-bar-success {
   background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
   background-image: -o-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
   background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
@@ -5248,7 +5194,7 @@
 .disaster .progress-bar-info {
   background-color: #5bc0de;
 }
-.disaster .progress-striped .progress-bar-info {
+.progress-striped .disaster .progress-bar-info {
   background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
   background-image: -o-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
   background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
@@ -5256,7 +5202,7 @@
 .disaster .progress-bar-warning {
   background-color: #f0ad4e;
 }
-.disaster .progress-striped .progress-bar-warning {
+.progress-striped .disaster .progress-bar-warning {
   background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
   background-image: -o-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
   background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
@@ -5264,7 +5210,7 @@
 .disaster .progress-bar-danger {
   background-color: #d9534f;
 }
-.disaster .progress-striped .progress-bar-danger {
+.progress-striped .disaster .progress-bar-danger {
   background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
   background-image: -o-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
   background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
@@ -5403,27 +5349,27 @@
   color: #3c763d;
   background-color: #dff0d8;
 }
-.disaster a.list-group-item-success,
-.disaster button.list-group-item-success {
+a.disaster .list-group-item-success,
+button.disaster .list-group-item-success {
   color: #3c763d;
 }
-.disaster a.list-group-item-success .list-group-item-heading,
-.disaster button.list-group-item-success .list-group-item-heading {
+a.disaster .list-group-item-success .list-group-item-heading,
+button.disaster .list-group-item-success .list-group-item-heading {
   color: inherit;
 }
-.disaster a.list-group-item-success:hover,
-.disaster button.list-group-item-success:hover,
-.disaster a.list-group-item-success:focus,
-.disaster button.list-group-item-success:focus {
+a.disaster .list-group-item-success:hover,
+button.disaster .list-group-item-success:hover,
+a.disaster .list-group-item-success:focus,
+button.disaster .list-group-item-success:focus {
   color: #3c763d;
   background-color: #d0e9c6;
 }
-.disaster a.list-group-item-success.active,
-.disaster button.list-group-item-success.active,
-.disaster a.list-group-item-success.active:hover,
-.disaster button.list-group-item-success.active:hover,
-.disaster a.list-group-item-success.active:focus,
-.disaster button.list-group-item-success.active:focus {
+a.disaster .list-group-item-success.active,
+button.disaster .list-group-item-success.active,
+a.disaster .list-group-item-success.active:hover,
+button.disaster .list-group-item-success.active:hover,
+a.disaster .list-group-item-success.active:focus,
+button.disaster .list-group-item-success.active:focus {
   color: #fff;
   background-color: #3c763d;
   border-color: #3c763d;
@@ -5432,27 +5378,27 @@
   color: #31708f;
   background-color: #d9edf7;
 }
-.disaster a.list-group-item-info,
-.disaster button.list-group-item-info {
+a.disaster .list-group-item-info,
+button.disaster .list-group-item-info {
   color: #31708f;
 }
-.disaster a.list-group-item-info .list-group-item-heading,
-.disaster button.list-group-item-info .list-group-item-heading {
+a.disaster .list-group-item-info .list-group-item-heading,
+button.disaster .list-group-item-info .list-group-item-heading {
   color: inherit;
 }
-.disaster a.list-group-item-info:hover,
-.disaster button.list-group-item-info:hover,
-.disaster a.list-group-item-info:focus,
-.disaster button.list-group-item-info:focus {
+a.disaster .list-group-item-info:hover,
+button.disaster .list-group-item-info:hover,
+a.disaster .list-group-item-info:focus,
+button.disaster .list-group-item-info:focus {
   color: #31708f;
   background-color: #c4e3f3;
 }
-.disaster a.list-group-item-info.active,
-.disaster button.list-group-item-info.active,
-.disaster a.list-group-item-info.active:hover,
-.disaster button.list-group-item-info.active:hover,
-.disaster a.list-group-item-info.active:focus,
-.disaster button.list-group-item-info.active:focus {
+a.disaster .list-group-item-info.active,
+button.disaster .list-group-item-info.active,
+a.disaster .list-group-item-info.active:hover,
+button.disaster .list-group-item-info.active:hover,
+a.disaster .list-group-item-info.active:focus,
+button.disaster .list-group-item-info.active:focus {
   color: #fff;
   background-color: #31708f;
   border-color: #31708f;
@@ -5461,27 +5407,27 @@
   color: #8a6d3b;
   background-color: #fcf8e3;
 }
-.disaster a.list-group-item-warning,
-.disaster button.list-group-item-warning {
+a.disaster .list-group-item-warning,
+button.disaster .list-group-item-warning {
   color: #8a6d3b;
 }
-.disaster a.list-group-item-warning .list-group-item-heading,
-.disaster button.list-group-item-warning .list-group-item-heading {
+a.disaster .list-group-item-warning .list-group-item-heading,
+button.disaster .list-group-item-warning .list-group-item-heading {
   color: inherit;
 }
-.disaster a.list-group-item-warning:hover,
-.disaster button.list-group-item-warning:hover,
-.disaster a.list-group-item-warning:focus,
-.disaster button.list-group-item-warning:focus {
+a.disaster .list-group-item-warning:hover,
+button.disaster .list-group-item-warning:hover,
+a.disaster .list-group-item-warning:focus,
+button.disaster .list-group-item-warning:focus {
   color: #8a6d3b;
   background-color: #faf2cc;
 }
-.disaster a.list-group-item-warning.active,
-.disaster button.list-group-item-warning.active,
-.disaster a.list-group-item-warning.active:hover,
-.disaster button.list-group-item-warning.active:hover,
-.disaster a.list-group-item-warning.active:focus,
-.disaster button.list-group-item-warning.active:focus {
+a.disaster .list-group-item-warning.active,
+button.disaster .list-group-item-warning.active,
+a.disaster .list-group-item-warning.active:hover,
+button.disaster .list-group-item-warning.active:hover,
+a.disaster .list-group-item-warning.active:focus,
+button.disaster .list-group-item-warning.active:focus {
   color: #fff;
   background-color: #8a6d3b;
   border-color: #8a6d3b;
@@ -5490,27 +5436,27 @@
   color: #a94442;
   background-color: #f2dede;
 }
-.disaster a.list-group-item-danger,
-.disaster button.list-group-item-danger {
+a.disaster .list-group-item-danger,
+button.disaster .list-group-item-danger {
   color: #a94442;
 }
-.disaster a.list-group-item-danger .list-group-item-heading,
-.disaster button.list-group-item-danger .list-group-item-heading {
+a.disaster .list-group-item-danger .list-group-item-heading,
+button.disaster .list-group-item-danger .list-group-item-heading {
   color: inherit;
 }
-.disaster a.list-group-item-danger:hover,
-.disaster button.list-group-item-danger:hover,
-.disaster a.list-group-item-danger:focus,
-.disaster button.list-group-item-danger:focus {
+a.disaster .list-group-item-danger:hover,
+button.disaster .list-group-item-danger:hover,
+a.disaster .list-group-item-danger:focus,
+button.disaster .list-group-item-danger:focus {
   color: #a94442;
   background-color: #ebcccc;
 }
-.disaster a.list-group-item-danger.active,
-.disaster button.list-group-item-danger.active,
-.disaster a.list-group-item-danger.active:hover,
-.disaster button.list-group-item-danger.active:hover,
-.disaster a.list-group-item-danger.active:focus,
-.disaster button.list-group-item-danger.active:focus {
+a.disaster .list-group-item-danger.active,
+button.disaster .list-group-item-danger.active,
+a.disaster .list-group-item-danger.active:hover,
+button.disaster .list-group-item-danger.active:hover,
+a.disaster .list-group-item-danger.active:focus,
+button.disaster .list-group-item-danger.active:focus {
   color: #fff;
   background-color: #a94442;
   border-color: #a94442;
@@ -5932,7 +5878,7 @@
   opacity: 0.5;
   filter: alpha(opacity=50);
 }
-.disaster button.close {
+button.disaster .close {
   padding: 0;
   cursor: pointer;
   background: transparent;
@@ -6533,55 +6479,55 @@
 }
 .disaster .clearfix:before,
 .disaster .clearfix:after,
-.disaster .dl-horizontal dd:before,
-.disaster .dl-horizontal dd:after,
-.disaster .container:before,
-.disaster .container:after,
-.disaster .container-fluid:before,
-.disaster .container-fluid:after,
-.disaster .row:before,
-.disaster .row:after,
-.disaster .form-horizontal .form-group:before,
-.disaster .form-horizontal .form-group:after,
-.disaster .btn-toolbar:before,
-.disaster .btn-toolbar:after,
-.disaster .btn-group-vertical > .btn-group:before,
-.disaster .btn-group-vertical > .btn-group:after,
-.disaster .nav:before,
-.disaster .nav:after,
-.disaster .navbar:before,
-.disaster .navbar:after,
-.disaster .navbar-header:before,
-.disaster .navbar-header:after,
-.disaster .navbar-collapse:before,
-.disaster .navbar-collapse:after,
-.disaster .pager:before,
-.disaster .pager:after,
-.disaster .panel-body:before,
-.disaster .panel-body:after,
-.disaster .modal-header:before,
-.disaster .modal-header:after,
-.disaster .modal-footer:before,
-.disaster .modal-footer:after {
+.disaster .disaster .dl-horizontal dd:before,
+.disaster .disaster .dl-horizontal dd:after,
+.disaster .disaster .container:before,
+.disaster .disaster .container:after,
+.disaster .disaster .container-fluid:before,
+.disaster .disaster .container-fluid:after,
+.disaster .disaster .row:before,
+.disaster .disaster .row:after,
+.disaster .disaster .form-horizontal .form-group:before,
+.disaster .disaster .form-horizontal .form-group:after,
+.disaster .disaster .btn-toolbar:before,
+.disaster .disaster .btn-toolbar:after,
+.disaster .disaster .btn-group-vertical > .btn-group:before,
+.disaster .disaster .btn-group-vertical > .btn-group:after,
+.disaster .disaster .nav:before,
+.disaster .disaster .nav:after,
+.disaster .disaster .navbar:before,
+.disaster .disaster .navbar:after,
+.disaster .disaster .navbar-header:before,
+.disaster .disaster .navbar-header:after,
+.disaster .disaster .navbar-collapse:before,
+.disaster .disaster .navbar-collapse:after,
+.disaster .disaster .pager:before,
+.disaster .disaster .pager:after,
+.disaster .disaster .panel-body:before,
+.disaster .disaster .panel-body:after,
+.disaster .disaster .modal-header:before,
+.disaster .disaster .modal-header:after,
+.disaster .disaster .modal-footer:before,
+.disaster .disaster .modal-footer:after {
   content: " ";
   display: table;
 }
 .disaster .clearfix:after,
-.disaster .dl-horizontal dd:after,
-.disaster .container:after,
-.disaster .container-fluid:after,
-.disaster .row:after,
-.disaster .form-horizontal .form-group:after,
-.disaster .btn-toolbar:after,
-.disaster .btn-group-vertical > .btn-group:after,
-.disaster .nav:after,
-.disaster .navbar:after,
-.disaster .navbar-header:after,
-.disaster .navbar-collapse:after,
-.disaster .pager:after,
-.disaster .panel-body:after,
-.disaster .modal-header:after,
-.disaster .modal-footer:after {
+.disaster .disaster .dl-horizontal dd:after,
+.disaster .disaster .container:after,
+.disaster .disaster .container-fluid:after,
+.disaster .disaster .row:after,
+.disaster .disaster .form-horizontal .form-group:after,
+.disaster .disaster .btn-toolbar:after,
+.disaster .disaster .btn-group-vertical > .btn-group:after,
+.disaster .disaster .nav:after,
+.disaster .disaster .navbar:after,
+.disaster .disaster .navbar-header:after,
+.disaster .disaster .navbar-collapse:after,
+.disaster .disaster .pager:after,
+.disaster .disaster .panel-body:after,
+.disaster .disaster .modal-header:after,
+.disaster .disaster .modal-footer:after {
   clear: both;
 }
 .disaster .center-block {
@@ -6644,14 +6590,14 @@
   .disaster .visible-xs {
     display: block !important;
   }
-  .disaster table.visible-xs {
+  table.disaster .visible-xs {
     display: table !important;
   }
-  .disaster tr.visible-xs {
+  tr.disaster .visible-xs {
     display: table-row !important;
   }
-  .disaster th.visible-xs,
-  .disaster td.visible-xs {
+  th.disaster .visible-xs,
+  td.disaster .visible-xs {
     display: table-cell !important;
   }
 }
@@ -6674,14 +6620,14 @@
   .disaster .visible-sm {
     display: block !important;
   }
-  .disaster table.visible-sm {
+  table.disaster .visible-sm {
     display: table !important;
   }
-  .disaster tr.visible-sm {
+  tr.disaster .visible-sm {
     display: table-row !important;
   }
-  .disaster th.visible-sm,
-  .disaster td.visible-sm {
+  th.disaster .visible-sm,
+  td.disaster .visible-sm {
     display: table-cell !important;
   }
 }
@@ -6704,14 +6650,14 @@
   .disaster .visible-md {
     display: block !important;
   }
-  .disaster table.visible-md {
+  table.disaster .visible-md {
     display: table !important;
   }
-  .disaster tr.visible-md {
+  tr.disaster .visible-md {
     display: table-row !important;
   }
-  .disaster th.visible-md,
-  .disaster td.visible-md {
+  th.disaster .visible-md,
+  td.disaster .visible-md {
     display: table-cell !important;
   }
 }
@@ -6734,14 +6680,14 @@
   .disaster .visible-lg {
     display: block !important;
   }
-  .disaster table.visible-lg {
+  table.disaster .visible-lg {
     display: table !important;
   }
-  .disaster tr.visible-lg {
+  tr.disaster .visible-lg {
     display: table-row !important;
   }
-  .disaster th.visible-lg,
-  .disaster td.visible-lg {
+  th.disaster .visible-lg,
+  td.disaster .visible-lg {
     display: table-cell !important;
   }
 }
@@ -6787,14 +6733,14 @@
   .disaster .visible-print {
     display: block !important;
   }
-  .disaster table.visible-print {
+  table.disaster .visible-print {
     display: table !important;
   }
-  .disaster tr.visible-print {
+  tr.disaster .visible-print {
     display: table-row !important;
   }
-  .disaster th.visible-print,
-  .disaster td.visible-print {
+  th.disaster .visible-print,
+  td.disaster .visible-print {
     display: table-cell !important;
   }
 }
@@ -7215,6 +7161,2561 @@
   height: 10px;
   cursor: pointer;
 }
+.disaster .noUi-target,
+.disaster .noUi-target * {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -ms-touch-action: none;
+  touch-action: none;
+  -ms-user-select: none;
+  -moz-user-select: none;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.disaster .noUi-target {
+  position: relative;
+  direction: ltr;
+}
+.disaster .noUi-base {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  z-index: 1;
+  /* Fix 401 */
+}
+.disaster .noUi-origin {
+  position: absolute;
+  right: 0;
+  top: 0;
+  left: 0;
+  bottom: 0;
+}
+.disaster .noUi-handle {
+  position: relative;
+  z-index: 1;
+}
+.disaster .noUi-stacking .noUi-handle {
+  /* This class is applied to the lower origin when
+   its values is > 50%. */
+  z-index: 10;
+}
+.disaster .noUi-state-tap .noUi-origin {
+  -webkit-transition: left 0.3s, top 0.3s;
+  transition: left 0.3s, top 0.3s;
+}
+.disaster .noUi-state-drag * {
+  cursor: inherit !important;
+}
+.disaster .noUi-base {
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+}
+.disaster .noUi-horizontal {
+  height: 18px;
+}
+.disaster .noUi-horizontal .noUi-handle {
+  width: 34px;
+  height: 28px;
+  left: -17px;
+  top: -6px;
+}
+.disaster .noUi-vertical {
+  width: 18px;
+}
+.disaster .noUi-vertical .noUi-handle {
+  width: 28px;
+  height: 34px;
+  left: -6px;
+  top: -17px;
+}
+.disaster .noUi-background {
+  background: #FAFAFA;
+  box-shadow: inset 0 1px 1px #f0f0f0;
+}
+.disaster .noUi-connect {
+  background: #3FB8AF;
+  box-shadow: inset 0 0 3px rgba(51, 51, 51, 0.45);
+  -webkit-transition: background 450ms;
+  transition: background 450ms;
+}
+.disaster .noUi-origin {
+  border-radius: 2px;
+}
+.disaster .noUi-target {
+  border-radius: 4px;
+  border: 1px solid #D3D3D3;
+  box-shadow: inset 0 1px 1px #F0F0F0, 0 3px 6px -5px #BBB;
+}
+.disaster .noUi-target.noUi-connect {
+  box-shadow: inset 0 0 3px rgba(51, 51, 51, 0.45), 0 3px 6px -5px #BBB;
+}
+.disaster .noUi-draggable {
+  cursor: w-resize;
+}
+.disaster .noUi-vertical .noUi-draggable {
+  cursor: n-resize;
+}
+.disaster .noUi-handle {
+  border: 1px solid #D9D9D9;
+  border-radius: 3px;
+  background: #FFF;
+  cursor: default;
+  box-shadow: inset 0 0 1px #FFF, inset 0 1px 7px #EBEBEB, 0 3px 6px -3px #BBB;
+}
+.disaster .noUi-active {
+  box-shadow: inset 0 0 1px #FFF, inset 0 1px 7px #DDD, 0 3px 6px -3px #BBB;
+}
+.disaster .noUi-handle:before,
+.disaster .noUi-handle:after {
+  content: "";
+  display: block;
+  position: absolute;
+  height: 14px;
+  width: 1px;
+  background: #E8E7E6;
+  left: 14px;
+  top: 6px;
+}
+.disaster .noUi-handle:after {
+  left: 17px;
+}
+.disaster .noUi-vertical .noUi-handle:before,
+.disaster .noUi-vertical .noUi-handle:after {
+  width: 14px;
+  height: 1px;
+  left: 6px;
+  top: 14px;
+}
+.disaster .noUi-vertical .noUi-handle:after {
+  top: 17px;
+}
+.disaster [disabled].noUi-connect,
+.disaster [disabled] .noUi-connect {
+  background: #B8B8B8;
+}
+.disaster [disabled].noUi-origin,
+.disaster [disabled] .noUi-handle {
+  cursor: not-allowed;
+}
+.disaster .noUi-tooltip {
+  display: block;
+  position: absolute;
+  border: 1px solid #D9D9D9;
+  border-radius: 3px;
+  background: #fff;
+  padding: 5px;
+  left: -9px;
+  text-align: center;
+  width: 50px;
+}
+.disaster .noUi-handle-lower .noUi-tooltip {
+  top: -32px;
+}
+.disaster .noUi-handle-upper .noUi-tooltip {
+  bottom: -32px;
+}
+.disaster .noUi-pips,
+.disaster .noUi-pips * {
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.disaster .noUi-pips {
+  position: absolute;
+  color: #999;
+}
+.disaster .noUi-value {
+  width: 40px;
+  position: absolute;
+  text-align: center;
+}
+.disaster .noUi-value-sub {
+  color: #ccc;
+  font-size: 10px;
+}
+.disaster .noUi-marker {
+  position: absolute;
+  background: #CCC;
+}
+.disaster .noUi-marker-sub {
+  background: #AAA;
+}
+.disaster .noUi-marker-large {
+  background: #AAA;
+}
+.disaster .noUi-pips-horizontal {
+  padding: 10px 0;
+  height: 50px;
+  top: 100%;
+  left: 0;
+  width: 100%;
+}
+.disaster .noUi-value-horizontal {
+  margin-left: -20px;
+  padding-top: 20px;
+}
+.disaster .noUi-value-horizontal.noUi-value-sub {
+  padding-top: 15px;
+}
+.disaster .noUi-marker-horizontal.noUi-marker {
+  margin-left: -1px;
+  width: 2px;
+  height: 5px;
+}
+.disaster .noUi-marker-horizontal.noUi-marker-sub {
+  height: 10px;
+}
+.disaster .noUi-marker-horizontal.noUi-marker-large {
+  height: 15px;
+}
+.disaster .noUi-pips-vertical {
+  padding: 0 10px;
+  height: 100%;
+  top: 0;
+  left: 100%;
+}
+.disaster .noUi-value-vertical {
+  width: 15px;
+  margin-left: 20px;
+  margin-top: -5px;
+}
+.disaster .noUi-marker-vertical.noUi-marker {
+  width: 5px;
+  height: 2px;
+  margin-top: -1px;
+}
+.disaster .noUi-marker-vertical.noUi-marker-sub {
+  width: 10px;
+}
+.disaster .noUi-marker-vertical.noUi-marker-large {
+  width: 15px;
+}
+@font-face {
+  font-family: 'FontAwesome';
+  src: url('../fonts/fontawesome-webfont.eot?v=4.7.0');
+  src: url('../fonts/fontawesome-webfont.eot?#iefix&v=4.7.0') format('embedded-opentype'), url('../fonts/fontawesome-webfont.woff2?v=4.7.0') format('woff2'), url('../fonts/fontawesome-webfont.woff?v=4.7.0') format('woff'), url('../fonts/fontawesome-webfont.ttf?v=4.7.0') format('truetype'), url('../fonts/fontawesome-webfont.svg?v=4.7.0#fontawesomeregular') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+.disaster .fa {
+  display: inline-block;
+  font: normal normal normal 14px/1 FontAwesome;
+  font-size: inherit;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.disaster .fa-lg {
+  font-size: 1.33333333em;
+  line-height: .75em;
+  vertical-align: -15%;
+}
+.disaster .fa-2x {
+  font-size: 2em;
+}
+.disaster .fa-3x {
+  font-size: 3em;
+}
+.disaster .fa-4x {
+  font-size: 4em;
+}
+.disaster .fa-5x {
+  font-size: 5em;
+}
+.disaster .fa-fw {
+  width: 1.28571429em;
+  text-align: center;
+}
+.disaster .fa-ul {
+  padding-left: 0;
+  margin-left: 2.14285714em;
+  list-style-type: none;
+}
+.disaster .fa-ul > li {
+  position: relative;
+}
+.disaster .fa-li {
+  position: absolute;
+  left: -2.14285714em;
+  width: 2.14285714em;
+  top: .14285714em;
+  text-align: center;
+}
+.disaster .fa-li.fa-lg {
+  left: -1.85714286em;
+}
+.disaster .fa-border {
+  padding: .2em .25em .15em;
+  border: solid .08em #eee;
+  border-radius: 0.1em;
+}
+.disaster .fa-pull-left {
+  float: left;
+}
+.disaster .fa-pull-right {
+  float: right;
+}
+.disaster .fa.fa-pull-left {
+  margin-right: 0.3em;
+}
+.disaster .fa.fa-pull-right {
+  margin-left: 0.3em;
+}
+.disaster .pull-right {
+  float: right;
+}
+.disaster .pull-left {
+  float: left;
+}
+.disaster .fa.pull-left {
+  margin-right: 0.3em;
+}
+.disaster .fa.pull-right {
+  margin-left: 0.3em;
+}
+.disaster .fa-spin {
+  -webkit-animation: fa-spin 2s infinite linear;
+  animation: fa-spin 2s infinite linear;
+}
+.disaster .fa-pulse {
+  -webkit-animation: fa-spin 1s infinite steps(8);
+  animation: fa-spin 1s infinite steps(8);
+}
+@-webkit-keyframes fa-spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
+}
+@keyframes fa-spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
+}
+.disaster .fa-rotate-90 {
+  -ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=1)";
+  -webkit-transform: rotate(90deg);
+  -ms-transform: rotate(90deg);
+  transform: rotate(90deg);
+}
+.disaster .fa-rotate-180 {
+  -ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=2)";
+  -webkit-transform: rotate(180deg);
+  -ms-transform: rotate(180deg);
+  transform: rotate(180deg);
+}
+.disaster .fa-rotate-270 {
+  -ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=3)";
+  -webkit-transform: rotate(270deg);
+  -ms-transform: rotate(270deg);
+  transform: rotate(270deg);
+}
+.disaster .fa-flip-horizontal {
+  -ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=0, mirror=1)";
+  -webkit-transform: scale(-1, 1);
+  -ms-transform: scale(-1, 1);
+  transform: scale(-1, 1);
+}
+.disaster .fa-flip-vertical {
+  -ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=2, mirror=1)";
+  -webkit-transform: scale(1, -1);
+  -ms-transform: scale(1, -1);
+  transform: scale(1, -1);
+}
+.disaster :root .fa-rotate-90,
+.disaster :root .fa-rotate-180,
+.disaster :root .fa-rotate-270,
+.disaster :root .fa-flip-horizontal,
+.disaster :root .fa-flip-vertical {
+  filter: none;
+}
+.disaster .fa-stack {
+  position: relative;
+  display: inline-block;
+  width: 2em;
+  height: 2em;
+  line-height: 2em;
+  vertical-align: middle;
+}
+.disaster .fa-stack-1x,
+.disaster .fa-stack-2x {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  text-align: center;
+}
+.disaster .fa-stack-1x {
+  line-height: inherit;
+}
+.disaster .fa-stack-2x {
+  font-size: 2em;
+}
+.disaster .fa-inverse {
+  color: #fff;
+}
+.disaster .fa-glass:before {
+  content: "\f000";
+}
+.disaster .fa-music:before {
+  content: "\f001";
+}
+.disaster .fa-search:before {
+  content: "\f002";
+}
+.disaster .fa-envelope-o:before {
+  content: "\f003";
+}
+.disaster .fa-heart:before {
+  content: "\f004";
+}
+.disaster .fa-star:before {
+  content: "\f005";
+}
+.disaster .fa-star-o:before {
+  content: "\f006";
+}
+.disaster .fa-user:before {
+  content: "\f007";
+}
+.disaster .fa-film:before {
+  content: "\f008";
+}
+.disaster .fa-th-large:before {
+  content: "\f009";
+}
+.disaster .fa-th:before {
+  content: "\f00a";
+}
+.disaster .fa-th-list:before {
+  content: "\f00b";
+}
+.disaster .fa-check:before {
+  content: "\f00c";
+}
+.disaster .fa-remove:before,
+.disaster .fa-close:before,
+.disaster .fa-times:before {
+  content: "\f00d";
+}
+.disaster .fa-search-plus:before {
+  content: "\f00e";
+}
+.disaster .fa-search-minus:before {
+  content: "\f010";
+}
+.disaster .fa-power-off:before {
+  content: "\f011";
+}
+.disaster .fa-signal:before {
+  content: "\f012";
+}
+.disaster .fa-gear:before,
+.disaster .fa-cog:before {
+  content: "\f013";
+}
+.disaster .fa-trash-o:before {
+  content: "\f014";
+}
+.disaster .fa-home:before {
+  content: "\f015";
+}
+.disaster .fa-file-o:before {
+  content: "\f016";
+}
+.disaster .fa-clock-o:before {
+  content: "\f017";
+}
+.disaster .fa-road:before {
+  content: "\f018";
+}
+.disaster .fa-download:before {
+  content: "\f019";
+}
+.disaster .fa-arrow-circle-o-down:before {
+  content: "\f01a";
+}
+.disaster .fa-arrow-circle-o-up:before {
+  content: "\f01b";
+}
+.disaster .fa-inbox:before {
+  content: "\f01c";
+}
+.disaster .fa-play-circle-o:before {
+  content: "\f01d";
+}
+.disaster .fa-rotate-right:before,
+.disaster .fa-repeat:before {
+  content: "\f01e";
+}
+.disaster .fa-refresh:before {
+  content: "\f021";
+}
+.disaster .fa-list-alt:before {
+  content: "\f022";
+}
+.disaster .fa-lock:before {
+  content: "\f023";
+}
+.disaster .fa-flag:before {
+  content: "\f024";
+}
+.disaster .fa-headphones:before {
+  content: "\f025";
+}
+.disaster .fa-volume-off:before {
+  content: "\f026";
+}
+.disaster .fa-volume-down:before {
+  content: "\f027";
+}
+.disaster .fa-volume-up:before {
+  content: "\f028";
+}
+.disaster .fa-qrcode:before {
+  content: "\f029";
+}
+.disaster .fa-barcode:before {
+  content: "\f02a";
+}
+.disaster .fa-tag:before {
+  content: "\f02b";
+}
+.disaster .fa-tags:before {
+  content: "\f02c";
+}
+.disaster .fa-book:before {
+  content: "\f02d";
+}
+.disaster .fa-bookmark:before {
+  content: "\f02e";
+}
+.disaster .fa-print:before {
+  content: "\f02f";
+}
+.disaster .fa-camera:before {
+  content: "\f030";
+}
+.disaster .fa-font:before {
+  content: "\f031";
+}
+.disaster .fa-bold:before {
+  content: "\f032";
+}
+.disaster .fa-italic:before {
+  content: "\f033";
+}
+.disaster .fa-text-height:before {
+  content: "\f034";
+}
+.disaster .fa-text-width:before {
+  content: "\f035";
+}
+.disaster .fa-align-left:before {
+  content: "\f036";
+}
+.disaster .fa-align-center:before {
+  content: "\f037";
+}
+.disaster .fa-align-right:before {
+  content: "\f038";
+}
+.disaster .fa-align-justify:before {
+  content: "\f039";
+}
+.disaster .fa-list:before {
+  content: "\f03a";
+}
+.disaster .fa-dedent:before,
+.disaster .fa-outdent:before {
+  content: "\f03b";
+}
+.disaster .fa-indent:before {
+  content: "\f03c";
+}
+.disaster .fa-video-camera:before {
+  content: "\f03d";
+}
+.disaster .fa-photo:before,
+.disaster .fa-image:before,
+.disaster .fa-picture-o:before {
+  content: "\f03e";
+}
+.disaster .fa-pencil:before {
+  content: "\f040";
+}
+.disaster .fa-map-marker:before {
+  content: "\f041";
+}
+.disaster .fa-adjust:before {
+  content: "\f042";
+}
+.disaster .fa-tint:before {
+  content: "\f043";
+}
+.disaster .fa-edit:before,
+.disaster .fa-pencil-square-o:before {
+  content: "\f044";
+}
+.disaster .fa-share-square-o:before {
+  content: "\f045";
+}
+.disaster .fa-check-square-o:before {
+  content: "\f046";
+}
+.disaster .fa-arrows:before {
+  content: "\f047";
+}
+.disaster .fa-step-backward:before {
+  content: "\f048";
+}
+.disaster .fa-fast-backward:before {
+  content: "\f049";
+}
+.disaster .fa-backward:before {
+  content: "\f04a";
+}
+.disaster .fa-play:before {
+  content: "\f04b";
+}
+.disaster .fa-pause:before {
+  content: "\f04c";
+}
+.disaster .fa-stop:before {
+  content: "\f04d";
+}
+.disaster .fa-forward:before {
+  content: "\f04e";
+}
+.disaster .fa-fast-forward:before {
+  content: "\f050";
+}
+.disaster .fa-step-forward:before {
+  content: "\f051";
+}
+.disaster .fa-eject:before {
+  content: "\f052";
+}
+.disaster .fa-chevron-left:before {
+  content: "\f053";
+}
+.disaster .fa-chevron-right:before {
+  content: "\f054";
+}
+.disaster .fa-plus-circle:before {
+  content: "\f055";
+}
+.disaster .fa-minus-circle:before {
+  content: "\f056";
+}
+.disaster .fa-times-circle:before {
+  content: "\f057";
+}
+.disaster .fa-check-circle:before {
+  content: "\f058";
+}
+.disaster .fa-question-circle:before {
+  content: "\f059";
+}
+.disaster .fa-info-circle:before {
+  content: "\f05a";
+}
+.disaster .fa-crosshairs:before {
+  content: "\f05b";
+}
+.disaster .fa-times-circle-o:before {
+  content: "\f05c";
+}
+.disaster .fa-check-circle-o:before {
+  content: "\f05d";
+}
+.disaster .fa-ban:before {
+  content: "\f05e";
+}
+.disaster .fa-arrow-left:before {
+  content: "\f060";
+}
+.disaster .fa-arrow-right:before {
+  content: "\f061";
+}
+.disaster .fa-arrow-up:before {
+  content: "\f062";
+}
+.disaster .fa-arrow-down:before {
+  content: "\f063";
+}
+.disaster .fa-mail-forward:before,
+.disaster .fa-share:before {
+  content: "\f064";
+}
+.disaster .fa-expand:before {
+  content: "\f065";
+}
+.disaster .fa-compress:before {
+  content: "\f066";
+}
+.disaster .fa-plus:before {
+  content: "\f067";
+}
+.disaster .fa-minus:before {
+  content: "\f068";
+}
+.disaster .fa-asterisk:before {
+  content: "\f069";
+}
+.disaster .fa-exclamation-circle:before {
+  content: "\f06a";
+}
+.disaster .fa-gift:before {
+  content: "\f06b";
+}
+.disaster .fa-leaf:before {
+  content: "\f06c";
+}
+.disaster .fa-fire:before {
+  content: "\f06d";
+}
+.disaster .fa-eye:before {
+  content: "\f06e";
+}
+.disaster .fa-eye-slash:before {
+  content: "\f070";
+}
+.disaster .fa-warning:before,
+.disaster .fa-exclamation-triangle:before {
+  content: "\f071";
+}
+.disaster .fa-plane:before {
+  content: "\f072";
+}
+.disaster .fa-calendar:before {
+  content: "\f073";
+}
+.disaster .fa-random:before {
+  content: "\f074";
+}
+.disaster .fa-comment:before {
+  content: "\f075";
+}
+.disaster .fa-magnet:before {
+  content: "\f076";
+}
+.disaster .fa-chevron-up:before {
+  content: "\f077";
+}
+.disaster .fa-chevron-down:before {
+  content: "\f078";
+}
+.disaster .fa-retweet:before {
+  content: "\f079";
+}
+.disaster .fa-shopping-cart:before {
+  content: "\f07a";
+}
+.disaster .fa-folder:before {
+  content: "\f07b";
+}
+.disaster .fa-folder-open:before {
+  content: "\f07c";
+}
+.disaster .fa-arrows-v:before {
+  content: "\f07d";
+}
+.disaster .fa-arrows-h:before {
+  content: "\f07e";
+}
+.disaster .fa-bar-chart-o:before,
+.disaster .fa-bar-chart:before {
+  content: "\f080";
+}
+.disaster .fa-twitter-square:before {
+  content: "\f081";
+}
+.disaster .fa-facebook-square:before {
+  content: "\f082";
+}
+.disaster .fa-camera-retro:before {
+  content: "\f083";
+}
+.disaster .fa-key:before {
+  content: "\f084";
+}
+.disaster .fa-gears:before,
+.disaster .fa-cogs:before {
+  content: "\f085";
+}
+.disaster .fa-comments:before {
+  content: "\f086";
+}
+.disaster .fa-thumbs-o-up:before {
+  content: "\f087";
+}
+.disaster .fa-thumbs-o-down:before {
+  content: "\f088";
+}
+.disaster .fa-star-half:before {
+  content: "\f089";
+}
+.disaster .fa-heart-o:before {
+  content: "\f08a";
+}
+.disaster .fa-sign-out:before {
+  content: "\f08b";
+}
+.disaster .fa-linkedin-square:before {
+  content: "\f08c";
+}
+.disaster .fa-thumb-tack:before {
+  content: "\f08d";
+}
+.disaster .fa-external-link:before {
+  content: "\f08e";
+}
+.disaster .fa-sign-in:before {
+  content: "\f090";
+}
+.disaster .fa-trophy:before {
+  content: "\f091";
+}
+.disaster .fa-github-square:before {
+  content: "\f092";
+}
+.disaster .fa-upload:before {
+  content: "\f093";
+}
+.disaster .fa-lemon-o:before {
+  content: "\f094";
+}
+.disaster .fa-phone:before {
+  content: "\f095";
+}
+.disaster .fa-square-o:before {
+  content: "\f096";
+}
+.disaster .fa-bookmark-o:before {
+  content: "\f097";
+}
+.disaster .fa-phone-square:before {
+  content: "\f098";
+}
+.disaster .fa-twitter:before {
+  content: "\f099";
+}
+.disaster .fa-facebook-f:before,
+.disaster .fa-facebook:before {
+  content: "\f09a";
+}
+.disaster .fa-github:before {
+  content: "\f09b";
+}
+.disaster .fa-unlock:before {
+  content: "\f09c";
+}
+.disaster .fa-credit-card:before {
+  content: "\f09d";
+}
+.disaster .fa-feed:before,
+.disaster .fa-rss:before {
+  content: "\f09e";
+}
+.disaster .fa-hdd-o:before {
+  content: "\f0a0";
+}
+.disaster .fa-bullhorn:before {
+  content: "\f0a1";
+}
+.disaster .fa-bell:before {
+  content: "\f0f3";
+}
+.disaster .fa-certificate:before {
+  content: "\f0a3";
+}
+.disaster .fa-hand-o-right:before {
+  content: "\f0a4";
+}
+.disaster .fa-hand-o-left:before {
+  content: "\f0a5";
+}
+.disaster .fa-hand-o-up:before {
+  content: "\f0a6";
+}
+.disaster .fa-hand-o-down:before {
+  content: "\f0a7";
+}
+.disaster .fa-arrow-circle-left:before {
+  content: "\f0a8";
+}
+.disaster .fa-arrow-circle-right:before {
+  content: "\f0a9";
+}
+.disaster .fa-arrow-circle-up:before {
+  content: "\f0aa";
+}
+.disaster .fa-arrow-circle-down:before {
+  content: "\f0ab";
+}
+.disaster .fa-globe:before {
+  content: "\f0ac";
+}
+.disaster .fa-wrench:before {
+  content: "\f0ad";
+}
+.disaster .fa-tasks:before {
+  content: "\f0ae";
+}
+.disaster .fa-filter:before {
+  content: "\f0b0";
+}
+.disaster .fa-briefcase:before {
+  content: "\f0b1";
+}
+.disaster .fa-arrows-alt:before {
+  content: "\f0b2";
+}
+.disaster .fa-group:before,
+.disaster .fa-users:before {
+  content: "\f0c0";
+}
+.disaster .fa-chain:before,
+.disaster .fa-link:before {
+  content: "\f0c1";
+}
+.disaster .fa-cloud:before {
+  content: "\f0c2";
+}
+.disaster .fa-flask:before {
+  content: "\f0c3";
+}
+.disaster .fa-cut:before,
+.disaster .fa-scissors:before {
+  content: "\f0c4";
+}
+.disaster .fa-copy:before,
+.disaster .fa-files-o:before {
+  content: "\f0c5";
+}
+.disaster .fa-paperclip:before {
+  content: "\f0c6";
+}
+.disaster .fa-save:before,
+.disaster .fa-floppy-o:before {
+  content: "\f0c7";
+}
+.disaster .fa-square:before {
+  content: "\f0c8";
+}
+.disaster .fa-navicon:before,
+.disaster .fa-reorder:before,
+.disaster .fa-bars:before {
+  content: "\f0c9";
+}
+.disaster .fa-list-ul:before {
+  content: "\f0ca";
+}
+.disaster .fa-list-ol:before {
+  content: "\f0cb";
+}
+.disaster .fa-strikethrough:before {
+  content: "\f0cc";
+}
+.disaster .fa-underline:before {
+  content: "\f0cd";
+}
+.disaster .fa-table:before {
+  content: "\f0ce";
+}
+.disaster .fa-magic:before {
+  content: "\f0d0";
+}
+.disaster .fa-truck:before {
+  content: "\f0d1";
+}
+.disaster .fa-pinterest:before {
+  content: "\f0d2";
+}
+.disaster .fa-pinterest-square:before {
+  content: "\f0d3";
+}
+.disaster .fa-google-plus-square:before {
+  content: "\f0d4";
+}
+.disaster .fa-google-plus:before {
+  content: "\f0d5";
+}
+.disaster .fa-money:before {
+  content: "\f0d6";
+}
+.disaster .fa-caret-down:before {
+  content: "\f0d7";
+}
+.disaster .fa-caret-up:before {
+  content: "\f0d8";
+}
+.disaster .fa-caret-left:before {
+  content: "\f0d9";
+}
+.disaster .fa-caret-right:before {
+  content: "\f0da";
+}
+.disaster .fa-columns:before {
+  content: "\f0db";
+}
+.disaster .fa-unsorted:before,
+.disaster .fa-sort:before {
+  content: "\f0dc";
+}
+.disaster .fa-sort-down:before,
+.disaster .fa-sort-desc:before {
+  content: "\f0dd";
+}
+.disaster .fa-sort-up:before,
+.disaster .fa-sort-asc:before {
+  content: "\f0de";
+}
+.disaster .fa-envelope:before {
+  content: "\f0e0";
+}
+.disaster .fa-linkedin:before {
+  content: "\f0e1";
+}
+.disaster .fa-rotate-left:before,
+.disaster .fa-undo:before {
+  content: "\f0e2";
+}
+.disaster .fa-legal:before,
+.disaster .fa-gavel:before {
+  content: "\f0e3";
+}
+.disaster .fa-dashboard:before,
+.disaster .fa-tachometer:before {
+  content: "\f0e4";
+}
+.disaster .fa-comment-o:before {
+  content: "\f0e5";
+}
+.disaster .fa-comments-o:before {
+  content: "\f0e6";
+}
+.disaster .fa-flash:before,
+.disaster .fa-bolt:before {
+  content: "\f0e7";
+}
+.disaster .fa-sitemap:before {
+  content: "\f0e8";
+}
+.disaster .fa-umbrella:before {
+  content: "\f0e9";
+}
+.disaster .fa-paste:before,
+.disaster .fa-clipboard:before {
+  content: "\f0ea";
+}
+.disaster .fa-lightbulb-o:before {
+  content: "\f0eb";
+}
+.disaster .fa-exchange:before {
+  content: "\f0ec";
+}
+.disaster .fa-cloud-download:before {
+  content: "\f0ed";
+}
+.disaster .fa-cloud-upload:before {
+  content: "\f0ee";
+}
+.disaster .fa-user-md:before {
+  content: "\f0f0";
+}
+.disaster .fa-stethoscope:before {
+  content: "\f0f1";
+}
+.disaster .fa-suitcase:before {
+  content: "\f0f2";
+}
+.disaster .fa-bell-o:before {
+  content: "\f0a2";
+}
+.disaster .fa-coffee:before {
+  content: "\f0f4";
+}
+.disaster .fa-cutlery:before {
+  content: "\f0f5";
+}
+.disaster .fa-file-text-o:before {
+  content: "\f0f6";
+}
+.disaster .fa-building-o:before {
+  content: "\f0f7";
+}
+.disaster .fa-hospital-o:before {
+  content: "\f0f8";
+}
+.disaster .fa-ambulance:before {
+  content: "\f0f9";
+}
+.disaster .fa-medkit:before {
+  content: "\f0fa";
+}
+.disaster .fa-fighter-jet:before {
+  content: "\f0fb";
+}
+.disaster .fa-beer:before {
+  content: "\f0fc";
+}
+.disaster .fa-h-square:before {
+  content: "\f0fd";
+}
+.disaster .fa-plus-square:before {
+  content: "\f0fe";
+}
+.disaster .fa-angle-double-left:before {
+  content: "\f100";
+}
+.disaster .fa-angle-double-right:before {
+  content: "\f101";
+}
+.disaster .fa-angle-double-up:before {
+  content: "\f102";
+}
+.disaster .fa-angle-double-down:before {
+  content: "\f103";
+}
+.disaster .fa-angle-left:before {
+  content: "\f104";
+}
+.disaster .fa-angle-right:before {
+  content: "\f105";
+}
+.disaster .fa-angle-up:before {
+  content: "\f106";
+}
+.disaster .fa-angle-down:before {
+  content: "\f107";
+}
+.disaster .fa-desktop:before {
+  content: "\f108";
+}
+.disaster .fa-laptop:before {
+  content: "\f109";
+}
+.disaster .fa-tablet:before {
+  content: "\f10a";
+}
+.disaster .fa-mobile-phone:before,
+.disaster .fa-mobile:before {
+  content: "\f10b";
+}
+.disaster .fa-circle-o:before {
+  content: "\f10c";
+}
+.disaster .fa-quote-left:before {
+  content: "\f10d";
+}
+.disaster .fa-quote-right:before {
+  content: "\f10e";
+}
+.disaster .fa-spinner:before {
+  content: "\f110";
+}
+.disaster .fa-circle:before {
+  content: "\f111";
+}
+.disaster .fa-mail-reply:before,
+.disaster .fa-reply:before {
+  content: "\f112";
+}
+.disaster .fa-github-alt:before {
+  content: "\f113";
+}
+.disaster .fa-folder-o:before {
+  content: "\f114";
+}
+.disaster .fa-folder-open-o:before {
+  content: "\f115";
+}
+.disaster .fa-smile-o:before {
+  content: "\f118";
+}
+.disaster .fa-frown-o:before {
+  content: "\f119";
+}
+.disaster .fa-meh-o:before {
+  content: "\f11a";
+}
+.disaster .fa-gamepad:before {
+  content: "\f11b";
+}
+.disaster .fa-keyboard-o:before {
+  content: "\f11c";
+}
+.disaster .fa-flag-o:before {
+  content: "\f11d";
+}
+.disaster .fa-flag-checkered:before {
+  content: "\f11e";
+}
+.disaster .fa-terminal:before {
+  content: "\f120";
+}
+.disaster .fa-code:before {
+  content: "\f121";
+}
+.disaster .fa-mail-reply-all:before,
+.disaster .fa-reply-all:before {
+  content: "\f122";
+}
+.disaster .fa-star-half-empty:before,
+.disaster .fa-star-half-full:before,
+.disaster .fa-star-half-o:before {
+  content: "\f123";
+}
+.disaster .fa-location-arrow:before {
+  content: "\f124";
+}
+.disaster .fa-crop:before {
+  content: "\f125";
+}
+.disaster .fa-code-fork:before {
+  content: "\f126";
+}
+.disaster .fa-unlink:before,
+.disaster .fa-chain-broken:before {
+  content: "\f127";
+}
+.disaster .fa-question:before {
+  content: "\f128";
+}
+.disaster .fa-info:before {
+  content: "\f129";
+}
+.disaster .fa-exclamation:before {
+  content: "\f12a";
+}
+.disaster .fa-superscript:before {
+  content: "\f12b";
+}
+.disaster .fa-subscript:before {
+  content: "\f12c";
+}
+.disaster .fa-eraser:before {
+  content: "\f12d";
+}
+.disaster .fa-puzzle-piece:before {
+  content: "\f12e";
+}
+.disaster .fa-microphone:before {
+  content: "\f130";
+}
+.disaster .fa-microphone-slash:before {
+  content: "\f131";
+}
+.disaster .fa-shield:before {
+  content: "\f132";
+}
+.disaster .fa-calendar-o:before {
+  content: "\f133";
+}
+.disaster .fa-fire-extinguisher:before {
+  content: "\f134";
+}
+.disaster .fa-rocket:before {
+  content: "\f135";
+}
+.disaster .fa-maxcdn:before {
+  content: "\f136";
+}
+.disaster .fa-chevron-circle-left:before {
+  content: "\f137";
+}
+.disaster .fa-chevron-circle-right:before {
+  content: "\f138";
+}
+.disaster .fa-chevron-circle-up:before {
+  content: "\f139";
+}
+.disaster .fa-chevron-circle-down:before {
+  content: "\f13a";
+}
+.disaster .fa-html5:before {
+  content: "\f13b";
+}
+.disaster .fa-css3:before {
+  content: "\f13c";
+}
+.disaster .fa-anchor:before {
+  content: "\f13d";
+}
+.disaster .fa-unlock-alt:before {
+  content: "\f13e";
+}
+.disaster .fa-bullseye:before {
+  content: "\f140";
+}
+.disaster .fa-ellipsis-h:before {
+  content: "\f141";
+}
+.disaster .fa-ellipsis-v:before {
+  content: "\f142";
+}
+.disaster .fa-rss-square:before {
+  content: "\f143";
+}
+.disaster .fa-play-circle:before {
+  content: "\f144";
+}
+.disaster .fa-ticket:before {
+  content: "\f145";
+}
+.disaster .fa-minus-square:before {
+  content: "\f146";
+}
+.disaster .fa-minus-square-o:before {
+  content: "\f147";
+}
+.disaster .fa-level-up:before {
+  content: "\f148";
+}
+.disaster .fa-level-down:before {
+  content: "\f149";
+}
+.disaster .fa-check-square:before {
+  content: "\f14a";
+}
+.disaster .fa-pencil-square:before {
+  content: "\f14b";
+}
+.disaster .fa-external-link-square:before {
+  content: "\f14c";
+}
+.disaster .fa-share-square:before {
+  content: "\f14d";
+}
+.disaster .fa-compass:before {
+  content: "\f14e";
+}
+.disaster .fa-toggle-down:before,
+.disaster .fa-caret-square-o-down:before {
+  content: "\f150";
+}
+.disaster .fa-toggle-up:before,
+.disaster .fa-caret-square-o-up:before {
+  content: "\f151";
+}
+.disaster .fa-toggle-right:before,
+.disaster .fa-caret-square-o-right:before {
+  content: "\f152";
+}
+.disaster .fa-euro:before,
+.disaster .fa-eur:before {
+  content: "\f153";
+}
+.disaster .fa-gbp:before {
+  content: "\f154";
+}
+.disaster .fa-dollar:before,
+.disaster .fa-usd:before {
+  content: "\f155";
+}
+.disaster .fa-rupee:before,
+.disaster .fa-inr:before {
+  content: "\f156";
+}
+.disaster .fa-cny:before,
+.disaster .fa-rmb:before,
+.disaster .fa-yen:before,
+.disaster .fa-jpy:before {
+  content: "\f157";
+}
+.disaster .fa-ruble:before,
+.disaster .fa-rouble:before,
+.disaster .fa-rub:before {
+  content: "\f158";
+}
+.disaster .fa-won:before,
+.disaster .fa-krw:before {
+  content: "\f159";
+}
+.disaster .fa-bitcoin:before,
+.disaster .fa-btc:before {
+  content: "\f15a";
+}
+.disaster .fa-file:before {
+  content: "\f15b";
+}
+.disaster .fa-file-text:before {
+  content: "\f15c";
+}
+.disaster .fa-sort-alpha-asc:before {
+  content: "\f15d";
+}
+.disaster .fa-sort-alpha-desc:before {
+  content: "\f15e";
+}
+.disaster .fa-sort-amount-asc:before {
+  content: "\f160";
+}
+.disaster .fa-sort-amount-desc:before {
+  content: "\f161";
+}
+.disaster .fa-sort-numeric-asc:before {
+  content: "\f162";
+}
+.disaster .fa-sort-numeric-desc:before {
+  content: "\f163";
+}
+.disaster .fa-thumbs-up:before {
+  content: "\f164";
+}
+.disaster .fa-thumbs-down:before {
+  content: "\f165";
+}
+.disaster .fa-youtube-square:before {
+  content: "\f166";
+}
+.disaster .fa-youtube:before {
+  content: "\f167";
+}
+.disaster .fa-xing:before {
+  content: "\f168";
+}
+.disaster .fa-xing-square:before {
+  content: "\f169";
+}
+.disaster .fa-youtube-play:before {
+  content: "\f16a";
+}
+.disaster .fa-dropbox:before {
+  content: "\f16b";
+}
+.disaster .fa-stack-overflow:before {
+  content: "\f16c";
+}
+.disaster .fa-instagram:before {
+  content: "\f16d";
+}
+.disaster .fa-flickr:before {
+  content: "\f16e";
+}
+.disaster .fa-adn:before {
+  content: "\f170";
+}
+.disaster .fa-bitbucket:before {
+  content: "\f171";
+}
+.disaster .fa-bitbucket-square:before {
+  content: "\f172";
+}
+.disaster .fa-tumblr:before {
+  content: "\f173";
+}
+.disaster .fa-tumblr-square:before {
+  content: "\f174";
+}
+.disaster .fa-long-arrow-down:before {
+  content: "\f175";
+}
+.disaster .fa-long-arrow-up:before {
+  content: "\f176";
+}
+.disaster .fa-long-arrow-left:before {
+  content: "\f177";
+}
+.disaster .fa-long-arrow-right:before {
+  content: "\f178";
+}
+.disaster .fa-apple:before {
+  content: "\f179";
+}
+.disaster .fa-windows:before {
+  content: "\f17a";
+}
+.disaster .fa-android:before {
+  content: "\f17b";
+}
+.disaster .fa-linux:before {
+  content: "\f17c";
+}
+.disaster .fa-dribbble:before {
+  content: "\f17d";
+}
+.disaster .fa-skype:before {
+  content: "\f17e";
+}
+.disaster .fa-foursquare:before {
+  content: "\f180";
+}
+.disaster .fa-trello:before {
+  content: "\f181";
+}
+.disaster .fa-female:before {
+  content: "\f182";
+}
+.disaster .fa-male:before {
+  content: "\f183";
+}
+.disaster .fa-gittip:before,
+.disaster .fa-gratipay:before {
+  content: "\f184";
+}
+.disaster .fa-sun-o:before {
+  content: "\f185";
+}
+.disaster .fa-moon-o:before {
+  content: "\f186";
+}
+.disaster .fa-archive:before {
+  content: "\f187";
+}
+.disaster .fa-bug:before {
+  content: "\f188";
+}
+.disaster .fa-vk:before {
+  content: "\f189";
+}
+.disaster .fa-weibo:before {
+  content: "\f18a";
+}
+.disaster .fa-renren:before {
+  content: "\f18b";
+}
+.disaster .fa-pagelines:before {
+  content: "\f18c";
+}
+.disaster .fa-stack-exchange:before {
+  content: "\f18d";
+}
+.disaster .fa-arrow-circle-o-right:before {
+  content: "\f18e";
+}
+.disaster .fa-arrow-circle-o-left:before {
+  content: "\f190";
+}
+.disaster .fa-toggle-left:before,
+.disaster .fa-caret-square-o-left:before {
+  content: "\f191";
+}
+.disaster .fa-dot-circle-o:before {
+  content: "\f192";
+}
+.disaster .fa-wheelchair:before {
+  content: "\f193";
+}
+.disaster .fa-vimeo-square:before {
+  content: "\f194";
+}
+.disaster .fa-turkish-lira:before,
+.disaster .fa-try:before {
+  content: "\f195";
+}
+.disaster .fa-plus-square-o:before {
+  content: "\f196";
+}
+.disaster .fa-space-shuttle:before {
+  content: "\f197";
+}
+.disaster .fa-slack:before {
+  content: "\f198";
+}
+.disaster .fa-envelope-square:before {
+  content: "\f199";
+}
+.disaster .fa-wordpress:before {
+  content: "\f19a";
+}
+.disaster .fa-openid:before {
+  content: "\f19b";
+}
+.disaster .fa-institution:before,
+.disaster .fa-bank:before,
+.disaster .fa-university:before {
+  content: "\f19c";
+}
+.disaster .fa-mortar-board:before,
+.disaster .fa-graduation-cap:before {
+  content: "\f19d";
+}
+.disaster .fa-yahoo:before {
+  content: "\f19e";
+}
+.disaster .fa-google:before {
+  content: "\f1a0";
+}
+.disaster .fa-reddit:before {
+  content: "\f1a1";
+}
+.disaster .fa-reddit-square:before {
+  content: "\f1a2";
+}
+.disaster .fa-stumbleupon-circle:before {
+  content: "\f1a3";
+}
+.disaster .fa-stumbleupon:before {
+  content: "\f1a4";
+}
+.disaster .fa-delicious:before {
+  content: "\f1a5";
+}
+.disaster .fa-digg:before {
+  content: "\f1a6";
+}
+.disaster .fa-pied-piper-pp:before {
+  content: "\f1a7";
+}
+.disaster .fa-pied-piper-alt:before {
+  content: "\f1a8";
+}
+.disaster .fa-drupal:before {
+  content: "\f1a9";
+}
+.disaster .fa-joomla:before {
+  content: "\f1aa";
+}
+.disaster .fa-language:before {
+  content: "\f1ab";
+}
+.disaster .fa-fax:before {
+  content: "\f1ac";
+}
+.disaster .fa-building:before {
+  content: "\f1ad";
+}
+.disaster .fa-child:before {
+  content: "\f1ae";
+}
+.disaster .fa-paw:before {
+  content: "\f1b0";
+}
+.disaster .fa-spoon:before {
+  content: "\f1b1";
+}
+.disaster .fa-cube:before {
+  content: "\f1b2";
+}
+.disaster .fa-cubes:before {
+  content: "\f1b3";
+}
+.disaster .fa-behance:before {
+  content: "\f1b4";
+}
+.disaster .fa-behance-square:before {
+  content: "\f1b5";
+}
+.disaster .fa-steam:before {
+  content: "\f1b6";
+}
+.disaster .fa-steam-square:before {
+  content: "\f1b7";
+}
+.disaster .fa-recycle:before {
+  content: "\f1b8";
+}
+.disaster .fa-automobile:before,
+.disaster .fa-car:before {
+  content: "\f1b9";
+}
+.disaster .fa-cab:before,
+.disaster .fa-taxi:before {
+  content: "\f1ba";
+}
+.disaster .fa-tree:before {
+  content: "\f1bb";
+}
+.disaster .fa-spotify:before {
+  content: "\f1bc";
+}
+.disaster .fa-deviantart:before {
+  content: "\f1bd";
+}
+.disaster .fa-soundcloud:before {
+  content: "\f1be";
+}
+.disaster .fa-database:before {
+  content: "\f1c0";
+}
+.disaster .fa-file-pdf-o:before {
+  content: "\f1c1";
+}
+.disaster .fa-file-word-o:before {
+  content: "\f1c2";
+}
+.disaster .fa-file-excel-o:before {
+  content: "\f1c3";
+}
+.disaster .fa-file-powerpoint-o:before {
+  content: "\f1c4";
+}
+.disaster .fa-file-photo-o:before,
+.disaster .fa-file-picture-o:before,
+.disaster .fa-file-image-o:before {
+  content: "\f1c5";
+}
+.disaster .fa-file-zip-o:before,
+.disaster .fa-file-archive-o:before {
+  content: "\f1c6";
+}
+.disaster .fa-file-sound-o:before,
+.disaster .fa-file-audio-o:before {
+  content: "\f1c7";
+}
+.disaster .fa-file-movie-o:before,
+.disaster .fa-file-video-o:before {
+  content: "\f1c8";
+}
+.disaster .fa-file-code-o:before {
+  content: "\f1c9";
+}
+.disaster .fa-vine:before {
+  content: "\f1ca";
+}
+.disaster .fa-codepen:before {
+  content: "\f1cb";
+}
+.disaster .fa-jsfiddle:before {
+  content: "\f1cc";
+}
+.disaster .fa-life-bouy:before,
+.disaster .fa-life-buoy:before,
+.disaster .fa-life-saver:before,
+.disaster .fa-support:before,
+.disaster .fa-life-ring:before {
+  content: "\f1cd";
+}
+.disaster .fa-circle-o-notch:before {
+  content: "\f1ce";
+}
+.disaster .fa-ra:before,
+.disaster .fa-resistance:before,
+.disaster .fa-rebel:before {
+  content: "\f1d0";
+}
+.disaster .fa-ge:before,
+.disaster .fa-empire:before {
+  content: "\f1d1";
+}
+.disaster .fa-git-square:before {
+  content: "\f1d2";
+}
+.disaster .fa-git:before {
+  content: "\f1d3";
+}
+.disaster .fa-y-combinator-square:before,
+.disaster .fa-yc-square:before,
+.disaster .fa-hacker-news:before {
+  content: "\f1d4";
+}
+.disaster .fa-tencent-weibo:before {
+  content: "\f1d5";
+}
+.disaster .fa-qq:before {
+  content: "\f1d6";
+}
+.disaster .fa-wechat:before,
+.disaster .fa-weixin:before {
+  content: "\f1d7";
+}
+.disaster .fa-send:before,
+.disaster .fa-paper-plane:before {
+  content: "\f1d8";
+}
+.disaster .fa-send-o:before,
+.disaster .fa-paper-plane-o:before {
+  content: "\f1d9";
+}
+.disaster .fa-history:before {
+  content: "\f1da";
+}
+.disaster .fa-circle-thin:before {
+  content: "\f1db";
+}
+.disaster .fa-header:before {
+  content: "\f1dc";
+}
+.disaster .fa-paragraph:before {
+  content: "\f1dd";
+}
+.disaster .fa-sliders:before {
+  content: "\f1de";
+}
+.disaster .fa-share-alt:before {
+  content: "\f1e0";
+}
+.disaster .fa-share-alt-square:before {
+  content: "\f1e1";
+}
+.disaster .fa-bomb:before {
+  content: "\f1e2";
+}
+.disaster .fa-soccer-ball-o:before,
+.disaster .fa-futbol-o:before {
+  content: "\f1e3";
+}
+.disaster .fa-tty:before {
+  content: "\f1e4";
+}
+.disaster .fa-binoculars:before {
+  content: "\f1e5";
+}
+.disaster .fa-plug:before {
+  content: "\f1e6";
+}
+.disaster .fa-slideshare:before {
+  content: "\f1e7";
+}
+.disaster .fa-twitch:before {
+  content: "\f1e8";
+}
+.disaster .fa-yelp:before {
+  content: "\f1e9";
+}
+.disaster .fa-newspaper-o:before {
+  content: "\f1ea";
+}
+.disaster .fa-wifi:before {
+  content: "\f1eb";
+}
+.disaster .fa-calculator:before {
+  content: "\f1ec";
+}
+.disaster .fa-paypal:before {
+  content: "\f1ed";
+}
+.disaster .fa-google-wallet:before {
+  content: "\f1ee";
+}
+.disaster .fa-cc-visa:before {
+  content: "\f1f0";
+}
+.disaster .fa-cc-mastercard:before {
+  content: "\f1f1";
+}
+.disaster .fa-cc-discover:before {
+  content: "\f1f2";
+}
+.disaster .fa-cc-amex:before {
+  content: "\f1f3";
+}
+.disaster .fa-cc-paypal:before {
+  content: "\f1f4";
+}
+.disaster .fa-cc-stripe:before {
+  content: "\f1f5";
+}
+.disaster .fa-bell-slash:before {
+  content: "\f1f6";
+}
+.disaster .fa-bell-slash-o:before {
+  content: "\f1f7";
+}
+.disaster .fa-trash:before {
+  content: "\f1f8";
+}
+.disaster .fa-copyright:before {
+  content: "\f1f9";
+}
+.disaster .fa-at:before {
+  content: "\f1fa";
+}
+.disaster .fa-eyedropper:before {
+  content: "\f1fb";
+}
+.disaster .fa-paint-brush:before {
+  content: "\f1fc";
+}
+.disaster .fa-birthday-cake:before {
+  content: "\f1fd";
+}
+.disaster .fa-area-chart:before {
+  content: "\f1fe";
+}
+.disaster .fa-pie-chart:before {
+  content: "\f200";
+}
+.disaster .fa-line-chart:before {
+  content: "\f201";
+}
+.disaster .fa-lastfm:before {
+  content: "\f202";
+}
+.disaster .fa-lastfm-square:before {
+  content: "\f203";
+}
+.disaster .fa-toggle-off:before {
+  content: "\f204";
+}
+.disaster .fa-toggle-on:before {
+  content: "\f205";
+}
+.disaster .fa-bicycle:before {
+  content: "\f206";
+}
+.disaster .fa-bus:before {
+  content: "\f207";
+}
+.disaster .fa-ioxhost:before {
+  content: "\f208";
+}
+.disaster .fa-angellist:before {
+  content: "\f209";
+}
+.disaster .fa-cc:before {
+  content: "\f20a";
+}
+.disaster .fa-shekel:before,
+.disaster .fa-sheqel:before,
+.disaster .fa-ils:before {
+  content: "\f20b";
+}
+.disaster .fa-meanpath:before {
+  content: "\f20c";
+}
+.disaster .fa-buysellads:before {
+  content: "\f20d";
+}
+.disaster .fa-connectdevelop:before {
+  content: "\f20e";
+}
+.disaster .fa-dashcube:before {
+  content: "\f210";
+}
+.disaster .fa-forumbee:before {
+  content: "\f211";
+}
+.disaster .fa-leanpub:before {
+  content: "\f212";
+}
+.disaster .fa-sellsy:before {
+  content: "\f213";
+}
+.disaster .fa-shirtsinbulk:before {
+  content: "\f214";
+}
+.disaster .fa-simplybuilt:before {
+  content: "\f215";
+}
+.disaster .fa-skyatlas:before {
+  content: "\f216";
+}
+.disaster .fa-cart-plus:before {
+  content: "\f217";
+}
+.disaster .fa-cart-arrow-down:before {
+  content: "\f218";
+}
+.disaster .fa-diamond:before {
+  content: "\f219";
+}
+.disaster .fa-ship:before {
+  content: "\f21a";
+}
+.disaster .fa-user-secret:before {
+  content: "\f21b";
+}
+.disaster .fa-motorcycle:before {
+  content: "\f21c";
+}
+.disaster .fa-street-view:before {
+  content: "\f21d";
+}
+.disaster .fa-heartbeat:before {
+  content: "\f21e";
+}
+.disaster .fa-venus:before {
+  content: "\f221";
+}
+.disaster .fa-mars:before {
+  content: "\f222";
+}
+.disaster .fa-mercury:before {
+  content: "\f223";
+}
+.disaster .fa-intersex:before,
+.disaster .fa-transgender:before {
+  content: "\f224";
+}
+.disaster .fa-transgender-alt:before {
+  content: "\f225";
+}
+.disaster .fa-venus-double:before {
+  content: "\f226";
+}
+.disaster .fa-mars-double:before {
+  content: "\f227";
+}
+.disaster .fa-venus-mars:before {
+  content: "\f228";
+}
+.disaster .fa-mars-stroke:before {
+  content: "\f229";
+}
+.disaster .fa-mars-stroke-v:before {
+  content: "\f22a";
+}
+.disaster .fa-mars-stroke-h:before {
+  content: "\f22b";
+}
+.disaster .fa-neuter:before {
+  content: "\f22c";
+}
+.disaster .fa-genderless:before {
+  content: "\f22d";
+}
+.disaster .fa-facebook-official:before {
+  content: "\f230";
+}
+.disaster .fa-pinterest-p:before {
+  content: "\f231";
+}
+.disaster .fa-whatsapp:before {
+  content: "\f232";
+}
+.disaster .fa-server:before {
+  content: "\f233";
+}
+.disaster .fa-user-plus:before {
+  content: "\f234";
+}
+.disaster .fa-user-times:before {
+  content: "\f235";
+}
+.disaster .fa-hotel:before,
+.disaster .fa-bed:before {
+  content: "\f236";
+}
+.disaster .fa-viacoin:before {
+  content: "\f237";
+}
+.disaster .fa-train:before {
+  content: "\f238";
+}
+.disaster .fa-subway:before {
+  content: "\f239";
+}
+.disaster .fa-medium:before {
+  content: "\f23a";
+}
+.disaster .fa-yc:before,
+.disaster .fa-y-combinator:before {
+  content: "\f23b";
+}
+.disaster .fa-optin-monster:before {
+  content: "\f23c";
+}
+.disaster .fa-opencart:before {
+  content: "\f23d";
+}
+.disaster .fa-expeditedssl:before {
+  content: "\f23e";
+}
+.disaster .fa-battery-4:before,
+.disaster .fa-battery:before,
+.disaster .fa-battery-full:before {
+  content: "\f240";
+}
+.disaster .fa-battery-3:before,
+.disaster .fa-battery-three-quarters:before {
+  content: "\f241";
+}
+.disaster .fa-battery-2:before,
+.disaster .fa-battery-half:before {
+  content: "\f242";
+}
+.disaster .fa-battery-1:before,
+.disaster .fa-battery-quarter:before {
+  content: "\f243";
+}
+.disaster .fa-battery-0:before,
+.disaster .fa-battery-empty:before {
+  content: "\f244";
+}
+.disaster .fa-mouse-pointer:before {
+  content: "\f245";
+}
+.disaster .fa-i-cursor:before {
+  content: "\f246";
+}
+.disaster .fa-object-group:before {
+  content: "\f247";
+}
+.disaster .fa-object-ungroup:before {
+  content: "\f248";
+}
+.disaster .fa-sticky-note:before {
+  content: "\f249";
+}
+.disaster .fa-sticky-note-o:before {
+  content: "\f24a";
+}
+.disaster .fa-cc-jcb:before {
+  content: "\f24b";
+}
+.disaster .fa-cc-diners-club:before {
+  content: "\f24c";
+}
+.disaster .fa-clone:before {
+  content: "\f24d";
+}
+.disaster .fa-balance-scale:before {
+  content: "\f24e";
+}
+.disaster .fa-hourglass-o:before {
+  content: "\f250";
+}
+.disaster .fa-hourglass-1:before,
+.disaster .fa-hourglass-start:before {
+  content: "\f251";
+}
+.disaster .fa-hourglass-2:before,
+.disaster .fa-hourglass-half:before {
+  content: "\f252";
+}
+.disaster .fa-hourglass-3:before,
+.disaster .fa-hourglass-end:before {
+  content: "\f253";
+}
+.disaster .fa-hourglass:before {
+  content: "\f254";
+}
+.disaster .fa-hand-grab-o:before,
+.disaster .fa-hand-rock-o:before {
+  content: "\f255";
+}
+.disaster .fa-hand-stop-o:before,
+.disaster .fa-hand-paper-o:before {
+  content: "\f256";
+}
+.disaster .fa-hand-scissors-o:before {
+  content: "\f257";
+}
+.disaster .fa-hand-lizard-o:before {
+  content: "\f258";
+}
+.disaster .fa-hand-spock-o:before {
+  content: "\f259";
+}
+.disaster .fa-hand-pointer-o:before {
+  content: "\f25a";
+}
+.disaster .fa-hand-peace-o:before {
+  content: "\f25b";
+}
+.disaster .fa-trademark:before {
+  content: "\f25c";
+}
+.disaster .fa-registered:before {
+  content: "\f25d";
+}
+.disaster .fa-creative-commons:before {
+  content: "\f25e";
+}
+.disaster .fa-gg:before {
+  content: "\f260";
+}
+.disaster .fa-gg-circle:before {
+  content: "\f261";
+}
+.disaster .fa-tripadvisor:before {
+  content: "\f262";
+}
+.disaster .fa-odnoklassniki:before {
+  content: "\f263";
+}
+.disaster .fa-odnoklassniki-square:before {
+  content: "\f264";
+}
+.disaster .fa-get-pocket:before {
+  content: "\f265";
+}
+.disaster .fa-wikipedia-w:before {
+  content: "\f266";
+}
+.disaster .fa-safari:before {
+  content: "\f267";
+}
+.disaster .fa-chrome:before {
+  content: "\f268";
+}
+.disaster .fa-firefox:before {
+  content: "\f269";
+}
+.disaster .fa-opera:before {
+  content: "\f26a";
+}
+.disaster .fa-internet-explorer:before {
+  content: "\f26b";
+}
+.disaster .fa-tv:before,
+.disaster .fa-television:before {
+  content: "\f26c";
+}
+.disaster .fa-contao:before {
+  content: "\f26d";
+}
+.disaster .fa-500px:before {
+  content: "\f26e";
+}
+.disaster .fa-amazon:before {
+  content: "\f270";
+}
+.disaster .fa-calendar-plus-o:before {
+  content: "\f271";
+}
+.disaster .fa-calendar-minus-o:before {
+  content: "\f272";
+}
+.disaster .fa-calendar-times-o:before {
+  content: "\f273";
+}
+.disaster .fa-calendar-check-o:before {
+  content: "\f274";
+}
+.disaster .fa-industry:before {
+  content: "\f275";
+}
+.disaster .fa-map-pin:before {
+  content: "\f276";
+}
+.disaster .fa-map-signs:before {
+  content: "\f277";
+}
+.disaster .fa-map-o:before {
+  content: "\f278";
+}
+.disaster .fa-map:before {
+  content: "\f279";
+}
+.disaster .fa-commenting:before {
+  content: "\f27a";
+}
+.disaster .fa-commenting-o:before {
+  content: "\f27b";
+}
+.disaster .fa-houzz:before {
+  content: "\f27c";
+}
+.disaster .fa-vimeo:before {
+  content: "\f27d";
+}
+.disaster .fa-black-tie:before {
+  content: "\f27e";
+}
+.disaster .fa-fonticons:before {
+  content: "\f280";
+}
+.disaster .fa-reddit-alien:before {
+  content: "\f281";
+}
+.disaster .fa-edge:before {
+  content: "\f282";
+}
+.disaster .fa-credit-card-alt:before {
+  content: "\f283";
+}
+.disaster .fa-codiepie:before {
+  content: "\f284";
+}
+.disaster .fa-modx:before {
+  content: "\f285";
+}
+.disaster .fa-fort-awesome:before {
+  content: "\f286";
+}
+.disaster .fa-usb:before {
+  content: "\f287";
+}
+.disaster .fa-product-hunt:before {
+  content: "\f288";
+}
+.disaster .fa-mixcloud:before {
+  content: "\f289";
+}
+.disaster .fa-scribd:before {
+  content: "\f28a";
+}
+.disaster .fa-pause-circle:before {
+  content: "\f28b";
+}
+.disaster .fa-pause-circle-o:before {
+  content: "\f28c";
+}
+.disaster .fa-stop-circle:before {
+  content: "\f28d";
+}
+.disaster .fa-stop-circle-o:before {
+  content: "\f28e";
+}
+.disaster .fa-shopping-bag:before {
+  content: "\f290";
+}
+.disaster .fa-shopping-basket:before {
+  content: "\f291";
+}
+.disaster .fa-hashtag:before {
+  content: "\f292";
+}
+.disaster .fa-bluetooth:before {
+  content: "\f293";
+}
+.disaster .fa-bluetooth-b:before {
+  content: "\f294";
+}
+.disaster .fa-percent:before {
+  content: "\f295";
+}
+.disaster .fa-gitlab:before {
+  content: "\f296";
+}
+.disaster .fa-wpbeginner:before {
+  content: "\f297";
+}
+.disaster .fa-wpforms:before {
+  content: "\f298";
+}
+.disaster .fa-envira:before {
+  content: "\f299";
+}
+.disaster .fa-universal-access:before {
+  content: "\f29a";
+}
+.disaster .fa-wheelchair-alt:before {
+  content: "\f29b";
+}
+.disaster .fa-question-circle-o:before {
+  content: "\f29c";
+}
+.disaster .fa-blind:before {
+  content: "\f29d";
+}
+.disaster .fa-audio-description:before {
+  content: "\f29e";
+}
+.disaster .fa-volume-control-phone:before {
+  content: "\f2a0";
+}
+.disaster .fa-braille:before {
+  content: "\f2a1";
+}
+.disaster .fa-assistive-listening-systems:before {
+  content: "\f2a2";
+}
+.disaster .fa-asl-interpreting:before,
+.disaster .fa-american-sign-language-interpreting:before {
+  content: "\f2a3";
+}
+.disaster .fa-deafness:before,
+.disaster .fa-hard-of-hearing:before,
+.disaster .fa-deaf:before {
+  content: "\f2a4";
+}
+.disaster .fa-glide:before {
+  content: "\f2a5";
+}
+.disaster .fa-glide-g:before {
+  content: "\f2a6";
+}
+.disaster .fa-signing:before,
+.disaster .fa-sign-language:before {
+  content: "\f2a7";
+}
+.disaster .fa-low-vision:before {
+  content: "\f2a8";
+}
+.disaster .fa-viadeo:before {
+  content: "\f2a9";
+}
+.disaster .fa-viadeo-square:before {
+  content: "\f2aa";
+}
+.disaster .fa-snapchat:before {
+  content: "\f2ab";
+}
+.disaster .fa-snapchat-ghost:before {
+  content: "\f2ac";
+}
+.disaster .fa-snapchat-square:before {
+  content: "\f2ad";
+}
+.disaster .fa-pied-piper:before {
+  content: "\f2ae";
+}
+.disaster .fa-first-order:before {
+  content: "\f2b0";
+}
+.disaster .fa-yoast:before {
+  content: "\f2b1";
+}
+.disaster .fa-themeisle:before {
+  content: "\f2b2";
+}
+.disaster .fa-google-plus-circle:before,
+.disaster .fa-google-plus-official:before {
+  content: "\f2b3";
+}
+.disaster .fa-fa:before,
+.disaster .fa-font-awesome:before {
+  content: "\f2b4";
+}
+.disaster .fa-handshake-o:before {
+  content: "\f2b5";
+}
+.disaster .fa-envelope-open:before {
+  content: "\f2b6";
+}
+.disaster .fa-envelope-open-o:before {
+  content: "\f2b7";
+}
+.disaster .fa-linode:before {
+  content: "\f2b8";
+}
+.disaster .fa-address-book:before {
+  content: "\f2b9";
+}
+.disaster .fa-address-book-o:before {
+  content: "\f2ba";
+}
+.disaster .fa-vcard:before,
+.disaster .fa-address-card:before {
+  content: "\f2bb";
+}
+.disaster .fa-vcard-o:before,
+.disaster .fa-address-card-o:before {
+  content: "\f2bc";
+}
+.disaster .fa-user-circle:before {
+  content: "\f2bd";
+}
+.disaster .fa-user-circle-o:before {
+  content: "\f2be";
+}
+.disaster .fa-user-o:before {
+  content: "\f2c0";
+}
+.disaster .fa-id-badge:before {
+  content: "\f2c1";
+}
+.disaster .fa-drivers-license:before,
+.disaster .fa-id-card:before {
+  content: "\f2c2";
+}
+.disaster .fa-drivers-license-o:before,
+.disaster .fa-id-card-o:before {
+  content: "\f2c3";
+}
+.disaster .fa-quora:before {
+  content: "\f2c4";
+}
+.disaster .fa-free-code-camp:before {
+  content: "\f2c5";
+}
+.disaster .fa-telegram:before {
+  content: "\f2c6";
+}
+.disaster .fa-thermometer-4:before,
+.disaster .fa-thermometer:before,
+.disaster .fa-thermometer-full:before {
+  content: "\f2c7";
+}
+.disaster .fa-thermometer-3:before,
+.disaster .fa-thermometer-three-quarters:before {
+  content: "\f2c8";
+}
+.disaster .fa-thermometer-2:before,
+.disaster .fa-thermometer-half:before {
+  content: "\f2c9";
+}
+.disaster .fa-thermometer-1:before,
+.disaster .fa-thermometer-quarter:before {
+  content: "\f2ca";
+}
+.disaster .fa-thermometer-0:before,
+.disaster .fa-thermometer-empty:before {
+  content: "\f2cb";
+}
+.disaster .fa-shower:before {
+  content: "\f2cc";
+}
+.disaster .fa-bathtub:before,
+.disaster .fa-s15:before,
+.disaster .fa-bath:before {
+  content: "\f2cd";
+}
+.disaster .fa-podcast:before {
+  content: "\f2ce";
+}
+.disaster .fa-window-maximize:before {
+  content: "\f2d0";
+}
+.disaster .fa-window-minimize:before {
+  content: "\f2d1";
+}
+.disaster .fa-window-restore:before {
+  content: "\f2d2";
+}
+.disaster .fa-times-rectangle:before,
+.disaster .fa-window-close:before {
+  content: "\f2d3";
+}
+.disaster .fa-times-rectangle-o:before,
+.disaster .fa-window-close-o:before {
+  content: "\f2d4";
+}
+.disaster .fa-bandcamp:before {
+  content: "\f2d5";
+}
+.disaster .fa-grav:before {
+  content: "\f2d6";
+}
+.disaster .fa-etsy:before {
+  content: "\f2d7";
+}
+.disaster .fa-imdb:before {
+  content: "\f2d8";
+}
+.disaster .fa-ravelry:before {
+  content: "\f2d9";
+}
+.disaster .fa-eercast:before {
+  content: "\f2da";
+}
+.disaster .fa-microchip:before {
+  content: "\f2db";
+}
+.disaster .fa-snowflake-o:before {
+  content: "\f2dc";
+}
+.disaster .fa-superpowers:before {
+  content: "\f2dd";
+}
+.disaster .fa-wpexplorer:before {
+  content: "\f2de";
+}
+.disaster .fa-meetup:before {
+  content: "\f2e0";
+}
+.disaster .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+.disaster .sr-only-focusable:active,
+.disaster .sr-only-focusable:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+}
 .disaster #map {
   position: relative;
   top: 0;
@@ -7405,10 +9906,60 @@
 .disaster .link-input {
   display: none;
 }
+.disaster .noUi-handle {
+  border: 2px solid #ff8f31;
+  background: #2c689c;
+  box-shadow: none;
+  cursor: pointer;
+  width: 28px !important;
+  height: 28px !important;
+  left: -14px !important;
+}
+.disaster .disaster-header .noUi-handle {
+  border: 1px solid #333333;
+  background: #333333;
+  color: #ff8f31;
+}
+.disaster .disaster-header .noUi-handle:hover {
+  border: 1px solid #ff8f31;
+  background: #ff8f31;
+  color: #333333;
+}
+.disaster .noUi-handle:before,
+.disaster .noUi-handle:after {
+  background-color: transparent;
+}
+.disaster .disaster-header .noUi-handle:before {
+  font-family: FontAwesome;
+  content: "\f080";
+  display: block;
+  position: absolute;
+  height: 14px;
+  width: 1px;
+  left: 5px;
+  top: 4px;
+}
+.disaster .noUi-value-horizontal {
+  margin-left: -30px;
+  margin-top: 40px;
+  padding-top: 0;
+  transform: rotate(-90deg);
+  -ms-transform: rotate(-90deg);
+  -ms-transform-origin: right, top;
+  -webkit-transform: rotate(-90deg);
+  -webkit-transform-origin: right, top;
+  text-align: right;
+}
+.disaster .noUi-value {
+  width: 60px;
+}
+.disaster .noUi-value-horizontal.noUi-value-sub {
+  padding-top: 0;
+}
 @font-face {
   font-family: 'thinkhazard';
-  src: url('../webfonts/thinkhazard/fonts/thinkhazard.eot?-xr90r9');
-  src: url('../webfonts/thinkhazard/fonts/thinkhazard.eot?#iefix-xr90r9') format('embedded-opentype'), url('../webfonts/thinkhazard/fonts/thinkhazard.ttf?-xr90r9') format('truetype'), url('../webfonts/thinkhazard/fonts/thinkhazard.woff?-xr90r9') format('woff'), url('../webfonts/thinkhazard/fonts/thinkhazard.svg?-xr90r9#thinkhazard') format('svg');
+  src: url('../fonts/thinkhazard/thinkhazard.eot?-xr90r9');
+  src: url('../fonts/thinkhazard/thinkhazard.eot?#iefix-xr90r9') format('embedded-opentype'), url('../fonts/thinkhazard/thinkhazard.ttf?-xr90r9') format('truetype'), url('../fonts/thinkhazard/thinkhazard.woff?-xr90r9') format('woff'), url('../fonts/thinkhazard/thinkhazard.svg?-xr90r9#thinkhazard') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -7502,322 +10053,4 @@
 }
 .disaster .icon-spinner:before {
   content: "\f110";
-}
-.disaster {
-  font-family: 'Lato', sans-serif;
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.42857143;
-  color: #333333;
-  background-color: #fff;
-}
-/*https://github.com/leongersen/noUiSlider/tree/2faa227afa74b724a4537d2a655a10183f92c30c/src*/
-/* Functional styling;
- * These styles are required for noUiSlider to function.
- * You don't need to change these rules to apply your design.
- */
-.noUi-target,
-.noUi-target * {
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -ms-touch-action: none;
-  touch-action: none;
-  -ms-user-select: none;
-  -moz-user-select: none;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
-}
-.noUi-target {
-  position: relative;
-  direction: ltr;
-}
-.noUi-base {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  z-index: 1;
-  /* Fix 401 */
-}
-.noUi-origin {
-  position: absolute;
-  right: 0;
-  top: 0;
-  left: 0;
-  bottom: 0;
-}
-.noUi-handle {
-  position: relative;
-  z-index: 1;
-}
-.noUi-stacking .noUi-handle {
-  /* This class is applied to the lower origin when
-   its values is > 50%. */
-  z-index: 10;
-}
-.noUi-state-tap .noUi-origin {
-  -webkit-transition: left 0.3s, top 0.3s;
-  transition: left 0.3s, top 0.3s;
-}
-.noUi-state-drag * {
-  cursor: inherit !important;
-}
-/* Painting and performance;
- * Browsers can paint handles in their own layer.
- */
-.noUi-base {
-  -webkit-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0);
-}
-/* Slider size and handle placement;
- */
-.noUi-horizontal {
-  height: 18px;
-}
-.noUi-horizontal .noUi-handle {
-  width: 34px;
-  height: 28px;
-  left: -17px;
-  top: -6px;
-}
-.noUi-vertical {
-  width: 18px;
-}
-.noUi-vertical .noUi-handle {
-  width: 28px;
-  height: 34px;
-  left: -6px;
-  top: -17px;
-}
-/* Styling;
- */
-.noUi-background {
-  background: #FAFAFA;
-  box-shadow: inset 0 1px 1px #f0f0f0;
-}
-.noUi-connect {
-  background: #3FB8AF;
-  box-shadow: inset 0 0 3px rgba(51, 51, 51, 0.45);
-  -webkit-transition: background 450ms;
-  transition: background 450ms;
-}
-.noUi-origin {
-  border-radius: 2px;
-}
-.noUi-target {
-  border-radius: 4px;
-  border: 1px solid #D3D3D3;
-  box-shadow: inset 0 1px 1px #F0F0F0, 0 3px 6px -5px #BBB;
-}
-.noUi-target.noUi-connect {
-  box-shadow: inset 0 0 3px rgba(51, 51, 51, 0.45), 0 3px 6px -5px #BBB;
-}
-/* Handles and cursors;
- */
-.noUi-draggable {
-  cursor: w-resize;
-}
-.noUi-vertical .noUi-draggable {
-  cursor: n-resize;
-}
-.noUi-handle {
-  border: 1px solid #D9D9D9;
-  border-radius: 3px;
-  background: #FFF;
-  cursor: default;
-  box-shadow: inset 0 0 1px #FFF, inset 0 1px 7px #EBEBEB, 0 3px 6px -3px #BBB;
-}
-.noUi-active {
-  box-shadow: inset 0 0 1px #FFF, inset 0 1px 7px #DDD, 0 3px 6px -3px #BBB;
-}
-/* Handle stripes;
- */
-.noUi-handle:before,
-.noUi-handle:after {
-  content: "";
-  display: block;
-  position: absolute;
-  height: 14px;
-  width: 1px;
-  background: #E8E7E6;
-  left: 14px;
-  top: 6px;
-}
-.noUi-handle:after {
-  left: 17px;
-}
-.noUi-vertical .noUi-handle:before,
-.noUi-vertical .noUi-handle:after {
-  width: 14px;
-  height: 1px;
-  left: 6px;
-  top: 14px;
-}
-.noUi-vertical .noUi-handle:after {
-  top: 17px;
-}
-/* Disabled state;
- */
-[disabled].noUi-connect,
-[disabled] .noUi-connect {
-  background: #B8B8B8;
-}
-[disabled].noUi-origin,
-[disabled] .noUi-handle {
-  cursor: not-allowed;
-}
-.noUi-tooltip {
-  display: block;
-  position: absolute;
-  border: 1px solid #D9D9D9;
-  border-radius: 3px;
-  background: #fff;
-  padding: 5px;
-  left: -9px;
-  text-align: center;
-  width: 50px;
-}
-.noUi-handle-lower .noUi-tooltip {
-  top: -32px;
-}
-.noUi-handle-upper .noUi-tooltip {
-  bottom: -32px;
-}
-/* Pips
- */
-.noUi-pips,
-.noUi-pips * {
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
-}
-.noUi-pips {
-  position: absolute;
-  color: #999;
-}
-/* Values;
- *
- */
-.noUi-value {
-  width: 40px;
-  position: absolute;
-  text-align: center;
-}
-.noUi-value-sub {
-  color: #ccc;
-  font-size: 10px;
-}
-/* Markings;
- *
- */
-.noUi-marker {
-  position: absolute;
-  background: #CCC;
-}
-.noUi-marker-sub {
-  background: #AAA;
-}
-.noUi-marker-large {
-  background: #AAA;
-}
-/* Horizontal layout;
- *
- */
-.noUi-pips-horizontal {
-  padding: 10px 0;
-  height: 50px;
-  top: 100%;
-  left: 0;
-  width: 100%;
-}
-.noUi-value-horizontal {
-  margin-left: -20px;
-  padding-top: 20px;
-}
-.noUi-value-horizontal.noUi-value-sub {
-  padding-top: 15px;
-}
-.noUi-marker-horizontal.noUi-marker {
-  margin-left: -1px;
-  width: 2px;
-  height: 5px;
-}
-.noUi-marker-horizontal.noUi-marker-sub {
-  height: 10px;
-}
-.noUi-marker-horizontal.noUi-marker-large {
-  height: 15px;
-}
-/* Vertical layout;
- *
- */
-.noUi-pips-vertical {
-  padding: 0 10px;
-  height: 100%;
-  top: 0;
-  left: 100%;
-}
-.noUi-value-vertical {
-  width: 15px;
-  margin-left: 20px;
-  margin-top: -5px;
-}
-.noUi-marker-vertical.noUi-marker {
-  width: 5px;
-  height: 2px;
-  margin-top: -1px;
-}
-.noUi-marker-vertical.noUi-marker-sub {
-  width: 10px;
-}
-.noUi-marker-vertical.noUi-marker-large {
-  width: 15px;
-}
-.noUi-handle {
-  border: 2px solid #ff8f31;
-  background: #2c689c;
-  box-shadow: none;
-  cursor: pointer;
-  width: 28px !important;
-  height: 28px !important;
-  left: -14px !important;
-}
-.disaster-header .noUi-handle {
-  border: 1px solid #333333;
-  background: #333333;
-  color: #ff8f31;
-}
-.disaster-header .noUi-handle:hover {
-  border: 1px solid #ff8f31;
-  background: #ff8f31;
-  color: #333333;
-}
-.noUi-handle:before,
-.noUi-handle:after {
-  background-color: transparent;
-}
-.disaster-header .noUi-handle:before {
-  font-family: FontAwesome;
-  content: "\f080";
-  display: block;
-  position: absolute;
-  height: 14px;
-  width: 1px;
-  left: 5px;
-  top: 4px;
-}
-.noUi-value-horizontal {
-  margin-left: -30px;
-  margin-top: 40px;
-  padding-top: 0;
-  transform: rotate(-90deg);
-  -ms-transform: rotate(-90deg);
-  -ms-transform-origin: right, top;
-  -webkit-transform: rotate(-90deg);
-  -webkit-transform-origin: right, top;
-  text-align: right;
-}
-.noUi-value {
-  width: 60px;
-}
-.noUi-value-horizontal.noUi-value-sub {
-  padding-top: 0;
 }

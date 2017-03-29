@@ -60,7 +60,7 @@ const layerSelectorWithMarkers = createSelector(
             const wms = {
             "id": "disasterrisk",
             "type": "wms",
-            "url": disaster.riskAnalysis.wms.geonode + "wms",
+            "url": disaster.riskAnalysis.wms.baseurl + "wms",
             "name": getLayerName(disaster),
             "title": "disasterrisk",
             "visibility": true,

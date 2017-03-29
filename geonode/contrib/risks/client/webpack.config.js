@@ -6,14 +6,15 @@ var NoEmitOnErrorsPlugin = require("webpack/lib/NoEmitOnErrorsPlugin");
 var CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const assign = require('object-assign');
-const themeEntries = require('./MapStore2/themes.js').themeEntries;
+
 const extractThemesPlugin = require('./MapStore2/themes.js').extractThemesPlugin;
 module.exports = {
     entry: assign({
         'webpack-dev-server': 'webpack-dev-server/client?http://0.0.0.0:8081', // WebpackDevServer host and port
         'webpack': 'webpack/hot/only-dev-server', // "only" prevents reload on syntax errors
-        'disastermanagement-client': path.join(__dirname, "js", "app")
-    }, themeEntries),
+        'disastermanagement-client': path.join(__dirname, "js", "app"),
+        'default': path.join(__dirname, "assets", "themes", "map", "theme.less")
+    }),
     output: {
         path: path.join(__dirname, "dist"),
         publicPath: "/dist/",
@@ -28,7 +29,7 @@ module.exports = {
             options: {
                 postcss: {
                     plugins: [
-                      require('postcss-prefix-selector')({prefix: '.disastermanagement-client', exclude: ['.disastermanagement-client']})
+                      require('postcss-prefix-selector')({prefix: '.drc', exclude: ['.drc']})
                     ]
                 },
                 context: __dirname
@@ -137,6 +138,10 @@ module.exports = {
                 '/static/assets/': {
                     target: "http://localhost:8081/",
                     pathRewrite: { "^/static/assets": "/MapStore2/web/client"}
+                },
+                '/static/js/*.css': {
+                    target: "http://localhost:8081/",
+                    pathRewrite: { "^/static/js": "dist"}
                 },
                 '/static/js/': {
                     target: "http://localhost:8081/",
