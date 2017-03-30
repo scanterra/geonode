@@ -36,7 +36,13 @@ class Command(BaseCommand):
     this contrib module.
 
     Example Usage:
-    $> python manage.py riskstatic ... TODO ...
+    $> python manage.py riskstatic
+
+    # To init the submodule
+    $> python manage.py riskstatic --full --init
+
+    # To update the submodule
+    $> python manage.py riskstatic --full
     """
 
     help = 'Update and rebuild Risks contrib client files.'
@@ -49,16 +55,26 @@ class Command(BaseCommand):
             dest='full',
             default=False,
             help='Fully rebuild the client static libs.')
+        parser.add_argument(
+            '-i',
+            '--init',
+            action='store_true',
+            dest='init',
+            default=False,
+            help='Fully rebuild the client static libs.')
         return parser
 
     def handle(self, **options):
         full = options.get('full')
+        init = options.get('init')
 
         # risks app
         with pushd('geonode/contrib/risks/client'):
             if full:
-                sh('git submodule init')
-                sh('git submodule update')
+                if init:
+                    sh('git submodule update --init --recursive')
+                else:
+                    sh('git submodule update')
                 sh('npm install')
 
             sh('npm run compile')
