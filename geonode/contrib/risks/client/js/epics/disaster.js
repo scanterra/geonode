@@ -9,8 +9,9 @@ const Rx = require('rxjs');
 const Api = require('../api/riskdata');
 const {zoomToExtent} = require('../../MapStore2/web/client/actions/map');
 const bbox = require('turf-bbox');
-const {changeLayerProperties} = require('../../MapStore2/web/client/actions/layers');
+const {changeLayerProperties, addLayer} = require('../../MapStore2/web/client/actions/layers');
 const assign = require('object-assign');
+const {configLayer} = require('../utils/DisasterUtils');
 const {
     GET_DATA,
     LOAD_RISK_MAP_CONFIG,
@@ -60,11 +61,17 @@ const getRiskFeatures = (action$, store) =>
         .startWith(featuresLoading())
         .catch(e => Rx.Observable.of(featuresError(e)))
     );
-const getAnalysisEpic = action$ =>
+const getAnalysisEpic = (action$) =>
     action$.ofType(GET_ANALYSIS_DATA).switchMap(action =>
         Rx.Observable.defer(() => Api.getData(action.url))
             .retry(1)
-            .map(val => analysisDataLoaded(val))
+            .map(val => {
+                const baseUrl = val.wms && val.wms.baseurl;
+                const layers = val.riskAnalysisData && val.riskAnalysisData.additionalLayers || [];
+                const actions = [analysisDataLoaded(val)].concat(layers.map((l) => addLayer(configLayer(baseUrl, l[1], `ral_${l[0]}`, l[1].split(':').pop(), false, 'Gis Overlays'))));
+                return actions;
+            })
+            .mergeAll()
             .startWith(dataLoading(true))
             .catch(e => Rx.Observable.of(dataError(e)))
     );

@@ -9956,6 +9956,52 @@ button.disaster .close {
 .disaster .noUi-value-horizontal.noUi-value-sub {
   padding-top: 0;
 }
+.disaster .drc {
+  height: 400px;
+  padding: 10;
+}
+.disaster .drc #navigationBar .mapToolbar {
+  top: 2px !important;
+  bottom: auto;
+  left: 18px;
+  border-radius: 5px;
+  width: 40px;
+}
+.disaster .drc #navigationBar button {
+  height: 34px;
+}
+.disaster .drc .square-button .glyphicon {
+  font-size: 14px;
+  padding: 0px;
+  margin: 0px;
+  float: none;
+}
+.disaster .risk-toc-container {
+  position: absolute;
+  top: 38px;
+  left: 14px;
+  width: 240px;
+  height: 360px;
+  background: rgba(255, 255, 255, 0.82);
+  padding: 0px 2px;
+  overflow: scroll;
+}
+.disaster .drc .toc-layer-tool.toc-legendTool {
+  display: none;
+}
+.disaster .drc #mapstore-layers {
+  margin: 1px;
+}
+.disaster .drc .toc-group-title {
+  background-color: transparent;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.29);
+}
+.disaster .drc .risk-toc-container .visibility-check.glyphicon {
+  overflow: visible;
+}
+.disaster .drc .risk-toc-container .toc-group-children {
+  margin-left: 2px;
+}
 @font-face {
   font-family: 'thinkhazard';
   src: url('../fonts/thinkhazard/thinkhazard.eot?-xr90r9');

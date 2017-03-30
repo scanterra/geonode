@@ -10,16 +10,16 @@ const React = require('react');
 
 const FurtherResources = React.createClass({
     propTypes: {
-        analysisResourecs: React.PropTypes.array
+        analysisType: React.PropTypes.array,
+        hazardType: React.PropTypes.array
     },
     getDefaultProps() {
         return {
         };
     },
-    getResources() {
-        const {analysisResourecs} = this.props;
-        return analysisResourecs.map((res) => (
-            <li>
+    getResources(resources = []) {
+        return resources.map((res, idx) => (
+            <li key={idx}>
                 <a target="_blank" href={res.details}>
                     {res.text}
                 </a>
@@ -27,14 +27,15 @@ const FurtherResources = React.createClass({
         );
     },
     render() {
-        const {analysisResourecs} = this.props;
-        return analysisResourecs ? (
+        const {analysisType, hazardType} = this.props;
+        const resources = [...analysisType, ...hazardType];
+        return resources.length > 0 ? (
             <div className="disaster-fth-res-container">
                 <h1>Further Resources</h1>
                 <p>For further information the following resources could be consulted:
                 </p>
                 <ul>
-                {this.getResources()}
+                {this.getResources(resources)}
                 </ul>
             </div>) : null;
     }

@@ -30,10 +30,14 @@ const {pages, pluginsDef, initialState, storeOpts} = require('./appConfig');
 const initDim = init && init.d || {};
 
 const newInitState = assign({}, initialState, {defaultState: {disaster: {dim: initDim}}});
-
+const themeCfg = {
+    path: 'static/js'
+};
 const StandardRouter = connect((state) => ({
     locale: state.locale || {},
+    themeCfg,
     pages
+
 }))(require('../MapStore2/web/client/components/app/StandardRouter'));
 
 const appStore = require('../MapStore2/web/client/stores/StandardStore').bind(null, newInitState, appReducers, epics);
