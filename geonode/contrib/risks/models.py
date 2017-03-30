@@ -998,7 +998,7 @@ class FurtherResource(models.Model):
             qparams = qparams & Q(Q(dymensioninfofurtherresourceassociation__riskanalysis__isnull=True)|Q(dymensioninfofurtherresourceassociation__riskanalysis=ranalysis))
         else:
             qparams = qparams & Q(dymensioninfofurtherresourceassociation__riskanalysis__isnull = True)
-        return cls.objects.filter(qparams)
+        return cls.objects.filter(qparams).distinct()
 
     @classmethod
     def for_hazard_set(cls, hset, region=None):
