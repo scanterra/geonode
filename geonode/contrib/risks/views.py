@@ -10,7 +10,7 @@ from django.views.generic import TemplateView, View, FormView
 from geonode.layers.models import Layer
 from geonode.utils import json_response
 from geonode.contrib.risks.models import (HazardType, AdministrativeDivision,
-                                          RiskAnalysisDymensionInfoAssociation, 
+                                          RiskAnalysisDymensionInfoAssociation,
                                           RiskAnalysis, DymensionInfo, AnalysisType,
                                           FurtherResource)
 
@@ -46,9 +46,9 @@ class ContextAware(object):
         :param dict kwargs: other parameters available
         :type an: :py:class: geonode.contrib.risks.models.RiskAnalysis
 
-        Returns list of :py:class: geonode.contrib.risks.models.FurtherResource 
+        Returns list of :py:class: geonode.contrib.risks.models.FurtherResource
             related to Hazard type (assigned to Risk Analysis). Region may be used to narrow results.
-        
+
         """
         if an.hazardset is None:
             return []
@@ -62,20 +62,20 @@ class ContextAware(object):
     def fr_for_dym(self, dym, **kwargs):
         """
         .. py:method: fr_for_dym(dym, **kwargs)
-        
+
         :param dym: DymensionInfo object
         :param dict kwargs: other parameters for query
         :type dym: :py:class: geonode.contrib.risks.models.DymensionInfo
 
-        Returns list of :py:class: geonode.contrib.risks.models.FurtherResource 
-            related to DymensionInfo. Region and Risk Analysis may be used to 
+        Returns list of :py:class: geonode.contrib.risks.models.FurtherResource
+            related to DymensionInfo. Region and Risk Analysis may be used to
             narrow results.
         """
 
 
         if dym is None:
             return []
-        ranalysis = kwargs.get('ra')        
+        ranalysis = kwargs.get('an')
         region = None
         if kwargs.get('loc'):
             region = kwargs['loc'].region
@@ -85,13 +85,13 @@ class ContextAware(object):
     def fr_for_at(self, at, **kwargs):
         """
         .. py:method: fr_for_at(dym, **kwargs)
-        
+
         :param at: AnalysisType object
         :param dict kwargs: other parameters for query
         :type dym: :py:class: geonode.contrib.risks.models.DymensionInfo
 
-        Returns list of :py:class: geonode.contrib.risks.models.FurtherResource 
-            related to DymensionInfo. Region and Risk Analysis may be used to 
+        Returns list of :py:class: geonode.contrib.risks.models.FurtherResource
+            related to DymensionInfo. Region and Risk Analysis may be used to
             narrow results.
         """
         if at is None:
@@ -119,7 +119,7 @@ class ContextAware(object):
         :param dict kwargs: keyword arguments obtained from url parser
         :return: dictionary with objects for keyword and criteria
 
-        This will check each pair of (key, value) from url kwargs and, 
+        This will check each pair of (key, value) from url kwargs and,
         using map between key and class, will get specific object identified
         by value.
 
@@ -142,7 +142,7 @@ class ContextAware(object):
         :param dict kwargs: keyword arguments obtained from url parser (see CONTEXT_KEY_CLASSES)
         :return: dictionary with object type name and list of related resources
         :rtype: dict
-        
+
         """
         inputs = self.get_further_resources_inputs(**kwargs)
         out = {}
@@ -160,7 +160,7 @@ class ContextAware(object):
 
     def _get_from_kwargs(self, klass, field, field_val):
         return klass.objects.get(**{field: field_val})
-        
+
 
 class FeaturesSource(object):
 
@@ -444,7 +444,7 @@ class DataExtractionView(FeaturesSource, HazardTypeView):
             compute order value
             """
             _order_vals = []
-            
+
             for idx, o in enumerate(orders):
                 field_name = fields[idx]
                 val = feat['properties'].get(field_name)
@@ -554,7 +554,7 @@ class RiskLayersView(FormView):
         choices = self.get_layer_choices()
         f.fields['layers'].choices = choices
         return f
-        
+
 
     def form_invalid(self, form):
         err = form.errors
@@ -585,8 +585,8 @@ class RiskLayersView(FormView):
         out['data'] = {'layers': list(risk.additional_layers.all().values_list('typename', flat=True))}
         print('out', out)
         return json_response(out)
-        
-        
+
+
 location_view = LocationView.as_view()
 hazard_type_view = HazardTypeView.as_view()
 analysis_type_view = HazardTypeView.as_view()

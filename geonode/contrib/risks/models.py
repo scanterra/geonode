@@ -63,7 +63,7 @@ class Schedulable(models.Model):
     def set_ready(self):
         self.refresh_from_db()
         self.set_state(self.STATE_READY, save=True)
-    
+
     def set_queued(self):
         self.refresh_from_db()
         self.set_state(self.STATE_QUEUED, save=True)
@@ -519,7 +519,8 @@ class DymensionInfo(RiskAnalysisAware, Exportable, models.Model):
      {riskanalysis: risk.identifier, dim1: 'RP-10', dim2: 'Base'} -> [values]
 
     """
-    EXPORT_FIELDS = (('name', 'name',),
+    EXPORT_FIELDS = (('id', 'id',),
+                     ('name', 'name',),
                      ('abstract', 'abstract',),
                      ('unit', 'unit',),
                      ('layers', 'get_axis_descriptions',),
@@ -584,7 +585,7 @@ class DymensionInfo(RiskAnalysisAware, Exportable, models.Model):
     def get_axis_styles(self):
         axis = self.get_axis()
         return dict((v.value, v.get_style(),) for v in axis)
-        
+
 
 class RiskAnalysisAdministrativeDivisionAssociation(models.Model):
     """
@@ -949,10 +950,10 @@ class FurtherResource(models.Model):
         """
         .. py:classmethod: for_analysis_type(atype, region=None, htype=None)
 
-        Return list of :py:class:FurtherResorce that are associated with 
+        Return list of :py:class:FurtherResorce that are associated with
         Analysis type. List may be filtered by region and hazard type.
 
-        :param atype: Analysis Type 
+        :param atype: Analysis Type
         :param region: Region
         :param htype: Hazard type
         :type atype: :py:class:AnalysisType
@@ -960,15 +961,15 @@ class FurtherResource(models.Model):
         :type htype: :py:class:HazardType
 
         """
-        qparams = Q(analysis_type__analysis_type=atype)
+        qparams = Q(analysistypefurtherresourceassociation__analysis_type=atype)
         if region is not None:
-            qparams = qparams & Q(Q(analysis_type__region=region)|Q(analysis_type__region__isnull=True))
+            qparams = qparams & Q(Q(analysistypefurtherresourceassociation__region=region)|Q(analysistypefurtherresourceassociation__region__isnull=True))
         else:
-            qparams = qparams & Q(analysis_type__region__isnull=True)
+            qparams = qparams & Q(analysistypefurtherresourceassociation__region__isnull=True)
         if htype is not None:
-            qparams = qparams & Q(Q(analysis_type__hazard_type=htype)|Q(analysis_type__hazard_type__isnull=True))
+            qparams = qparams & Q(Q(analysistypefurtherresourceassociation__hazard_type=htype)|Q(analysistypefurtherresourceassociation__hazard_type__isnull=True))
         else:
-            qparams = qparams & Q(analysis_type__hazard_type__isnull=True)
+            qparams = qparams & Q(analysistypefurtherresourceassociation__hazard_type__isnull=True)
         return cls.objects.filter(qparams).distinct()
 
     @classmethod
@@ -976,7 +977,7 @@ class FurtherResource(models.Model):
         """
         .. py:classmethod: for_dymension_info(dyminfo, region=None, ranalysis=None)
 
-        Return list of :py:class:FurtherResorce that are associated with 
+        Return list of :py:class:FurtherResorce that are associated with
         Dymension Info. List may be filtered by region and risk analysis.
 
         :param dyminfo: Dymension Info
@@ -987,24 +988,24 @@ class FurtherResource(models.Model):
         :type ranalysis: :py:class:RiskAnalysis
 
         """
-        qparams = Q(dymension_info__dymension_info=dyminfo)
+        qparams = Q(dymensioninfofurtherresourceassociation__dimension_info=dyminfo)
         if region is not None:
-            qparams = qparams & Q(Q(dymension_info__region__isnull=True)|Q(dymension_info__region=region))
+            qparams = qparams & Q(Q(dymensioninfofurtherresourceassociation__region__isnull=True)|Q(dymensioninfofurtherresourceassociation__region=region))
         else:
-            qparams = qparams & Q(dymension_info__region__isnull=True)
+            qparams = qparams & Q(dymensioninfofurtherresourceassociation__region__isnull=True)
 
         if ranalysis is not None:
-            qparams = qparams & Q(Q(dymension_info__risk_analysis__isnull=True)|Q(dymension_info__risk_analysis=ranalysis))
+            qparams = qparams & Q(Q(dymensioninfofurtherresourceassociation__riskanalysis__isnull=True)|Q(dymensioninfofurtherresourceassociation__riskanalysis=ranalysis))
         else:
-            qparams = qparams & Q(dymension_info__risk_analysis__isnull = True)
-        return cls.dimension_info.filter(qparams).distinct()
-        
+            qparams = qparams & Q(dymensioninfofurtherresourceassociation__riskanalysis__isnull = True)
+        return cls.objects.filter(qparams)
+
     @classmethod
     def for_hazard_set(cls, hset, region=None):
         """
         .. py:classmethod: for_hazard_set(hset, region=None)
-            
-        Returns list of :py:class:FurtherResource associated with 
+
+        Returns list of :py:class:FurtherResource associated with
         Hazard Set. List may be filtered by region.
 
         :param hset: Hazard Type
@@ -1058,8 +1059,7 @@ class AnalysisTypeFurtherResourceAssociation(models.Model):
         FurtherResource,
         blank=False,
         null=False,
-        unique=False,
-        related_name='analysis_type')
+        unique=False)
 
     def __unicode__(self):
         return u"{0}".format(self.resource)
@@ -1092,20 +1092,18 @@ class DymensionInfoFurtherResourceAssociation(models.Model):
         unique=False,
     )
 
-    dymension_info = models.ForeignKey(
+    dimension_info = models.ForeignKey(
         DymensionInfo,
-        blank=True,
-        null=True,
+        blank=False,
+        null=False,
         unique=False,
-        related_name='further_resource',
     )
 
     resource = models.ForeignKey(
         FurtherResource,
         blank=False,
         null=False,
-        unique=False,
-        related_name='dimension_info')
+        unique=False)
 
     def __unicode__(self):
         return u"{0}".format(self.resource)
