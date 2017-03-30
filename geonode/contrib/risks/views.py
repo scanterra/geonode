@@ -511,7 +511,7 @@ class DataExtractionView(FeaturesSource, HazardTypeView):
                       'viewparams': self.get_viewparams(risk, hazard_type, loc),
                       'baseurl': settings.OGC_SERVER['default']['PUBLIC_LOCATION']}
 
-        out['riskAnalysisData']['additionalLayers'] = [(l.id, l.typename,) for l in risk.additional_layers.all()]
+        out['riskAnalysisData']['additionalLayers'] = [(l.id, l.typename, l.title, ) for l in risk.additional_layers.all()]
         out['furtherResources'] = self.get_further_resources(**kwargs)
         return json_response(out)
 
