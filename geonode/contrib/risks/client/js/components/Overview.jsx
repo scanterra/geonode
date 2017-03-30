@@ -41,7 +41,7 @@ const Overview = React.createClass({
     },
     render() {
         return (
-            <div style={{minHeight: 500}} className={this.props.className + ' disaster-level-container'}>
+            <div id="disaster-overview-list" style={{minHeight: 500}} className={this.props.className + ' disaster-level-container'}>
                 <aside className="disaster-level">Analysis</aside>
                 {this.getItems()}
             </div>);

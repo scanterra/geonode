@@ -64,10 +64,10 @@ const DataContainer = React.createClass({
         const val = data.dimensions[dim.dim1].values[dim.dim1Idx];
         const header = (<div>{`${data.dimensions[dim.dim1].name} ${val}`}</div>);
         return (
-            <div className="container-fluid">
+            <div id="disaster-analysis-data-container" className="container-fluid">
                 <div className="row">
                 <OverlayTrigger placement="bottom" overlay={tooltip}>
-                    <button onClick={()=> this.props.getData(this.props.analysisType.href, true)} className="btn btn-primary">
+                    <button id="disaster-back-button" onClick={()=> this.props.getData(this.props.analysisType.href, true)} className="btn btn-primary">
                         <i className="fa fa-arrow-left"/>
                     </button>
                 </OverlayTrigger>
@@ -78,7 +78,7 @@ const DataContainer = React.createClass({
                 <div className="row">
                 <p>{hazardSet.purpose}</p>
                 </div>
-                <div className="row">
+                <div id="disaster-chart-container" className="row">
                 <Panel className="chart-panel">
                     <Chart dimension={data.dimensions} values={data.values} val={val} dim={dim} setDimIdx={sIdx}/>
                 </Panel>
@@ -170,10 +170,10 @@ const DataContainer = React.createClass({
                     </div>
                     ) : (
                     <div className="container-fluid">
-                        <ul className="nav nav-tabs">
+                        <ul id="disaster-analysis-menu" className="nav nav-tabs">
                             {this.renderAnalysisTab()}
                         </ul>
-                        <div className="disaster-analysis">
+                        <div id="disaster-analysis-container" className="disaster-analysis">
                             <div className="container-fluid">
                                 {this.renderRiskAnalysis()}
                             </div>

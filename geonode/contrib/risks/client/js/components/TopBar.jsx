@@ -39,13 +39,13 @@ const TopBar = React.createClass({
             <div className="container-fluid">
                 <div className="disaster-breadcrumbs">
                     <Navigation items={navItems} zoom={zoom} context={context}/>
-                    <div className="pull-right">
+                    <div id="disaster-page-tools" className="pull-right">
                         <DownloadBtn/>
                         <SharingLink bsSize=""/>
                         <HelpBtn toggleTutorial={toggleTutorial}/>
                     </div>
                 </div>
-                <div className="disaster-risk-selector">
+                <div id="disaster-risk-selector-menu" className="disaster-risk-selector">
                     <RiskSelector riskItems={riskItems} overviewHref={overviewHref} activeRisk={activeRisk} getData={getData}/>
                 </div>
             </div>);

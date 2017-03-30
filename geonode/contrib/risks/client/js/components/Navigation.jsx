@@ -37,7 +37,7 @@ const Navigation = React.createClass({
     },
     render() {
         return (
-            <div className="btn-group">
+            <div id="disaster-navigation" className="btn-group">
                 <button className="btn btn-default"><i className="icon-pin"></i></button>
                 {this.renderItem()}
             </div>

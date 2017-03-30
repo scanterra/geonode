@@ -26,7 +26,7 @@ const DownloadBtn = React.createClass({
         const tooltip = (<Tooltip id={"tooltip-sub-value"} className="disaster">{label}</Tooltip>);
         return (
           <OverlayTrigger placement="bottom" overlay={tooltip}>
-            <button disabled={!downloadAction} className="btn btn-primary" onClick={downloadAction}>
+            <button id="disaster-download-pdf" disabled={!downloadAction} className="btn btn-primary" onClick={downloadAction}>
                   {downloading ? (<i className="icon-spinner fa-spin"/>) : (<i className="fa fa-file-pdf-o"/>)}
             </button>
           </OverlayTrigger>);

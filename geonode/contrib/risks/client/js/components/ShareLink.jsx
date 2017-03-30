@@ -30,7 +30,7 @@ const ShareLink = React.createClass({
       </Tooltip>);
         return (<OverlayTrigger placement="bottom" overlay={tooltip}>
                             <CopyToClipboard text={this.props.shareUrl} onCopy={ () => this.setState({copied: true}) } >
-                                <Button bsStyle="primary" onMouseLeave={() => {this.setState({copied: false}); }} >
+                                <Button id="disaster-share-link" bsStyle="primary" onMouseLeave={() => {this.setState({copied: false}); }} >
                                     <Glyphicon glyph="copy"/>
                                 </Button>
                             </CopyToClipboard>

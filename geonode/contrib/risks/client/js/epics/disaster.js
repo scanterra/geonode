@@ -8,17 +8,21 @@
 const Rx = require('rxjs');
 const Api = require('../api/riskdata');
 const {zoomToExtent} = require('../../MapStore2/web/client/actions/map');
+const {setupTutorial, disableTutorial} = require('../../MapStore2/web/client/actions/tutorial');
 const bbox = require('turf-bbox');
 const {changeLayerProperties, addLayer, removeNode} = require('../../MapStore2/web/client/actions/layers');
 const assign = require('object-assign');
 const {find} = require('lodash');
 const {configLayer} = require('../utils/DisasterUtils');
+const {defaultStep, introStyle, tutorialPresets} = require('../utils/TutorialPresets');
 const {
     GET_DATA,
     LOAD_RISK_MAP_CONFIG,
     GET_RISK_FEATURES,
     GET_ANALYSIS_DATA,
     INIT_RISK_APP,
+    DATA_LOADED,
+    ANALYSIS_DATA_LOADED,
     dataLoaded,
     dataLoading,
     dataError,
@@ -105,4 +109,15 @@ const initStateEpic = action$ =>
             return [getData(`${action.href}${action.gc || ''}`), getFeatures(geomHref)].concat(analysisHref && getAnalysisData(analysisHref) || [] );
         }).
         mergeAll();
-module.exports = {getRiskDataEpic, getRiskMapConfig, getRiskFeatures, getAnalysisEpic, zoomInOutEpic, initStateEpic};
+const changeTutorial = action$ =>
+    action$.ofType(DATA_LOADED, ANALYSIS_DATA_LOADED).switchMap( action => {
+        return Rx.Observable.of(action).flatMap((actn) => {
+            let type = actn.data && actn.data.analysisType ? actn.type + '_R' : actn.type;
+            if (type === 'DATA_LOADED_R') {
+                return [setupTutorial(tutorialPresets[type], introStyle, '', defaultStep), disableTutorial()];
+            }
+            return [setupTutorial(tutorialPresets[type], introStyle, '', defaultStep)];
+        });
+    });
+
+module.exports = {getRiskDataEpic, getRiskMapConfig, getRiskFeatures, getAnalysisEpic, zoomInOutEpic, initStateEpic, changeTutorial};

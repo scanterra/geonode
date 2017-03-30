@@ -25,7 +25,7 @@ const HelpBtn = React.createClass({
         const tooltip = (<Tooltip id={"tooltip-sub-value"} className="disaster">{label}</Tooltip>);
         return (
           <OverlayTrigger placement="bottom" overlay={tooltip}>
-            <button className="btn btn-primary" onClick={this.props.toggleTutorial}><i className="fa fa-question"/></button>
+            <button id="disaster-show-tutorial" className="btn btn-primary" onClick={this.props.toggleTutorial}><i className="fa fa-question"/></button>
           </OverlayTrigger>);
     }
 });

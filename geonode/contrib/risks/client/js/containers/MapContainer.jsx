@@ -30,18 +30,18 @@ const FurtherResources = connect(({disaster} = {}) => ({
 }))(require('../components/FurtherResources'));
 const MapContainer = (props) => (
         <div className="col-sm-5">
-            <div className="disaster-map-container">
+            <div id="disaster-map-main-container" className="disaster-map-container">
                 <div className="drc">
                     <MapViewer plugins={props.plugins} params={{mapType: "leaflet"}}/>
                 </div>
                 <div className="container-fluid">
-                    <div className="btn-group pull-right disaster-map-tools"><SwitchAdminU/><DrillUpBtn/><SwitchDimension/></div>
+                    <div id="disaster-map-tools" className="btn-group pull-right disaster-map-tools"><SwitchAdminU/><DrillUpBtn/><SwitchDimension/></div>
                 </div>
                 <div className="container-fluid">
-                    <div className="row">
+                    <div id="disaster-map-slider" className="row">
                         <AxesSelector/>
                     </div>
-                    <div className="row">
+                    <div id="disaster-map-legend" className="row">
                         <Legend legendHeigth={20} legendWidth={100}/>
                     </div>
                 </div>

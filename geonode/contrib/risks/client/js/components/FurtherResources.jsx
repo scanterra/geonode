@@ -30,7 +30,7 @@ const FurtherResources = React.createClass({
         const {analysisType, hazardType} = this.props;
         const resources = [...analysisType, ...hazardType];
         return resources.length > 0 ? (
-            <div className="disaster-fth-res-container">
+            <div id="disaster-further-resources" className="disaster-fth-res-container">
                 <h1>Further Resources</h1>
                 <p>For further information the following resources could be consulted:
                 </p>

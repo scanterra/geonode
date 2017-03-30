@@ -58,6 +58,13 @@
  */
   /* Leaflet custom style*/
   /* Slider */
+  /* tutorial */
+  /* MapStore2 */
+  /*@ms2-color-shade: #333333;
+@ms2-color-shade-darker: darken(@ms2-color-shade, 5%);
+@ms2-color-shade-dark: darken(@ms2-color-shade, 2%);
+@ms2-color-shade-light: lighten(@ms2-color-shade, 2%);
+@ms2-color-shade-lighter: lighten(@ms2-color-shade, 5%);*/
 }
 .disaster html {
   font-family: sans-serif;
@@ -10001,6 +10008,14 @@ button.disaster .close {
 }
 .disaster .drc .risk-toc-container .toc-group-children {
   margin-left: 2px;
+}
+.disaster .joyride-tooltip__button--primary {
+  background-color: #2c689c !important;
+}
+.disaster .joyride-tooltip__button--primary:active,
+.disaster .joyride-tooltip__button--primary:focus,
+.disaster .joyride-tooltip__button--primary:hover {
+  background-color: #2c689c !important;
 }
 @font-face {
   font-family: 'thinkhazard';
