@@ -8,7 +8,7 @@
 
 const React = require('react');
 const {connect} = require('react-redux');
-const {loadMapConfig} = require('../actions/disaster');
+const {loadMapConfig} = require('../../MapStore2/web/client/actions/config');
 const {disasterRiskLayerSelector} = require('../../MapStore2/web/client/selectors/layers');
 const MapViewer = connect(() => ({}), {
     loadMapConfig: loadMapConfig.bind(null, "/static/js/config.json", false, "/risks/geom/loc/AF/")
@@ -25,12 +25,13 @@ const SwitchAdminU = connect(({disaster}) => ({
     show: disaster.riskAnalysis ? true : false
 }), {toggleAdminUnit})(require('../components/SwitchAdminU'));
 const FurtherResources = connect(({disaster} = {}) => ({
-    analysisResourecs: disaster.riskAnalysis && disaster.riskAnalysis.furtherResources && disaster.riskAnalysis.furtherResources.analysisType
+    analysisType: disaster.riskAnalysis && disaster.riskAnalysis.furtherResources && disaster.riskAnalysis.furtherResources.analysisType || [],
+    hazardType: disaster.riskAnalysis && disaster.riskAnalysis.furtherResources && disaster.riskAnalysis.furtherResources.hazardType || []
 }))(require('../components/FurtherResources'));
 const MapContainer = (props) => (
         <div className="col-sm-5">
             <div className="disaster-map-container">
-                <div style={{height: 400, padding: 10}}>
+                <div className="drc">
                     <MapViewer plugins={props.plugins} params={{mapType: "leaflet"}}/>
                 </div>
                 <div className="container-fluid">
