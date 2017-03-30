@@ -8,7 +8,7 @@
 const React = require('react');
 const {connect} = require('react-redux');
 const {createSelector} = require('reselect');
-const {Button, Glyphicon} = require('react-bootstrap');
+const {Glyphicon} = require('react-bootstrap');
 
 const {changeLayerProperties, changeGroupProperties, toggleNode,
        sortNode, showSettings, hideSettings, updateSettings, updateNode, removeNode} = require('../../MapStore2/web/client/actions/layers');
@@ -70,7 +70,8 @@ const LayerTree = React.createClass({
         activateQueryTool: React.PropTypes.bool,
         activateSettingsTool: React.PropTypes.bool,
         visibilityCheckType: React.PropTypes.string,
-        settingsOptions: React.PropTypes.object
+        settingsOptions: React.PropTypes.object,
+        enabled: React.PropTypes.bool
     },
     getDefaultProps() {
         return {
@@ -143,15 +144,6 @@ const LayerTree = React.createClass({
             </div>
         );
     },
-    renderQueryPanel() {
-        return (
-            <div id="toc-query-container">
-                <Button id="toc-query-close-button" bsStyle="primary" key="menu-button" className="square-button" onClick={this.props.onToggleQuery.bind(this, null, null)}><Glyphicon glyph="arrow-left"/></Button>
-                <SmartQueryForm
-                    featureTypeErrorText={<Message msgId="layerProperties.featureTypeError"/>}/>
-            </div>
-        );
-    },
     render() {
         if (!this.props.groups || !this.props.enabled) {
             return null;
@@ -184,7 +176,7 @@ module.exports = {
             panel: true,
             help: <Message msgId="helptexts.layerSwitcher"/>,
             tooltip: "layers",
-            wrap: true,
+            wrap: false,
             title: 'layers',
             icon: <Glyphicon glyph="1-layer"/>,
             priority: 1

@@ -9,8 +9,9 @@ const Rx = require('rxjs');
 const Api = require('../api/riskdata');
 const {zoomToExtent} = require('../../MapStore2/web/client/actions/map');
 const bbox = require('turf-bbox');
-const {changeLayerProperties, addLayer} = require('../../MapStore2/web/client/actions/layers');
+const {changeLayerProperties, addLayer, removeNode} = require('../../MapStore2/web/client/actions/layers');
 const assign = require('object-assign');
+const {find} = require('lodash');
 const {configLayer} = require('../utils/DisasterUtils');
 const {
     GET_DATA,
@@ -30,13 +31,19 @@ const {
     getData
 } = require('../actions/disaster');
 const {configureMap, configureError} = require('../../MapStore2/web/client/actions/config');
-const getRiskDataEpic = action$ =>
+const getRiskDataEpic = (action$, store) =>
     action$.ofType(GET_DATA).switchMap(action =>
-        Rx.Observable.defer(() => Api.getData(action.url).then((data) => {
-            return dataLoaded(data, action.cleanState);
-        })).retry(1)
+        Rx.Observable.defer(() => Api.getData(action.url))
+        .retry(1).
+        map((data) => {
+            const layers = (store.getState()).layers;
+            const hasGis = find(layers.groups, g => g.id === 'Gis Overlays');
+            const hasRiskAn = find(layers.flat, l => l.id === '_riskAn_');
+            return [ hasGis && removeNode("Gis Overlays", "groups"), hasRiskAn && removeNode("_riskAn_", "layers"), dataLoaded(data, action.cleanState)].filter(a => a);
+        })
+        .mergeAll()
         .startWith(dataLoading(true))
-        .catch(e => Rx.Observable.of(dataError(e)))
+            .catch(e => Rx.Observable.of(dataError(e)))
     );
 const getRiskMapConfig = action$ =>
     action$.ofType(LOAD_RISK_MAP_CONFIG).switchMap(action =>
@@ -61,14 +68,17 @@ const getRiskFeatures = (action$, store) =>
         .startWith(featuresLoading())
         .catch(e => Rx.Observable.of(featuresError(e)))
     );
-const getAnalysisEpic = (action$) =>
+const getAnalysisEpic = (action$, store) =>
     action$.ofType(GET_ANALYSIS_DATA).switchMap(action =>
         Rx.Observable.defer(() => Api.getData(action.url))
             .retry(1)
             .map(val => {
                 const baseUrl = val.wms && val.wms.baseurl;
-                const layers = val.riskAnalysisData && val.riskAnalysisData.additionalLayers || [];
-                const actions = [analysisDataLoaded(val)].concat(layers.map((l) => addLayer(configLayer(baseUrl, l[1], `ral_${l[0]}`, l[1].split(':').pop(), false, 'Gis Overlays'))));
+                const anLayers = val.riskAnalysisData && val.riskAnalysisData.additionalLayers || [];
+                const layers = (store.getState()).layers;
+                const hasGis = find(layers.groups, g => g.id === 'Gis Overlays');
+                const hasRiskAn = find(layers.flat, l => l.id === '_riskAn_');
+                const actions = [analysisDataLoaded(val), hasGis && removeNode("Gis Overlays", "groups"), !hasRiskAn && addLayer(configLayer(baseUrl, "", "_riskAn_", "Risks Analysis", true, "Default"), false)].concat(anLayers.map((l) => addLayer(configLayer(baseUrl, l[1], `ral_${l[0]}`, l[1].split(':').pop(), false, 'Gis Overlays')))).filter(a => a);
                 return actions;
             })
             .mergeAll()
@@ -95,5 +105,4 @@ const initStateEpic = action$ =>
             return [getData(`${action.href}${action.gc || ''}`), getFeatures(geomHref)].concat(analysisHref && getAnalysisData(analysisHref) || [] );
         }).
         mergeAll();
-
 module.exports = {getRiskDataEpic, getRiskMapConfig, getRiskFeatures, getAnalysisEpic, zoomInOutEpic, initStateEpic};

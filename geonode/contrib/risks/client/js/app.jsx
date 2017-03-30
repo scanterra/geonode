@@ -31,7 +31,7 @@ const initDim = init && init.d || {};
 
 const newInitState = assign({}, initialState, {defaultState: {disaster: {dim: initDim}}});
 const themeCfg = {
-    path: 'static/js'
+    path: '/static/js'
 };
 const StandardRouter = connect((state) => ({
     locale: state.locale || {},

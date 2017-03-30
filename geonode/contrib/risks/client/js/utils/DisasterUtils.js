@@ -5,9 +5,9 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
  */
-
+const assign = require('object-assign');
 function configLayer(baseurl, layerName, layerId, layerTitle, visibility = true, group) {
-    return {
+    return assign({
     "id": layerId,
     "type": "wms",
     "url": baseurl + "wms",
@@ -15,9 +15,8 @@ function configLayer(baseurl, layerName, layerId, layerTitle, visibility = true,
     "title": layerTitle,
     "visibility": visibility,
     "format": "image/png",
-    "tiled": true,
-    "group": group
-    };
+    "tiled": true
+    }, group && {group} || {});
 }
 
 function getViewParam({dim, showSubUnit, riskAnalysis} = {}) {

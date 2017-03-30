@@ -7,10 +7,11 @@
 */
 
 const {createSelector} = require('reselect');
-const {head} = require('lodash');
+const {head, findIndex} = require('lodash');
+const assign = require('object-assign');
 const MapInfoUtils = require('../../MapStore2/web/client/utils/MapInfoUtils');
 const LayersUtils = require('../../MapStore2/web/client/utils/LayersUtils');
-const {configLayer, getViewParam, getLayerName, getStyle} = require('../utils/DisasterUtils');
+const {getViewParam, getLayerName, getStyle} = require('../utils/DisasterUtils');
 const layersSelector = state => (state.layers && state.layers.flat) || (state.layers) || (state.config && state.config.layers);
 const markerSelector = state => (state.mapInfo && state.mapInfo.showMarker && state.mapInfo.clickPoint);
 const geoColderSelector = state => (state.search && state.search.markerPosition);
@@ -27,12 +28,11 @@ const layerSelectorWithMarkers = createSelector(
     [layersSelector, markerSelector, geoColderSelector, disasterSelector],
     (layers = [], markerPosition, geocoderPosition, disaster) => {
         let newLayers;
-        if (disaster.riskAnalysis && !disaster.loading && layers.length > 0) {
-
-            const wms = configLayer(disaster.riskAnalysis.wms.baseurl, getLayerName(disaster), 'disasterrisk', 'disasterrisk');
-            wms.style = getStyle(disaster);
-            wms.params = getViewParam(disaster);
-            newLayers = (layers.filter((l) => l.group === "background")).concat(wms, layers.filter((l) => l.group !== "background"));
+        const riskAnWMSIdx = findIndex(layers, l => l.id === '_riskAn_');
+        if (disaster.riskAnalysis && !disaster.loading && riskAnWMSIdx !== -1) {
+            const riskAnWMS = assign({}, layers[riskAnWMSIdx], {name: getLayerName(disaster), style: getStyle(disaster), params: getViewParam(disaster)});
+            newLayers = layers.slice();
+            newLayers.splice(riskAnWMSIdx, riskAnWMSIdx, riskAnWMS);
         }else {
             newLayers = [...layers];
         }
