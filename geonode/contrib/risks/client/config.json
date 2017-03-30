@@ -20,6 +20,7 @@
             "type": "vector",
             "queryable": false,
             "visibility": true,
+            "group": "Default",
             "name": "Admins units",
             "hideLoading": true,
             "id": "adminunits",
@@ -31,6 +32,7 @@
               },
             "features" : []
         }
+
     ]
   }
 }
