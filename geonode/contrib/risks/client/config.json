@@ -15,14 +15,14 @@
             "source": "osm",
       "group": "background",
             "visibility": true
-        }, {
+        },
+        {
             "type": "vector",
-            "position": 1,
             "queryable": false,
             "visibility": true,
-            "name": "adminunits",
+            "name": "Admins units",
+            "hideLoading": true,
             "id": "adminunits",
-            "group": "hidden",
             "style": {
                 "color": "black",
                 "weight": 1,

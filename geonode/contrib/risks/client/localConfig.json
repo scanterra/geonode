@@ -42,6 +42,19 @@
 
                 },
                 "name": "Map"
-            }]
+            },    {
+                "cfg": {
+                    "id": "navigationBar"
+                },
+                "id": "NavigationBar",
+                "name": "Toolbar"
+            },{
+                "override": {
+                    "Toolbar": {
+                        "wrap": false
+                    }
+                },
+                "name": "TOC"
+        }]
 	}
 }

@@ -9,11 +9,6 @@
 module.exports = {
     pages: [
     {
-            name: "main",
-            path: "/main",
-            component: require('./pages/Main')
-        },
-    {
         name: "home",
         path: "/*",
         component: require('./pages/Home')

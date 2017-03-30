@@ -10,7 +10,7 @@ const {createSelector} = require('reselect');
 const {head} = require('lodash');
 const MapInfoUtils = require('../../MapStore2/web/client/utils/MapInfoUtils');
 const LayersUtils = require('../../MapStore2/web/client/utils/LayersUtils');
-
+const {configLayer, getViewParam, getLayerName, getStyle} = require('../utils/DisasterUtils');
 const layersSelector = state => (state.layers && state.layers.flat) || (state.layers) || (state.config && state.config.layers);
 const markerSelector = state => (state.mapInfo && state.mapInfo.showMarker && state.mapInfo.clickPoint);
 const geoColderSelector = state => (state.search && state.search.markerPosition);
@@ -23,53 +23,16 @@ const disasterSelector = state => ({
 // TODO currently loading flag causes a re-creation of the selector on any pan
 // to avoid this separate loading from the layer object
 
-
-function getLayerName({dim, riskAnalysis}) {
-    const {dimensions} = riskAnalysis.riskAnalysisData.data;
-    const dim1Val = dimensions[dim.dim1].values[dim.dim1Idx];
-    return dimensions[dim.dim1].layers[dim1Val].layerName;
-}
-function getStyle({dim, riskAnalysis}) {
-    const {dimensions} = riskAnalysis.riskAnalysisData.data;
-    const dim1Val = dimensions[dim.dim1].values[dim.dim1Idx];
-    return dimensions[dim.dim1].layers[dim1Val] && dimensions[dim.dim1].layers[dim1Val].layerStyle && dimensions[dim.dim1].layers[dim1Val].layerStyle.name;
-}
-function getViewParam({dim, showSubUnit, riskAnalysis} = {}) {
-    const {dimensions} = riskAnalysis.riskAnalysisData.data;
-    const {wms} = riskAnalysis;
-    const dim1Val = dimensions[dim.dim1].values[dim.dim1Idx];
-    const dim2Val = dimensions[dim.dim2].values[dim.dim2Idx];
-    const dim1SearchDim = dimensions[dim.dim1].layers[dim1Val].layerAttribute;
-    const dim2SearchDim = dimensions[dim.dim2].layers[dim2Val].layerAttribute;
-    let viewparams = wms.viewparams.replace(`${dim1SearchDim}:{}`, `${dim1SearchDim}:${dim1Val}`).replace(`${dim2SearchDim}:{}`, `${dim2SearchDim}:${dim2Val}`);
-    if (showSubUnit) {
-        const admCode = viewparams.match(/(adm_code:)\w+/g)[0];
-        const supCode = admCode.replace(/(adm_code:)/, "sub_adm_code:");
-        const superCode = admCode.replace(/(adm_code:)/, "super_adm_code:");
-        viewparams = viewparams.replace(admCode, `${supCode};${superCode}`);
-    }
-    return {viewparams};
-}
-
 const layerSelectorWithMarkers = createSelector(
     [layersSelector, markerSelector, geoColderSelector, disasterSelector],
     (layers = [], markerPosition, geocoderPosition, disaster) => {
         let newLayers;
         if (disaster.riskAnalysis && !disaster.loading && layers.length > 0) {
 
-            const wms = {
-            "id": "disasterrisk",
-            "type": "wms",
-            "url": disaster.riskAnalysis.wms.baseurl + "wms",
-            "name": getLayerName(disaster),
-            "title": "disasterrisk",
-            "visibility": true,
-            "format": "image/png",
-            "style": getStyle(disaster),
-            "tiled": true,
-            "params": getViewParam(disaster)
-            };
-            newLayers = (layers.filter((l) => l.id !== "adminunits")).concat([wms, head(layers.filter((l) => l.id === "adminunits"))]);
+            const wms = configLayer(disaster.riskAnalysis.wms.baseurl, getLayerName(disaster), 'disasterrisk', 'disasterrisk');
+            wms.style = getStyle(disaster);
+            wms.params = getViewParam(disaster);
+            newLayers = (layers.filter((l) => l.group === "background")).concat(wms, layers.filter((l) => l.group !== "background"));
         }else {
             newLayers = [...layers];
         }
