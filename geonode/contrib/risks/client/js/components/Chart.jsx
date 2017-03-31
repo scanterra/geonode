@@ -9,7 +9,7 @@
 const React = require('react');
 const {BarChart, Bar, XAxis, Cell, YAxis, Tooltip, CartesianGrid, ResponsiveContainer} = require('recharts');
 const ChartTooltip = require("./ChartTooltip");
-/*const chromaJs = require("chroma-js");*/
+const NumberFormat = require("../../MapStore2/web/client/components/I18N/Number");
 
 const Chart = React.createClass({
     propTypes: {
@@ -25,7 +25,7 @@ const Chart = React.createClass({
     },
     getChartData() {
         const {dim, values, val} = this.props;
-        return values.filter((d) => d[dim.dim1] === val ).map((v) => {return {"name": v[dim.dim2], "value": parseInt(v[2], 10)}; });
+        return values.filter((d) => d[dim.dim1] === val ).map((v) => {return {"name": v[dim.dim2], "value": parseFloat(v[2], 10)}; });
     },
     render() {
         const {dim, dimension} = this.props;
@@ -35,9 +35,9 @@ const Chart = React.createClass({
           <ResponsiveContainer width="100%" height={200}>
             <BarChart width={500} height={200} data={chartData}
                 margin={{top: 20, right: 30, left: 30, bottom: 5}}>
-                <XAxis dataKey="name"/>
+                <XAxis dataKey="name" tickFormatter={this.formatXTiks}/>
                 <Tooltip content={<ChartTooltip xAxisLabel={dimension[dim.dim2].name} xAxisUnit={dimension[dim.dim2].unit}/>}/>
-                <YAxis label="Values" interval="preserveStart"/>
+                <YAxis label="Values" interval="preserveStart" tickFormatter={this.formatYTiks}/>
                 <CartesianGrid strokeDasharray="3 3" />
                 <Bar dataKey="value" onClick={this.handleClick}>
                     {chartData.map((entry, index) => {
@@ -51,6 +51,12 @@ const Chart = React.createClass({
     },
     handleClick(data, index) {
         this.props.setDimIdx('dim2Idx', index);
+    },
+    formatYTiks(v) {
+        return v.toLocaleString();
+    },
+    formatXTiks(v) {
+        return !isNaN(v) && parseFloat(v).toLocaleString() || v;
     }
 });
 
