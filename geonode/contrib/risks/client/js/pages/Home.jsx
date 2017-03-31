@@ -10,6 +10,7 @@ const {connect} = require('react-redux');
 const {getData, zoomInOut} = require('../actions/disaster');
 const {topBarSelector} = require('../selectors/disaster');
 const {toggleControl} = require('../../MapStore2/web/client/actions/controls');
+const Notifications = connect(state => ({notifications: state.notifications}))(require('react-notification-system-redux'));
 const TopBar = connect(topBarSelector, {zoom: zoomInOut, getData, toggleTutorial: toggleControl.bind(null, 'tutorial', null)})(require('../components/TopBar'));
 const DataContainer = require('../containers/DataContainer');
 const MapContainer = require('../containers/MapContainer');
@@ -41,7 +42,9 @@ const Home = React.createClass({
             "mobile": pluginsHome.home || []
         };
         return (
-               <div className="disaster">
+            <div className="disaster">
+                <Notifications style={{
+                   NotificationItem: {DefaultStyle: {backgroundColor: '#ffffff'}, info: {borderTopColor: '#2c689c'}}}}/>
                     <Page
                       id="home"
                       pagePluginsConfig={pagePlugins}

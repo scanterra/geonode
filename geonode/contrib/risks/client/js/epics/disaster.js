@@ -9,6 +9,7 @@ const Rx = require('rxjs');
 const Api = require('../api/riskdata');
 const {zoomToExtent} = require('../../MapStore2/web/client/actions/map');
 const {setupTutorial} = require('../../MapStore2/web/client/actions/tutorial');
+const {info, error} = require('react-notification-system-redux');
 const bbox = require('turf-bbox');
 const {changeLayerProperties, addLayer, removeNode} = require('../../MapStore2/web/client/actions/layers');
 const assign = require('object-assign');
@@ -23,6 +24,7 @@ const {
     INIT_RISK_APP,
     DATA_LOADED,
     ANALYSIS_DATA_LOADED,
+    DATA_ERROR,
     dataLoaded,
     dataLoading,
     dataError,
@@ -98,7 +100,7 @@ const zoomInOutEpic = (action$, store) =>
                 map(data => [dataLoaded(data), getFeatures(action.geomHref)].concat(analysisHref && getAnalysisData(analysisHref) || []))
                 .mergeAll()
                 .startWith(dataLoading(true))
-                .catch(e => Rx.Observable.of(dataError(e)));
+                .catch( () => Rx.Observable.of(info({title: "Info", message: "Analysis not available at requested zoom level", position: 'tc', autoDismiss: 3})));
         });
 const initStateEpic = action$ =>
     action$.ofType(INIT_RISK_APP) // Wait untile map config is loaded
@@ -116,5 +118,9 @@ const changeTutorial = action$ =>
             return [setupTutorial(tutorialPresets[type], {}, '', defaultStep)];
         });
     });
+const loadingError = action$ =>
+    action$.ofType(DATA_ERROR).map(
+        action => error({title: "Loading error", message: action.error.message,
+            autoDismiss: 3}));
 
-module.exports = {getRiskDataEpic, getRiskMapConfig, getRiskFeatures, getAnalysisEpic, zoomInOutEpic, initStateEpic, changeTutorial};
+module.exports = {getRiskDataEpic, getRiskMapConfig, getRiskFeatures, getAnalysisEpic, zoomInOutEpic, initStateEpic, changeTutorial, loadingError};
