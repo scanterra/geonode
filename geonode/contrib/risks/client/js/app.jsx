@@ -9,8 +9,10 @@ const React = require('react');
 const ReactDOM = require('react-dom');
 const {connect} = require('react-redux');
 const assign = require('object-assign');
+const {reducer} = require('react-notification-system-redux');
 const appReducers = {
-     disaster: require('./reducers/disaster')
+     disaster: require('./reducers/disaster'),
+     notifications: reducer
  };
 const {getData, initState, getFeatures} = require('./actions/disaster');
 const epics = require('./epics/disaster');
