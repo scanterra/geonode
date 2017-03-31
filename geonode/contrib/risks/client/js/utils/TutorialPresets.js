@@ -9,11 +9,6 @@
 
 const tutorialPresets = {
     DATA_LOADED: [{
-            title: 'Welcome on Risk Data Extraction & Visualization',
-            text: 'click on start to initialize the tutorial',
-            selector: '#intro-tutorial'
-        },
-        {
             title: 'Disaster Risk Selector',
             text: '...text',
             selector: '#disaster-risk-selector-menu'
@@ -115,37 +110,8 @@ const defaultStep = {
     type: 'click',
     allowClicksThruHole: true
 };
-const introStyle = {
-    backgroundColor: 'transparent',
-    color: '#fff',
-    mainColor: '#fff',
-    textAlign: 'center',
-    header: {
-        padding: 5,
-        fontFamily: 'Georgia, serif',
-        fontSize: '2.0em'
-    },
-    main: {
-        fontSize: '1.0em',
-        padding: 5
-    },
-    footer: {
-        padding: 10
-    },
-    button: {
-        color: '#fff',
-        backgroundColor: '#2c689c'
-    },
-    close: {
-        display: 'none'
-    },
-    skip: {
-        color: '#fff'
-    }
-};
 
 module.exports = {
     defaultStep,
-    introStyle,
     tutorialPresets
 };

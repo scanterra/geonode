@@ -5,7 +5,60 @@
 	"bingApiKey": "AhuXBu7ipR1gNbBfXhtUAyCZ6rkC5PkWpxs2MnMRZ1ZupxQfivjLCch22ozKSCAn",
 	"translationsPath": "/static/assets/translations",
 	"plugins": {
-			"home": ["Tutorial"],
+			"home": [
+				{
+					"name" : "Tutorial",
+					"cfg":{
+						"rawSteps": [
+							{
+	            	"title": "Welcome on Risk Data Extraction & Visualization",
+	            	"text": "click on start to initialize the tutorial",
+	            	"selector": "#intro-tutorial"
+	        		},
+							{
+			      		"title": "Disaster Risk Selector",
+			        	"text": "...text",
+			        	"selector": "#disaster-risk-selector-menu"
+			      	},
+					    {
+					      "title": "'Overview List'",
+					      "text": "'...text'",
+					      "selector": "#disaster-overview-list"
+					    },
+					    {
+					      "title": "'Map'",
+					      "text": "'...text'",
+					      "selector": "#disaster-map-main-container"
+					    },
+					    {
+					      "title": "'Navigation'",
+					      "text": "'...text'",
+					      "selector": "#disaster-navigation"
+					    },
+					    {
+					      "title": "'Tools'",
+					      "text": "'...text'",
+					      "selector": "#disaster-page-tools"
+					    },
+					    {
+					      "title": "'Download PDF'",
+					      "text": "'...text'",
+					      "selector": "#disaster-download-pdf"
+					    },
+					    {
+					      "title": "'Share'",
+					      "text": "'...text'",
+					      "selector": "#disaster-share-link"
+					    },
+					    {
+					      "title": "'Tutorial'",
+					      "text": "'...text'",
+					      "selector": "#disaster-show-tutorial"
+					    }
+						]
+					}
+				}
+			],
 			"desktop": [
                 {
                 "cfg": {

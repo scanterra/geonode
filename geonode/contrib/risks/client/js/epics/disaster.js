@@ -8,13 +8,13 @@
 const Rx = require('rxjs');
 const Api = require('../api/riskdata');
 const {zoomToExtent} = require('../../MapStore2/web/client/actions/map');
-const {setupTutorial, disableTutorial} = require('../../MapStore2/web/client/actions/tutorial');
+const {setupTutorial} = require('../../MapStore2/web/client/actions/tutorial');
 const bbox = require('turf-bbox');
 const {changeLayerProperties, addLayer, removeNode} = require('../../MapStore2/web/client/actions/layers');
 const assign = require('object-assign');
 const {find} = require('lodash');
 const {configLayer} = require('../utils/DisasterUtils');
-const {defaultStep, introStyle, tutorialPresets} = require('../utils/TutorialPresets');
+const {defaultStep, tutorialPresets} = require('../utils/TutorialPresets');
 const {
     GET_DATA,
     LOAD_RISK_MAP_CONFIG,
@@ -110,13 +110,10 @@ const initStateEpic = action$ =>
         }).
         mergeAll();
 const changeTutorial = action$ =>
-    action$.ofType(DATA_LOADED, ANALYSIS_DATA_LOADED).switchMap( action => {
+    action$.ofType(DATA_LOADED, ANALYSIS_DATA_LOADED).audit( () => action$.ofType('TOGGLE_CONTROL')).switchMap( action => {
         return Rx.Observable.of(action).flatMap((actn) => {
             let type = actn.data && actn.data.analysisType ? actn.type + '_R' : actn.type;
-            if (type === 'DATA_LOADED_R') {
-                return [setupTutorial(tutorialPresets[type], introStyle, '', defaultStep), disableTutorial()];
-            }
-            return [setupTutorial(tutorialPresets[type], introStyle, '', defaultStep)];
+            return [setupTutorial(tutorialPresets[type], {}, '', defaultStep)];
         });
     });
 
