@@ -9733,7 +9733,7 @@ button.disaster .close {
 .disaster .disaster-breadcrumbs {
   margin: 10px 0;
 }
-.disaster .disaster-breadcrumbs .btn-group .btn {
+.disaster .disaster-breadcrumbs #disaster-navigation .btn {
   color: #2c689c;
   border-color: transparent;
   border-right: 1px solid #333;
@@ -9741,14 +9741,20 @@ button.disaster .close {
   font-weight: normal;
   background-color: transparent;
 }
-.disaster .disaster-breadcrumbs .btn-group .btn.disabled {
+.disaster .disaster-breadcrumbs #disaster-navigation .btn.disabled {
   color: #333333;
   border-color: transparent;
   border-left: 1px solid #333;
   font-weight: bold;
 }
-.disaster .disaster-breadcrumbs .btn-group > .btn:first-child {
+.disaster .disaster-breadcrumbs #disaster-navigation > .btn:first-child {
   border: none;
+}
+.disaster .disaster-breadcrumbs i {
+  width: 15px;
+}
+.disaster .disaster-breadcrumbs .glyphicon {
+  width: 15px;
 }
 .disaster .disaster-risk-selector {
   padding: 20px 10px;
@@ -9771,6 +9777,9 @@ button.disaster .close {
 }
 .disaster .disaster-map-tools {
   margin-top: 20px;
+}
+.disaster .disaster-map-tools i {
+  width: 15px;
 }
 .disaster .disaster-analysis .panel-heading .row {
   color: #333333;

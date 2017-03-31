@@ -10,7 +10,7 @@
   margin: 10px 0;
 }
 
-.disaster-breadcrumbs .btn-group .btn {
+.disaster-breadcrumbs #disaster-navigation .btn {
   color: @brand-primary;
   border-color: transparent;
   border-right: 1px solid #333;
@@ -19,15 +19,23 @@
   background-color: transparent;
 }
 
-.disaster-breadcrumbs .btn-group .btn.disabled {
+.disaster-breadcrumbs #disaster-navigation .btn.disabled {
   color: @brand-geonode-b;
   border-color: transparent;
   border-left: 1px solid #333;
   font-weight: bold;
 }
 
-.disaster-breadcrumbs .btn-group > .btn:first-child {
+.disaster-breadcrumbs #disaster-navigation > .btn:first-child {
   border: none;
+}
+
+.disaster-breadcrumbs i {
+  width: 15px;
+}
+
+.disaster-breadcrumbs .glyphicon {
+  width: 15px;
 }
 
 .disaster-risk-selector {
@@ -56,6 +64,10 @@
 
 .disaster-map-tools {
   margin-top: 20px;
+}
+
+.disaster-map-tools i {
+  width: 15px;
 }
 
 .disaster-analysis .panel-heading .row{

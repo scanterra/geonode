@@ -39,7 +39,7 @@ const TopBar = React.createClass({
             <div className="container-fluid">
                 <div className="disaster-breadcrumbs">
                     <Navigation items={navItems} zoom={zoom} context={context}/>
-                    <div id="disaster-page-tools" className="pull-right">
+                    <div id="disaster-page-tools" className="pull-right btn-group">
                         <DownloadBtn/>
                         <SharingLink bsSize=""/>
                         <HelpBtn toggleTutorial={toggleTutorial}/>
