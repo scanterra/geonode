@@ -19,8 +19,8 @@ const ChartTooltip = React.createClass({
         const {active, payload, label, xAxisLabel, xAxisUnit} = this.props;
         return active ? (
             <div className="disaster-chart-tooltip">
-                <p className="disaster-chart-tooltip-label">{`${xAxisLabel} : ${label} ${xAxisUnit}`}</p>
-                <p className="disaster-chart-tooltip-values">{`Values: ${payload[0].value}`}</p>
+                <p className="disaster-chart-tooltip-label">{`${xAxisLabel} : ${!isNaN(label) && parseFloat(label).toLocaleString() || label} ${xAxisUnit}`}</p>
+                <p className="disaster-chart-tooltip-values">{`Values: ${payload[0].value.toLocaleString()}`}</p>
             </div>) : null;
     }
 });
