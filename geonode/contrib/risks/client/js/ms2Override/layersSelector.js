@@ -60,7 +60,7 @@ const layerSelectorWithMarkers = createSelector(
 );
 const disasterRiskLayerSelector = createSelector([layerSelectorWithMarkers],
     (layers) => ({
-        layer: head(layers.filter((l) => l.id === "disasterrisk"))
+        layer: head(layers.filter((l) => l.id === "_riskAn_"))
     }));
 const groupsSelector = (state) => state.layers && state.layers.flat && state.layers.groups && LayersUtils.denormalizeGroups(state.layers.flat, state.layers.groups).groups || [];
 
