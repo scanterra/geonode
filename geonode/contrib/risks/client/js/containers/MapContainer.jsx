@@ -16,8 +16,10 @@ const MapViewer = connect(() => ({}), {
 const Legend = connect(disasterRiskLayerSelector)(require('../../MapStore2/web/client/components/TOC/fragments/legend/Legend'));
 const {drillUpSelector, switchDimSelector, axesSelector} = require('../selectors/disaster');
 const {zoomInOut, toggleDim, setDimIdx, toggleAdminUnit} = require('../actions/disaster');
+const {setControlProperty} = require('../../MapStore2/web/client/actions/controls');
 
 const DrillUpBtn = connect(drillUpSelector, {zoomOut: zoomInOut})(require('../components/DrillUpBtn'));
+const LayerBtn = connect(() => {return {}; }, {toggleTOC: setControlProperty.bind(null, "toolbar", "active", "toc", true)})(require('../components/LayerBtn'));
 const SwitchDimension = connect(switchDimSelector, {toggleDim})(require('../components/SwitchDimension'));
 const AxesSelector = connect(axesSelector, {setDimIdx})(require('../components/AxesSelector'));
 const SwitchAdminU = connect(({disaster}) => ({
@@ -31,11 +33,13 @@ const FurtherResources = connect(({disaster} = {}) => ({
 const MapContainer = (props) => (
         <div className="col-sm-5">
             <div id="disaster-map-main-container" className="disaster-map-container">
-                <div className="drc">
-                    <MapViewer plugins={props.plugins} params={{mapType: "leaflet"}}/>
-                </div>
                 <div className="container-fluid">
-                    <div id="disaster-map-tools" className="btn-group pull-right disaster-map-tools"><SwitchAdminU/><DrillUpBtn/><SwitchDimension/></div>
+                    <div id="disaster-map-tools" className="btn-group pull-left disaster-map-tools"><LayerBtn/><SwitchAdminU/><DrillUpBtn/><SwitchDimension/></div>
+                </div>
+                <div className="drc">
+                    <div className="drc-map-container">
+                        <MapViewer plugins={props.plugins} params={{mapType: "leaflet"}}/>
+                    </div>
                 </div>
                 <div className="container-fluid">
                     <div id="disaster-map-slider" className="row">

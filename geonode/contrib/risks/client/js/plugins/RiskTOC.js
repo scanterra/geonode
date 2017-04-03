@@ -8,7 +8,6 @@
 const React = require('react');
 const {connect} = require('react-redux');
 const {createSelector} = require('reselect');
-const {Glyphicon} = require('react-bootstrap');
 
 const {changeLayerProperties, changeGroupProperties, toggleNode,
        sortNode, showSettings, hideSettings, updateSettings, updateNode, removeNode} = require('../../MapStore2/web/client/actions/layers');
@@ -19,10 +18,6 @@ const {groupsSelector} = require('../../MapStore2/web/client/selectors/layers');
 const LayersUtils = require('../../MapStore2/web/client/utils/LayersUtils');
 
 const Message = require('../../MapStore2/web/client/plugins/locale/Message');
-const assign = require('object-assign');
-
-const layersIcon = require('../../MapStore2/web/client/plugins/toolbar/assets/img/layers.png');
-
 
 const tocSelector = createSelector(
     [
@@ -168,31 +163,5 @@ const TOCPlugin = connect(tocSelector, {
 })(LayerTree);
 
 module.exports = {
-    TOCPlugin: assign(TOCPlugin, {
-        Toolbar: {
-            name: 'toc',
-            position: 7,
-            exclusive: true,
-            panel: true,
-            help: <Message msgId="helptexts.layerSwitcher"/>,
-            tooltip: "layers",
-            wrap: false,
-            title: 'layers',
-            icon: <Glyphicon glyph="1-layer"/>,
-            priority: 1
-        },
-        DrawerMenu: {
-            name: 'toc',
-            position: 1,
-            glyph: "1-layer",
-            icon: <img src={layersIcon}/>,
-            title: 'layers',
-            buttonConfig: {
-                buttonClassName: "square-button no-border"
-            },
-            priority: 2
-        }
-    }),
-    reducers: {
-    }
+    TOCPlugin
 };

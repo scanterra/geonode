@@ -9,6 +9,7 @@
 const React = require('react');
 const NotificationSystem = require('react-notification-system');
 const NotificationStyle = require('../../assets/js/NotificationStyle');
+const {isArray, isObject} = require('lodash');
 
 const MoreInfo = React.createClass({
     propTypes: {
@@ -32,12 +33,33 @@ const MoreInfo = React.createClass({
             </div>
         );
     },
+    getDataAttributes(data) {
+        const attributes = Object.keys(data);
+        attributes.sort();
+        return attributes.map((item, idx) => {
+            let obj = data[item];
+            return obj !== "" && obj !== null ? (
+              <tbody key={idx}>
+                  <tr>
+                      <td>{item}</td>
+                  </tr>
+                  <tr>
+                      {isObject(obj) ? (<table className="table table-striped" style={{width: 240, margin: '15px 0 15px 15px'}}>{this.getDataAttributes(obj)}</table>) : (<td>{obj}</td>)}
+                  </tr>
+              </tbody>
+          ) : null;
+        });
+    },
     _addNotification(event) {
         event.preventDefault();
         const downloadFile = (
             <div style={{overflow: 'hidden'}}>
                 <h4 className="text-center"><i className="fa fa-ellipsis-h"/>&nbsp;{'More info'}</h4>
-                {JSON.stringify(this.props.hazardSet)}
+                <div style={{overflowY: 'scroll', maxHeight: 400}}>
+                    <table className="table table-striped" style={{width: 255}}>
+                        {this.getDataAttributes(this.props.hazardSet)}
+                    </table>
+                </div>
             </div>
         );
         this._notificationSystem.addNotification({

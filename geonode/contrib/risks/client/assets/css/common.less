@@ -63,7 +63,7 @@
 }
 
 .disaster-map-tools {
-  margin-top: 20px;
+  margin: 5px 0;
 }
 
 .disaster-map-tools i {
@@ -188,15 +188,14 @@
 }
 
 .slider-lab {
-  background-color: #f5f5f5;
+  background-color: #fff;
   color: @text-color;
-  border-top: 1px solid #d3d3d3;
-  border-left: 1px solid #d3d3d3;
-  border-right: 1px solid #d3d3d3;
+  border-top: none;
   font-size: 15px;
   padding: 10px 0 10px 0;
   display: block;
   width: 100%;
+  box-shadow: inset 0 3px 6px rgba(0,0,0,0.16), inset 0 3px 6px rgba(0,0,0,0.23);
 }
 
 .slider-box {
@@ -206,6 +205,10 @@
 
 .disaster-header .chart-panel{
   margin-bottom: 0;
+}
+
+#disaster-map-slider {
+  margin-top: 0;
 }
 
 /* Leaflet custom style*/
@@ -298,51 +301,35 @@
 }
 
 // MAP AND TOC
-.drc{
+.drc .drc-map-container{
     height: 400px;
-    padding: 10;
+    padding: 0 15px;
 }
-.drc #navigationBar .mapToolbar {
-    top: 2px !important;
-    bottom: auto;
-    left: 18px;
-    border-radius: 5px;
-    width: 40px;
-}
-.drc #navigationBar button {
-    height: 34px;
-}
-.drc .square-button .glyphicon {
-font-size: 14px;
-padding: 0px;
-margin: 0px;
-float: none;
-}
+
 .risk-toc-container {
-    position: absolute;
-    top: 38px;
-    left: 14px;
-    width: 240px;
-    height: 360px;
-    background: rgba(255, 255, 255, 0.82);
-    padding: 0px 2px;
-    overflow: scroll;
+    position: relative;
+    height: 400px;
+    top: -400px;
+    background-color: rgba(0, 0, 0, 0.6);
+    -webkit-transition: all 2s; /* Safari */
+    transition: all 2s;
+    width: 60%;
+    color: @brand-geonode-o;
+    padding: 15px 10px;
 }
-.drc .toc-layer-tool.toc-legendTool {
-    display: none;
-}
-.drc #mapstore-layers {
-    margin:1px;
-}
+
 .drc .toc-group-title {
     background-color:transparent;
-    border-bottom: 1px solid rgba(128, 128, 128, 0.29);
 }
-.drc .risk-toc-container .visibility-check.glyphicon {
-    overflow: visible;
+
+.drc .group-collapsed, .drc .group-expanded {
+    border-bottom: 1px solid @brand-geonode-b;
 }
-.drc .risk-toc-container .toc-group-children {
-    margin-left: 2px;
+
+.drc .mapToolbar {
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
 }
 /* tutorial */
 .joyride-tooltip__button--primary {
