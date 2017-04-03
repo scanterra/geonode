@@ -529,15 +529,14 @@ class Command(BaseCommand):
             else:
                 dim_ids[dim_col] = 'NULL'
 
-        insert_dimension_value_template = "INSERT INTO {table}_dimensions(test_fid, dim1_id, dim2_id, dim3_id, dim4_id, dim5_id, value) " +\
+        insert_dimension_value_template = "INSERT INTO {table}_dimensions({table}_fid, dim1_id, dim2_id, dim3_id, dim4_id, dim5_id, value) " +\
                                           "SELECT {fid}, {dim1}, {dim2}, {dim3}, {dim4}, {dim5}, '{value}' " +\
-                                          "WHERE NOT EXISTS (SELECT test_fid FROM public.test_dimensions WHERE " +\
-                                          " test_fid = {fid} AND " +\
+                                          "WHERE NOT EXISTS (SELECT {table}_fid FROM public.{table}_dimensions WHERE " +\
+                                          " {table}_fid = {fid} AND " +\
                                           " (dim1_id IS NULL OR dim1_id = {dim1}) AND " +\
                                           " (dim2_id IS NULL OR dim2_id = {dim2}) AND " +\
                                           " (dim3_id IS NULL OR dim3_id = {dim3}) AND " +\
                                           " (dim4_id IS NULL OR dim4_id = {dim4}) AND " +\
                                           " (dim5_id IS NULL OR dim5_id = {dim5}) " +\
-                                          ") RETURNING test_fid;"
-
+                                          ") RETURNING {table}_fid;"
         curs.execute(insert_dimension_value_template.format(**dim_ids))
