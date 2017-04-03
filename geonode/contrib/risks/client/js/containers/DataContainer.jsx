@@ -11,6 +11,8 @@ const {dataContainerSelector} = require('../selectors/disaster');
 
 const {getAnalysisData, getData, setDimIdx} = require('../actions/disaster');
 const Chart = require('../components/Chart');
+const DownloadData = require('../components/DownloadData');
+const MoreInfo = require('../components/MoreInfo');
 const Overview = connect(({disaster = {}}) => ({riskItems: disaster.overview || [] }) )(require('../components/Overview'));
 const {Panel, Tooltip, OverlayTrigger} = require('react-bootstrap');
 const Nouislider = require('react-nouislider');
@@ -66,11 +68,15 @@ const DataContainer = React.createClass({
         return (
             <div id="disaster-analysis-data-container" className="container-fluid">
                 <div className="row">
+                  <div className="btn-group">
                 <OverlayTrigger placement="bottom" overlay={tooltip}>
                     <button id="disaster-back-button" onClick={()=> this.props.getData(this.props.analysisType.href, true)} className="btn btn-primary">
                         <i className="fa fa-arrow-left"/>
                     </button>
                 </OverlayTrigger>
+                <DownloadData riskAnalysisData={this.props.riskAnalysisData}/>
+                <MoreInfo hazardSet={hazardSet}/>
+                </div>
                 </div>
                 <div className="row">
                 <h4 style={{margin: 0}}>{hazardSet.title}</h4>
