@@ -7,27 +7,27 @@
  */
 
 const React = require('react');
-const NotificationSystem = require('react-notification-system');
-const NotificationStyle = require('../../assets/js/NotificationStyle');
+const {connect} = require('react-redux');
+const {show, hide} = require('react-notification-system-redux');
+const {moreInfoSelector} = require('../selectors/disaster');
 const {isObject} = require('lodash');
 
 const MoreInfo = React.createClass({
     propTypes: {
-        hazardSet: React.PropTypes.object,
-        moreInfoOpen: React.PropTypes.func,
-        download: React.PropTypes.bool,
-        moreInfo: React.PropTypes.bool
+        uid: React.PropTypes.string,
+        riskAnalysisData: React.PropTypes.object,
+        show: React.PropTypes.func,
+        hide: React.PropTypes.func,
+        moreInfo: React.PropTypes.array
     },
     getDefaultProps() {
         return {
-            hazardSet: {},
-            moreInfoOpen: () => {},
-            download: false,
-            moreInfo: false
+            uid: 'more_info_tab',
+            riskAnalysisData: {},
+            show: () => {},
+            hide: () => {},
+            moreInfo: []
         };
-    },
-    componentDidMount() {
-        this._notificationSystem = this.refs.notificationSystem;
     },
     getDataAttributes(data) {
         const attributes = Object.keys(data);
@@ -43,37 +43,25 @@ const MoreInfo = React.createClass({
         });
     },
     render() {
-        const active = this.props.moreInfo ? ' active' : '';
-        return (
-            <div className="pull-left">
-                <button className={"btn btn-primary" + active} style={{borderBottomLeftRadius: 0, borderTopLeftRadius: 0}} onClick={!this.props.moreInfo && !this.props.download ? this._addNotification : this._notificationSystem.clearNotifications}>
-                    <i className="fa fa-ellipsis-h"/>
-                </button>
-                <NotificationSystem ref="notificationSystem" style={NotificationStyle}/>
-            </div>
-        );
-    },
-    _addNotification(event) {
-        event.preventDefault();
-        const downloadFile = (
+        const active = this.props.moreInfo.length > 0 ? ' active' : '';
+        const {uid} = this.props;
+        const {hazardSet} = this.props.riskAnalysisData;
+        const moreInfoTab = (
             <div className="disaster-more-info-table-notification">
                 <h4 className="text-center"><i className="fa fa-ellipsis-h"/>&nbsp;{'More info'}</h4>
                 <div className="disaster-more-info-table-container">
                     <div className="disaster-more-info-table">
-                        {this.getDataAttributes(this.props.hazardSet)}
+                        {this.getDataAttributes(hazardSet)}
                     </div>
                 </div>
             </div>
         );
-        this._notificationSystem.addNotification({
-            level: 'info',
-            autoDismiss: 0,
-            position: 'bc',
-            children: downloadFile,
-            onAdd: this.props.moreInfoOpen.bind(null, true),
-            onRemove: this.props.moreInfoOpen.bind(null, false)
-        });
+        return (
+            <button className={"btn btn-primary" + active} onClick={() => { return this.props.moreInfo.length === 0 ? this.props.show({uid, position: 'bc', autoDismiss: 0, children: moreInfoTab}, 'info') : this.props.hide(uid); }}>
+                <i className="fa fa-ellipsis-h"/>
+            </button>
+        );
     }
 });
 
-module.exports = MoreInfo;
+module.exports = connect(moreInfoSelector, { show, hide })(MoreInfo);

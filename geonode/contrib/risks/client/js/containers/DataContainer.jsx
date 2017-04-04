@@ -9,7 +9,7 @@ const React = require('react');
 const {connect} = require('react-redux');
 const {dataContainerSelector} = require('../selectors/disaster');
 
-const {getAnalysisData, getData, setDimIdx, downloadOpen, moreInfoOpen} = require('../actions/disaster');
+const {getAnalysisData, getData, setDimIdx} = require('../actions/disaster');
 const Chart = require('../components/Chart');
 const DownloadData = require('../components/DownloadData');
 const MoreInfo = require('../components/MoreInfo');
@@ -28,10 +28,6 @@ const DataContainer = React.createClass({
         analysisType: React.PropTypes.object,
         riskAnalysisData: React.PropTypes.object,
         dim: React.PropTypes.object,
-        download: React.PropTypes.bool,
-        moreInfo: React.PropTypes.bool,
-        downloadOpen: React.PropTypes.func,
-        moreInfoOpen: React.PropTypes.func,
         hazardType: React.PropTypes.shape({
             mnemonic: React.PropTypes.string,
             description: React.PropTypes.string,
@@ -47,11 +43,7 @@ const DataContainer = React.createClass({
             showHazard: false,
             getData: () => {},
             getAnalysis: () => {},
-            className: "col-sm-7",
-            download: false,
-            moreInfo: false,
-            downloadOpen: () => {},
-            moreInfoOpen: () => {}
+            className: "col-sm-7"
         };
     },
     getRandomColor() {
@@ -82,8 +74,8 @@ const DataContainer = React.createClass({
                                 <i className="fa fa-arrow-left"/>
                             </button>
                         </OverlayTrigger>
-                        <DownloadData download={this.props.download} moreInfo={this.props.moreInfo} downloadOpen={this.props.downloadOpen} riskAnalysisData={this.props.riskAnalysisData}/>
-                        <MoreInfo moreInfo={this.props.moreInfo} download={this.props.download} moreInfoOpen={this.props.moreInfoOpen} hazardSet={hazardSet}/>
+                        <DownloadData/>
+                        <MoreInfo/>
                     </div>
                 </div>
                 <div className="row">
@@ -210,4 +202,4 @@ const DataContainer = React.createClass({
     }
 });
 
-module.exports = connect(dataContainerSelector, {getAnalysis: getAnalysisData, getData, setDimIdx, downloadOpen, moreInfoOpen})(DataContainer);
+module.exports = connect(dataContainerSelector, {getAnalysis: getAnalysisData, getData, setDimIdx})(DataContainer);

@@ -5,10 +5,9 @@ const navItemsSel = ({disaster = {}}) => disaster.navItems || [];
 const riskItemsSel = ({disaster = {}}) => disaster.overview || [];
 const hazardTypeSel = ({disaster = {}}) => disaster.hazardType || {};
 const analysisTypeSel = ({disaster = {}}) => disaster.analysisType || {};
+const notificationsSel = (state) => state.notifications || [];
 const riskAnalysisDataSel = ({disaster = {}}) => disaster.riskAnalysis && disaster.riskAnalysis.riskAnalysisData || {};
 const dimSelector = ({disaster = {}}) => disaster.dim || {dim1: 0, dim2: 1, dim1Idx: 0, dim2Idx: 0};
-const downloadSelector = ({disaster = {}}) => disaster.download;
-const moreInfoSelector = ({disaster = {}}) => disaster.moreInfo;
 const contextSel = ({disaster = {}}) => disaster.context && !isNull(disaster.context) && disaster.context || '';
 const riskAnalysisContextSelector = ({disaster = {}}) => disaster.riskAnalysis && disaster.riskAnalysis.context;
 const topBarSelector = createSelector([navItemsSel, riskItemsSel, hazardTypeSel, contextSel],
@@ -20,16 +19,14 @@ const topBarSelector = createSelector([navItemsSel, riskItemsSel, hazardTypeSel,
         activeRisk: hazardType.mnemonic || "Overview",
         context
     }));
-const dataContainerSelector = createSelector([riskItemsSel, hazardTypeSel, analysisTypeSel, riskAnalysisDataSel, dimSelector, downloadSelector, moreInfoSelector],
-    ( riskItems, hazardType, analysisType, riskAnalysisData, dim, download, moreInfo) => ({
+const dataContainerSelector = createSelector([riskItemsSel, hazardTypeSel, analysisTypeSel, riskAnalysisDataSel, dimSelector],
+    (riskItems, hazardType, analysisType, riskAnalysisData, dim) => ({
         showHazard: hazardType.mnemonic ? true : false,
         hazardTitle: hazardType.mnemonic ? head(riskItems.filter((hz) => hz.mnemonic === hazardType.mnemonic)).title || '' : '',
         hazardType,
         analysisType,
         riskAnalysisData,
-        dim,
-        download,
-        moreInfo
+        dim
     }));
 const drillUpSelector = createSelector([navItemsSel],
      (navItems) => ({
@@ -52,12 +49,28 @@ const shareUrlSelector = createSelector([navItemsSel, contextSel, riskAnalysisCo
         const {host, pathname, protocol} = url.parse(window.location.href, false);
         return {shareUrl: `${protocol}//${host}${pathname}?init=${JSON.stringify({href: (last(navItems) || {href: ''}).href, gc: context, ac: riskAnalysisContext, d: dim})}`};
     });
+const downloadDataSelector = createSelector([notificationsSel, riskAnalysisDataSel],
+    (notifications, riskAnalysisData) => (
+      {
+        download: notifications.filter((val) => { return val.uid === 'download_tab'; }),
+        riskAnalysisData
+      })
+    );
+const moreInfoSelector = createSelector([notificationsSel, riskAnalysisDataSel],
+    (notifications, riskAnalysisData) => (
+      {
+        moreInfo: notifications.filter((val) => { return val.uid === 'more_info_tab'; }),
+        riskAnalysisData
+      })
+    );
 module.exports = {
     drillUpSelector,
     topBarSelector,
     dataContainerSelector,
     switchDimSelector,
     axesSelector,
-    shareUrlSelector
+    shareUrlSelector,
+    downloadDataSelector,
+    moreInfoSelector
 };
 

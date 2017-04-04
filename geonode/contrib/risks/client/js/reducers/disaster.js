@@ -13,12 +13,10 @@ const {
     TOGGLE_DIM,
     ANALYSIS_DATA_LOADED,
     SET_DIM_IDX,
-    TOGGLE_ADMIN_UNITS,
-    DOWNLOAD_OPEN,
-    MORE_INFO_OPEN
+    TOGGLE_ADMIN_UNITS
 } = require('../actions/disaster');
 
-function disaster(state = {dim: {dim1: 0, dim2: 1, dim1Idx: 0, dim2Idx: 0}, download: false, moreInfo: false}, action) {
+function disaster(state = {dim: {dim1: 0, dim2: 1, dim1Idx: 0, dim2Idx: 0}}, action) {
     switch (action.type) {
         case DATA_LOADING:
             return assign({}, state, {
@@ -45,14 +43,6 @@ function disaster(state = {dim: {dim1: 0, dim2: 1, dim1Idx: 0, dim2Idx: 0}, down
             return assign({}, state, {
                 error: action.error,
                 loading: false
-            });
-        case DOWNLOAD_OPEN:
-            return assign({}, state, {
-                download: action.open
-            });
-        case MORE_INFO_OPEN:
-            return assign({}, state, {
-                moreInfo: action.open
             });
         default:
             return state;
