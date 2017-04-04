@@ -21,6 +21,8 @@ const GET_RISK_FEATURES = 'GET_RISK_FEATURES';
 const GET_ANALYSIS_DATA = 'GET_ANALYSIS_DATA';
 const ZOOM_IN_OUT = 'ZOOM_IN_OUT';
 const INIT_RISK_APP = 'INIT_RISK_APP';
+const DOWNLOAD_OPEN = 'DOWNLOAD_OPEN';
+const MORE_INFO_OPEN = 'MORE_INFO_OPEN';
 
 function initState({href, gc, ac}) {
     return {
@@ -125,6 +127,18 @@ function toggleAdminUnit() {
         type: TOGGLE_ADMIN_UNITS
     };
 }
+function downloadOpen(open) {
+    return {
+        type: DOWNLOAD_OPEN,
+        open
+    };
+}
+function moreInfoOpen(open) {
+    return {
+        type: MORE_INFO_OPEN,
+        open
+    };
+}
 module.exports = {
     DATA_LOADING,
     DATA_LOADED,
@@ -139,6 +153,8 @@ module.exports = {
     GET_ANALYSIS_DATA,
     ZOOM_IN_OUT,
     INIT_RISK_APP,
+    DOWNLOAD_OPEN,
+    MORE_INFO_OPEN,
     featuresLoaded,
     featuresLoading,
     featuresError,
@@ -154,5 +170,7 @@ module.exports = {
     loadMapConfig,
     setDimIdx,
     toggleAdminUnit,
-    initState
+    initState,
+    downloadOpen,
+    moreInfoOpen
 };

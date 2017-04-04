@@ -13,11 +13,17 @@ const {isObject} = require('lodash');
 
 const MoreInfo = React.createClass({
     propTypes: {
-        hazardSet: React.PropTypes.object
+        hazardSet: React.PropTypes.object,
+        moreInfoOpen: React.PropTypes.func,
+        download: React.PropTypes.bool,
+        moreInfo: React.PropTypes.bool
     },
     getDefaultProps() {
         return {
-            hazardSet: {}
+            hazardSet: {},
+            moreInfoOpen: () => {},
+            download: false,
+            moreInfo: false
         };
     },
     componentDidMount() {
@@ -29,21 +35,18 @@ const MoreInfo = React.createClass({
         return attributes.map((item, idx) => {
             let obj = data[item];
             return obj !== "" && obj !== null ? (
-              <tbody key={idx}>
-                  <tr>
-                      <td>{item}</td>
-                  </tr>
-                  <tr>
-                      {isObject(obj) ? (<table className="table table-striped" style={{width: 240, margin: '15px 0 15px 15px'}}>{this.getDataAttributes(obj)}</table>) : (<td>{obj}</td>)}
-                  </tr>
-              </tbody>
+              <div key={idx}>
+                  <div className="disaster-more-info-even">{item}</div>
+                  {isObject(obj) ? (<div className="disaster-more-info-table-nested">{this.getDataAttributes(obj)}</div>) : (<div className="disaster-more-info-odd">{obj}</div>)}
+              </div>
           ) : null;
         });
     },
     render() {
+        const active = this.props.moreInfo ? ' active' : '';
         return (
             <div className="pull-left">
-                <button className="btn btn-primary" style={{borderBottomLeftRadius: 0, borderTopLeftRadius: 0}} onClick={this._addNotification}>
+                <button className={"btn btn-primary" + active} style={{borderBottomLeftRadius: 0, borderTopLeftRadius: 0}} onClick={!this.props.moreInfo && !this.props.download ? this._addNotification : this._notificationSystem.clearNotifications}>
                     <i className="fa fa-ellipsis-h"/>
                 </button>
                 <NotificationSystem ref="notificationSystem" style={NotificationStyle}/>
@@ -53,12 +56,12 @@ const MoreInfo = React.createClass({
     _addNotification(event) {
         event.preventDefault();
         const downloadFile = (
-            <div style={{overflow: 'hidden'}}>
+            <div className="disaster-more-info-table-notification">
                 <h4 className="text-center"><i className="fa fa-ellipsis-h"/>&nbsp;{'More info'}</h4>
-                <div style={{overflowY: 'scroll', maxHeight: 400}}>
-                    <table className="table table-striped" style={{width: 255}}>
+                <div className="disaster-more-info-table-container">
+                    <div className="disaster-more-info-table">
                         {this.getDataAttributes(this.props.hazardSet)}
-                    </table>
+                    </div>
                 </div>
             </div>
         );
@@ -66,7 +69,9 @@ const MoreInfo = React.createClass({
             level: 'info',
             autoDismiss: 0,
             position: 'bc',
-            children: downloadFile
+            children: downloadFile,
+            onAdd: this.props.moreInfoOpen.bind(null, true),
+            onRemove: this.props.moreInfoOpen.bind(null, false)
         });
     }
 });

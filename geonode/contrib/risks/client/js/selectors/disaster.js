@@ -7,6 +7,8 @@ const hazardTypeSel = ({disaster = {}}) => disaster.hazardType || {};
 const analysisTypeSel = ({disaster = {}}) => disaster.analysisType || {};
 const riskAnalysisDataSel = ({disaster = {}}) => disaster.riskAnalysis && disaster.riskAnalysis.riskAnalysisData || {};
 const dimSelector = ({disaster = {}}) => disaster.dim || {dim1: 0, dim2: 1, dim1Idx: 0, dim2Idx: 0};
+const downloadSelector = ({disaster = {}}) => disaster.download;
+const moreInfoSelector = ({disaster = {}}) => disaster.moreInfo;
 const contextSel = ({disaster = {}}) => disaster.context && !isNull(disaster.context) && disaster.context || '';
 const riskAnalysisContextSelector = ({disaster = {}}) => disaster.riskAnalysis && disaster.riskAnalysis.context;
 const topBarSelector = createSelector([navItemsSel, riskItemsSel, hazardTypeSel, contextSel],
@@ -18,14 +20,16 @@ const topBarSelector = createSelector([navItemsSel, riskItemsSel, hazardTypeSel,
         activeRisk: hazardType.mnemonic || "Overview",
         context
     }));
-const dataContainerSelector = createSelector([riskItemsSel, hazardTypeSel, analysisTypeSel, riskAnalysisDataSel, dimSelector],
-    ( riskItems, hazardType, analysisType, riskAnalysisData, dim) => ({
+const dataContainerSelector = createSelector([riskItemsSel, hazardTypeSel, analysisTypeSel, riskAnalysisDataSel, dimSelector, downloadSelector, moreInfoSelector],
+    ( riskItems, hazardType, analysisType, riskAnalysisData, dim, download, moreInfo) => ({
         showHazard: hazardType.mnemonic ? true : false,
         hazardTitle: hazardType.mnemonic ? head(riskItems.filter((hz) => hz.mnemonic === hazardType.mnemonic)).title || '' : '',
         hazardType,
         analysisType,
         riskAnalysisData,
-        dim
+        dim,
+        download,
+        moreInfo
     }));
 const drillUpSelector = createSelector([navItemsSel],
      (navItems) => ({

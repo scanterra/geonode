@@ -12,20 +12,27 @@ const NotificationStyle = require('../../assets/js/NotificationStyle');
 
 const DownloadData = React.createClass({
     propTypes: {
-        riskAnalysisData: React.PropTypes.object
+        riskAnalysisData: React.PropTypes.object,
+        downloadOpen: React.PropTypes.func,
+        download: React.PropTypes.bool,
+        moreInfo: React.PropTypes.bool
     },
     getDefaultProps() {
         return {
-            riskAnalysisData: {}
+            riskAnalysisData: {},
+            downloadOpen: () => {},
+            download: false,
+            moreInfo: false
         };
     },
     componentDidMount() {
         this._notificationSystem = this.refs.notificationSystem;
     },
     render() {
+        const active = this.props.download ? ' active' : '';
         return (
           <div className="pull-left">
-              <button className="btn btn-primary" style={{borderRadius: 0}} onClick={this._addNotification}>
+              <button className={"btn btn-primary" + active} style={{borderRadius: 0}} onClick={!this.props.moreInfo && !this.props.download ? this._addNotification : this._notificationSystem.clearNotifications}>
                   <i className="fa fa-download"/>
               </button>
               <NotificationSystem ref="notificationSystem" style={NotificationStyle}/>
@@ -48,7 +55,9 @@ const DownloadData = React.createClass({
             level: 'info',
             autoDismiss: 0,
             position: 'bc',
-            children: downloadFile
+            children: downloadFile,
+            onAdd: this.props.downloadOpen.bind(null, true),
+            onRemove: this.props.downloadOpen.bind(null, false)
         });
     }
 });
