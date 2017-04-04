@@ -74,8 +74,8 @@ const DataContainer = React.createClass({
                                 <i className="fa fa-arrow-left"/>
                             </button>
                         </OverlayTrigger>
-                        <DownloadData riskAnalysisData={this.props.riskAnalysisData}/>
-                        <MoreInfo hazardSet={hazardSet}/>
+                        <DownloadData/>
+                        <MoreInfo/>
                     </div>
                 </div>
                 <div className="row">

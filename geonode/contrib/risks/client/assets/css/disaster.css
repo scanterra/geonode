@@ -59,6 +59,7 @@
   /* Leaflet custom style*/
   /* Slider */
   /* tutorial */
+  /* more info table */
   /* MapStore2 */
   /*@ms2-color-shade: #333333;
 @ms2-color-shade-darker: darken(@ms2-color-shade, 5%);
@@ -10009,6 +10010,30 @@ button.disaster .close {
 .disaster .joyride-tooltip__button--primary:focus,
 .disaster .joyride-tooltip__button--primary:hover {
   background-color: #2c689c !important;
+}
+.disaster .disaster-more-info-table-notification {
+  overflow: hidden;
+}
+.disaster .disaster-more-info-table-container {
+  overflow-y: scroll;
+  max-height: 400px;
+}
+.disaster .disaster-more-info-table-nested {
+  width: 240px;
+  margin: 15px 0 15px 15px;
+}
+.disaster .disaster-more-info-table {
+  width: 255px;
+}
+.disaster .disaster-more-info-even {
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+.disaster .disaster-more-info-odd {
+  margin-bottom: 10px;
+  font-style: italic;
+  border-bottom: 1px dashed #2c689c;
+  padding-bottom: 10px;
 }
 @font-face {
   font-family: 'thinkhazard';

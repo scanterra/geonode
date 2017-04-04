@@ -16,6 +16,7 @@ const DataContainer = require('../containers/DataContainer');
 const MapContainer = require('../containers/MapContainer');
 const Page = require('../../MapStore2/web/client/containers/Page');
 const ConfigUtils = require('../../MapStore2/web/client/utils/ConfigUtils');
+const NotificationStyle = require('../../assets/js/NotificationStyle');
 
 const Home = React.createClass({
     propTypes: {
@@ -43,8 +44,7 @@ const Home = React.createClass({
         };
         return (
             <div className="disaster">
-                <Notifications style={{
-                   NotificationItem: {DefaultStyle: {backgroundColor: '#ffffff'}, info: {borderTopColor: '#2c689c'}}}}/>
+                <Notifications style={NotificationStyle}/>
                     <Page
                       id="home"
                       pagePluginsConfig={pagePlugins}

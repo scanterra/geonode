@@ -7,33 +7,31 @@
  */
 
 const React = require('react');
-const NotificationSystem = require('react-notification-system');
-const NotificationStyle = require('../../assets/js/NotificationStyle');
+const {connect} = require('react-redux');
+const {show, hide} = require('react-notification-system-redux');
+const {downloadDataSelector} = require('../selectors/disaster');
 
 const DownloadData = React.createClass({
     propTypes: {
-        riskAnalysisData: React.PropTypes.object
+        uid: React.PropTypes.string,
+        riskAnalysisData: React.PropTypes.object,
+        show: React.PropTypes.func,
+        hide: React.PropTypes.func,
+        download: React.PropTypes.array
     },
     getDefaultProps() {
         return {
-            riskAnalysisData: {}
+            uid: 'download_tab',
+            riskAnalysisData: {},
+            show: () => {},
+            hide: () => {},
+            download: [],
+            moreInfo: []
         };
     },
-    componentDidMount() {
-        this._notificationSystem = this.refs.notificationSystem;
-    },
     render() {
-        return (
-          <div className="pull-left">
-              <button className="btn btn-primary" style={{borderRadius: 0}} onClick={this._addNotification}>
-                  <i className="fa fa-download"/>
-              </button>
-              <NotificationSystem ref="notificationSystem" style={NotificationStyle}/>
-          </div>
-        );
-    },
-    _addNotification(event) {
-        event.preventDefault();
+        const active = this.props.download.length > 0 ? ' active' : '';
+        const {uid} = this.props;
         const {dataFile, metadataFile} = this.props.riskAnalysisData;
         const downloadFile = dataFile || metadataFile ? (
             <div>
@@ -44,13 +42,12 @@ const DownloadData = React.createClass({
                 </ul>
             </div>
         ) : ( <h4 className="text-center">{'No files available'}</h4>);
-        this._notificationSystem.addNotification({
-            level: 'info',
-            autoDismiss: 0,
-            position: 'bc',
-            children: downloadFile
-        });
+        return (
+            <button className={"btn btn-primary" + active} onClick={() => { return this.props.download.length === 0 ? this.props.show({uid, position: 'bc', autoDismiss: 0, children: downloadFile}, 'info') : this.props.hide(uid); }}>
+                <i className="fa fa-download"/>
+            </button>
+        );
     }
 });
 
-module.exports = DownloadData;
+module.exports = connect(downloadDataSelector, { show, hide })(DownloadData);

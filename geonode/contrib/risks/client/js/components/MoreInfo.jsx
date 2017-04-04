@@ -7,21 +7,27 @@
  */
 
 const React = require('react');
-const NotificationSystem = require('react-notification-system');
-const NotificationStyle = require('../../assets/js/NotificationStyle');
+const {connect} = require('react-redux');
+const {show, hide} = require('react-notification-system-redux');
+const {moreInfoSelector} = require('../selectors/disaster');
 const {isObject} = require('lodash');
 
 const MoreInfo = React.createClass({
     propTypes: {
-        hazardSet: React.PropTypes.object
+        uid: React.PropTypes.string,
+        riskAnalysisData: React.PropTypes.object,
+        show: React.PropTypes.func,
+        hide: React.PropTypes.func,
+        moreInfo: React.PropTypes.array
     },
     getDefaultProps() {
         return {
-            hazardSet: {}
+            uid: 'more_info_tab',
+            riskAnalysisData: {},
+            show: () => {},
+            hide: () => {},
+            moreInfo: []
         };
-    },
-    componentDidMount() {
-        this._notificationSystem = this.refs.notificationSystem;
     },
     getDataAttributes(data) {
         const attributes = Object.keys(data);
@@ -29,46 +35,33 @@ const MoreInfo = React.createClass({
         return attributes.map((item, idx) => {
             let obj = data[item];
             return obj !== "" && obj !== null ? (
-              <tbody key={idx}>
-                  <tr>
-                      <td>{item}</td>
-                  </tr>
-                  <tr>
-                      {isObject(obj) ? (<table className="table table-striped" style={{width: 240, margin: '15px 0 15px 15px'}}>{this.getDataAttributes(obj)}</table>) : (<td>{obj}</td>)}
-                  </tr>
-              </tbody>
+              <div key={idx}>
+                  <div className="disaster-more-info-even">{item}</div>
+                  {isObject(obj) ? (<div className="disaster-more-info-table-nested">{this.getDataAttributes(obj)}</div>) : (<div className="disaster-more-info-odd">{obj}</div>)}
+              </div>
           ) : null;
         });
     },
     render() {
-        return (
-            <div className="pull-left">
-                <button className="btn btn-primary" style={{borderBottomLeftRadius: 0, borderTopLeftRadius: 0}} onClick={this._addNotification}>
-                    <i className="fa fa-ellipsis-h"/>
-                </button>
-                <NotificationSystem ref="notificationSystem" style={NotificationStyle}/>
-            </div>
-        );
-    },
-    _addNotification(event) {
-        event.preventDefault();
-        const downloadFile = (
-            <div style={{overflow: 'hidden'}}>
+        const active = this.props.moreInfo.length > 0 ? ' active' : '';
+        const {uid} = this.props;
+        const {hazardSet} = this.props.riskAnalysisData;
+        const moreInfoTab = (
+            <div className="disaster-more-info-table-notification">
                 <h4 className="text-center"><i className="fa fa-ellipsis-h"/>&nbsp;{'More info'}</h4>
-                <div style={{overflowY: 'scroll', maxHeight: 400}}>
-                    <table className="table table-striped" style={{width: 255}}>
-                        {this.getDataAttributes(this.props.hazardSet)}
-                    </table>
+                <div className="disaster-more-info-table-container">
+                    <div className="disaster-more-info-table">
+                        {this.getDataAttributes(hazardSet)}
+                    </div>
                 </div>
             </div>
         );
-        this._notificationSystem.addNotification({
-            level: 'info',
-            autoDismiss: 0,
-            position: 'bc',
-            children: downloadFile
-        });
+        return (
+            <button className={"btn btn-primary" + active} onClick={() => { return this.props.moreInfo.length === 0 ? this.props.show({uid, position: 'bc', autoDismiss: 0, children: moreInfoTab}, 'info') : this.props.hide(uid); }}>
+                <i className="fa fa-ellipsis-h"/>
+            </button>
+        );
     }
 });
 
-module.exports = MoreInfo;
+module.exports = connect(moreInfoSelector, { show, hide })(MoreInfo);
