@@ -150,6 +150,10 @@ module.exports = {
                 '/risks': {
                     target: "http://disasterrisk-af-dev.geo-solutions.it",
                     changeOrigin: true
+                },
+                '/uploaded': {
+                    target: "http://disasterrisk-af-dev.geo-solutions.it",
+                    changeOrigin: true
                 }
             }
         },

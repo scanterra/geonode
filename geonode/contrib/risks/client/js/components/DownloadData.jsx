@@ -39,8 +39,8 @@ const DownloadData = React.createClass({
             <div>
                 <h4 className="text-center"><i className="fa fa-download"/>&nbsp;{'Download'}</h4>
                 <ul className="nav nav-pills nav-stacked">
-                    <li className="text-center"><a data-toggle="tab" href={dataFile} download>{'Data'}</a></li>
-                    <li className="text-center"><a data-toggle="tab" href={metadataFile} download>{'Metadata'}</a></li>
+                    <li className="text-center"><a href={`${dataFile}`} download>{'Data'}</a></li>
+                    <li className="text-center"><a href={`${metadataFile}`} download>{'Metadata'}</a></li>
                 </ul>
             </div>
         ) : ( <h4 className="text-center">{'No files available'}</h4>);
