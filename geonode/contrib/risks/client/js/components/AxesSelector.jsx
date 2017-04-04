@@ -23,7 +23,7 @@ const AxesSelector = React.createClass({
     },
     render() {
         const {name = '', values = []} = this.props.dimension || {};
-        return this.props.dimension ? (
+        return !this.props.dimension || values.length - 1 === 0 ? null : (
             <div className="text-center slider-box">
                 <div className="slider-lab">{name + ' ' + values[this.props.activeAxis]}
                 </div>
@@ -46,7 +46,7 @@ const AxesSelector = React.createClass({
                             }
                         }
                     }}/>
-            </div>) : null;
+            </div>);
     }
 });
 

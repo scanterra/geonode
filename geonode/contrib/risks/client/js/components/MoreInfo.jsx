@@ -9,7 +9,7 @@
 const React = require('react');
 const NotificationSystem = require('react-notification-system');
 const NotificationStyle = require('../../assets/js/NotificationStyle');
-const {isArray, isObject} = require('lodash');
+const {isObject} = require('lodash');
 
 const MoreInfo = React.createClass({
     propTypes: {
@@ -22,16 +22,6 @@ const MoreInfo = React.createClass({
     },
     componentDidMount() {
         this._notificationSystem = this.refs.notificationSystem;
-    },
-    render() {
-        return (
-            <div className="pull-left">
-                <button className="btn btn-primary" style={{borderBottomLeftRadius: 0, borderTopLeftRadius: 0}} onClick={this._addNotification}>
-                    <i className="fa fa-ellipsis-h"/>
-                </button>
-                <NotificationSystem ref="notificationSystem" style={NotificationStyle}/>
-            </div>
-        );
     },
     getDataAttributes(data) {
         const attributes = Object.keys(data);
@@ -49,6 +39,16 @@ const MoreInfo = React.createClass({
               </tbody>
           ) : null;
         });
+    },
+    render() {
+        return (
+            <div className="pull-left">
+                <button className="btn btn-primary" style={{borderBottomLeftRadius: 0, borderTopLeftRadius: 0}} onClick={this._addNotification}>
+                    <i className="fa fa-ellipsis-h"/>
+                </button>
+                <NotificationSystem ref="notificationSystem" style={NotificationStyle}/>
+            </div>
+        );
     },
     _addNotification(event) {
         event.preventDefault();

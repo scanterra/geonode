@@ -148,7 +148,7 @@ module.exports = {
                     pathRewrite: { "^/static/js": ""}
                 },
                 '/risks': {
-                    target: "http://disasterrisk-af.geo-solutions.it",
+                    target: "http://disasterrisk-af-dev.geo-solutions.it",
                     changeOrigin: true
                 }
             }

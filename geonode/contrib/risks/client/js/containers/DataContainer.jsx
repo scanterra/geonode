@@ -68,52 +68,58 @@ const DataContainer = React.createClass({
         return (
             <div id="disaster-analysis-data-container" className="container-fluid">
                 <div className="row">
-                  <div className="btn-group">
-                <OverlayTrigger placement="bottom" overlay={tooltip}>
-                    <button id="disaster-back-button" onClick={()=> this.props.getData(this.props.analysisType.href, true)} className="btn btn-primary">
-                        <i className="fa fa-arrow-left"/>
-                    </button>
-                </OverlayTrigger>
-                <DownloadData riskAnalysisData={this.props.riskAnalysisData}/>
-                <MoreInfo hazardSet={hazardSet}/>
-                </div>
-                </div>
-                <div className="row">
-                <h4 style={{margin: 0}}>{hazardSet.title}</h4>
+                    <div className="btn-group">
+                        <OverlayTrigger placement="bottom" overlay={tooltip}>
+                            <button id="disaster-back-button" onClick={()=> this.props.getData(this.props.analysisType.href, true)} className="btn btn-primary">
+                                <i className="fa fa-arrow-left"/>
+                            </button>
+                        </OverlayTrigger>
+                        <DownloadData riskAnalysisData={this.props.riskAnalysisData}/>
+                        <MoreInfo hazardSet={hazardSet}/>
+                    </div>
                 </div>
                 <div className="row">
-                <p>{hazardSet.purpose}</p>
+                    <h4 style={{margin: 0}}>{hazardSet.title}</h4>
+                </div>
+                <div className="row">
+                    <p>{hazardSet.purpose}</p>
                 </div>
                 <div id="disaster-chart-container" className="row">
-                <Panel className="chart-panel">
-                    <Chart dimension={data.dimensions} values={data.values} val={val} dim={dim} setDimIdx={sIdx}/>
-                </Panel>
-                <div className="slider-box">
-                <div className="slider-lab text-center">
-                  {header}
+                    <Panel className="chart-panel">
+                        <Chart dimension={data.dimensions} values={data.values} val={val} dim={dim} setDimIdx={sIdx}/>
+                    </Panel>
+                    {data.dimensions[dim.dim1].values.length - 1 === 0 ? (
+                    <div className="slider-box">
+                        <div className="slider-lab text-center">{header}</div>
+                    </div>
+                    ) : (
+                    <div>
+                        <div className="slider-box">
+                            <div className="slider-lab text-center">{header}</div>
+                            <Nouislider
+                                range={{min: 0, max: data.dimensions[dim.dim1].values.length - 1}}
+                                start={[dim.dim1Idx]}
+                                step={1}
+                                tooltips={false}
+                                onChange={(idx) => this.props.setDimIdx('dim1Idx', Number.parseInt(idx[0]))}
+                                pips= {{
+                                    mode: 'steps',
+                                    density: 20,
+                                    format: {
+                                        to: (value) => {
+                                            let valF = data.dimensions[dim.dim1].values[value].split(" ")[0];
+                                            return valF.length > 8 ? valF.substring(0, 8) + '...' : valF;
+                                        },
+                                        from: (value) => {
+                                            return value;
+                                        }
+                                    }
+                                }}/>
+                          </div>
+                        <hr/>
+                    </div>
+                    )}
                 </div>
-                <Nouislider
-                    range={{min: 0, max: data.dimensions[dim.dim1].values.length - 1}}
-                    start={[dim.dim1Idx]}
-                    step={1}
-                    tooltips={false}
-                    onChange={(idx) => this.props.setDimIdx('dim1Idx', Number.parseInt(idx[0]))}
-                    pips= {{
-                        mode: 'steps',
-                        density: 20,
-                        format: {
-                            to: (value) => {
-                                let valF = data.dimensions[dim.dim1].values[value].split(" ")[0];
-                                return valF.length > 8 ? valF.substring(0, 8) + '...' : valF;
-                            },
-                            from: (value) => {
-                                return value;
-                            }
-                        }
-                    }}/>
-                    </div>
-                    <hr/>
-                    </div>
             </div>
         );
     },
