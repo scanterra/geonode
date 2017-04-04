@@ -294,6 +294,7 @@ class RiskAnalysis(Schedulable, LocationAware, HazardTypeAware, AnalysisTypeAwar
     """
 
     EXPORT_FIELDS = (('name', 'name',),
+                     ('unitOfMeasure', 'unit_of_measure'),
                      ('hazardSet', 'get_hazard_set',),
                      ('href', 'href',),)
     EXPORT_FIELDS_EXTENDED = (('name', 'name',),
@@ -305,6 +306,7 @@ class RiskAnalysis(Schedulable, LocationAware, HazardTypeAware, AnalysisTypeAwar
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=30, null=False, blank=False,
                             db_index=True)
+    unit_of_measure = models.CharField(max_length=255, null=True, blank=True)
 
     descriptor_file = models.FileField(upload_to='descriptor_files', max_length=255)
     data_file = models.FileField(upload_to='metadata_files', max_length=255)
