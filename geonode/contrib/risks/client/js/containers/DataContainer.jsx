@@ -16,6 +16,9 @@ const MoreInfo = require('../components/MoreInfo');
 const Overview = connect(({disaster = {}}) => ({riskItems: disaster.overview || [] }) )(require('../components/Overview'));
 const {Panel, Tooltip, OverlayTrigger} = require('react-bootstrap');
 const Nouislider = require('react-nouislider');
+const {show, hide} = require('react-notification-system-redux');
+const {chartLabelSelector} = require('../selectors/disaster');
+const LabelResource = connect(chartLabelSelector, { show, hide })(require('../components/LabelResource'));
 
 const DataContainer = React.createClass({
     propTypes: {
@@ -90,12 +93,12 @@ const DataContainer = React.createClass({
                     </Panel>
                     {data.dimensions[dim.dim1].values.length - 1 === 0 ? (
                     <div className="slider-box">
-                        <div className="slider-lab text-center">{header}</div>
+                        <LabelResource uid={'chart_label_tab'} label={header} dimension={data.dimensions[dim.dim1]}/>
                     </div>
                     ) : (
                     <div>
                         <div className="slider-box">
-                            <div className="slider-lab text-center">{header}</div>
+                            <LabelResource uid={'chart_label_tab'} label={header} dimension={data.dimensions[dim.dim1]}/>
                             <Nouislider
                                 range={{min: 0, max: data.dimensions[dim.dim1].values.length - 1}}
                                 start={[dim.dim1Idx]}
