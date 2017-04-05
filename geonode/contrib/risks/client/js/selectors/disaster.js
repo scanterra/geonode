@@ -47,7 +47,7 @@ const axesSelector = createSelector([riskAnalysisDataSel, dimSelector],
 const shareUrlSelector = createSelector([navItemsSel, contextSel, riskAnalysisContextSelector, dimSelector],
     (navItems, context, riskAnalysisContext, dim) => {
         const {host, pathname, protocol} = url.parse(window.location.href, false);
-        return {shareUrl: `${protocol}//${host}${pathname}?init=${JSON.stringify({href: (last(navItems) || {href: ''}).href, gc: context, ac: riskAnalysisContext, d: dim})}`};
+        return {shareUrl: `${protocol}//${host}${pathname}?init=${JSON.stringify({href: (last(navItems) || {href: ''}).href, geomHref: (last(navItems) || {geom: ''}).geom, gc: context, ac: riskAnalysisContext, d: dim})}`};
     });
 const downloadDataSelector = createSelector([notificationsSel, riskAnalysisDataSel],
     (notifications, riskAnalysisData) => (

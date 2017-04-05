@@ -9,7 +9,14 @@ const React = require('react');
 const {connect} = require('react-redux');
 const Navigation = require('./Navigation');
 const HelpBtn = require('./HelpBtn');
-const DownloadBtn = require('./DownloadBtn');
+const {generateReport} = require('../actions/report');
+const DownloadBtn = connect(({disaster, report}) => {
+    return {
+        active: disaster.riskAnalysis && disaster.riskAnalysis.riskAnalysisData && true || false,
+        downloading: report.processing
+    };
+}, {downloadAction: generateReport})(require('./DownloadBtn'));
+
 const RiskSelector = require('./RiskSelector');
 const {shareUrlSelector} = require('../selectors/disaster');
 const SharingLink = connect(shareUrlSelector)(require('./ShareLink'));

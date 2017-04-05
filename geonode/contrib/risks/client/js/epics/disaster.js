@@ -106,9 +106,8 @@ const initStateEpic = action$ =>
     action$.ofType(INIT_RISK_APP) // Wait untile map config is loaded
         .audit( () => action$.ofType('MAP_CONFIG_LOADED'))
         .map(action => {
-            const geomHref = action.href.replace('risk_data_extraction', 'geom');
             const analysisHref = action.ac && `${action.href}${action.ac}`;
-            return [getData(`${action.href}${action.gc || ''}`), getFeatures(geomHref)].concat(analysisHref && getAnalysisData(analysisHref) || [] );
+            return [getData(`${action.href}${action.gc || ''}`), getFeatures(action.geomHref)].concat(analysisHref && getAnalysisData(analysisHref) || [] );
         }).
         mergeAll();
 const changeTutorial = action$ =>
@@ -122,5 +121,4 @@ const loadingError = action$ =>
     action$.ofType(DATA_ERROR).map(
         action => error({title: "Loading error", message: action.error.message,
             autoDismiss: 3}));
-
 module.exports = {getRiskDataEpic, getRiskMapConfig, getRiskFeatures, getAnalysisEpic, zoomInOutEpic, initStateEpic, changeTutorial, loadingError};
