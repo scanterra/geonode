@@ -167,12 +167,17 @@ const DataContainer = React.createClass({
     },
     renderAnalysisTab() {
         const {hazardType = {}, analysisType = {}, getData: loadData} = this.props;
-        return (hazardType.analysisTypes || []).map((type) => {
-            const {href, name, title} = type;
+        return (hazardType.analysisTypes || []).map((type, idx) => {
+            const {href, name, title, faIcon, description} = type;
             const active = name === analysisType.name;
-            return (<li key={name} className={`text-center ${active ? 'active' : ''}`} onClick={() => loadData(href, true)}>
-                    <a href="#" data-toggle="tab"><span>{title}</span></a>
-                    </li>);
+            const tooltip = (<Tooltip id={"tooltip-icon-analysis-tab-" + idx} className="disaster">{description}</Tooltip>);
+            return (
+                <OverlayTrigger key={name} placement="bottom" overlay={tooltip}>
+                    <li className={`text-center ${active ? 'active' : ''}`} onClick={() => loadData(href, true)}>
+                        <a href="#" data-toggle="tab"><span> <i className={"fa fa-" + faIcon}></i>&nbsp;{title}</span></a>
+                    </li>
+                </OverlayTrigger>
+            );
         });
     },
     renderHazard() {
@@ -186,9 +191,10 @@ const DataContainer = React.createClass({
                     </div>
                     ) : (
                     <div className="container-fluid">
-                        <ul id="disaster-analysis-menu" className="nav nav-tabs">
+                        <ul id="disaster-analysis-menu" className="nav nav-pills">
                             {this.renderAnalysisTab()}
                         </ul>
+                        <hr></hr>
                         <div id="disaster-analysis-container" className="disaster-analysis">
                             <div className="container-fluid">
                                 {this.renderRiskAnalysis()}
