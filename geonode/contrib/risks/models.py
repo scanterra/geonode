@@ -155,12 +155,15 @@ class AnalysisType(HazardTypeAware, LocationAware, Exportable, models.Model):
     """
     EXPORT_FIELDS = (('name', 'name',),
                      ('title', 'title',),
+                     ('description', 'description',),
+                     ('faIcon', 'fa_icon',),
                      ('href', 'href',),)
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=30, null=False, blank=False,
                             db_index=True)
     title = models.CharField(max_length=80, null=False, blank=False)
     description = models.TextField(default='', null=True, blank=False)
+    fa_icon = models.CharField(max_length=30, null=True, blank=True)
 
     def __unicode__(self):
         return u"{0}".format(self.name)
