@@ -67,7 +67,7 @@ const DataContainer = React.createClass({
         const {hazardSet, data} = this.props.riskAnalysisData;
         const tooltip = (<Tooltip id={"tooltip-back"} className="disaster">{'Back to Analysis Table'}</Tooltip>);
         const val = data.dimensions[dim.dim1].values[dim.dim1Idx];
-        const header = (<div>{`${data.dimensions[dim.dim1].name} ${val}`}</div>);
+        const header = data.dimensions[dim.dim1].name + ' ' + val;
         return (
             <div id="disaster-analysis-data-container" className="container-fluid">
                 <div className="row">
