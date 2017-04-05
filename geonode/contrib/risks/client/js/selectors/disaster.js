@@ -7,7 +7,8 @@ const hazardTypeSel = ({disaster = {}}) => disaster.hazardType || {};
 const analysisTypeSel = ({disaster = {}}) => disaster.analysisType || {};
 const notificationsSel = (state) => state.notifications || [];
 const riskAnalysisDataSel = ({disaster = {}}) => disaster.riskAnalysis && disaster.riskAnalysis.riskAnalysisData || {};
-const dimSelector = ({disaster = {}}) => disaster.dim || {dim1: 0, dim2: 1, dim1Idx: 0, dim2Idx: 0};
+const dimInit = {dim1: 0, dim2: 1, dim1Idx: 0, dim2Idx: 0};
+const dimSelector = ({disaster = {}}) => disaster.dim || dimInit;
 const contextSel = ({disaster = {}}) => disaster.context && !isNull(disaster.context) && disaster.context || '';
 const riskAnalysisContextSelector = ({disaster = {}}) => disaster.riskAnalysis && disaster.riskAnalysis.context;
 const topBarSelector = createSelector([navItemsSel, riskItemsSel, hazardTypeSel, contextSel],
@@ -75,6 +76,13 @@ const mapLabelSelector = createSelector([notificationsSel],
           notification: notifications.filter((val) => { return val.uid === 'map_label_tab'; })
         })
       );
+const chartSelector = createSelector([riskAnalysisDataSel, dimSelector],
+    (riskAnalysisData, dim) => ({
+        values: riskAnalysisData.data && riskAnalysisData.data.values,
+        dimension: riskAnalysisData.data && riskAnalysisData.data.dimensions,
+        val: riskAnalysisData.data && riskAnalysisData.data.dimensions && riskAnalysisData.data.dimensions[dim.dim1].values[dim.dim1Idx],
+        dim
+    }));
 module.exports = {
     drillUpSelector,
     topBarSelector,
@@ -85,6 +93,7 @@ module.exports = {
     downloadDataSelector,
     moreInfoSelector,
     chartLabelSelector,
-    mapLabelSelector
+    mapLabelSelector,
+    chartSelector
 };
 
