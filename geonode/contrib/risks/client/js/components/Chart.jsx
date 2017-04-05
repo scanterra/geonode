@@ -17,7 +17,8 @@ const Chart = React.createClass({
         dimension: React.PropTypes.array,
         dim: React.PropTypes.object,
         val: React.PropTypes.string,
-        setDimIdx: React.PropTypes.func
+        setDimIdx: React.PropTypes.func,
+        uOm: React.PropTypes.string
     },
     getDefaultProps() {
         return {

@@ -7,10 +7,10 @@
  */
 const React = require('react');
 const {connect} = require('react-redux');
-const {dataContainerSelector} = require('../selectors/disaster');
+const {dataContainerSelector, chartSelector} = require('../selectors/disaster');
 
 const {getAnalysisData, getData, setDimIdx} = require('../actions/disaster');
-const Chart = require('../components/Chart');
+const Chart = connect(chartSelector, {setDimIdx})(require('../components/Chart'));
 const DownloadData = require('../components/DownloadData');
 const MoreInfo = require('../components/MoreInfo');
 const Overview = connect(({disaster = {}}) => ({riskItems: disaster.overview || [] }) )(require('../components/Overview'));
@@ -63,7 +63,7 @@ const DataContainer = React.createClass({
         return data.filter((d) => d[nameIdx] === val ).map((v) => {return {"name": v[dim], "value": parseInt(v[2], 10)}; });
     },
     renderAnalysisData() {
-        const {dim, setDimIdx: sIdx} = this.props;
+        const {dim} = this.props;
         const {hazardSet, data} = this.props.riskAnalysisData;
         const tooltip = (<Tooltip id={"tooltip-back"} className="disaster">{'Back to Analysis Table'}</Tooltip>);
         const val = data.dimensions[dim.dim1].values[dim.dim1Idx];
@@ -89,7 +89,7 @@ const DataContainer = React.createClass({
                 </div>
                 <div id="disaster-chart-container" className="row">
                     <Panel className="chart-panel">
-                        <Chart dimension={data.dimensions} values={data.values} val={val} dim={dim} setDimIdx={sIdx}/>
+                        <Chart/>
                     </Panel>
                     {data.dimensions[dim.dim1].values.length - 1 === 0 ? (
                     <div className="slider-box">
