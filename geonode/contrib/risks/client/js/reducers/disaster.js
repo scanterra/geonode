@@ -13,7 +13,8 @@ const {
     TOGGLE_DIM,
     ANALYSIS_DATA_LOADED,
     SET_DIM_IDX,
-    TOGGLE_ADMIN_UNITS
+    TOGGLE_ADMIN_UNITS,
+    GET_ANALYSIS_DATA
 } = require('../actions/disaster');
 
 function disaster(state = {dim: {dim1: 0, dim2: 1, dim1Idx: 0, dim2Idx: 0}}, action) {
@@ -43,6 +44,10 @@ function disaster(state = {dim: {dim1: 0, dim2: 1, dim1Idx: 0, dim2Idx: 0}}, act
             return assign({}, state, {
                 error: action.error,
                 loading: false
+            });
+        case GET_ANALYSIS_DATA:
+            return assign({}, state, {
+                currentAnalysisUrl: action.url
             });
         default:
             return state;

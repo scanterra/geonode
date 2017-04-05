@@ -14,7 +14,7 @@ const bbox = require('turf-bbox');
 const {changeLayerProperties, addLayer, removeNode} = require('../../MapStore2/web/client/actions/layers');
 const assign = require('object-assign');
 const {find} = require('lodash');
-const {configLayer} = require('../utils/DisasterUtils');
+const {configLayer, makeNotificationBody} = require('../utils/DisasterUtils');
 const {defaultStep, tutorialPresets} = require('../utils/TutorialPresets');
 const {
     GET_DATA,
@@ -25,6 +25,7 @@ const {
     DATA_LOADED,
     ANALYSIS_DATA_LOADED,
     DATA_ERROR,
+    GET_S_FURTHER_RESOURCE_DATA,
     dataLoaded,
     dataLoading,
     dataError,
@@ -121,4 +122,19 @@ const loadingError = action$ =>
     action$.ofType(DATA_ERROR).map(
         action => error({title: "Loading error", message: action.error.message,
             autoDismiss: 3}));
-module.exports = {getRiskDataEpic, getRiskMapConfig, getRiskFeatures, getAnalysisEpic, zoomInOutEpic, initStateEpic, changeTutorial, loadingError};
+const getSpecificFurtherResources = (action$) =>
+    action$.ofType(GET_S_FURTHER_RESOURCE_DATA).switchMap(action => {
+        return Rx.Observable.defer(() => Api.getData(action.url))
+            .retry(1)
+            .delay(1000)
+            .map( (val) => {
+                const resource = val.furtherResources && val.furtherResources.hazardSet ? val.furtherResources.hazardSet : {};
+                const actions = [info({uid: action.uid, children: makeNotificationBody(resource, action.title, action.head), position: 'bc', autoDismiss: 0})];
+                return actions;
+            })
+            .mergeAll()
+            .startWith(info({title: 'Loading', position: 'bc', autoDismiss: 2}))
+            .catch(e => Rx.Observable.of(dataError(e)));
+    });
+
+module.exports = {getRiskDataEpic, getRiskMapConfig, getRiskFeatures, getAnalysisEpic, zoomInOutEpic, initStateEpic, changeTutorial, loadingError, getSpecificFurtherResources};

@@ -6291,22 +6291,24 @@ a.disaster .label:focus {
   margin-top: 10px;
 }
 .disaster .slider-lab {
-  background-color: #fff;
-  color: #333333;
+  background-color: #5d9bd1;
+  color: #fff;
   border-top: none;
   font-size: 15px;
   padding: 10px 0 10px 0;
   display: block;
   width: 100%;
-  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.16), inset 0 3px 6px rgba(0, 0, 0, 0.23);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
 }
 .disaster .slider-lab:hover,
 .disaster .slider-lab.active:hover {
-  background-color: #ddd;
+  background-color: #3783c4;
+  color: #fff;
 }
 .disaster .slider-lab.active {
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
-  background-color: #f2f2f2;
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.16), inset 0 3px 6px rgba(0, 0, 0, 0.23);
+  background-color: #2c689c;
+  color: #fff;
 }
 .disaster .slider-box {
   height: 140px;
@@ -6337,6 +6339,14 @@ a.disaster .label:focus {
   background-color: #fff;
   padding: 15px 15px;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+}
+.disaster .disaster-fth-res-container a {
+  display: block;
+  padding: 10px;
+  border-radius: 4px;
+}
+.disaster .disaster-fth-res-container a:hover {
+  background-color: #f2f2f2;
 }
 .disaster .link-sharing {
   position: relative;
@@ -6442,6 +6452,11 @@ a.disaster .label:focus {
   overflow-y: scroll;
   max-height: 400px;
 }
+.disaster .disaster-more-info-table-title {
+  background-color: #accce8;
+  margin: 5px 10px 5px 0;
+  padding: 15px;
+}
 .disaster .disaster-more-info-table-nested {
   width: 240px;
   margin: 15px 0 15px 15px;
@@ -6458,6 +6473,18 @@ a.disaster .label:focus {
   font-style: italic;
   border-bottom: 1px dashed #2c689c;
   padding-bottom: 10px;
+}
+.disaster .disaster-more-info-table a {
+  text-decoration: none;
+  padding: 5px;
+  margin: 5px 0;
+  display: block;
+  min-height: 46px;
+  border-radius: 4px;
+  background-color: #f2f2f2;
+}
+.disaster .disaster-more-info-table a:hover {
+  background-color: #fff;
 }
 .disaster .freeze-app {
   position: fixed;

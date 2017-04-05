@@ -11,7 +11,8 @@ const Nouislider = require('react-nouislider');
 const {connect} = require('react-redux');
 const {show, hide} = require('react-notification-system-redux');
 const {mapLabelSelector} = require('../selectors/disaster');
-const LabelResource = connect(mapLabelSelector, { show, hide })(require('../components/LabelResource'));
+const {getSFurtherResourceData} = require('../actions/disaster');
+const LabelResource = connect(mapLabelSelector, { show, hide, getData: getSFurtherResourceData })(require('../components/LabelResource'));
 
 const AxesSelector = React.createClass({
     propTypes: {

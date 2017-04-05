@@ -12,20 +12,24 @@ const {isObject} = require('lodash');
 const LabelResource = React.createClass({
     propTypes: {
         uid: React.PropTypes.string,
+        currentUrl: React.PropTypes.string,
         label: React.PropTypes.string,
         show: React.PropTypes.func,
         hide: React.PropTypes.func,
         notification: React.PropTypes.array,
-        dimension: React.PropTypes.object
+        dimension: React.PropTypes.object,
+        getData: React.PropTypes.func
     },
     getDefaultProps() {
         return {
             uid: 'label_tab',
+            currentUrl: '',
             label: '',
             show: () => {},
             hide: () => {},
             notification: [],
-            dimension: {}
+            dimension: {},
+            getData: () => {}
         };
     },
     getDataAttributes(data) {
@@ -46,7 +50,10 @@ const LabelResource = React.createClass({
     },
     render() {
         const {uid, dimension, label, notification} = this.props;
+        const url = this.props.currentUrl + 'dym/' + dimension.id;
         const active = notification.length > 0 ? ' active' : '';
+        const title = (<h4 className="text-center">{dimension.name}</h4>);
+        const head = (<div><div className="disaster-more-info-table">{this.getDataAttributes(dimension)}</div></div>);
         const element = (
           <div className="disaster-more-info-table-notification">
               <h4 className="text-center">{dimension.name}</h4>
@@ -54,14 +61,14 @@ const LabelResource = React.createClass({
                   <div className="disaster-more-info-table">
                       {this.getDataAttributes(dimension)}
                   </div>
-                  <button className={"btn btn-primary"} onClick={() => { this.props.show({position: 'bc', autoDismiss: 3, title: 'test'}, 'info'); }}>
+                  <button className={"btn btn-primary"} onClick={() => { this.props.getData(url, uid, title, head); }}>
                       <i className="fa fa-ellipsis-h"/>&nbsp;{'More info'}
                   </button>
               </div>
           </div>
         );
         return (
-            <button className={"text-center btn slider-lab" + active} onClick={() => { return notification.length === 0 ? this.props.show({uid, position: 'bc', autoDismiss: 0, children: element}, 'info') : this.props.hide(uid); }}>
+            <button className={"text-center btn slider-lab" + active} onClick={() => { return notification.length === 0 ? this.props.show({uid, position: 'bc', /*dismissible: false,*/ autoDismiss: 0, children: element}, 'info') : this.props.hide(uid); }}>
                 {label}
             </button>
         );

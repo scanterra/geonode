@@ -21,6 +21,7 @@ const GET_RISK_FEATURES = 'GET_RISK_FEATURES';
 const GET_ANALYSIS_DATA = 'GET_ANALYSIS_DATA';
 const ZOOM_IN_OUT = 'ZOOM_IN_OUT';
 const INIT_RISK_APP = 'INIT_RISK_APP';
+const GET_S_FURTHER_RESOURCE_DATA = 'GET_S_FURTHER_RESOURCE_DATA';
 
 function initState({href, geomHref, gc, ac}) {
     return {
@@ -127,6 +128,16 @@ function toggleAdminUnit() {
     };
 }
 
+function getSFurtherResourceData(url, uid, title, head) {
+    return {
+        type: GET_S_FURTHER_RESOURCE_DATA,
+        url,
+        uid,
+        title,
+        head
+    };
+}
+
 module.exports = {
     DATA_LOADING,
     DATA_LOADED,
@@ -141,6 +152,7 @@ module.exports = {
     GET_ANALYSIS_DATA,
     ZOOM_IN_OUT,
     INIT_RISK_APP,
+    GET_S_FURTHER_RESOURCE_DATA,
     featuresLoaded,
     featuresLoading,
     featuresError,
@@ -156,5 +168,6 @@ module.exports = {
     loadMapConfig,
     setDimIdx,
     toggleAdminUnit,
-    initState
+    initState,
+    getSFurtherResourceData
 };

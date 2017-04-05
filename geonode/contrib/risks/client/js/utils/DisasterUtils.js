@@ -5,6 +5,8 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
  */
+const React = require('react');
+const {isString} = require('lodash');
 const assign = require('object-assign');
 function configLayer(baseurl, layerName, layerId, layerTitle, visibility = true, group) {
     return assign({
@@ -47,5 +49,49 @@ function getStyle({dim, riskAnalysis}) {
     return dimensions[dim.dim1].layers[dim1Val] && dimensions[dim.dim1].layers[dim1Val].layerStyle && dimensions[dim.dim1].layers[dim1Val].layerStyle.name;
 }
 
+function makeNotificationRow(data) {
+    const attributes = Object.keys(data);
+    attributes.sort();
+    // ['abstract', 'category', 'date', 'details', 'license', 'text', 'thumbnail', 'title', 'uuid'];
+    const match = ['abstract', 'category', 'details'];
+    const links = ['details'];
+    return attributes.filter((val) => {
+        return match.indexOf(val) !== -1;
+    }).map((item, idx) => {
+        let obj = data[item];
+        return isString(obj) ? (
+            <div key={idx}>
+            { links.indexOf(item) === -1 ? (
+              <div>
+                <div className="disaster-more-info-even">{item}</div>
+                <div className="disaster-more-info-odd">{obj}</div>
+              </div>
+            ) : <a className="text-center" target="_blank" href={obj}>{item}</a>}
+            </div>
+        ) : null;
+    });
+}
 
-module.exports = {configLayer, getViewParam, getLayerName, getStyle};
+function makeNotificationBlock(data) {
+    return data.map((obj) => {
+        return (<div><h4 className="disaster-more-info-table-title text-center">{obj.title}</h4>
+            <div className="disaster-more-info-table">
+                {makeNotificationRow(obj)}
+            </div>
+        </div>);
+    });
+}
+
+function makeNotificationBody(data, title, head) {
+    return (
+        <div className="disaster-more-info-table-notification">
+            {title}
+            <div className="disaster-more-info-table-container">
+                {head}
+                {makeNotificationBlock(data)}
+            </div>
+        </div>
+    );
+}
+
+module.exports = {configLayer, getViewParam, getLayerName, getStyle, makeNotificationBody};

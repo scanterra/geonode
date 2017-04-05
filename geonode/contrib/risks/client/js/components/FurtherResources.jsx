@@ -19,11 +19,12 @@ const FurtherResources = React.createClass({
     },
     getResources(resources = []) {
         return resources.map((res, idx) => (
-            <li className="text-center" key={idx}>
-                <a target="_blank" href={res.details}>
-                    {res.text}
-                </a>
-            </li>)
+            <a target="_blank" href={res.details} key={idx}>
+              <div className="row" style={{width: '100%'}}>
+                <div className="col-xs-2"><i className="fa fa-dot-circle-o" /></div>
+                <div className="col-xs-10">{res.text}</div>
+            </div>
+                </a>)
         );
     },
     render() {
@@ -33,9 +34,9 @@ const FurtherResources = React.createClass({
             <div id="disaster-further-resources" className="disaster-fth-res-container">
                 <h4>Further Resources</h4>
                 <p>For further information the following resources could be consulted:</p>
-                <ul className="nav nav-pills nav-stacked">
+                <div className="container-fluid">
                     {this.getResources(resources)}
-                </ul>
+                </div>
             </div>) : <div id="disaster-further-resources"></div>;
     }
 });

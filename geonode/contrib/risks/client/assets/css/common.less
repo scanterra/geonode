@@ -188,21 +188,23 @@
 }
 
 .slider-lab {
-  background-color: #fff;
-  color: @text-color;
+  background-color: lighten(@brand-primary, 20%);
+  color: #fff;
   border-top: none;
   font-size: 15px;
   padding: 10px 0 10px 0;
   display: block;
   width: 100%;
-  box-shadow: inset 0 3px 6px rgba(0,0,0,0.16), inset 0 3px 6px rgba(0,0,0,0.23);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
 }
 .slider-lab:hover, .slider-lab.active:hover {
-  background-color: #ddd;
+  background-color: lighten(@brand-primary, 10%);;
+  color: #fff;
 }
 .slider-lab.active {
-  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-  background-color: #f2f2f2;
+  box-shadow: inset 0 3px 6px rgba(0,0,0,0.16), inset 0 3px 6px rgba(0,0,0,0.23);
+  background-color: @brand-primary;
+  color: #fff;
 }
 
 .slider-box {
@@ -239,6 +241,16 @@
   background-color: #fff;
   padding: 15px 15px;
   box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+}
+
+.disaster-fth-res-container a {
+  display: block;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.disaster-fth-res-container a:hover {
+  background-color: #f2f2f2;
 }
 
 .link-sharing{
@@ -362,6 +374,12 @@
   max-height: 400px;
 }
 
+.disaster-more-info-table-title {
+  background-color: lighten(@brand-primary, 40%);
+  margin: 5px 10px 5px 0;
+  padding: 15px;
+}
+
 .disaster-more-info-table-nested {
   width: 240px;
   margin: 15px 0 15px 15px;
@@ -382,6 +400,21 @@
   border-bottom: 1px dashed @brand-primary;
   padding-bottom: 10px;
 }
+
+.disaster-more-info-table a {
+  text-decoration: none;
+  padding: 5px;
+  margin: 5px 0;
+  display: block;
+  min-height: 46px;
+  border-radius: 4px;
+  background-color: #f2f2f2;
+}
+
+.disaster-more-info-table a:hover {
+  background-color: #fff;
+}
+
 .freeze-app{
     position: fixed;
     top: 0;
@@ -393,4 +426,5 @@
 }
 .drc .collapsible-toc {
     border-left: 0px;
+
 }
