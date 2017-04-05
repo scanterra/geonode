@@ -6410,6 +6410,10 @@ a.disaster .label:focus {
   width: 60%;
   color: #ff8f31;
   padding: 15px 10px;
+  overflow-y: auto;
+}
+.disaster .drc .toc-layer-tool.glyphicon.glyphicon-cog {
+  display: none;
 }
 .disaster .drc .toc-group-title {
   background-color: transparent;
@@ -6463,6 +6467,9 @@ a.disaster .label:focus {
   right: 0;
   z-index: 3000;
   background-color: rgba(171, 166, 166, 0.24);
+}
+.disaster .drc .collapsible-toc {
+  border-left: 0px;
 }
 @font-face {
   font-family: 'thinkhazard';
