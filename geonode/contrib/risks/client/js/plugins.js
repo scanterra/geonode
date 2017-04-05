@@ -10,7 +10,7 @@ module.exports = {
     plugins: {
         MapPlugin: require('../MapStore2/web/client/plugins/Map'),
         TutorialPlugin: require('../MapStore2/web/client/plugins/Tutorial'),
-    //    TOCPlugin: require('./plugins/RiskTOC'),
+        TOCPlugin: require('./plugins/RiskTOC'),
         ToolbarPlugin: require('../MapStore2/web/client/plugins/Toolbar'),
         OmniBarPlugin: require('../MapStore2/web/client/plugins/OmniBar')
     },
