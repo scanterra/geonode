@@ -8,6 +8,10 @@
 
 const React = require('react');
 const Nouislider = require('react-nouislider');
+const {connect} = require('react-redux');
+const {show, hide} = require('react-notification-system-redux');
+const {mapLabelSelector} = require('../selectors/disaster');
+const LabelResource = connect(mapLabelSelector, { show, hide })(require('../components/LabelResource'));
 
 const AxesSelector = React.createClass({
     propTypes: {
@@ -23,10 +27,13 @@ const AxesSelector = React.createClass({
     },
     render() {
         const {name = '', values = []} = this.props.dimension || {};
-        return !this.props.dimension || values.length - 1 === 0 ? null : (
+        const label = !this.props.dimension ? null : (
             <div className="text-center slider-box">
-                <div className="slider-lab">{name + ' ' + values[this.props.activeAxis]}
-                </div>
+                <LabelResource uid={'map_label_tab'} label={name + ' ' + values[this.props.activeAxis]} dimension={this.props.dimension}/>
+            </div>);
+        return !this.props.dimension || values.length - 1 === 0 ? label : (
+            <div className="text-center slider-box">
+                <LabelResource uid={'map_label_tab'} label={name + ' ' + values[this.props.activeAxis]} dimension={this.props.dimension}/>
                 <Nouislider
                     range={{min: 0, max: values.length - 1}}
                     start={[this.props.activeAxis]}

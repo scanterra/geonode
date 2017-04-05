@@ -63,6 +63,18 @@ const moreInfoSelector = createSelector([notificationsSel, riskAnalysisDataSel],
         riskAnalysisData
       })
     );
+const chartLabelSelector = createSelector([notificationsSel],
+      (notifications) => (
+        {
+          notification: notifications.filter((val) => { return val.uid === 'chart_label_tab'; })
+        })
+      );
+const mapLabelSelector = createSelector([notificationsSel],
+      (notifications) => (
+        {
+          notification: notifications.filter((val) => { return val.uid === 'map_label_tab'; })
+        })
+      );
 module.exports = {
     drillUpSelector,
     topBarSelector,
@@ -71,6 +83,8 @@ module.exports = {
     axesSelector,
     shareUrlSelector,
     downloadDataSelector,
-    moreInfoSelector
+    moreInfoSelector,
+    chartLabelSelector,
+    mapLabelSelector
 };
 
