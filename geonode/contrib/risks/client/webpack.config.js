@@ -46,6 +46,7 @@ module.exports = {
         new NormalModuleReplacementPlugin(/map\/leaflet\/Feature/, path.join(__dirname, "js", "ms2Override", "LeafletFeature.jsx")),
         new NormalModuleReplacementPlugin(/reducers\/map/, path.join(__dirname, "js", "ms2Override", "mapreducer.js")),
         new NormalModuleReplacementPlugin(/client\/selectors\/layer/, path.join(__dirname, "js", "ms2Override", "layersSelector.js")),
+        new NormalModuleReplacementPlugin(/map\/leaflet\/snapshot\/GrabMap/, path.join(__dirname, "js", "ms2Override", "LGrabMap.jsx")),
         extractThemesPlugin
     ],
     resolve: {
@@ -148,10 +149,6 @@ module.exports = {
                     pathRewrite: { "^/static/js": ""}
                 },
                 '/risks': {
-                    target: "http://disasterrisk-af-dev.geo-solutions.it",
-                    changeOrigin: true
-                },
-                '/uploaded': {
                     target: "http://disasterrisk-af-dev.geo-solutions.it",
                     changeOrigin: true
                 }

@@ -17,19 +17,16 @@ const MapContainer = require('../containers/MapContainer');
 const Page = require('../../MapStore2/web/client/containers/Page');
 const ConfigUtils = require('../../MapStore2/web/client/utils/ConfigUtils');
 const NotificationStyle = require('../../assets/js/NotificationStyle');
+const ReportMap = require('../components/ReportMapImage');
 
 const Home = React.createClass({
     propTypes: {
         params: React.PropTypes.object,
         locale: React.PropTypes.string,
         messages: React.PropTypes.object,
-        plugins: React.PropTypes.object
-    },
-    componentWillMount() {
-        console.log(this.props.params.splat);
-    },
-    componentWillReceiveProps(nextProps) {
-        console.log(nextProps.params.splat !== this.props.params.splat);
+        plugins: React.PropTypes.object,
+        reportprocessing: React.PropTypes.bool,
+        generateMap: React.PropTypes.bool
     },
     render() {
         const {plugins} = this.props;
@@ -59,6 +56,8 @@ const Home = React.createClass({
                             {<MapContainer plugins={plugins}/>}
                         </div>
                     </div>
+                   {this.props.generateMap ? (<ReportMap/>) : null}
+                   {this.props.generateMap ? (<div className="freeze-app" />) : null}
                 </div>
         );
     }
@@ -68,6 +67,8 @@ module.exports = connect((state) => {
     return {
         error: state.loadingError || (state.locale && state.locale.localeError) || null,
         locale: state.locale && state.locale.current,
-        messages: state.locale && state.locale.messages || {}
+        messages: state.locale && state.locale.messages || {},
+        reportprocessing: state.report && state.report.processing,
+        generateMap: state.report && state.report.generateMap
     };
 })(Home);

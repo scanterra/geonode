@@ -12,11 +12,12 @@ const assign = require('object-assign');
 const {reducer} = require('react-notification-system-redux');
 const appReducers = {
      disaster: require('./reducers/disaster'),
+     report: require('./reducers/report'),
      notifications: reducer
  };
 const {getData, initState, getFeatures} = require('./actions/disaster');
-const epics = require('./epics/disaster');
-
+const dEpics = require('./epics/disaster');
+const rEpics = require('./epics/report');
 const ConfigUtils = require('../MapStore2/web/client/utils/ConfigUtils');
 ConfigUtils.setLocalConfigurationFile('/static/js/localConfig.json');
 // Set one hour cache
@@ -42,7 +43,7 @@ const StandardRouter = connect((state) => ({
 
 }))(require('../MapStore2/web/client/components/app/StandardRouter'));
 
-const appStore = require('../MapStore2/web/client/stores/StandardStore').bind(null, newInitState, appReducers, epics);
+const appStore = require('../MapStore2/web/client/stores/StandardStore').bind(null, newInitState, appReducers, {...dEpics, ...rEpics});
 
 const initialActions = init ? [() => initState(init)] : [() => getData("/risks/risk_data_extraction/loc/AF/"), () => getFeatures("/risks/geom/loc/AF/")];
 const appConfig = {

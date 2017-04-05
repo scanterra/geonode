@@ -9,7 +9,7 @@
 const React = require('react');
 const {BarChart, Bar, XAxis, Cell, YAxis, Tooltip, CartesianGrid, ResponsiveContainer} = require('recharts');
 const ChartTooltip = require("./ChartTooltip");
-const NumberFormat = require("../../MapStore2/web/client/components/I18N/Number");
+
 
 const Chart = React.createClass({
     propTypes: {

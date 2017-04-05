@@ -6455,6 +6455,15 @@ a.disaster .label:focus {
   border-bottom: 1px dashed #2c689c;
   padding-bottom: 10px;
 }
+.disaster .freeze-app {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 3000;
+  background-color: rgba(171, 166, 166, 0.24);
+}
 @font-face {
   font-family: 'thinkhazard';
   src: url('../fonts/thinkhazard/thinkhazard.eot?-xr90r9');

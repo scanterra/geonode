@@ -34,6 +34,7 @@ webpackConfig.plugins = [
     new NormalModuleReplacementPlugin(/map\/leaflet\/Feature/, path.join(__dirname, "js", "ms2Override", "LeafletFeature.jsx")),
     new NormalModuleReplacementPlugin(/reducers\/map/, path.join(__dirname, "js", "ms2Override", "mapreducer.js")),
     new NormalModuleReplacementPlugin(/client\/selectors\/layer/, path.join(__dirname, "js", "ms2Override", "layersSelector.js")),
+    new NormalModuleReplacementPlugin(/map\/leaflet\/snapshot\/GrabMap/, path.join(__dirname, "js", "ms2Override", "LGrabMap.jsx")),
     new ParallelUglifyPlugin({
         uglifyJS: {
             sourceMap: false,

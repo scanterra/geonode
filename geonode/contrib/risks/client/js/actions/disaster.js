@@ -22,10 +22,11 @@ const GET_ANALYSIS_DATA = 'GET_ANALYSIS_DATA';
 const ZOOM_IN_OUT = 'ZOOM_IN_OUT';
 const INIT_RISK_APP = 'INIT_RISK_APP';
 
-function initState({href, gc, ac}) {
+function initState({href, geomHref, gc, ac}) {
     return {
         type: INIT_RISK_APP,
         href,
+        geomHref,
         gc,
         ac
     };
@@ -125,6 +126,7 @@ function toggleAdminUnit() {
         type: TOGGLE_ADMIN_UNITS
     };
 }
+
 module.exports = {
     DATA_LOADING,
     DATA_LOADED,
