@@ -10,7 +10,9 @@ const {
      GENERATE_REPORT,
      GENERATE_MAP,
      REPORT_MAP_READY,
-     REPORT_READY
+     REPORT_READY,
+     GENERATE_REPORT_ERROR,
+     GENERATE_MAP_ERROR
  } = require('../actions/report');
 
 function report(state = {}, action) {
@@ -18,8 +20,14 @@ function report(state = {}, action) {
         case GENERATE_REPORT: {
             return assign({}, state, {processing: true, mapImg: undefined, chartImg: undefined});
         }
+        case GENERATE_REPORT_ERROR: {
+            return assign({}, state, {processing: false, mapImg: undefined, chartImg: undefined, generateMap: false});
+        }
         case GENERATE_MAP: {
             return assign({}, state, {generateMap: true, mapImg: undefined});
+        }
+        case GENERATE_MAP_ERROR: {
+            return assign({}, state, {generateMap: false, mapImg: undefined, processing: false});
         }
         case REPORT_MAP_READY: {
             return assign({}, state, {generateMap: false, mapImg: action.dataUrl});

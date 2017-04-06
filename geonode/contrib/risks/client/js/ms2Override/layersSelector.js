@@ -12,7 +12,7 @@ const assign = require('object-assign');
 const MapInfoUtils = require('../../MapStore2/web/client/utils/MapInfoUtils');
 const LayersUtils = require('../../MapStore2/web/client/utils/LayersUtils');
 const {getViewParam, getLayerName, getStyle} = require('../utils/DisasterUtils');
-const layersSelector = state => (state.layers && state.layers.flat) || (state.layers) || (state.config && state.config.layers);
+const layersSelectorO = state => (state.layers && state.layers.flat) || (state.layers) || (state.config && state.config.layers);
 const markerSelector = state => (state.mapInfo && state.mapInfo.showMarker && state.mapInfo.clickPoint);
 const geoColderSelector = state => (state.search && state.search.markerPosition);
 const disasterSelector = state => ({
@@ -23,10 +23,8 @@ const disasterSelector = state => ({
 });
 // TODO currently loading flag causes a re-creation of the selector on any pan
 // to avoid this separate loading from the layer object
-
-const layerSelectorWithMarkers = createSelector(
-    [layersSelector, markerSelector, geoColderSelector, disasterSelector],
-    (layers = [], markerPosition, geocoderPosition, disaster) => {
+const layersSelector = createSelector([layersSelectorO, disasterSelector],
+    (layers = [], disaster) => {
         let newLayers;
         const riskAnWMSIdx = findIndex(layers, l => l.id === '_riskAn_');
         if (disaster.riskAnalysis && !disaster.loading && riskAnWMSIdx !== -1) {
@@ -36,6 +34,13 @@ const layerSelectorWithMarkers = createSelector(
         }else {
             newLayers = [...layers];
         }
+        return newLayers;
+    });
+
+const layerSelectorWithMarkers = createSelector(
+    [layersSelector, markerSelector, geoColderSelector, disasterSelector],
+    (layers = [], markerPosition, geocoderPosition) => {
+        let newLayers = [...layers];
         if ( markerPosition ) {
             newLayers.push(MapInfoUtils.getMarkerLayer("GetFeatureInfo", markerPosition.latlng));
         }

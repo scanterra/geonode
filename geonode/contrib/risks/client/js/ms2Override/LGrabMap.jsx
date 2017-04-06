@@ -208,7 +208,7 @@ let GrabLMap = React.createClass({
                         proxy: this.proxy,
                         allowTaint: props && props.allowTaint,
                         // TODO: improve to useCORS if every source has CORS enabled
-                        useCORS: props && props.allowTaint
+                        useCORS: true
                 });
             }, this);
             queue = [this.refs.canvas, ...queue];

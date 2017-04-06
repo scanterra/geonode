@@ -64,8 +64,13 @@ const ReportMap = React.createClass({
         return this.renderGrabMaps();
     },
     imageReady(canvas) {
-        const dataURL = canvas.toDataURL("image/png");
-        this.props.imageReady(dataURL);
+        try {
+            const dataURL = canvas.toDataURL("image/png");
+            this.props.imageReady(dataURL);
+
+        }catch(e) {
+            this.props.onSnapshotError(e);
+        }
     }
 });
 
