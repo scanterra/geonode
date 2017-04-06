@@ -32,6 +32,9 @@ from geonode.contrib.risks.models import HazardSetFurtherResourceAssociation
 from geonode.contrib.risks.models import RiskAnalysisCreate
 from geonode.contrib.risks.models import RiskAnalysisImportData
 from geonode.contrib.risks.models import RiskAnalysisImportMetadata
+from geonode.contrib.risks.models import RiskApp
+from geonode.contrib.risks.models import AdditionalData
+
 
 from geonode.contrib.risks.forms import CreateRiskAnalysisForm
 from geonode.contrib.risks.forms import ImportDataRiskAnalysisForm
@@ -94,8 +97,9 @@ class AdministrativeDivisionAdmin(admin.ModelAdmin):
 class AnalysisTypeAdmin(admin.ModelAdmin):
     model = AnalysisType
     list_display_links = ('name',)
-    list_display = ('name', 'title', 'description',)
+    list_display = ('name', 'title', 'description', 'app',)
     search_fields = ('name', 'title',)
+    list_filter = ('app__name',)
     inlines = [FurtherResourceInline]
     group_fieldsets = True
 
@@ -103,9 +107,11 @@ class AnalysisTypeAdmin(admin.ModelAdmin):
 class HazardTypeAdmin(admin.ModelAdmin):
     model = HazardType
     list_display_links = ('mnemonic',)
-    list_display = ('mnemonic', 'gn_description', 'title',)
+    list_display = ('mnemonic', 'gn_description', 'title', 'app',)
     search_fields = ('mnemonic', 'gn_description', 'title',)
+    list_filter = ('mnemonic', 'app__name',)
     inlines = [FurtherResourceInline]
+    list_select_related = True
     group_fieldsets = True
 
 
@@ -122,9 +128,9 @@ class DymensionInfoAdmin(admin.ModelAdmin):
 class RiskAnalysisAdmin(admin.ModelAdmin):
     model = RiskAnalysis
     list_display_links = ('name',)
-    list_display = ('name', 'state',)
+    list_display = ('name', 'state', 'app')
     search_fields = ('name',)
-    list_filter = ('state', 'hazard_type', 'analysis_type',)
+    list_filter = ('state', 'hazard_type', 'analysis_type', 'app__name',)
     readonly_fields = ('administrative_divisions', 'descriptor_file', 'data_file', 'metadata_file', 'state',)
     # inlines = [AdministrativeDivisionInline, DymensionInfoInline]
     inlines = [LinkedResourceInline, DymensionInfoInline]
@@ -203,6 +209,15 @@ class RiskAnalysisImportMetaDataAdmin(admin.ModelAdmin):
     def __init__(self, *args, **kwargs):
         super(RiskAnalysisImportMetaDataAdmin, self).__init__(*args, **kwargs)
         self.list_display_links = (None, )
+
+
+@admin.register(RiskApp)
+class RiskAppAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+
+@admin.register(AdditionalData)
+class AdditionalDataAdmin(admin.ModelAdmin):
+    list_display = ('risk_analysis', 'name',)
 
 
 admin.site.register(Region, RegionAdmin)

@@ -31,5 +31,15 @@
 
 {% block body %}
     <div id="container"></div>
+    <script type="text/javascript">
+    var d = window.DISASTERRISK!==undefined?window.DISASTERRISK:{};
+    window.DISASTERRISK = d;
+
+    d['app'] = {'name': '{{ app.name|safe }}',
+                'geometry': '{{ geometry_url|safe }}',
+                'href': '{{ app.href|safe}}'};
+
+
+    </script>
     <script type="text/javascript" src="{% static "js/disastermanagement-client.js" %}"></script>
 {% endblock body %}

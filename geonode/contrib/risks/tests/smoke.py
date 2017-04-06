@@ -49,6 +49,10 @@ TEST_REGION = 'Afghanistan'
 TEST_DIM_1 = 'Scenario'
 TEST_DIM_2 = 'Round Period'
 
+PDF_INPUT_TEST = os.path.join(
+    os.path.dirname(__file__),
+    'resources', 'pdf_input_test.jpg')
+
 
 class RisksSmokeTests(RisksTestCase):
     """

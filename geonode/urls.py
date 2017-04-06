@@ -154,7 +154,7 @@ if "djmp" in settings.INSTALLED_APPS:
 
 if 'geonode.contrib.risks' in settings.INSTALLED_APPS:
     urlpatterns += patterns('',
-                           (r'^risks/', include('geonode.contrib.risks.urls')),
+                           (r'^risks/', include('geonode.contrib.risks.urls', namespace='risks')),
                            )
 # Set up proxy
 urlpatterns += geonode.proxy.urls.urlpatterns

@@ -45,7 +45,7 @@ const StandardRouter = connect((state) => ({
 
 const appStore = require('../MapStore2/web/client/stores/StandardStore').bind(null, newInitState, appReducers, {...dEpics, ...rEpics});
 
-const initialActions = init ? [() => initState(init)] : [() => getData("/risks/risk_data_extraction/loc/AF/"), () => getFeatures("/risks/geom/loc/AF/")];
+const initialActions = init ? [() => initState(init)] : [() => getData("/risks/data_extraction/loc/AF/"), () => getFeatures("/risks/data_extraction/geom/AF/")];
 const appConfig = {
     storeOpts,
     appStore,

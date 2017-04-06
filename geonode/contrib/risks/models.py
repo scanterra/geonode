@@ -26,6 +26,40 @@ from django.core import files
 from geonode.base.models import ResourceBase, TopicCategory
 from geonode.layers.models import Layer, Style
 
+from jsonfield import JSONField
+import xlrd
+
+
+class RiskApp(models.Model):
+    APP_DATA_EXTRACTION = 'data_extraction'
+    APP_COST_BENEFIT = 'cost_benefit_analysis'
+    APPS = ((APP_DATA_EXTRACTION, 'Data Extraction',),
+            (APP_COST_BENEFIT, 'Cost Benefit Analysis',))
+
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=64, choices=APPS, unique=True, null=False, blank=False)
+
+    def __str__(self):
+        return "Risk App: {}".format(self.name)
+
+    @property
+    def href(self):
+        return self.url_for('index')
+
+    def url_for(self, url_name, *args, **kwargs):
+        return reverse('risks:{}:{}'.format(self.name, url_name), args=args, kwargs=kwargs)
+
+
+class RiskAppAware(object):
+    def get_url(self, url_name, *args, **kwargs):
+        return self.app.url_for(url_name, *args, **kwargs)
+
+    def set_app(self, app):
+        """
+        Hack for models that don't have app fk (they don't have to)
+        """
+        self.app = app
+        return self
 
 class Schedulable(models.Model):
     STATE_QUEUED = 'queued'
@@ -146,7 +180,7 @@ class RiskAnalysisAware(object):
         return self._risk_analysis
 
 
-class AnalysisType(HazardTypeAware, LocationAware, Exportable, models.Model):
+class AnalysisType(RiskAppAware, HazardTypeAware, LocationAware, Exportable, models.Model):
     """
     For Risk Data Extraction it can be, as an instance, 'Loss Impact', 'Impact
     Analysis'. This object should also refer to any additional description
@@ -163,6 +197,7 @@ class AnalysisType(HazardTypeAware, LocationAware, Exportable, models.Model):
                             db_index=True)
     title = models.CharField(max_length=80, null=False, blank=False)
     description = models.TextField(default='', null=True, blank=False)
+    app = models.ForeignKey(RiskApp)
     fa_icon = models.CharField(max_length=30, null=True, blank=True)
 
     def __unicode__(self):
@@ -177,7 +212,7 @@ class AnalysisType(HazardTypeAware, LocationAware, Exportable, models.Model):
     def href(self):
         loc = self.get_location()
         ht = self.get_hazard_type()
-        return reverse('risks:analysis_type', args=(loc.code, ht.mnemonic, self.name,))
+        return self.get_url('analysis_type', loc.code, ht.mnemonic, self.name)
 
     def get_risk_analysis_list(self, **kwargs):
         loc = self.get_location()
@@ -199,7 +234,7 @@ class AnalysisType(HazardTypeAware, LocationAware, Exportable, models.Model):
         return out
 
 
-class HazardType(LocationAware, Exportable, models.Model):
+class HazardType(RiskAppAware, LocationAware, Exportable, models.Model):
     """
     Describes an Hazard related to an Analysis and a Risk and pointing to
     additional resources on GeoNode.
@@ -221,6 +256,7 @@ class HazardType(LocationAware, Exportable, models.Model):
     gn_description = models.TextField('GeoNode description', default='',
                                       null=True)
     fa_class = models.CharField(max_length=64, default='fa-times')
+    app = models.ForeignKey(RiskApp)
 
     def __unicode__(self):
         return u"{0}".format(self.mnemonic)
@@ -242,9 +278,10 @@ class HazardType(LocationAware, Exportable, models.Model):
     def get_analysis_types(self):
         loc = self.get_location()
         ra = RiskAnalysis.objects.filter(administrative_divisions=loc,
+                                         app=self.app,
                                          hazard_type=self)
 
-        at = AnalysisType.objects.filter(riskanalysis_analysistype__in=ra).distinct()
+        at = AnalysisType.objects.filter(riskanalysis_analysistype__in=ra, app=self.app).distinct()
         return at
 
     def default_analysis_type(self):
@@ -252,14 +289,14 @@ class HazardType(LocationAware, Exportable, models.Model):
         at = self.get_analysis_types()
         if at.exists():
             at = at.first()
-            return {'href': reverse('risks:analysis_type', args=(loc.code, self.mnemonic, at.name,))}
+            return {'href': self.get_url('analysis_type', loc.code, self.mnemonic, at.name)}
         else:
             return {}
 
     @property
     def href(self):
         loc = self.get_location()
-        return reverse('risks:hazard_type', args=(loc.code, self.mnemonic,))
+        return self.get_url('hazard_type', loc.code, self.mnemonic)
 
     def get_hazard_details(self):
         """
@@ -287,7 +324,7 @@ class HazardType(LocationAware, Exportable, models.Model):
         return out
 
 
-class RiskAnalysis(Schedulable, LocationAware, HazardTypeAware, AnalysisTypeAware, Exportable, models.Model):
+class RiskAnalysis(RiskAppAware, Schedulable, LocationAware, HazardTypeAware, AnalysisTypeAware, Exportable, models.Model):
     """
     A type of Analysis associated to an Hazard (Earthquake, Flood, ...) and
     an Administrative Division.
@@ -351,6 +388,7 @@ class RiskAnalysis(Schedulable, LocationAware, HazardTypeAware, AnalysisTypeAwar
     )
 
     additional_layers = models.ManyToManyField(Layer, blank=True)
+    app = models.ForeignKey(RiskApp)
 
     def __unicode__(self):
         return u"{0}".format(self.name)
@@ -382,7 +420,7 @@ class RiskAnalysis(Schedulable, LocationAware, HazardTypeAware, AnalysisTypeAwar
         loc = self.get_location()
         ht = self.get_hazard_type()
         at = self.get_analysis_type()
-        return reverse('risks:data_extraction', args=(loc.code, ht.mnemonic, at.name, self.id,))
+        return self.get_url('analysis', loc.code, ht.mnemonic, at.name, self.id)
 
 
 class AdministrativeDivisionManager(models.Manager):
@@ -392,7 +430,7 @@ class AdministrativeDivisionManager(models.Manager):
         return self.get(code=code)
 
 
-class AdministrativeDivision(Exportable, MPTTModel):
+class AdministrativeDivision(RiskAppAware, Exportable, MPTTModel):
     """
     Administrative Division Gaul dataset.
     """
@@ -424,16 +462,16 @@ class AdministrativeDivision(Exportable, MPTTModel):
 
     @property
     def href(self):
-        return reverse('risks:location', args=(self.code,))
+        return self.get_url('location', self.code)
 
     @property
     def geom_href(self):
-        return reverse('risks-geom:location', args=(self.code,))
+        return self.get_url('geometry', self.code)
 
     @property
     def parent_geom_href(self):
         if self.parent:
-            return self.parent.geom_href;
+            return self.parent.geom_href
 
     def __unicode__(self):
         return u"{0}".format(self.name)
@@ -1259,3 +1297,46 @@ class RiskAnalysisImportMetadata(models.Model):
                         XLSX file'
         verbose_name_plural = 'Risks Analysis: Import or Update Risk Metadata \
                                from XLSX file'
+
+class AdditionalData(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=255, null=False, default='')
+    risk_analysis = models.ForeignKey(RiskAnalysis)
+    data = JSONField(null=False, blank=False, default={})
+
+    def __str__(self):
+        return "Additional Data #{}: {}".format(self.id, self.name)
+
+    @classmethod
+    def import_from_sheet(cls, risk, sheet_file, name=None, sheets=None):
+        wb = xlrd.open_workbook(filename=sheet_file)
+        out = []
+        for sheet in wb.sheets():
+            col_names = [item.value for item in sheet.row(0)]
+            # first row in column 0 belongs to column names
+            row_names = [item.value for item in sheet.col(0)[1:]]
+
+            values = []
+            for rnum in range(1, sheet.nrows):
+                values.append([item.value for item in sheet.row(rnum)[1:]])
+            
+            data = {'column_names': col_names,
+                    'row_names': row_names,
+                    'values': values}
+
+            ad = cls.objects.create(name=sheet.name, risk_analysis=risk, data=data)
+            out.append(ad)
+        return out
+
+
+def create_risks_apps(apps, schema_editor):
+    RA = apps.get_model('risks', 'RiskApp')
+    for rname, rlabel in RiskApp.APPS:
+        RA.objects.get_or_create(name=rname)
+
+def uncreate_risks_apps(apps, schema_editor):
+    RA = apps.get_model('risks', 'RiskApp')
+    RA.objects.all().delete()
+
+def get_risk_app_default():
+    return RiskApp.objects.get(name=RiskApp.APP_DATA_EXTRACTION).id

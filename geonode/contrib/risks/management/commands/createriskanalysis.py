@@ -22,7 +22,7 @@ from optparse import make_option
 
 from django.core.management.base import BaseCommand, CommandError
 from geonode.layers.models import Layer
-from geonode.contrib.risks.models import RiskAnalysis, HazardType
+from geonode.contrib.risks.models import RiskAnalysis, HazardType, RiskApp
 from geonode.contrib.risks.models import AnalysisType, DymensionInfo
 from geonode.contrib.risks.models import RiskAnalysisDymensionInfoAssociation
 
@@ -30,6 +30,8 @@ import ConfigParser
 
 Config = ConfigParser.ConfigParser()
 
+RISK_APPS = [a[0] for a in RiskApp.APPS]
+RISK_APP_DEFAULT = RiskApp.APP_DATA_EXTRACTION
 
 class Command(BaseCommand):
     """
@@ -38,6 +40,10 @@ class Command(BaseCommand):
     The command needs an 'ini' file defined as follows (just an example):
 
         [DEFAULT]
+        # optional, if not provided, data_extraction will be used 
+        # (or any other provided in -r cli switch)
+        app = data_extraction|cost_benefit_analysis
+
         # unique and less than 30 characters
         name = future_projections_Hospital
 
@@ -115,6 +121,13 @@ Loss Impact and Impact Analysis Types.'
                             dest='descriptor_file',
                             type=str,
                             help='Input Risk Analysis Descriptor INI File.')
+        parser.add_argument('-r',
+                            '--risk-app',
+                            dest='risk_app',
+                            default=RISK_APP_DEFAULT,
+                            help="Risk application name, available: {}, default: {}. Note that app config value has precedense over cli switch.".format(', '.join(RISK_APPS), RISK_APP_DEFAULT)
+                            )
+
         return parser
 
     def handle(self, **options):
@@ -129,28 +142,35 @@ Loss Impact and Impact Analysis Types.'
         analysis_type_name = Config.get('DEFAULT', 'analysis_type')
         hazard_type_name = Config.get('DEFAULT', 'hazard_type')
         layer_name = Config.get('DEFAULT', 'layer')
+        try:
+            app_name = Config.get('DEFAULT', 'app')
+        except ConfigParser.NoOptionError:
+            app_name = options['risk_app']
 
-        if len(RiskAnalysis.objects.filter(name=risk_name)) > 0:
+        app = RiskApp.objects.get(name=app_name)
+        print('got app', app.name)
+
+        if RiskAnalysis.objects.filter(name=risk_name, app=app).exists():
             raise CommandError("A Risk Analysis with name '" + risk_name +
                                "' already exists on DB!")
 
-        if len(HazardType.objects.filter(mnemonic=hazard_type_name)) == 0:
+        if not HazardType.objects.filter(mnemonic=hazard_type_name, app=app).exists():
             raise CommandError("An Hazard Type with mnemonic '" +
                                hazard_type_name+"' does not exist on DB!")
 
-        if len(AnalysisType.objects.filter(name=analysis_type_name)) == 0:
+        if not AnalysisType.objects.filter(name=analysis_type_name, app=app).exists():
             raise CommandError("An Analysis Type with name '" +
                                analysis_type_name + "' does not exist on DB!")
 
-        if len(Layer.objects.filter(name=layer_name)) == 0:
+        if not Layer.objects.filter(name=layer_name).exists():
             raise CommandError("A Layer with name '" + layer_name +
                                "' does not exist on DB!")
 
-        hazard = HazardType.objects.get(mnemonic=hazard_type_name)
-        analysis = AnalysisType.objects.get(name=analysis_type_name)
+        hazard = HazardType.objects.get(mnemonic=hazard_type_name, app=app)
+        analysis = AnalysisType.objects.get(name=analysis_type_name, app=app)
         layer = Layer.objects.get(name=layer_name)
 
-        risk = RiskAnalysis(name=risk_name)
+        risk = RiskAnalysis(name=risk_name, app=app)
         risk.analysis_type = analysis
         risk.hazard_type = hazard
         risk.save()

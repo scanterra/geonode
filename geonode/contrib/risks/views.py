@@ -1,27 +1,45 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import print_function
+import os
 import logging
 
 from django.conf import settings
 from django import forms
 from django.views.generic import TemplateView, View, FormView
+from django.core.urlresolvers import reverse
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+from django.template.loader import render_to_string
 
 from geonode.layers.models import Layer
 from geonode.utils import json_response
 from geonode.contrib.risks.models import (HazardType, AdministrativeDivision,
                                           RiskAnalysisDymensionInfoAssociation,
                                           RiskAnalysis, DymensionInfo, AnalysisType,
-                                          FurtherResource)
+                                          FurtherResource, RiskApp)
 
 from geonode.contrib.risks.datasource import GeoserverDataSource
+from geonode.contrib.risks.pdf_helpers import generate_pdf
 
 cost_benefit_index = TemplateView.as_view(template_name='risks/cost_benefit_index.html')
 
 log = logging.getLogger(__name__)
 
+class AppAware(object):
+    DEFAULT_APP = RiskApp.APP_DATA_EXTRACTION
 
-class ContextAware(object):
+    def get_app_name(self):
+        try:
+            k = self.kwargs['app_name']
+        except KeyError:
+            return self.DEFAULT_APP
+
+    def get_app(self):
+        app_name = self.get_app_name()
+        return RiskApp.objects.get(name=app_name)
+
+class ContextAware(AppAware):
 
     CONTEXT_KEYS = ['ht', 'at', 'an', 'dym']
 
@@ -159,7 +177,11 @@ class ContextAware(object):
         return [i.export() for i in items]
 
     def _get_from_kwargs(self, klass, field, field_val):
-        return klass.objects.get(**{field: field_val})
+        app = self.get_app()
+        kwargs = {field: field_val}
+        if hasattr(klass, 'app'):
+            kwargs['app'] = app
+        return klass.objects.get(**kwargs)
 
 
 class FeaturesSource(object):
@@ -213,10 +235,16 @@ class FeaturesSource(object):
         return features
 
 
-class RiskDataExtractionView(FeaturesSource, TemplateView):
+class RiskDataExtractionView(AppAware, FeaturesSource, TemplateView):
 
     template_name = 'risks/risk_data_extraction_index.html'
 
+    def get_context_data(self, *args, **kwargs):
+        ctx = super(RiskDataExtractionView, self).get_context_data(*args, **kwargs)
+
+        ctx['app'] = app = self.get_app()
+        ctx['geometry_url'] = app.url_for('geometry', settings.RISKS['DEFAULT_LOCATION'])
+        return ctx
 
 risk_data_extraction_index = RiskDataExtractionView.as_view()
 
@@ -239,9 +267,11 @@ class LocationView(ContextAware, LocationSource, View):
         if not locations:
             return json_response(errors=['Invalid location code'], status=404)
         loc = locations[-1]
-        hazard_types = HazardType.objects.all()
+        app = self.get_app()
+        hazard_types = HazardType.objects.filter(app=app)
+        
 
-        location_data = {'navItems': [location.export() for location in locations],
+        location_data = {'navItems': [location.set_app(app).export() for location in locations],
                          'context': self.get_context_url(**kwargs),
                          'furtherResources': self.get_further_resources(**kwargs),
                          'overview': [ht.set_location(loc).export() for ht in hazard_types]}
@@ -308,13 +338,13 @@ class HazardTypeView(ContextAware, LocationSource, View):
     """
 
     def get_hazard_type(self, location, **kwargs):
+        app = self.get_app()
         try:
-            return HazardType.objects.get(mnemonic=kwargs['ht']).set_location(location)
+            return HazardType.objects.get(mnemonic=kwargs['ht'], app=app).set_location(location)
         except (KeyError, HazardType.DoesNotExist,):
             return
 
     def get_analysis_type(self, location, hazard_type, **kwargs):
-
         atypes = hazard_type.get_analysis_types()
         if not atypes.exists():
             return None, None,
@@ -329,7 +359,8 @@ class HazardTypeView(ContextAware, LocationSource, View):
         if not locations:
             return json_response(errors=['Invalid location code'], status=404)
         loc = locations[-1]
-        hazard_types = HazardType.objects.all()
+        app = self.get_app()
+        hazard_types = HazardType.objects.filter(app=app)
 
         hazard_type = self.get_hazard_type(loc, **kwargs)
 
@@ -340,11 +371,12 @@ class HazardTypeView(ContextAware, LocationSource, View):
         if not atype:
             return json_response(errors=['No analysis type available for location/hazard type'], status=404)
 
-        out = {'navItems': [location.export() for location in locations],
+        out = {'navItems': [location.set_app(app).export() for location in locations],
                'overview': [ht.set_location(loc).export() for ht in hazard_types],
                'context': self.get_context_url(**kwargs),
                'furtherResources': self.get_further_resources(**kwargs),
                'hazardType': hazard_type.get_hazard_details(),
+
                'analysisType': atype.get_analysis_details()}
 
         return json_response(out)
@@ -477,6 +509,7 @@ class DataExtractionView(FeaturesSource, HazardTypeView):
 
     def get(self, request, *args, **kwargs):
         locations = self.get_location(**kwargs)
+        app = self.get_app()
         if not locations:
             return json_response(errors=['Invalid location code'], status=404)
         loc = locations[-1]
@@ -514,11 +547,17 @@ class DataExtractionView(FeaturesSource, HazardTypeView):
         out['riskAnalysisData']['unitOfMeasure'] = risk.unit_of_measure
         out['riskAnalysisData']['additionalLayers'] = [(l.id, l.typename, l.title, ) for l in risk.additional_layers.all()]
         out['furtherResources'] = self.get_further_resources(**kwargs)
+        #url(r'loc/(?P<loc>[\w\-]+)/ht/(?P<ht>[\w\-]+)/at/(?P<at>[\w\-]+)/an/(?P<an>[\w\-]+)/pdf/$', views.pdf_report, name='pdf_report'),
+        out['pdfReport'] = app.url_for('pdf_report', loc.code, hazard_type.mnemonic, atype.name, risk.id)
         return json_response(out)
 
     def get_viewparams(self, risk, htype, loc):
         return 'ra:{};ha:{};adm_code:{};d1:{{}};d2:{{}}'.format(risk.name, htype.mnemonic, loc.code)
 
+class CostBenefitAnalysisView(HazardTypeView):
+
+    def get(self, request, *args, **kwargs):
+        pass
 
 class LayersListForm(forms.Form):
     layers = forms.MultipleChoiceField(required=False, choices=())
@@ -588,9 +627,76 @@ class RiskLayersView(FormView):
         return json_response(out)
 
 
+class PDFUploadsForm(forms.Form):
+    map = forms.ImageField(required=True)
+    chart = forms.ImageField(required=True)
+    legend = forms.ImageField(required=True)
+
+
+class PDFReportView(ContextAware, FormView):
+    form_class = PDFUploadsForm
+    CONTEXT_KEYS = ContextAware.CONTEXT_KEYS + ['loc']
+    TEMPLATE_NAME = 'risks/pdf/{}.html'
+
+    def get_context_data(self, *args, **kwargs):
+        ctx = super(PDFReportView, self).get_context_data(*args, **kwargs)
+        ctx['app'] = self.get_app()
+        k = self.kwargs
+        ctx['context'] = {'url': self.get_context_url(**k),
+                          'parts': self.get_further_resources_inputs(**k)}
+        context = ctx['context']['url']
+        ctx['risk_analysis'] = RiskAnalysis.objects.get(id=k['an'])
+        p = default_storage.path
+        ctx['paths'] = {'map': p(os.path.join(context, 'map.png')),
+                        'chart': p(os.path.join(context, 'chart.png')),
+                        'legend': p(os.path.join(context, 'legend.png'))}
+        return ctx
+
+
+    def get_template_names(self):
+        app = self.get_app()
+        return [self.TEMPLATE_NAME.format(app.name)]
+
+    def form_invalid(self, form):
+        out = {'succes': False, 'errors': form.errors}
+        return json_response(out)
+
+    def form_valid(self, form):
+        ctx = self.get_context_url(**self.kwargs)
+        out = {'success': True}
+        config = {}
+        for k, v in form.cleaned_data.iteritems():
+            basename, ext = os.path.splitext(v.name)
+            target_path = os.path.join(ctx, '{}.png'.format(k))
+            default_storage.save(target_path, v)
+            config[k] = target_path
+
+        pdf_path = default_storage.path(os.path.join(ctx, 'report.pdf'))
+        html_path = self.render_report_markup(ctx, self.request, *self.args, **self.kwargs)
+
+        config['pdf'] = pdf_path
+        config['url'] = html_path
+
+        pdf = generate_pdf(**config)
+        out['pdf'] = pdf
+        return json_response(out)
+
+    def render_report_markup(self, ctx, request, *args, **kwargs): 
+    
+        html_path = os.path.join(ctx, 'template.html')
+        html_path_absolute = default_storage.path(html_path)
+        
+        pdf_ctx = self.get_context_data(*args, **kwargs)
+        html_template = self.get_template_names()[0]
+        tmpl = render_to_string(html_template, pdf_ctx, request=self.request)
+        default_storage.save(html_path, ContentFile(tmpl))
+
+        return html_path_absolute
+
 location_view = LocationView.as_view()
 hazard_type_view = HazardTypeView.as_view()
 analysis_type_view = HazardTypeView.as_view()
 data_extraction = DataExtractionView.as_view()
 
 risk_layers = RiskLayersView.as_view()
+pdf_report = PDFReportView.as_view()

@@ -1066,3 +1066,9 @@ if 'geonode.geoserver' in INSTALLED_APPS:
 # Filter: (boolean, optional, default false) a filter option on that thesaurus will appear in the main search page
 # THESAURI = [{'name':'inspire_themes', 'required':False, 'filter':True}]
 THESAURI = []
+
+# use when geonode.contrib.risks is in installed apps.
+RISKS = {'DEFAULT_LOCATION': None,
+         'PDF_GENERATOR': {'NAME': 'wkhtml2pdf',
+                           'BIN': '/usr/bin/wkhtml2pdf',
+                           'ARGS': []}}

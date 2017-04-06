@@ -1,6 +1,19 @@
-[{
+[
+{
+    "fields": {
+            "name": "data_extraction"
+              },
+    "model": "risks.riskapp",
+    "pk": 1},
+{
+    "fields": {
+            "name": "cost_benefit_analysis"
+              },
+    "model": "risks.riskapp",
+    "pk": 2},
+{
 	"fields": {
-		"mnemonic": "EQ",
+		"app": 1, "mnemonic": "EQ",
 		"order": 0,
 		"title": "Earthquake",
 		"gn_description": "Earthquake",
@@ -12,7 +25,7 @@
 },
 {
 	"fields": {
-		"mnemonic": "FL",
+		"app": 1, "mnemonic": "FL",
 		"order": 1,
 		"title": "River flood",
 		"gn_description": "River flood",
@@ -24,7 +37,7 @@
 },
 {
 	"fields": {
-		"mnemonic": "DG",
+		"app": 1, "mnemonic": "DG",
 		"order": 2,
 		"title": "Water scarity",
 		"gn_description": "Water scarity",
@@ -36,7 +49,7 @@
 },
 {
 	"fields": {
-		"mnemonic": "CY",
+		"app": 1, "mnemonic": "CY",
 		"order": 3,
 		"title": "Cyclone",
 		"gn_description": "Cyclone",
@@ -48,7 +61,7 @@
 },
 {
 	"fields": {
-		"mnemonic": "CF",
+		"app": 1, "mnemonic": "CF",
 		"order": 4,
 		"title": "Coastal flood",
 		"gn_description": "Coastal flood",
@@ -60,7 +73,7 @@
 },
 {
 	"fields": {
-		"mnemonic": "VA",
+		"app": 1, "mnemonic": "VA",
 		"order": 5,
 		"title": "Volcano",
 		"gn_description": "Volcano",
@@ -72,7 +85,7 @@
 },
 {
 	"fields": {
-		"mnemonic": "LS",
+		"app": 1, "mnemonic": "LS",
 		"order": 6,
 		"title": "Landslide",
 		"gn_description": "Landslide",

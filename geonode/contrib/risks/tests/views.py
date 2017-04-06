@@ -3,6 +3,7 @@
 
 from __future__ import print_function
 
+import os
 import json
 import types
 
@@ -22,7 +23,8 @@ from geonode.contrib.risks.models import (DymensionInfo, AnalysisType, RiskAnaly
                                           HazardType)
 from geonode.contrib.risks.tests import RisksTestCase
 from geonode.contrib.risks.tests.smoke import (TESTDATA_FILE_INI, TESTDATA_FILE_DATA,
-                                               TEST_RISK_ANALYSIS, TEST_REGION, call_command)
+                                               TEST_RISK_ANALYSIS, TEST_REGION, 
+                                               PDF_INPUT_TEST, call_command)
 
 
 
@@ -84,7 +86,7 @@ class RisksViewTestCase(RisksTestCase):
         self.assertNotEqual(for_atype2, for_atype3)
 
         for_atype = FurtherResource.for_analysis_type(atype, region=loc.region, htype=htype)
-        url = '/risks/risk_data_extraction/loc/AF/ht/EQ/at/{}/'.format(atype.name)
+        url = '/risks/data_extraction/loc/AF/ht/EQ/at/{}/'.format(atype.name)
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         data = json.loads(resp.content)
@@ -97,7 +99,7 @@ class RisksViewTestCase(RisksTestCase):
         Check if layers are saved correctly along with risk analysis
         """
         client = self.client
-        url = '/risks/risk_data_extraction/loc/AF/'
+        url = '/risks/data_extraction/loc/AF/'
         resp = client.get(url)
         self.assertEqual(resp.status_code, 200)
         data = json.loads(resp.content)
@@ -117,7 +119,7 @@ class RisksViewTestCase(RisksTestCase):
                     self.assertEqual(resp.status_code, 200,
                                      'wrong status on non-empty hazard type {}: {}'.format(url, resp.content))
                     
-        layers_url = reverse('risks-api:layers', args=(risk_analysis.id,))
+        layers_url = reverse('risks:api:layers', args=(risk_analysis.id,))
         l0 = client.get(layers_url)
         l0_data = json.loads(l0.content)
         self.assertEqual(l0.status_code, 200)
@@ -170,14 +172,14 @@ class RisksViewTestCase(RisksTestCase):
 
         """
         client = self.client
-        url = '/risks/risk_data_extraction/loc/INVALID/'
+        url = '/risks/data_extraction/loc/INVALID/'
         resp = client.get(url)
         self.assertEqual(resp.status_code, 404)
         data = json.loads(resp.content)
         self.assertFalse(data.get('navItems'))
         self.assertTrue(data.get('errors'))
 
-        url = '/risks/risk_data_extraction/loc/AF/'
+        url = '/risks/data_extraction/loc/AF/'
         resp = client.get(url)
         self.assertEqual(resp.status_code, 200)
         data = json.loads(resp.content)
@@ -242,3 +244,37 @@ class RisksViewTestCase(RisksTestCase):
 
                 # cannot evaluate
                 #self.assertTrue(len(data['riskAnalysisData']['data']['values'])>0)
+
+    def get_risk_analysis(self, url):
+        client = self.client
+        resp = client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        data = json.loads(resp.content)
+
+        for ht in data['overview']:
+            url = ht['href']
+            resp = client.get(url)
+            data = json.loads(resp.content)
+            for ra in data['analysisType']['riskAnalysis']:
+                risk_url = url = ra['href']
+                resp = client.get(url)
+                return resp
+        raise ValueError("No risk analysis!")
+
+
+    def test_pdf_gen(self):
+        start_url = '/risks/data_extraction/loc/AF/'
+        report = self.get_risk_analysis(start_url)
+        self.assertEqual(report.status_code, 200)
+        data = json.loads(report.content)
+        self.assertTrue(data['pdfReport'])
+        pdf_url = data['pdfReport']
+        upload_data = {'map': open(PDF_INPUT_TEST, 'rb'),
+                       'legend': open(PDF_INPUT_TEST, 'rb'),
+                       'chart': open(PDF_INPUT_TEST, 'rb')}
+        pdf_response = self.client.post(pdf_url, upload_data)
+        self.assertTrue(pdf_response.status_code, 200)
+        pdf_data = json.loads(pdf_response.content)
+        self.assertTrue(pdf_data['success'])
+        
+        
