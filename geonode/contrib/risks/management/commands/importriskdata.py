@@ -361,11 +361,13 @@ class Command(BaseCommand):
                     # cell_type_str = ctype_text.get(cell_obj.ctype, 'unknown type')
                     # print('(%s) %s %s' % (idx, cell_type_str, cell_obj.value))
                     try:
-                        if int(cell_obj.value) == int(rp.value):
+                        # if int(cell_obj.value) == int(rp.value):
+                        if cell_obj.value == rp.value:
                             # print('[%s] (%s) RP-%s' % (scenario.value, idx, rp.value))
                             col_num = idx
                             break
                     except:
+                        traceback.print_exc()
                         pass
                 if col_num > 0:
                     conn = self.get_db_conn(ogc_db_name, ogc_db_user, ogc_db_port, ogc_db_host, ogc_db_passwd)
@@ -373,13 +375,14 @@ class Command(BaseCommand):
                         for row_num in range(1, sheet.nrows):
                             cell_obj = sheet.cell(row_num, 5)
                             cell_type_str = ctype_text.get(cell_obj.ctype, 'unknown type')
+                            # print('(%s) %s %s' % (idx, cell_type_str, cell_obj.value))
                             if cell_obj.value:
                                 adm_code = cell_obj.value \
                                     if cell_type_str == 'text' \
                                     else region_code + '{:04d}'.format(int(cell_obj.value))
                                 adm_div = AdministrativeDivision.objects.get(code=adm_code)
                                 value = sheet.cell_value(row_num, col_num)
-                                print('[%s] (RP-%s) %s / %s' % (scenario.value, rp.value, adm_div.name, value))
+                                print('[%s] (%s) %s / %s' % (scenario.value, rp.value, adm_div.name, value))
 
                                 table_name = rp.layer.typename.split(":")[1] \
                                     if ":" in rp.layer.typename else rp.layer.typename

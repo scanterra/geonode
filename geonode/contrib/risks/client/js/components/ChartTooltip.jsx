@@ -18,11 +18,10 @@ const ChartTooltip = React.createClass({
     },
     render() {
         const {active, payload, label, xAxisLabel, xAxisUnit, uOm} = this.props;
-        const val = active && uOm.replace(/#/, payload[0].value.toLocaleString()) || '';
         return active ? (
             <div className="disaster-chart-tooltip">
                 <p className="disaster-chart-tooltip-label">{`${xAxisLabel} : ${!isNaN(label) && parseFloat(label).toLocaleString() || label} ${xAxisUnit}`}</p>
-                <p className="disaster-chart-tooltip-values">{val}</p>
+                <p className="disaster-chart-tooltip-values">{`${uOm}: ${payload[0].value.toLocaleString()}`}</p>
             </div>) : null;
     }
 });
