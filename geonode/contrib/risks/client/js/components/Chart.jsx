@@ -29,7 +29,7 @@ const Chart = React.createClass({
         return values.filter((d) => d[dim.dim1] === val ).map((v) => {return {"name": v[dim.dim2], "value": parseFloat(v[2], 10)}; });
     },
     render() {
-        const {dim, dimension} = this.props;
+        const {dim, dimension, uOm} = this.props;
         const chartData = this.getChartData();
         /*const colors = chromaJs.scale('OrRd').colors(chartData.length);*/
         return (
@@ -37,8 +37,8 @@ const Chart = React.createClass({
             <BarChart width={500} height={200} data={chartData}
                 margin={{top: 20, right: 30, left: 30, bottom: 5}}>
                 <XAxis dataKey="name" tickFormatter={this.formatXTiks}/>
-                <Tooltip content={<ChartTooltip xAxisLabel={dimension[dim.dim2].name} xAxisUnit={dimension[dim.dim2].unit}/>}/>
-                <YAxis label="Values" interval="preserveStart" tickFormatter={this.formatYTiks}/>
+                <Tooltip content={<ChartTooltip xAxisLabel={dimension[dim.dim2].name} xAxisUnit={dimension[dim.dim2].unit} uOm={uOm}/>}/>
+                <YAxis label={uOm} interval="preserveStart" tickFormatter={this.formatYTiks}/>
                 <CartesianGrid strokeDasharray="3 3" />
                 <Bar dataKey="value" onClick={this.handleClick}>
                     {chartData.map((entry, index) => {
