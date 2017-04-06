@@ -84,7 +84,8 @@ const chartSelector = createSelector([riskAnalysisDataSel, dimSelector],
         values: riskAnalysisData.data && riskAnalysisData.data.values,
         dimension: riskAnalysisData.data && riskAnalysisData.data.dimensions,
         val: riskAnalysisData.data && riskAnalysisData.data.dimensions && riskAnalysisData.data.dimensions[dim.dim1].values[dim.dim1Idx],
-        dim
+        dim,
+        uOm: riskAnalysisData.unitOfMeasure || 'Values'
     }));
 module.exports = {
     drillUpSelector,

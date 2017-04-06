@@ -13,14 +13,16 @@ const ChartTooltip = React.createClass({
         label: React.PropTypes.string,
         active: React.PropTypes.bool,
         xAxisLabel: React.PropTypes.string,
-        xAxisUnit: React.PropTypes.string
+        xAxisUnit: React.PropTypes.string,
+        uOm: React.PropTypes.string
     },
     render() {
-        const {active, payload, label, xAxisLabel, xAxisUnit} = this.props;
+        const {active, payload, label, xAxisLabel, xAxisUnit, uOm} = this.props;
+        const val = active && uOm.replace(/#/, payload[0].value.toLocaleString()) || '';
         return active ? (
             <div className="disaster-chart-tooltip">
                 <p className="disaster-chart-tooltip-label">{`${xAxisLabel} : ${!isNaN(label) && parseFloat(label).toLocaleString() || label} ${xAxisUnit}`}</p>
-                <p className="disaster-chart-tooltip-values">{`Values: ${payload[0].value.toLocaleString()}`}</p>
+                <p className="disaster-chart-tooltip-values">{val}</p>
             </div>) : null;
     }
 });
