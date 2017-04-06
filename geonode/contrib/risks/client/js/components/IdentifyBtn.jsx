@@ -9,28 +9,28 @@
 const React = require('react');
 const {Tooltip, OverlayTrigger} = require('react-bootstrap');
 
-const LayerBtn = React.createClass({
+const IdentifyBtn = React.createClass({
     propTypes: {
         label: React.PropTypes.string,
         toggleTOC: React.PropTypes.func,
-        enabled: React.PropTypes.string
+        enabled: React.PropTypes.bool
     },
     getDefaultProps() {
         return {
-            label: "Show layers",
+            label: "Query objects on map",
             toggleTOC: () => {},
-            enabled: ''
+            enabled: false
         };
     },
     render() {
         const {label, enabled} = this.props;
         const tooltip = (<Tooltip id={"tooltip-sub-value"} className="disaster">{label}</Tooltip>);
-        const active = enabled === 'toc' ? ' active' : '';
+        const active = enabled ? ' active' : '';
         return (
           <OverlayTrigger placement="bottom" overlay={tooltip}>
-            <button id="disaster-layer-button" className={"btn btn-primary" + active + " drc"} onClick={this.props.toggleTOC}><i className="glyphicon glyphicon-1-layer"/></button>
+            <button id="disaster-layer-button" className={"btn btn-primary" + active + " drc"} onClick={this.props.toggleTOC}><i className="glyphicon glyphicon-map-marker"/></button>
           </OverlayTrigger>);
     }
 });
 
-module.exports = LayerBtn;
+module.exports = IdentifyBtn;

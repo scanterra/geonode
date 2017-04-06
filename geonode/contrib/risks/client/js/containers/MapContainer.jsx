@@ -16,10 +16,11 @@ const MapViewer = connect(() => ({}), {
 const Legend = connect(disasterRiskLayerSelector)(require('../../MapStore2/web/client/components/TOC/fragments/legend/Legend'));
 const {drillUpSelector, switchDimSelector, axesSelector} = require('../selectors/disaster');
 const {zoomInOut, toggleDim, setDimIdx, toggleAdminUnit} = require('../actions/disaster');
-const {setControlProperty} = require('../../MapStore2/web/client/actions/controls');
+const {setControlProperty, toggleControl} = require('../../MapStore2/web/client/actions/controls');
 
 const DrillUpBtn = connect(drillUpSelector, {zoomOut: zoomInOut})(require('../components/DrillUpBtn'));
-const LayerBtn = connect(() => {return {}; }, {toggleTOC: setControlProperty.bind(null, "toolbar", "active", "toc", true)})(require('../components/LayerBtn'));
+const LayerBtn = connect((state) => {return {enabled: state.controls && state.controls.toolbar && state.controls.toolbar.active }; }, {toggleTOC: setControlProperty.bind(null, "toolbar", "active", "toc", true)})(require('../components/LayerBtn'));
+const IdentifyBtn = connect((state) => {return {enabled: state.controls && state.controls.info && state.controls.info.enabled }; }, {toggleTOC: toggleControl.bind(null, "info", "enabled")})(require('../components/IdentifyBtn'));
 const SwitchDimension = connect(switchDimSelector, {toggleDim})(require('../components/SwitchDimension'));
 const AxesSelector = connect(axesSelector, {setDimIdx})(require('../components/AxesSelector'));
 const SwitchAdminU = connect(({disaster}) => ({
@@ -34,7 +35,7 @@ const MapContainer = (props) => (
         <div className="col-sm-5">
             <div id="disaster-map-main-container" className="disaster-map-container">
                 <div className="container-fluid">
-                    <div id="disaster-map-tools" className="btn-group pull-left disaster-map-tools"><LayerBtn/><SwitchAdminU/><DrillUpBtn/><SwitchDimension/></div>
+                    <div id="disaster-map-tools" className="btn-group pull-left disaster-map-tools"><LayerBtn/><IdentifyBtn/><SwitchAdminU/><DrillUpBtn/><SwitchDimension/></div>
                 </div>
                 <div className="drc">
                     <div className="drc-map-container">
