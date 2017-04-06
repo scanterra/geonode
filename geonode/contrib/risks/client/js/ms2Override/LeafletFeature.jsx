@@ -11,6 +11,7 @@ var {connect} = require('react-redux');
 var L = require('leaflet');
 const {isEqual} = require('lodash');
 
+const {clickOnMap} = require('../../MapStore2/web/client/actions/map');
 const {zoomInOut} = require('../actions/disaster');
 var coordsToLatLngF = function(coords) {
     return new L.LatLng(coords[1], coords[0], coords[2]);
@@ -141,7 +142,9 @@ let Feature = React.createClass({
         container: React.PropTypes.object, // TODO it must be a L.GeoJSON
         geometry: React.PropTypes.object, // TODO check for geojson format for geometry
         style: React.PropTypes.object,
-        onClick: React.PropTypes.func
+        onClick: React.PropTypes.func,
+        clickOnMap: React.PropTypes.func,
+        getFeatureInfoEnabled: React.PropTypes.bool
     },
     componentDidMount() {
         if (this.props.container) {
@@ -166,6 +169,14 @@ let Feature = React.createClass({
             );
             this.props.container.addLayer(this._layer);
             this.addEvents();
+            this._layer.on('click', (event) => {
+                if (this.props.clickOnMap && this.props.getFeatureInfoEnabled) {
+                    this.props.clickOnMap({
+                        pixel: event.containerPoint,
+                        latlng: event.latlng
+                    });
+                }
+            });
         }
     },
     componentWillReceiveProps(newProps) {
@@ -191,6 +202,14 @@ let Feature = React.createClass({
             );
             newProps.container.addLayer(this._layer);
             this.addEvents();
+            this._layer.on('click', (event) => {
+                if (this.props.clickOnMap && this.props.getFeatureInfoEnabled) {
+                    this.props.clickOnMap({
+                        pixel: event.containerPoint,
+                        latlng: event.latlng
+                    });
+                }
+            });
         }
     },
     shouldComponentUpdate(nextProps) {
@@ -202,8 +221,8 @@ let Feature = React.createClass({
         }
     },
     onClick() {
-        const {properties, onClick} = this.props;
-        if (onClick) {
+        const {properties, onClick, getFeatureInfoEnabled} = this.props;
+        if (onClick && !getFeatureInfoEnabled) {
             onClick(properties.href, properties.geom);
         }
     },
@@ -237,4 +256,4 @@ let Feature = React.createClass({
     }
 });
 
-module.exports = connect(()=> ({}), {onClick: zoomInOut})(Feature);
+module.exports = connect((state)=> ({getFeatureInfoEnabled: state.controls && state.controls.info && state.controls.info.enabled }), {onClick: zoomInOut, clickOnMap})(Feature);
