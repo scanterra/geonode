@@ -11,10 +11,10 @@ const {BarChart, Bar, XAxis, Cell, YAxis, Tooltip, CartesianGrid, ResponsiveCont
 const ChartTooltip = require("./ChartTooltip");
 
 const CustomizedYLable = (props) => {
-    const {x, y, stroke, lab} = props;
+    const {x, y, lab} = props;
     return (
         <g className="recharts-cartesian-axis-label">
-        <text x={x} y={y-10} fill="#666" transform="rotate(0)" className="recharts-text">{lab}</text>
+        <text x={x} y={y} dy={-10} dx={56} textAnchor="middle" fill="#666" transform="rotate(0)" className="recharts-text">{lab}</text>
         </g>
         );
 };
