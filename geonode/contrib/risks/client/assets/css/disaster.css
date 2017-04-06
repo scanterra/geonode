@@ -6320,7 +6320,7 @@ a.disaster .label:focus {
 .disaster #disaster-map-slider {
   margin-top: 0;
 }
-.disaster .leaflet-clickable {
+.disaster .adminZoom {
   cursor: zoom-in;
 }
 .disaster .disaster-map-tooltip > .leaflet-popup-tip-container {

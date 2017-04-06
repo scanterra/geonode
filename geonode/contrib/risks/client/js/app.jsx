@@ -28,7 +28,13 @@ const urlQuery = url.parse(window.location.href, true).query;
 const init = urlQuery && urlQuery.init && JSON.parse(urlQuery.init);
 
 const {pages, pluginsDef, initialState, storeOpts} = require('./appConfig');
-
+const axios = require('../MapStore2/web/client/libs/ajax');
+const Cookies = require('cookies-js');
+// test cookies local setting
+// Cookies.set('csrftoken', 'zR1gzO836hVjqoKIzSZuxtPCyTP3Jtho', { expires: Infinity });
+if (Cookies.get('csrftoken')) {
+    axios.defaults.headers.common['X-CSRFToken'] = Cookies.get('csrftoken');
+}
 
 const initDim = init && init.d || {};
 

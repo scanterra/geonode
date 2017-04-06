@@ -25,14 +25,15 @@ const Api = {
             return response.data;
         });
     },
-    getReport: function(url, mapImg, chartImg, legend) {
+    getReport: function(url, mapImg, chartImg, legendImg) {
         const mapBlob = toBlob(mapImg);
         const chartBlob = toBlob(chartImg);
+        const legendBlob = toBlob(legendImg);
         let data = new FormData();
-        data.append('map.png', mapBlob);
-        data.append('chart.png', chartBlob);
-        data.append('legendURL', legend);
-        return axios.post(url, data);
+        data.append('map', mapBlob);
+        data.append('chart', chartBlob);
+        data.append('legend', legendBlob);
+        return axios.post(url, data).then((response) => response).catch((e) => { throw new Error(e.statusText); });
     }
 };
 

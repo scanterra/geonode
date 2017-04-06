@@ -10,7 +10,7 @@ var React = require('react');
 var {connect} = require('react-redux');
 var L = require('leaflet');
 const {isEqual} = require('lodash');
-
+const assign = require('object-assign');
 const {clickOnMap} = require('../../MapStore2/web/client/actions/map');
 const {zoomInOut} = require('../actions/disaster');
 var coordsToLatLngF = function(coords) {
@@ -149,7 +149,7 @@ let Feature = React.createClass({
     componentDidMount() {
         if (this.props.container) {
             this._tooltip = L.popup({closeButton: false, offset: [85, 35], className: 'disaster-map-tooltip', autoPan: false});
-            let style = this.props.style;
+            let style = assign({className: this.props.getFeatureInfoEnabled && "admin" || "adminZoom"}, this.props.style);
             this._layer = geometryToLayer({
                 type: this.props.type,
                 geometry: this.props.geometry,
@@ -180,15 +180,16 @@ let Feature = React.createClass({
         }
     },
     componentWillReceiveProps(newProps) {
-        if (!isEqual(newProps.properties, this.props.properties) || !isEqual(newProps.geometry, this.props.geometry)) {
+        if (!isEqual(newProps.properties, this.props.properties) || !isEqual(newProps.geometry, this.props.geometry) || newProps.getFeatureInfoEnabled !== this.props.getFeatureInfoEnabled) {
             this.removeEvents();
             this.props.container.removeLayer(this._layer);
+            let style = assign({className: newProps.getFeatureInfoEnabled && "admin" || "adminZoom"}, newProps.style);
             this._layer = geometryToLayer({
                 type: newProps.type,
                 geometry: newProps.geometry,
                 id: this.props.msId
             }, {
-                style: newProps.style,
+                style: style,
                 pointToLayer: newProps.styleName !== "marker" ? function(feature, latlng) {
                     return L.circleMarker(latlng, newProps.style || {
                         radius: 5,
@@ -227,7 +228,7 @@ let Feature = React.createClass({
         }
     },
     onOver(event) {
-        this._layer.setStyle({weight: 4});
+        this._layer.setStyle({weight: 4, 'className': "admin"});
         this._tooltip.setLatLng(event.latlng)
             .setContent(`Zoom to ${this.props.properties && this.props.properties.label}`);
         this._layer.addLayer(this._tooltip);
@@ -237,7 +238,7 @@ let Feature = React.createClass({
     },
     onOut() {
         this._layer.removeLayer(this._tooltip);
-        this._layer.setStyle({weight: 1});
+        this._layer.setStyle({weight: 1, 'className': null});
     },
     render() {
         return null;

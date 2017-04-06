@@ -8,8 +8,9 @@
 
 const {Promise} = require('es6-promise');
 const canvg = require('canvg-browser');
+const html2canvas = require('html2canvas');
 function chartToImg(svg) {
-    return new Promise(function(resolve) {
+    return new Promise(function(resolve, reject) {
         let svgOffsetX;
         let svgOffsetY;
         let svgH;
@@ -30,9 +31,33 @@ function chartToImg(svg) {
             ignoreClear: true,
             offsetX: svgOffsetX,
             offsetY: svgOffsetY,
-            renderCallback: () => resolve(svgCanv.toDataURL("image/png"))
+            renderCallback: () => {
+                try {
+                    const data = svgCanv.toDataURL("image/png");
+                    resolve({name: 'chart', data});
+                }catch (e) {
+                    reject(e);
+                }
+            }
             }
         );
     });
 }
-module.exports = {chartToImg};
+function legendToImg(img) {
+    return new Promise(function(resolve, reject) {
+        html2canvas(img, {
+            logging: false,
+            allowTaint: false,
+            useCORS: true,
+            onrendered: function(canvas) {
+                try {
+                    const data = canvas.toDataURL("img/png");
+                    resolve({name: 'legend', data});
+                }catch (e) {
+                    reject(e);
+                }
+            }
+        });
+    });
+}
+module.exports = {chartToImg, legendToImg};
