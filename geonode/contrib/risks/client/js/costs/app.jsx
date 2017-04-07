@@ -11,24 +11,24 @@ const {connect} = require('react-redux');
 const assign = require('object-assign');
 const {reducer} = require('react-notification-system-redux');
 const appReducers = {
-     disaster: require('./reducers/disaster'),
-     report: require('./reducers/report'),
+     disaster: require('../reducers/disaster'),
+     report: require('../reducers/report'),
      notifications: reducer
  };
-const {getData, initState, getFeatures} = require('./actions/disaster');
-const dEpics = require('./epics/disaster');
-const rEpics = require('./epics/report');
-const ConfigUtils = require('../MapStore2/web/client/utils/ConfigUtils');
+const {getData, initState, getFeatures} = require('../actions/disaster');
+const dEpics = require('../epics/disaster');
+const rEpics = require('../epics/report');
+const ConfigUtils = require('../../MapStore2/web/client/utils/ConfigUtils');
 ConfigUtils.setLocalConfigurationFile('/static/js/localConfig.json');
 // Set one hour cache
 ConfigUtils.setConfigProp("cacheDataExpire", 3600);
-const StandardApp = require('../MapStore2/web/client/components/app/StandardApp');
+const StandardApp = require('../../MapStore2/web/client/components/app/StandardApp');
 const url = require('url');
 const urlQuery = url.parse(window.location.href, true).query;
 const init = urlQuery && urlQuery.init && JSON.parse(urlQuery.init);
 
 const {pages, pluginsDef, initialState, storeOpts} = require('./appConfig');
-const axios = require('../MapStore2/web/client/libs/ajax');
+const axios = require('../../MapStore2/web/client/libs/ajax');
 const Cookies = require('cookies-js');
 // test cookies local setting
 // Cookies.set('csrftoken', 'zR1gzO836hVjqoKIzSZuxtPCyTP3Jtho', { expires: Infinity });
@@ -47,9 +47,9 @@ const StandardRouter = connect((state) => ({
     themeCfg,
     pages
 
-}))(require('../MapStore2/web/client/components/app/StandardRouter'));
+}))(require('../../MapStore2/web/client/components/app/StandardRouter'));
 
-const appStore = require('../MapStore2/web/client/stores/StandardStore').bind(null, newInitState, appReducers, {...dEpics, ...rEpics});
+const appStore = require('../../MapStore2/web/client/stores/StandardStore').bind(null, newInitState, appReducers, {...dEpics, ...rEpics});
 
 const initialActions = init ? [() => initState(init)] : [() => getData("/risks/data_extraction/loc/AF/"), () => getFeatures("/risks/data_extraction/geom/AF/")];
 const appConfig = {
