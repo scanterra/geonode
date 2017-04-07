@@ -168,15 +168,18 @@ let Feature = React.createClass({
             }
             );
             this.props.container.addLayer(this._layer);
-            this.addEvents();
-            this._layer.on('click', (event) => {
-                if (this.props.clickOnMap && this.props.getFeatureInfoEnabled) {
-                    this.props.clickOnMap({
-                        pixel: event.containerPoint,
-                        latlng: event.latlng
-                    });
-                }
-            });
+            if (this.props.getFeatureInfoEnabled) {
+                this._layer.on('click', (event) => {
+                    if (this.props.clickOnMap) {
+                        this.props.clickOnMap({
+                            pixel: event.containerPoint,
+                            latlng: event.latlng
+                        });
+                    }
+                });
+            } else {
+                this.addEvents();
+            }
         }
     },
     componentWillReceiveProps(newProps) {
@@ -202,15 +205,18 @@ let Feature = React.createClass({
             }
             );
             newProps.container.addLayer(this._layer);
-            this.addEvents();
-            this._layer.on('click', (event) => {
-                if (this.props.clickOnMap && this.props.getFeatureInfoEnabled) {
-                    this.props.clickOnMap({
-                        pixel: event.containerPoint,
-                        latlng: event.latlng
-                    });
-                }
-            });
+            if ( newProps.getFeatureInfoEnabled) {
+                this._layer.on('click', (event) => {
+                    if (this.props.clickOnMap) {
+                        this.props.clickOnMap({
+                            pixel: event.containerPoint,
+                            latlng: event.latlng
+                        });
+                    }
+                });
+            } else {
+                this.addEvents();
+            }
         }
     },
     shouldComponentUpdate(nextProps) {

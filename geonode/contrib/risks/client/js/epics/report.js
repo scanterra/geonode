@@ -35,8 +35,7 @@ const uploadData = (action$, store) =>
             const legendObj = head(val.filter( o => o.name === 'legend'));
             const url = (store.getState()).disaster.riskAnalysis.pdfReport;
             return Rx.Observable.from(API.getReport(url, action.dataUrl, chartObj.data, legendObj.data));
-        }).map( (val) => {
-            // We will recive a stream that we have to save and open
+        }).map(() => {
             return reportReady();
         }).catch((e) => Rx.Observable.of(generateReportError(e))).startWith(hide('grabmapnote'));
     });

@@ -9,6 +9,7 @@ const axios = require('../../MapStore2/web/client/libs/ajax');
 const ConfigUtils = require('../../MapStore2/web/client/utils/ConfigUtils');
 const riskdataCache = {};
 const toBlob = require('canvas-to-blob');
+var FileSaver = require('file-saver');
 const Api = {
     getData: function(url) {
         const cached = riskdataCache[url];
@@ -33,7 +34,12 @@ const Api = {
         data.append('map', mapBlob);
         data.append('chart', chartBlob);
         data.append('legend', legendBlob);
-        return axios.post(url, data).then((response) => response).catch((e) => { throw new Error(e.statusText); });
+        return axios.post(url, data, {responseType: 'blob'})
+            .then((response) => {
+                FileSaver.saveAs(response.data, "report.pdf");
+                return response;
+            })
+            .catch((e) => { throw new Error(e.statusText); });
     }
 };
 
