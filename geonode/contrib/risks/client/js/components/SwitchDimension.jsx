@@ -25,7 +25,7 @@ const SwitchDim = React.createClass({
           );
         return this.props.dimName ? (
             <OverlayTrigger className="disaster" placement="bottom" overlay={tooltip}>
-              <button className="btn btn-primary" onClick={this.props.toggleDim}><i className="fa fa-exchange"/>
+              <button id="disaster-switch-button" className="btn btn-primary" onClick={this.props.toggleDim}><i className="fa fa-exchange"/>
             </button></OverlayTrigger>) : null;
     }
 });

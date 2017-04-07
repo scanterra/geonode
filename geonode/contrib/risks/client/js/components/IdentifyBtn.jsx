@@ -28,7 +28,7 @@ const IdentifyBtn = React.createClass({
         const active = enabled ? ' active' : '';
         return (
           <OverlayTrigger placement="bottom" overlay={tooltip}>
-            <button id="disaster-layer-button" className={"btn btn-primary" + active + " drc"} onClick={this.props.toggleTOC}><i className="glyphicon glyphicon-map-marker"/></button>
+            <button id="disaster-identify-button" className={"btn btn-primary" + active + " drc"} onClick={this.props.toggleTOC}><i className="glyphicon glyphicon-map-marker"/></button>
           </OverlayTrigger>);
     }
 });
