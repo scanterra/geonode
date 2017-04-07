@@ -12,7 +12,8 @@ module.exports = {
     entry: assign({
         'webpack-dev-server': 'webpack-dev-server/client?http://0.0.0.0:8081', // WebpackDevServer host and port
         'webpack': 'webpack/hot/only-dev-server', // "only" prevents reload on syntax errors
-        'disastermanagement-client': path.join(__dirname, "js", "app"),
+        'risks': path.join(__dirname, "js", "risks", "app"),
+        'costs': path.join(__dirname, "js", "costs", "app"),
         'default': path.join(__dirname, "assets", "themes", "map", "theme.less")
     }),
     output: {
