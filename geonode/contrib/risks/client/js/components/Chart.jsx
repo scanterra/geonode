@@ -7,7 +7,7 @@
  */
 
 const React = require('react');
-const {BarChart, Bar, XAxis, Cell, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, Text} = require('recharts');
+const {BarChart, Bar, XAxis, Cell, YAxis, Tooltip, CartesianGrid, ResponsiveContainer} = require('recharts');
 const ChartTooltip = require("./ChartTooltip");
 
 const CustomizedYLable = (props) => {
