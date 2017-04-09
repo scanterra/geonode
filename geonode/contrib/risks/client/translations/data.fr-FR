@@ -785,53 +785,85 @@
             "start": "Start",
             "checkbox": "don't show this message again",
             "error": "Error: target not found",
-            "intro": {
-                "title": "Welcome on MapStore2",
-                "text": "framework to build web mapping applications using standard mapping libraries, such as OpenLayers 3 and Leaflet."
+            "riskIntro": {
+                "title": "Welcome on Risk Data Extraction & Visualization",
+                "text": "click on start to initialize the tutorial"
             },
-            "drawerMenu": {
-                "title": "Main menu",
-                "text": "You can find information and tools to manage layer"
+            "riskSelector": {
+                "title": "Hazard type selector",
+                "text": "Choose between these hazards to open related analyses"
             },
-            "searchBar": {
-                "title": "Search Bar",
-                "text": "Write the address of a place to find. e.g. '1st avenue, new york'. You can even insert coordinates in this format: 43.87,10.20"
+            "riskOverview": {
+                "title": "Overview",
+                "text": "This list shows the available analyses and it links to the hazard page"
             },
-            "home": {
-                "title": "Home",
-                "text": "Go to homepage"
+            "riskMap": {
+                "title": "Map",
+                "text": "This map is a useful tool to navigate among the analysis data.  It'll display more tools and descriptions on the analysis page"
             },
-            "searchButton": {
-                "title": "Search",
-                "text": "Click to open the search bar, then write the address of a place to find. e.g. '1st avenue, new york'. You can even insert coordinates in this format: 43.87,10.20"
+            "riskNavigator": {
+                "title": "Navigator",
+                "text": "It shows the current location of analysis"
             },
-            "burgerMenu": {
-                "title": "Option Menu",
-                "text": "You can find options, settings and help"
+            "riskPageTool": {
+                "title": "Page toolbar",
+                "text": "Here you can find some tools related the whole page. E.g. the 'pdf button' prints the report page to a PDF file or the 'link button' copies a link of the analysis page to share"
             },
-            "zoomInButton": {
-                "title": "Zoom In",
-                "text": "Click to enlarge the map"
+            "riskHelp": {
+                "title": "Help",
+                "text": "Click on help button to start the tutorial again. The tutorial will change based on the page"
             },
-            "zoomOutButton": {
-                "title": "Zoom Out",
-                "text": "Click to reduce the map"
+            "riskTab": {
+                "title": "Category Analysis Menu",
+                "text": "Here you can choose the category of Analysis"
             },
-            "identifyButton": {
-                "title": "Info",
-                "text": "Press the button to activate the tool, then click on the map to retrieve information from layers"
+            "riskList": {
+                "title": "Analysis List",
+                "text": "Click on the analysis panel to open the abstract then click on 'Analysis Data' button to open the data page. Or click directly on the icon to open the data page"
             },
-            "mapType": {
-                "title": "Library",
-                "text": "You can choose Leaflet or OpenLayers to render your maps"
+            "riskChart": {
+                "title": "Chart",
+                "text": "This is an interactive chart that let you change the values shown in the map. Click on the light blue button to read more about the data"
             },
-            "mapsGrid": {
-                "title": "Maps",
-                "text": "Here some examples of MapStore2. Click on an image to try the demo."
+            "riskLayer": {
+                "title": "Layers Panel",
+                "text": "Click to open the layer panel and see the available layers for this analysis"
             },
-            "examples": {
-                "title": "Custom Application",
-                "text": "You can use components and plugins of MapStore2 to build custom applications"
+            "riskInfo": {
+                "title": "Get informations",
+                "text": "Click the button to activate the tool, then click on the map to get information about the chosen layers and location"
+            },
+            "riskUnit": {
+                "title": "Sub unit values",
+                "text": "Click to show or hide the sub unit values on the map"
+            },
+            "riskSwitch": {
+                "title": "Switch button",
+                "text": "Switch the values displayed on the map with the ones displayed on chart"
+            },
+            "riskMapSlider": {
+                "title": "Map Slider",
+                "text": "Change the value displayed on the map"
+            },
+            "riskLegend": {
+                "title": "Legend",
+                "text": "Here the map legend"
+            },
+            "riskFurtherResources": {
+                "title": "Further Resources",
+                "text": "Click on the resource to see more informations"
+            },
+            "riskMoreInfo": {
+                "title": "More Info",
+                "text": "Click to open a notification panel with all the information related this analysis"
+            },
+            "riskDownloadData": {
+                "title": "Download Data",
+                "text": "Download data and metadata in xlsx format"
+            },
+            "riskBack": {
+                "title": "Back button",
+                "text": "Back to analyses list"
             }
         }
     }

@@ -818,6 +818,50 @@
             "riskList": {
                 "title": "Analysis List",
                 "text": "Click on the analysis panel to open the abstract then click on 'Analysis Data' button to open the data page. Or click directly on the icon to open the data page"
+            },
+            "riskChart": {
+                "title": "Chart",
+                "text": "This is an interactive chart that let you change the values shown in the map. Click on the light blue button to read more about the data"
+            },
+            "riskLayer": {
+                "title": "Layers Panel",
+                "text": "Click to open the layer panel and see the available layers for this analysis"
+            },
+            "riskInfo": {
+                "title": "Get informations",
+                "text": "Click the button to activate the tool, then click on the map to get information about the chosen layers and location"
+            },
+            "riskUnit": {
+                "title": "Sub unit values",
+                "text": "Click to show or hide the sub unit values on the map"
+            },
+            "riskSwitch": {
+                "title": "Switch button",
+                "text": "Switch the values displayed on the map with the ones displayed on chart"
+            },
+            "riskMapSlider": {
+                "title": "Map Slider",
+                "text": "Change the value displayed on the map"
+            },
+            "riskLegend": {
+                "title": "Legend",
+                "text": "Here the map legend"
+            },
+            "riskFurtherResources": {
+                "title": "Further Resources",
+                "text": "Click on the resource to see more informations"
+            },
+            "riskMoreInfo": {
+                "title": "More Info",
+                "text": "Click to open a notification panel with all the information related this analysis"
+            },
+            "riskDownloadData": {
+                "title": "Download Data",
+                "text": "Download data and metadata in xlsx format"
+            },
+            "riskBack": {
+                "title": "Back button",
+                "text": "Back to analyses list"
             }
         }
     }

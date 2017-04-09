@@ -783,53 +783,85 @@
                 "start": "Inizia",
                 "checkbox": "non mostrare più questo messaggio",
                 "error": "Errore: oggetto non trovato",
-                "intro": {
-                    "title": "Benvenuto su MapStore2",
-                    "text": "framework per costruire applicazioni di web mapping usando librerie standard di mappatura, come OpenLayers 3 e Leaflet."
+                "riskIntro": {
+                    "title": "Welcome on Risk Data Extraction & Visualization",
+                    "text": "click on start to initialize the tutorial"
                 },
-                "drawerMenu": {
-                    "title": "Menu principale",
-                    "text": "Puoi trovare informazioni e strumenti per controllare i layer"
+                "riskSelector": {
+                    "title": "Hazard type selector",
+                    "text": "Choose between these hazards to open related analyses"
                 },
-                "searchBar": {
-                    "title": "Barra di ricerca",
-                    "text": "Scrivi un indirizzo di un luogo per trovarlo. esempio:  '1st avenue, new york'. Puoi anche digitare le coordinate in questo formato: 43.87,10.20"
+                "riskOverview": {
+                    "title": "Overview",
+                    "text": "This list shows the available analyses and it links to the hazard page"
                 },
-                "home": {
-                    "title": "Home",
-                    "text": "Vai alla homepage"
+                "riskMap": {
+                    "title": "Map",
+                    "text": "This map is a useful tool to navigate among the analysis data.  It'll display more tools and descriptions on the analysis page"
                 },
-                "searchButton": {
-                    "title": "Ricerca",
-                    "text": "Premi il pulsante per aprire la barra di ricerca, poi scrivi un indirizzo di un luogo per trovarlo. esempio:  '1st avenue, new york'. Puoi anche digitare le coordinate in questo formato: 43.87,10.20"
+                "riskNavigator": {
+                    "title": "Navigator",
+                    "text": "It shows the current location of analysis"
                 },
-                "burgerMenu": {
-                    "title": "Menu delle opzioni",
-                    "text": "Puoi trovare opzioni, impostazioni e aiuti"
+                "riskPageTool": {
+                    "title": "Page toolbar",
+                    "text": "Here you can find some tools related the whole page. E.g. the 'pdf button' prints the report page to a PDF file or the 'link button' copies a link of the analysis page to share"
                 },
-                "zoomInButton": {
-                    "title": "Zoom In",
-                    "text": "Premi per allargare la mappa"
+                "riskHelp": {
+                    "title": "Help",
+                    "text": "Click on help button to start the tutorial again. The tutorial will change based on the page"
                 },
-                "zoomOutButton": {
-                    "title": "Zoom Out",
-                    "text": "Premi per ridurre la mappa"
+                "riskTab": {
+                    "title": "Category Analysis Menu",
+                    "text": "Here you can choose the category of Analysis"
                 },
-                "identifyButton": {
-                    "title": "Info",
-                    "text": "Premi il pulsante per attivare lo strumento, poi fai click sulla mappa per ottenere informazioni dal layer"
+                "riskList": {
+                    "title": "Analysis List",
+                    "text": "Click on the analysis panel to open the abstract then click on 'Analysis Data' button to open the data page. Or click directly on the icon to open the data page"
                 },
-                "mapType": {
-                    "title": "Libreria",
-                    "text": "Puoi scegliere tra Leaflet o OpenLayers per visualizzare le mappe"
+                "riskChart": {
+                    "title": "Chart",
+                    "text": "This is an interactive chart that let you change the values shown in the map. Click on the light blue button to read more about the data"
                 },
-                "mapsGrid": {
-                    "title": "Mappe",
-                    "text": "Qui alcuni esempi di MapStore2. Fai click su un'immagine per provare la demo"
+                "riskLayer": {
+                    "title": "Layers Panel",
+                    "text": "Click to open the layer panel and see the available layers for this analysis"
                 },
-                "examples": {
-                    "title": "Applicazioni personalizzate",
-                    "text": "Puoi utilizzare componenti e plugins di MapStore2 per costruire applicazioni personalizzate"
+                "riskInfo": {
+                    "title": "Get informations",
+                    "text": "Click the button to activate the tool, then click on the map to get information about the chosen layers and location"
+                },
+                "riskUnit": {
+                    "title": "Sub unit values",
+                    "text": "Click to show or hide the sub unit values on the map"
+                },
+                "riskSwitch": {
+                    "title": "Switch button",
+                    "text": "Switch the values displayed on the map with the ones displayed on chart"
+                },
+                "riskMapSlider": {
+                    "title": "Map Slider",
+                    "text": "Change the value displayed on the map"
+                },
+                "riskLegend": {
+                    "title": "Legend",
+                    "text": "Here the map legend"
+                },
+                "riskFurtherResources": {
+                    "title": "Further Resources",
+                    "text": "Click on the resource to see more informations"
+                },
+                "riskMoreInfo": {
+                    "title": "More Info",
+                    "text": "Click to open a notification panel with all the information related this analysis"
+                },
+                "riskDownloadData": {
+                    "title": "Download Data",
+                    "text": "Download data and metadata in xlsx format"
+                },
+                "riskBack": {
+                    "title": "Back button",
+                    "text": "Back to analyses list"
                 }
             }
     }
