@@ -10,9 +10,9 @@ const React = require('react');
 const Nouislider = require('react-nouislider');
 const {connect} = require('react-redux');
 const {show, hide} = require('react-notification-system-redux');
-const {mapLabelSelector} = require('../selectors/disaster');
+const {labelSelector} = require('../selectors/disaster');
 const {getSFurtherResourceData} = require('../actions/disaster');
-const LabelResource = connect(mapLabelSelector, { show, hide, getData: getSFurtherResourceData })(require('../components/LabelResource'));
+const LabelResource = connect(labelSelector, { show, hide, getData: getSFurtherResourceData })(require('../components/LabelResource'));
 
 const AxesSelector = React.createClass({
     propTypes: {

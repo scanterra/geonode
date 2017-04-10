@@ -22,6 +22,8 @@ const GET_ANALYSIS_DATA = 'GET_ANALYSIS_DATA';
 const ZOOM_IN_OUT = 'ZOOM_IN_OUT';
 const INIT_RISK_APP = 'INIT_RISK_APP';
 const GET_S_FURTHER_RESOURCE_DATA = 'GET_S_FURTHER_RESOURCE_DATA';
+const SET_CHART_SLIDER_INDEX = 'SET_CHART_SLIDER_INDEX';
+const CHART_SLIDER_UPDATE = 'CHART_SLIDER_UPDATE';
 
 function initState({href, geomHref, gc, ac}) {
     return {
@@ -138,6 +140,22 @@ function getSFurtherResourceData(url, uid, title, head) {
     };
 }
 
+function setChartSliderIndex(index, uid) {
+    return {
+        type: SET_CHART_SLIDER_INDEX,
+        index,
+        uid
+    };
+}
+
+function chartSliderUpdate(index, uid) {
+    return {
+        type: CHART_SLIDER_UPDATE,
+        index,
+        uid
+    };
+}
+
 module.exports = {
     DATA_LOADING,
     DATA_LOADED,
@@ -153,6 +171,8 @@ module.exports = {
     ZOOM_IN_OUT,
     INIT_RISK_APP,
     GET_S_FURTHER_RESOURCE_DATA,
+    SET_CHART_SLIDER_INDEX,
+    CHART_SLIDER_UPDATE,
     featuresLoaded,
     featuresLoading,
     featuresError,
@@ -169,5 +189,7 @@ module.exports = {
     setDimIdx,
     toggleAdminUnit,
     initState,
-    getSFurtherResourceData
+    getSFurtherResourceData,
+    setChartSliderIndex,
+    chartSliderUpdate
 };

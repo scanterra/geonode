@@ -73,8 +73,8 @@ function makeNotificationRow(data) {
 }
 
 function makeNotificationBlock(data) {
-    return data.map((obj) => {
-        return (<div><h4 className="disaster-more-info-table-title text-center">{obj.title}</h4>
+    return data.map((obj, idx) => {
+        return (<div key={idx}><h4 className="disaster-more-info-table-title text-center">{obj.title}</h4>
             <div className="disaster-more-info-table">
                 {makeNotificationRow(obj)}
             </div>

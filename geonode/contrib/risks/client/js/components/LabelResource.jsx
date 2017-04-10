@@ -16,7 +16,7 @@ const LabelResource = React.createClass({
         label: React.PropTypes.string,
         show: React.PropTypes.func,
         hide: React.PropTypes.func,
-        notification: React.PropTypes.array,
+        notifications: React.PropTypes.array,
         dimension: React.PropTypes.object,
         getData: React.PropTypes.func
     },
@@ -27,7 +27,7 @@ const LabelResource = React.createClass({
             label: '',
             show: () => {},
             hide: () => {},
-            notification: [],
+            notifications: [],
             dimension: {},
             getData: () => {}
         };
@@ -49,7 +49,8 @@ const LabelResource = React.createClass({
         });
     },
     render() {
-        const {uid, dimension, label, notification} = this.props;
+        const {uid, dimension, label, notifications} = this.props;
+        const notification = notifications.filter((v) => {return v.uid === uid; });
         const url = this.props.currentUrl + 'dym/' + dimension.id;
         const active = notification.length > 0 ? ' active' : '';
         const title = (<h4 className="text-center">{dimension.name}</h4>);
