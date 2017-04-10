@@ -6437,6 +6437,7 @@ a.disaster .label:focus {
   color: #ff8f31;
   padding: 15px 10px;
   overflow-y: auto;
+  z-index: 1001;
 }
 .disaster .drc .toc-layer-tool.glyphicon.glyphicon-cog {
   display: none;
