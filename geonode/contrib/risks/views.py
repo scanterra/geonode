@@ -667,8 +667,12 @@ class PDFReportView(ContextAware, FormView):
 
         context = ctx['context']['url']
         ctx['risk_analysis'] = RiskAnalysis.objects.get(id=k['an'])
+        r = self.request
 
-        p = default_storage.url
+        def p(val):
+            _path = default_storage.url(val)
+            return r.build_absolute_uri(_path)
+
         ctx['paths'] = {'map': p(os.path.join(context, 'map.png')),
                         'chart': p(os.path.join(context, 'chart.png')),
                         'legend': p(os.path.join(context, 'legend.png'))}
