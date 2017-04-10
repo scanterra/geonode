@@ -30,9 +30,10 @@ const Navigation = React.createClass({
         const {items} = this.props;
         const length = items.length;
         return items.map((el, idx) => {
-            const classes = `btn btn-default ${length - 1 === idx ? 'disabled' : ''}`;
+            const disable = length - 1 === idx;
+            const classes = `btn btn-default ${disable ? 'disabled' : ''}`;
             return (
-            <button key={idx} className={classes} onClick={() => this.onClick(`${el.href}`, el.geom)}>{el.label}</button>);
+            <button key={idx} className={classes} onClick={() => !disable ? this.onClick(`${el.href}`, el.geom) : null}>{el.label}</button>);
         });
     },
     render() {

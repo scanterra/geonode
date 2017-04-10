@@ -13,7 +13,7 @@ const {toggleControl} = require('../../MapStore2/web/client/actions/controls');
 const Notifications = connect(state => ({notifications: state.notifications}))(require('react-notification-system-redux'));
 const TopBar = connect(topBarSelector, {zoom: zoomInOut, getData, toggleTutorial: toggleControl.bind(null, 'tutorial', null)})(require('../components/TopBar'));
 const DataContainer = require('../containers/DataContainer');
-const MapContainer = require('../containers/MapContainer');
+const CostsMapContainer = require('../containers/CostsMapContainer');
 const Page = require('../../MapStore2/web/client/containers/Page');
 const ConfigUtils = require('../../MapStore2/web/client/utils/ConfigUtils');
 const NotificationStyle = require('../../assets/js/NotificationStyle');
@@ -53,7 +53,7 @@ const Home = React.createClass({
                     <div className="container-fluid">
                         <div className="row">
                             <DataContainer/>
-                            {<MapContainer plugins={plugins}/>}
+                            {<CostsMapContainer plugins={plugins}/>}
                         </div>
                     </div>
                    {this.props.generateMap ? (<ReportMap/>) : null}

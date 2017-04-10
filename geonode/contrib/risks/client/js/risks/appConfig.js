@@ -11,7 +11,7 @@ module.exports = {
     {
         name: "home",
         path: "/*",
-        component: require('../pages/Home')
+        component: require('../pages/RisksHome')
     }],
     pluginsDef: require('./plugins.js'),
     initialState: {

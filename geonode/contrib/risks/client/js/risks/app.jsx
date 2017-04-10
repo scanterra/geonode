@@ -19,7 +19,7 @@ const {getData, initState, getFeatures} = require('../actions/disaster');
 const dEpics = require('../epics/disaster');
 const rEpics = require('../epics/report');
 const ConfigUtils = require('../../MapStore2/web/client/utils/ConfigUtils');
-ConfigUtils.setLocalConfigurationFile('/static/js/localConfig.json');
+ConfigUtils.setLocalConfigurationFile('/static/js/risksConfig.json');
 // Set one hour cache
 ConfigUtils.setConfigProp("cacheDataExpire", 3600);
 const StandardApp = require('../../MapStore2/web/client/components/app/StandardApp');
@@ -50,8 +50,11 @@ const StandardRouter = connect((state) => ({
 }))(require('../../MapStore2/web/client/components/app/StandardRouter'));
 
 const appStore = require('../../MapStore2/web/client/stores/StandardStore').bind(null, newInitState, appReducers, {...dEpics, ...rEpics});
+const dataPath = window.DISASTERRISK && window.DISASTERRISK.app && window.DISASTERRISK.app.href || '/risks/data_extraction/loc/AF/';
+const geomPath = window.DISASTERRISK && window.DISASTERRISK.app && window.DISASTERRISK.app.geometry || '/risks/data_extraction/geom/AF/';
 
-const initialActions = init ? [() => initState(init)] : [() => getData("/risks/data_extraction/loc/AF/"), () => getFeatures("/risks/data_extraction/geom/AF/")];
+
+const initialActions = init ? [() => initState(init)] : [() => getData(dataPath), () => getFeatures(geomPath)];
 const appConfig = {
     storeOpts,
     appStore,

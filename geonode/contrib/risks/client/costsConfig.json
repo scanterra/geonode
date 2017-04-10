@@ -1,0 +1,106 @@
+{
+	"proxyUrl": "/mapstore/proxy/?url=",
+	"geoStoreUrl": "/mapstore/rest/geostore",
+	"printUrl": "https://demo.geo-solutions.it/geoserver/pdf/info.json",
+	"bingApiKey": "AhuXBu7ipR1gNbBfXhtUAyCZ6rkC5PkWpxs2MnMRZ1ZupxQfivjLCch22ozKSCAn",
+	"translationsPath": "/static/assets/translations",
+	"plugins": {
+			"home": [
+				{
+					"name" : "Tutorial",
+					"cfg":{
+						"rawSteps": [
+							{
+	            	"title": "Welcome on Risk Data Extraction & Visualization",
+	            	"text": "click on start to initialize the tutorial",
+	            	"selector": "#intro-tutorial"
+	        		},
+							{
+			      		"title": "Disaster Risk Selector",
+			        	"text": "...text",
+			        	"selector": "#disaster-risk-selector-menu"
+			      	},
+					    {
+					      "title": "'Overview List'",
+					      "text": "'...text'",
+					      "selector": "#disaster-overview-list"
+					    },
+					    {
+					      "title": "'Map'",
+					      "text": "'...text'",
+					      "selector": "#disaster-map-main-container"
+					    },
+					    {
+					      "title": "'Navigation'",
+					      "text": "'...text'",
+					      "selector": "#disaster-navigation"
+					    },
+					    {
+					      "title": "'Tools'",
+					      "text": "'...text'",
+					      "selector": "#disaster-page-tools"
+					    },
+					    {
+					      "title": "'Download PDF'",
+					      "text": "'...text'",
+					      "selector": "#disaster-download-pdf"
+					    },
+					    {
+					      "title": "'Share'",
+					      "text": "'...text'",
+					      "selector": "#disaster-share-link"
+					    },
+					    {
+					      "title": "'Tutorial'",
+					      "text": "'...text'",
+					      "selector": "#disaster-show-tutorial"
+					    }
+						]
+					}
+				}
+			],
+			"desktop": [
+      	{
+					"name": "Map",
+          "cfg": {
+            "tools": [
+          		"scalebar"
+            ],
+            "toolsOptions": {
+            	"scalebar": {
+            		"leaflet": {
+            			"position": "bottomleft"
+            		}
+            	}
+            },
+            "options": {
+							"interactive": true
+						},
+            "zoomControl": true
+					}
+        },
+				"TOC",
+				{
+					"name": "Identify",
+					"cfg": {
+						"style": {
+								"position": "fixed",
+								"width": "100%",
+								"bottom": "0",
+								"left": "0",
+								"zIndex": 1023,
+								"maxHeight": "70%",
+								"marginBottom": 0
+						},
+						"viewerOptions": {
+							"container": "{context.ReactSwipe}",
+							"header": "{context.SwipeHeader}",
+							"headerOptions": {
+								"useButtons": true
+							}
+						}
+					}
+				}
+			]
+	 }
+}
