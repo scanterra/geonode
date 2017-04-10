@@ -38,7 +38,7 @@ if (Cookies.get('csrftoken')) {
 
 const initDim = init && init.d || {};
 
-const newInitState = assign({}, initialState, {defaultState: {disaster: {dim: initDim}}});
+const newInitState = assign({}, initialState, {defaultState: {disaster: {dim: initDim}, mapInfo: { infoFormat: "text/html"} }});
 const themeCfg = {
     path: '/static/js'
 };
@@ -51,7 +51,7 @@ const StandardRouter = connect((state) => ({
 
 const appStore = require('../../MapStore2/web/client/stores/StandardStore').bind(null, newInitState, appReducers, {...dEpics, ...rEpics});
 const loc = window.DISASTERRISK && window.DISASTERRISK.app && window.DISASTERRISK.app.region || 'AF';
-const dataPath = window.DISASTERRISK && window.DISASTERRISK.app && window.DISASTERRISK.app.href + 'loc/' + loc || '/risks/data_extraction/loc/AF';
+const dataPath = window.DISASTERRISK && window.DISASTERRISK.app && `${window.DISASTERRISK.app.href}loc/${loc}/` || '/risks/data_extraction/loc/AF/';
 const geomPath = window.DISASTERRISK && window.DISASTERRISK.app && window.DISASTERRISK.app.geometry || '/risks/data_extraction/geom/AF/';
 
 
