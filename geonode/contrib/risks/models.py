@@ -49,6 +49,14 @@ class RiskApp(models.Model):
     def url_for(self, url_name, *args, **kwargs):
         return reverse('risks:{}:{}'.format(self.name, url_name), args=args, kwargs=kwargs)
 
+    @property
+    def description(self):
+        n = self.name
+        for a in self.APPS:
+            if a[0] == n:
+                return a[1]
+        return n
+
 
 class RiskAppAware(object):
     def get_url(self, url_name, *args, **kwargs):
