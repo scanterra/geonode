@@ -332,7 +332,8 @@ class Command(BaseCommand):
         excel_file = options.get('excel_file')
         risk_analysis = options.get('risk_analysis')
         excel_metadata_file = options.get('excel_metadata_file')
-        risk_app = options['risk_app'][0]
+        # risk_app = options['risk_app'][0]
+        risk_app =  options.get('risk_app')
         app = RiskApp.objects.get(name=risk_app)
 
         if region is None:
@@ -354,10 +355,8 @@ class Command(BaseCommand):
         scenarios = RiskAnalysisDymensionInfoAssociation.objects.filter(riskanalysis=risk, axis='x')
         round_periods = RiskAnalysisDymensionInfoAssociation.objects.filter(riskanalysis=risk, axis='y')
 
-
         table_name = risk.layer.typename.split(":")[1] \
             if ":" in risk.layer.typename else risk.layer.typename
-
 
         for scenario in scenarios:
             # Dump Vectorial Data from DB
