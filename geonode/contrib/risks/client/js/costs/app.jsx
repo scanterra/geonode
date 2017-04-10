@@ -49,7 +49,7 @@ const StandardRouter = connect((state) => ({
 
 }))(require('../../MapStore2/web/client/components/app/StandardRouter'));
 const loc = window.DISASTERRISK && window.DISASTERRISK.app && window.DISASTERRISK.app.region;
-const dataPath = window.DISASTERRISK && window.DISASTERRISK.app && window.DISASTERRISK.app.href + 'loc/' + loc || 'static/assets/mockupData/risks/cost_benefit_analysis/AF.json';
+const dataPath = window.DISASTERRISK && window.DISASTERRISK.app && window.DISASTERRISK.app.href + 'loc/' + loc || 'static/assets/mockUpData/risks/cost_benefit_analysis/AF.json';
 
 const appStore = require('../../MapStore2/web/client/stores/StandardStore').bind(null, newInitState, appReducers, {...dEpics, ...rEpics});
 

@@ -6405,6 +6405,22 @@ a.disaster .label:focus {
 .disaster .noUi-value-horizontal.noUi-value-sub {
   padding-top: 0;
 }
+.disaster .disaster-chart-slider .noUi-handle {
+  border: 1px solid #333333;
+  background: #333333;
+}
+.disaster .disaster-chart-slider .noUi-connect {
+  background: #ff8f31;
+}
+.disaster .disaster-chart-slider .noUi-handle:before {
+  content: "";
+  display: block;
+  position: absolute;
+  height: 14px;
+  width: 1px;
+  left: 5px;
+  top: 4px;
+}
 .disaster .drc .drc-map-container {
   height: 400px;
   padding: 0 15px;
