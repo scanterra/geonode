@@ -82,4 +82,4 @@ class Command(BaseCommand):
             sh('cp -rvv *.json ../static/js/')
             sh('cp -rvv assets/* ../static/assets/')
             sh('cp -rvv dist/* ../static/js/')
-            sh('cp -rvv MapStore2/web/client/translations ../static/assets/')
+            # sh('cp -rvv MapStore2/web/client/translations ../static/assets/')
