@@ -45,7 +45,7 @@ const SliderChart = React.createClass({
             uid: '',
             labelUid: '',
             type: 'line',
-            maxLength: 50,
+            maxLength: 25,
             sliders: {},
             setDimIdx: () => {},
             chartSliderUpdate: () => {}
@@ -110,7 +110,7 @@ const SliderChart = React.createClass({
                     range={{min: 0, max: chartData.length - 1}}
                     start={[startIndex, endIndex]}
                     limit={this.props.maxLength}
-                    behaviour={'drag'}
+                    behaviour={'tap-drag'}
                     connect={true}
                     step={1}
                     tooltips={false}
