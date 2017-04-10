@@ -179,7 +179,7 @@ class RiskAnalysisCreateAdmin(admin.ModelAdmin):
 
 class RiskAnalysisImportDataAdmin(admin.ModelAdmin):
     model = RiskAnalysisImportData
-    list_display = ('data_file', 'region', 'riskanalysis',)
+    list_display = ('data_file', 'riskapp', 'region', 'riskanalysis',)
     form = ImportDataRiskAnalysisForm
     group_fieldsets = True
 
