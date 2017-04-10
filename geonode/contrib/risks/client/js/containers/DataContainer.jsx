@@ -11,6 +11,7 @@ const {dataContainerSelector, chartSelector} = require('../selectors/disaster');
 
 const {getAnalysisData, getData, setDimIdx, getSFurtherResourceData} = require('../actions/disaster');
 const Chart = connect(chartSelector, {setDimIdx})(require('../components/Chart'));
+const SummaryChart = connect(chartSelector)(require('../components/SummaryChart'));
 
 const DownloadData = require('../components/DownloadData');
 const MoreInfo = require('../components/MoreInfo');
@@ -123,6 +124,7 @@ const DataContainer = React.createClass({
                         <hr/>
                     </div>
                     )}
+                    <SummaryChart/>
                 </div>
             </div>
         );
