@@ -50,7 +50,8 @@ const StandardRouter = connect((state) => ({
 }))(require('../../MapStore2/web/client/components/app/StandardRouter'));
 
 const appStore = require('../../MapStore2/web/client/stores/StandardStore').bind(null, newInitState, appReducers, {...dEpics, ...rEpics});
-const dataPath = window.DISASTERRISK && window.DISASTERRISK.app && window.DISASTERRISK.app.href || '/risks/data_extraction/loc/AF/';
+const loc = window.DISASTERRISK && window.DISASTERRISK.app && window.DISASTERRISK.app.region || 'AF';
+const dataPath = window.DISASTERRISK && window.DISASTERRISK.app && window.DISASTERRISK.app.href + 'loc/' + loc || '/risks/data_extraction/loc/AF';
 const geomPath = window.DISASTERRISK && window.DISASTERRISK.app && window.DISASTERRISK.app.geometry || '/risks/data_extraction/geom/AF/';
 
 
