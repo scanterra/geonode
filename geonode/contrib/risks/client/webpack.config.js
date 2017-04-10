@@ -149,7 +149,7 @@ module.exports = {
                     target: "http://localhost:8081/",
                     pathRewrite: { "^/static/js": ""}
                 },
-                '/risks': {
+                '/risks/': {
                     target: "http://disasterrisk-af-dev.geo-solutions.it",
                     changeOrigin: true
                 }

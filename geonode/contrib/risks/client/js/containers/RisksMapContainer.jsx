@@ -11,7 +11,7 @@ const {connect} = require('react-redux');
 const {loadMapConfig} = require('../../MapStore2/web/client/actions/config');
 const {disasterRiskLayerSelector} = require('../../MapStore2/web/client/selectors/layers');
 const MapViewer = connect(() => ({}), {
-    loadMapConfig: loadMapConfig.bind(null, "/static/js/config-risks.json", false, "/risks/geom/loc/AF/")
+    loadMapConfig: loadMapConfig.bind(null, "/static/js/config-risks.json")
 })(require('../../MapStore2/web/client/containers/MapViewer'));
 const Legend = connect(disasterRiskLayerSelector)(require('../../MapStore2/web/client/components/TOC/fragments/legend/Legend'));
 const {drillUpSelector, switchDimSelector, axesSelector /*, sliderSelector */ } = require('../selectors/disaster');
