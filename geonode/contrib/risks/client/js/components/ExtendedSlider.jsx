@@ -43,7 +43,7 @@ const ExtendedSlider = React.createClass({
         return {
             uid: '',
             activeAxis: 0,
-            maxLength: 5,
+            maxLength: 10,
             sliders: {},
             setDimIdx: () => {},
             chartSliderUpdate: () => {},

@@ -45,7 +45,7 @@ const SliderChart = React.createClass({
             uid: '',
             labelUid: '',
             type: 'line',
-            maxLength: 5,
+            maxLength: 10,
             sliders: {},
             setDimIdx: () => {},
             chartSliderUpdate: () => {}
