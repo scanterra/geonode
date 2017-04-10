@@ -675,6 +675,15 @@ class PDFReportView(ContextAware, FormView):
         return ctx
 
 
+    def get_document_urls(self, app):
+        out = []
+        k = self.kwargs.copy()
+        for part in self.PDF_PARTS:
+            k['pdf_part'] = part
+            out.append(app.url_for('pdf_report_part', **k))
+
+        return out
+
     def get_template_names(self):
         app = self.get_app()
         pdf_part = self.kwargs['pdf_part']
@@ -687,6 +696,7 @@ class PDFReportView(ContextAware, FormView):
     def form_valid(self, form):
         ctx = self.get_context_url(_full=True, **self.kwargs)
         out = {'success': True}
+        app = self.get_app()
         config = {}
         for k, v in form.cleaned_data.iteritems():
             basename, ext = os.path.splitext(v.name)
@@ -695,10 +705,9 @@ class PDFReportView(ContextAware, FormView):
             config[k] = target_path
 
         pdf_path = default_storage.path(os.path.join(ctx, 'report.pdf'))
-        html_path = self.render_report_markup(ctx, self.request, *self.args, **self.kwargs)
 
         config['pdf'] = pdf_path
-        config['url'] = html_path
+        config['urls'] = self.get_document_urls(app)
 
         pdf = generate_pdf(**config)
         out['pdf'] = pdf
