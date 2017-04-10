@@ -48,11 +48,12 @@ const StandardRouter = connect((state) => ({
     pages
 
 }))(require('../../MapStore2/web/client/components/app/StandardRouter'));
-const dataPath = window.DISASTERRISK && window.DISASTERRISK.app && window.DISASTERRISK.app.href || '/risks/data_extraction/loc/AF/';
+const loc = window.DISASTERRISK && window.DISASTERRISK.app && window.DISASTERRISK.app.region;
+const dataPath = window.DISASTERRISK && window.DISASTERRISK.app && window.DISASTERRISK.app.href + 'loc/' + loc || 'static/assets/mockupData/risks/cost_benefit_analysis/AF.json';
 
 const appStore = require('../../MapStore2/web/client/stores/StandardStore').bind(null, newInitState, appReducers, {...dEpics, ...rEpics});
 
-const initialActions = init ? [() => initState(init)] : [() => getData(dataPath)];
+const initialActions = init ? [() => initState(init)] : [() => getData(dataPath + loc)];
 const appConfig = {
     storeOpts,
     appStore,
