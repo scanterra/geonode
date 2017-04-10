@@ -43,7 +43,7 @@ const DownloadData = React.createClass({
             </div>
         ) : ( <h4 className="text-center">{'No files available'}</h4>);
         return (
-            <button className={"btn btn-primary" + active} onClick={() => { return this.props.download.length === 0 ? this.props.show({uid, position: 'bc', autoDismiss: 0, children: downloadFile}, 'info') : this.props.hide(uid); }}>
+            <button id="disaster-download-data-button" className={"btn btn-primary" + active} onClick={() => { return this.props.download.length === 0 ? this.props.show({uid, position: 'bc', autoDismiss: 0, children: downloadFile}, 'info') : this.props.hide(uid); }}>
                 <i className="fa fa-download"/>
             </button>
         );

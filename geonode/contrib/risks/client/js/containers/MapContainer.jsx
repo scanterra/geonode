@@ -36,7 +36,7 @@ const MapContainer = (props) => (
         <div className="col-sm-5">
             <div id="disaster-map-main-container" className="disaster-map-container">
                 <div className="container-fluid">
-                    <div id="disaster-map-tools" className="btn-group pull-left disaster-map-tools"><LayerBtn/><IdentifyBtn/><SwitchAdminU/><DrillUpBtn/><SwitchDimension/></div>
+                    <div id="disaster-map-tools" className="btn-group pull-left disaster-map-tools"><LayerBtn/><IdentifyBtn/><SwitchAdminU/><SwitchDimension/><DrillUpBtn/></div>
                 </div>
                 <div className="drc">
                     <div className="drc-map-container">

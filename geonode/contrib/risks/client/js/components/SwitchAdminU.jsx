@@ -27,7 +27,7 @@ const SwitchAdminU = React.createClass({
             const tooltip = (<Tooltip id={"tooltip-sub-value"} className="disaster">{label}</Tooltip>);
             return show ? (
                 <OverlayTrigger placement="bottom" overlay={tooltip}>
-                    <button className="btn btn-primary" onClick={toggleAdminUnit}>
+                    <button id="disaster-sub-units-button" className="btn btn-primary" onClick={toggleAdminUnit}>
                         <i className={"fa fa-" + icon}/>
                     </button>
                 </OverlayTrigger>

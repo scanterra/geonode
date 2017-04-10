@@ -139,7 +139,7 @@ module.exports = {
                 },
                 '/static/assets/': {
                     target: "http://localhost:8081/",
-                    pathRewrite: { "^/static/assets": "/MapStore2/web/client"}
+                    pathRewrite: { "^/static/assets": "/assets"}
                 },
                 '/static/js/*.css': {
                     target: "http://localhost:8081/",

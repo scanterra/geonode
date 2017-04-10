@@ -9,95 +9,81 @@
 
 const tutorialPresets = {
     DATA_LOADED: [{
-            title: 'Disaster Risk Selector',
-            text: '...text',
+            translationHTML: 'riskSelector',
             selector: '#disaster-risk-selector-menu'
         },
         {
-            title: 'Overview List',
-            text: '...text',
+            translationHTML: 'riskOverview',
             selector: '#disaster-overview-list'
         },
         {
-            title: 'Map',
-            text: '...text',
+            translationHTML: 'riskMap',
             selector: '#disaster-map-main-container'
         },
         {
-            title: 'Navigation',
-            text: '...text',
+            translationHTML: 'riskNavigator',
             selector: '#disaster-navigation'
         },
         {
-            title: 'Tools',
-            text: '...text',
+            translationHTML: 'riskPageTool',
             selector: '#disaster-page-tools'
         },
         {
-            title: 'Download PDF',
-            text: '...text',
-            selector: '#disaster-download-pdf'
-        },
-        {
-            title: 'Share',
-            text: '...text',
-            selector: '#disaster-share-link'
-        },
-        {
-            title: 'Tutorial',
-            text: '...text',
+            translationHTML: 'riskHelp',
             selector: '#disaster-show-tutorial'
         }
     ],
     DATA_LOADED_R: [{
-            title: 'Analysis Menu',
-            text: '...text',
+            translationHTML: 'riskTab',
             selector: '#disaster-analysis-menu'
         },
         {
-            title: 'Analysis List',
-            text: '...text',
+            translationHTML: 'riskList',
             selector: '#disaster-analysis-container'
         }
     ],
     ANALYSIS_DATA_LOADED: [{
-            title: 'Analysis Data',
-            text: '...text',
-            selector: '#disaster-analysis-data-container'
-        },
-        {
-            title: 'Charts',
-            text: '...text',
+            translationHTML: 'riskChart',
             selector: '#disaster-chart-container'
         },
         {
-            title: 'Map Tools',
-            text: '...text',
-            selector: '#disaster-map-tools'
+            translationHTML: 'riskLayer',
+            selector: '#disaster-layer-button'
         },
         {
-            title: 'Map Slider',
-            text: '...text',
+            translationHTML: 'riskInfo',
+            selector: '#disaster-identify-button'
+        },
+        {
+            translationHTML: 'riskUnit',
+            selector: '#disaster-sub-units-button'
+        },
+        {
+            translationHTML: 'riskSwitch',
+            selector: '#disaster-switch-button'
+        },
+        {
+            translationHTML: 'riskMapSlider',
             selector: '#disaster-map-slider'
         },
         {
-            title: 'Map Legend',
-            text: '...text',
+            translationHTML: 'riskLegend',
             selector: '#disaster-map-legend'
         },
         {
-            title: 'Further Resources',
-            text: '...text',
+            translationHTML: 'riskFurtherResources',
             selector: '#disaster-further-resources'
         },
         {
-            title: 'Layers Menu',
-            text: '...text',
-            selector: '#navigationBar-container'
+            translationHTML: 'riskMoreInfo',
+            selector: '#disaster-more-info-button'
         },
         {
-            title: 'Back to Analysis',
-            text: '...text',
+            translationHTML: 'riskDownloadData',
+            selector: '#disaster-download-data-button'
+        },
+        {
+            translationHTML: 'riskBack',
             selector: '#disaster-back-button'
         }
     ]

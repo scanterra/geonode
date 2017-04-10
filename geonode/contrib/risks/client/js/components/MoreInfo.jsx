@@ -57,7 +57,7 @@ const MoreInfo = React.createClass({
             </div>
         );
         return (
-            <button className={"btn btn-primary" + active} onClick={() => { return this.props.moreInfo.length === 0 ? this.props.show({uid, position: 'bc', autoDismiss: 0, children: moreInfoTab}, 'info') : this.props.hide(uid); }}>
+            <button id="disaster-more-info-button" className={"btn btn-primary" + active} onClick={() => { return this.props.moreInfo.length === 0 ? this.props.show({uid, position: 'bc', autoDismiss: 0, children: moreInfoTab}, 'info') : this.props.hide(uid); }}>
                 <i className="fa fa-ellipsis-h"/>
             </button>
         );
