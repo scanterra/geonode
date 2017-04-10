@@ -5,6 +5,7 @@ const navItemsSel = ({disaster = {}}) => disaster.navItems || [];
 const riskItemsSel = ({disaster = {}}) => disaster.overview || [];
 const hazardTypeSel = ({disaster = {}}) => disaster.hazardType || {};
 const analysisTypeSel = ({disaster = {}}) => disaster.analysisType || {};
+const sliderSel = ({disaster = {}}) => disaster.sliders || {};
 const notificationsSel = (state) => state.notifications || [];
 const currentAnalysisUrlSel = ({disaster = {}}) => disaster.currentAnalysisUrl || '';
 const riskAnalysisDataSel = ({disaster = {}}) => disaster.riskAnalysis && disaster.riskAnalysis.riskAnalysisData || {};
@@ -65,17 +66,10 @@ const moreInfoSelector = createSelector([notificationsSel, riskAnalysisDataSel],
         riskAnalysisData
       })
     );
-const chartLabelSelector = createSelector([notificationsSel, currentAnalysisUrlSel],
+const labelSelector = createSelector([notificationsSel, currentAnalysisUrlSel],
       (notifications, currentUrl) => (
         {
-          notification: notifications.filter((val) => { return val.uid === 'chart_label_tab'; }),
-          currentUrl
-        })
-      );
-const mapLabelSelector = createSelector([notificationsSel, currentAnalysisUrlSel],
-      (notifications, currentUrl) => (
-        {
-          notification: notifications.filter((val) => { return val.uid === 'map_label_tab'; }),
+          notifications,
           currentUrl
         })
       );
@@ -87,6 +81,27 @@ const chartSelector = createSelector([riskAnalysisDataSel, dimSelector],
         dim,
         uOm: riskAnalysisData.unitOfMeasure || 'Values'
     }));
+const sliderSelector = createSelector([riskAnalysisDataSel, dimSelector, sliderSel],
+    (riskAnalysisData, dim, sliders) => ({
+        dimension: riskAnalysisData.data && riskAnalysisData.data.dimensions && riskAnalysisData.data.dimensions[dim.dim2],
+        activeAxis: dim.dim2Idx,
+        sliders
+    }));
+const mapSliderSelector = createSelector([riskAnalysisDataSel, dimSelector, sliderSel],
+    (riskAnalysisData, dim, sliders) => ({
+        dimension: riskAnalysisData.data && riskAnalysisData.data.dimensions && riskAnalysisData.data.dimensions[dim.dim1],
+        activeAxis: dim.dim1Idx,
+        sliders
+    }));
+const sliderChartSelector = createSelector([riskAnalysisDataSel, dimSelector, sliderSel],
+    (riskAnalysisData, dim, sliders) => ({
+        values: riskAnalysisData.data && riskAnalysisData.data.values,
+        dimension: riskAnalysisData.data && riskAnalysisData.data.dimensions,
+        val: riskAnalysisData.data && riskAnalysisData.data.dimensions && riskAnalysisData.data.dimensions[dim.dim1].values[dim.dim1Idx],
+        dim,
+        uOm: riskAnalysisData.unitOfMeasure || 'Values',
+        sliders
+    }));
 module.exports = {
     drillUpSelector,
     topBarSelector,
@@ -96,8 +111,10 @@ module.exports = {
     shareUrlSelector,
     downloadDataSelector,
     moreInfoSelector,
-    chartLabelSelector,
-    mapLabelSelector,
-    chartSelector
+    labelSelector,
+    chartSelector,
+    sliderSelector,
+    mapSliderSelector,
+    sliderChartSelector
 };
 

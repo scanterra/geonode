@@ -26,6 +26,7 @@ const {
     ANALYSIS_DATA_LOADED,
     DATA_ERROR,
     GET_S_FURTHER_RESOURCE_DATA,
+    CHART_SLIDER_UPDATE,
     dataLoaded,
     dataLoading,
     dataError,
@@ -35,7 +36,8 @@ const {
     getFeatures,
     getAnalysisData,
     analysisDataLoaded,
-    getData
+    getData,
+    setChartSliderIndex
 } = require('../actions/disaster');
 const {configureMap, configureError} = require('../../MapStore2/web/client/actions/config');
 const getRiskDataEpic = (action$, store) =>
@@ -136,5 +138,11 @@ const getSpecificFurtherResources = (action$) =>
             .startWith(info({title: 'Loading', position: 'bc', autoDismiss: 2}))
             .catch(e => Rx.Observable.of(dataError(e)));
     });
+const chartSliderUpdateEpic = action$ =>
+    action$.ofType(CHART_SLIDER_UPDATE).debounceTime(1000).switchMap( action => {
+        return Rx.Observable.of(action).map((val) => {
+            return setChartSliderIndex(val.index, val.uid);
+        });
+    });
 
-module.exports = {getRiskDataEpic, getRiskMapConfig, getRiskFeatures, getAnalysisEpic, zoomInOutEpic, initStateEpic, changeTutorial, loadingError, getSpecificFurtherResources};
+module.exports = {getRiskDataEpic, getRiskMapConfig, getRiskFeatures, getAnalysisEpic, zoomInOutEpic, initStateEpic, changeTutorial, loadingError, getSpecificFurtherResources, chartSliderUpdateEpic};

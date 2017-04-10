@@ -7,10 +7,13 @@
  */
 const React = require('react');
 const {connect} = require('react-redux');
-const {dataContainerSelector, chartSelector} = require('../selectors/disaster');
+const {dataContainerSelector, chartSelector /*, sliderChartSelector*/} = require('../selectors/disaster');
 
-const {getAnalysisData, getData, setDimIdx, getSFurtherResourceData} = require('../actions/disaster');
+const {getAnalysisData, getData, setDimIdx, getSFurtherResourceData /*, chartSliderUpdate */} = require('../actions/disaster');
 const Chart = connect(chartSelector, {setDimIdx})(require('../components/Chart'));
+
+/* const SliderChart = connect(sliderChartSelector, {setDimIdx, chartSliderUpdate})(require('../components/SliderChart')); */
+const SummaryChart = connect(chartSelector)(require('../components/SummaryChart'));
 
 const DownloadData = require('../components/DownloadData');
 const MoreInfo = require('../components/MoreInfo');
@@ -18,8 +21,8 @@ const Overview = connect(({disaster = {}}) => ({riskItems: disaster.overview || 
 const {Panel, Tooltip, OverlayTrigger} = require('react-bootstrap');
 const Nouislider = require('react-nouislider');
 const {show, hide} = require('react-notification-system-redux');
-const {chartLabelSelector} = require('../selectors/disaster');
-const LabelResource = connect(chartLabelSelector, { show, hide, getData: getSFurtherResourceData })(require('../components/LabelResource'));
+const {labelSelector} = require('../selectors/disaster');
+const LabelResource = connect(labelSelector, { show, hide, getData: getSFurtherResourceData })(require('../components/LabelResource'));
 
 const DataContainer = React.createClass({
     propTypes: {
@@ -65,7 +68,7 @@ const DataContainer = React.createClass({
     },
     renderAnalysisData() {
         const {dim} = this.props;
-        const {hazardSet, data, unitOfMeasure} = this.props.riskAnalysisData;
+        const {hazardSet, data} = this.props.riskAnalysisData;
         const tooltip = (<Tooltip id={"tooltip-back"} className="disaster">{'Back to Analysis Table'}</Tooltip>);
         const val = data.dimensions[dim.dim1].values[dim.dim1Idx];
         const header = data.dimensions[dim.dim1].name + ' ' + val;
@@ -89,6 +92,7 @@ const DataContainer = React.createClass({
                     <p>{hazardSet.purpose}</p>
                 </div>
                 <div id="disaster-chart-container" className="row">
+                    {/*<SliderChart uid={'map_slider'} labelUid={'chart_label_tab'}/>*/}
                     <Panel className="chart-panel">
                         <Chart/>
                     </Panel>
@@ -123,6 +127,7 @@ const DataContainer = React.createClass({
                         <hr/>
                     </div>
                     )}
+                    <SummaryChart/>
                 </div>
             </div>
         );
