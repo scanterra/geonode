@@ -43,7 +43,7 @@ class AdministrativeGeometry(AppAware, View):
                 }
 
 
-    def get(self, request, adm_code):
+    def get(self, request, adm_code, **kwargs):
         try:
             app = self.get_app()
         except KeyError:

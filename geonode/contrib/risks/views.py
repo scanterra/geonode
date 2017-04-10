@@ -628,7 +628,6 @@ class RiskLayersView(FormView):
         out = {}
         out['success'] = True
         out['data'] = {'layers': list(risk.additional_layers.all().values_list('typename', flat=True))}
-        print('out', out)
         return json_response(out)
 
 
