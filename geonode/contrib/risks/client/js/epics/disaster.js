@@ -139,10 +139,11 @@ const getSpecificFurtherResources = (action$) =>
             .catch(e => Rx.Observable.of(dataError(e)));
     });
 const chartSliderUpdateEpic = action$ =>
-    action$.ofType(CHART_SLIDER_UPDATE).debounceTime(1000).switchMap( action => {
-        return Rx.Observable.of(action).map((val) => {
-            return setChartSliderIndex(val.index, val.uid);
-        });
-    });
+    action$.ofType(CHART_SLIDER_UPDATE).debounceTime(1000)
+        .switchMap( action => {
+            console.log('update slider');
+           return Rx.Observable.of(setChartSliderIndex(action.index, action.uid))
+        }
+    );
 
 module.exports = {getRiskDataEpic, getRiskMapConfig, getRiskFeatures, getAnalysisEpic, zoomInOutEpic, initStateEpic, changeTutorial, loadingError, getSpecificFurtherResources, chartSliderUpdateEpic};
