@@ -11,7 +11,9 @@ const {dataContainerSelector, chartSelector /*, sliderChartSelector*/} = require
 
 const {getAnalysisData, getData, setDimIdx, getSFurtherResourceData /*, chartSliderUpdate */} = require('../actions/disaster');
 const Chart = connect(chartSelector, {setDimIdx})(require('../components/Chart'));
+
 /* const SliderChart = connect(sliderChartSelector, {setDimIdx, chartSliderUpdate})(require('../components/SliderChart')); */
+const SummaryChart = connect(chartSelector)(require('../components/SummaryChart'));
 
 const DownloadData = require('../components/DownloadData');
 const MoreInfo = require('../components/MoreInfo');
@@ -124,7 +126,8 @@ const DataContainer = React.createClass({
                           </div>
                         <hr/>
                     </div>
-                  )}
+                    )}
+                    <SummaryChart/>
                 </div>
             </div>
         );
