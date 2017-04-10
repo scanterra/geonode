@@ -15,7 +15,11 @@ module.exports = {
     }],
     pluginsDef: require('./plugins.js'),
     initialState: {
-        defaultState: {},
+        defaultState: {
+            mapInfo: {
+                infoFormat: "text/html"
+            }
+        },
         mobile: {}
     }
 };

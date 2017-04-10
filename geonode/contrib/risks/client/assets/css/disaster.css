@@ -6517,6 +6517,13 @@ a.disaster .label:focus {
 .disaster .recharts-wrapper {
   font-size: 12px;
 }
+.disaster .drc .leaflet-control-zoom {
+  left: 0px;
+}
+.disaster .drc .leaflet-control-zoom-in,
+.disaster .drc .leaflet-control-zoom-out {
+  text-decoration: none;
+}
 @font-face {
   font-family: 'thinkhazard';
   src: url('../fonts/thinkhazard/thinkhazard.eot?-xr90r9');

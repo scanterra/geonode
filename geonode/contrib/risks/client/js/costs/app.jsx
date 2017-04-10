@@ -38,7 +38,7 @@ if (Cookies.get('csrftoken')) {
 
 const initDim = init && init.d || {};
 
-const newInitState = assign({}, initialState, {defaultState: {disaster: {dim: initDim}}});
+const newInitState = assign({}, initialState, {defaultState: {disaster: {dim: initDim}, mapInfo: { infoFormat: "text/html"}}});
 const themeCfg = {
     path: '/static/js'
 };
@@ -49,7 +49,7 @@ const StandardRouter = connect((state) => ({
 
 }))(require('../../MapStore2/web/client/components/app/StandardRouter'));
 const loc = window.DISASTERRISK && window.DISASTERRISK.app && window.DISASTERRISK.app.region;
-const dataPath = window.DISASTERRISK && window.DISASTERRISK.app && window.DISASTERRISK.app.href + 'loc/' + loc || 'static/assets/mockUpData/risks/cost_benefit_analysis/AF.json';
+const dataPath = window.DISASTERRISK && window.DISASTERRISK.app && `${window.DISASTERRISK.app.href}loc/${loc}/` || "/risks/cost_benefit_analysis/loc/AF/";
 
 const appStore = require('../../MapStore2/web/client/stores/StandardStore').bind(null, newInitState, appReducers, {...dEpics, ...rEpics});
 
