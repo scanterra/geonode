@@ -38,15 +38,14 @@ function getViewParam({dim, showSubUnit, riskAnalysis} = {}) {
     return {viewparams};
 }
 
-function getLayerName({dim, riskAnalysis}) {
-    const {dimensions} = riskAnalysis.riskAnalysisData.data;
-    const dim1Val = dimensions[dim.dim1].values[dim.dim1Idx];
-    return dimensions[dim.dim1].layers[dim1Val].layerName;
+function getLayerName({riskAnalysis}) {
+    const {layer} = riskAnalysis.riskAnalysisData;
+    return layer && layer.layerName;
 }
-function getStyle({dim, riskAnalysis}) {
-    const {dimensions} = riskAnalysis.riskAnalysisData.data;
-    const dim1Val = dimensions[dim.dim1].values[dim.dim1Idx];
-    return dimensions[dim.dim1].layers[dim1Val] && dimensions[dim.dim1].layers[dim1Val].layerStyle && dimensions[dim.dim1].layers[dim1Val].layerStyle.name;
+function getStyle({riskAnalysis}) {
+    const {layer} = riskAnalysis.riskAnalysisData;
+
+    return layer.layerStyle && layer.layerStyle.name
 }
 
 function makeNotificationRow(data) {
