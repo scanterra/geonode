@@ -53,7 +53,7 @@ const dataPath = window.DISASTERRISK && window.DISASTERRISK.app && window.DISAST
 
 const appStore = require('../../MapStore2/web/client/stores/StandardStore').bind(null, newInitState, appReducers, {...dEpics, ...rEpics});
 
-const initialActions = init ? [() => initState(init)] : [() => getData(dataPath + loc)];
+const initialActions = init ? [() => initState(init)] : [() => getData(dataPath)];
 const appConfig = {
     storeOpts,
     appStore,
