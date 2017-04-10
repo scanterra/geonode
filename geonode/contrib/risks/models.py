@@ -449,7 +449,7 @@ class RiskAnalysis(RiskAppAware, Schedulable, LocationAware, HazardTypeAware, An
         return {}
 
     def get_layer_data(self):
-        l = self.layer 
+        l = self.layer
         layer_name = l.typename
         layer_title = l.title
         layer_style = self.get_style()
@@ -1238,6 +1238,13 @@ class RiskAnalysisImportData(models.Model):
     data_file = models.FileField(upload_to='data_files', max_length=255)
 
     # Relationships
+    riskapp = models.ForeignKey(
+        RiskApp,
+        blank=False,
+        null=False,
+        unique=False,
+    )
+
     region = models.ForeignKey(
         Region,
         blank=False,
@@ -1266,7 +1273,7 @@ class RiskAnalysisImportData(models.Model):
     class Meta:
         """
         """
-        ordering = ['region', 'riskanalysis']
+        ordering = ['riskapp', 'region', 'riskanalysis']
         db_table = 'risks_data_files'
         verbose_name = 'Risks Analysis: Import Risk Data from XLSX file'
         verbose_name_plural = 'Risks Analysis: Import Risk Data from XLSX file'
@@ -1337,7 +1344,7 @@ class AdditionalData(Exportable, models.Model):
             values = []
             for rnum in range(1, sheet.nrows):
                 values.append([item.value for item in sheet.row(rnum)[1:]])
-            
+
             data = {'column_names': col_names,
                     'row_names': row_names,
                     'values': values}

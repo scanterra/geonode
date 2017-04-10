@@ -66,7 +66,7 @@ class ImportDataRiskAnalysisForm(models.ModelForm):
         """
         """
         model = RiskAnalysisImportData
-        fields = ('region', 'riskanalysis', "data_file",)
+        fields = ('riskapp', 'region', 'riskanalysis', "data_file",)
 
     def clean_data_file(self):
         file_xlsx = self.cleaned_data['data_file']
@@ -74,9 +74,10 @@ class ImportDataRiskAnalysisForm(models.ModelForm):
                                     ContentFile(file_xlsx.read()))
         tmp_file = os.path.join(settings.MEDIA_ROOT, path)
 
+        risk_app = self.cleaned_data['riskapp']
         region = self.cleaned_data['region']
         risk = self.cleaned_data['riskanalysis']
-        import_risk_data(tmp_file, risk, region, file_xlsx)
+        import_risk_data(tmp_file, risk_app, risk, region, file_xlsx)
 
         return file_xlsx
 
