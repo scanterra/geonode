@@ -1,4 +1,4 @@
-CREATE TABLE public.test
+CREATE TABLE if not exists public.test
 (
   fid serial not null,
   the_geom geometry(MultiPolygon,4326),
@@ -15,17 +15,17 @@ WITH (
 ALTER TABLE public.test
   OWNER TO geonode;
 
-CREATE INDEX spatial_test_the_geom
+CREATE INDEX if not exists spatial_test_the_geom
   ON public.test
   USING gist
   (the_geom);
 
-CREATE INDEX test_idx_nulls_low
+CREATE INDEX if not exists test_idx_nulls_low
   ON public.test (risk_analysis NULLS FIRST, hazard_type, adm_code, region);
 
 --
 
-CREATE TABLE public.dimension
+CREATE TABLE if not exists public.dimension
 (
   dim_id serial not null,
   dim_col character varying(30),
@@ -39,12 +39,12 @@ WITH (
 ALTER TABLE public.dimension
   OWNER TO geonode;
 
-CREATE INDEX dimension_idx
+CREATE INDEX if not exists dimension_idx
   ON public.dimension (dim_col, dim_value);
 
 --
 
-CREATE TABLE public.test_dimensions
+CREATE TABLE if not exists public.test_dimensions
 (
   test_fid integer,
   dim1_id integer,

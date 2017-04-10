@@ -341,6 +341,8 @@ class RiskAnalysis(RiskAppAware, Schedulable, LocationAware, HazardTypeAware, An
                               ('descriptorFile', 'descriptor_file',),
                               ('dataFile', 'data_file',),
                               ('metadataFile',  'metadata_file',),
+                              ('layer', 'get_layer_data',),
+                              ('additionalTables', 'get_additional_data',),
                               ('hazardSet', 'get_hazard_set_extended',))
 
     id = models.AutoField(primary_key=True)
@@ -387,6 +389,23 @@ class RiskAnalysis(RiskAppAware, Schedulable, LocationAware, HazardTypeAware, An
         through='RiskAnalysisDymensionInfoAssociation'
     )
 
+    layer = models.ForeignKey(
+        Layer,
+        blank=False,
+        null=False,
+        unique=False,
+        related_name='base_layer'
+    )
+
+
+    style = models.ForeignKey(Style,
+                              blank=True,
+                              null=True,
+                              unique=False,
+                              related_name='style_layer'
+    )
+
+
     additional_layers = models.ManyToManyField(Layer, blank=True)
     app = models.ForeignKey(RiskApp)
 
@@ -415,13 +434,36 @@ class RiskAnalysis(RiskAppAware, Schedulable, LocationAware, HazardTypeAware, An
             return self.hazardset.export(fields)
         return {}
 
-
     def href(self):
         loc = self.get_location()
         ht = self.get_hazard_type()
         at = self.get_analysis_type()
         return self.get_url('analysis', loc.code, ht.mnemonic, at.name, self.id)
 
+    def get_style(self):
+        if self.style:
+            return {'name': self.style.name,
+                    'title': self.style.sld_title,
+                    'url': self.style.sld_url,
+                    'sld': self.style.sld_body}
+        return {}
+
+    def get_layer_data(self):
+        l = self.layer 
+        layer_name = l.typename
+        layer_title = l.title
+        layer_style = self.get_style()
+        out = {'layerName': layer_name,
+               'layerTitle': l.title,
+               'layerStyle': layer_style}
+        return out
+
+    def get_additional_data(self):
+        out = []
+        for at in self.additional_data.all():
+            at_data = at.export()
+            out.append(at_data)
+        return out
 
 class AdministrativeDivisionManager(models.Manager):
     """
@@ -595,20 +637,6 @@ class DymensionInfo(RiskAnalysisAware, Exportable, models.Model):
         risk = self.get_risk_analysis()
         return self.riskanalysis_associacion.filter(riskanalysis=risk).order_by('order')
 
-
-    def get_axis_descriptions(self):
-        axis = self.get_axis()
-        out = {}
-        for ax in axis:
-            n = ax.value
-            layer_name = ax.layer.typename
-            layer_attribute = ax.axis_attribute()
-            layer_style = ax.get_style()
-            out[n] = {'layerName': layer_name,
-                      'layerAttribute': layer_attribute,
-                      'layerStyle': layer_style}
-        return out
-
     def get_axis_values(self):
         axis = self.get_axis()
         return list(axis.values_list('value', flat=True))
@@ -628,6 +656,15 @@ class DymensionInfo(RiskAnalysisAware, Exportable, models.Model):
     def get_axis_styles(self):
         axis = self.get_axis()
         return dict((v.value, v.get_style(),) for v in axis)
+
+    def get_axis_descriptions(self):
+        axis = self.get_axis()
+        out = {}
+        for ax in axis:
+            n = ax.value
+            layer_attribute = ax.axis_attribute()
+            out[n] = {'layerAttribute': layer_attribute}
+        return out
 
 
 class RiskAnalysisAdministrativeDivisionAssociation(models.Model):
@@ -664,26 +701,11 @@ class RiskAnalysisDymensionInfoAssociation(models.Model):
     # Relationships
     riskanalysis = models.ForeignKey(RiskAnalysis, related_name='dymensioninfo_associacion')
     dymensioninfo = models.ForeignKey(DymensionInfo, related_name='riskanalysis_associacion')
+    layer_attribute = models.CharField(max_length=80, null=False, blank=False)
 
     DIM = {'x': 'dim1', 'y': 'dim2', 'z': 'dim3'}
 
     # GeoServer Layer referenced by GeoNode resource
-    layer = models.ForeignKey(
-        Layer,
-        blank=False,
-        null=False,
-        unique=False,
-        related_name='base_layer'
-    )
-
-    layer_attribute = models.CharField(max_length=80, null=False, blank=False)
-
-    style = models.ForeignKey(Style,
-                              blank=True,
-                              null=True,
-                              unique=False,
-                              related_name='style_layer'
-    )
 
     def __unicode__(self):
         return u"{0}".format(self.riskanalysis.name + " - " +
@@ -707,13 +729,6 @@ class RiskAnalysisDymensionInfoAssociation(models.Model):
         """
         return 'd{}'.format(self.DIM[self.axis][3:])
 
-    def get_style(self):
-        if self.style:
-            return {'name': self.style.name,
-                    'title': self.style.sld_title,
-                    'url': self.style.sld_url,
-                    'sld': self.style.sld_body}
-        return {}
 
 class PointOfContact(Exportable, models.Model):
     """
@@ -1298,10 +1313,13 @@ class RiskAnalysisImportMetadata(models.Model):
         verbose_name_plural = 'Risks Analysis: Import or Update Risk Metadata \
                                from XLSX file'
 
-class AdditionalData(models.Model):
+class AdditionalData(Exportable, models.Model):
+    EXPORT_FIELDS = (('name', 'name',),
+                     ('table', 'data',))
+
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255, null=False, default='')
-    risk_analysis = models.ForeignKey(RiskAnalysis)
+    risk_analysis = models.ForeignKey(RiskAnalysis, related_name='additional_data')
     data = JSONField(null=False, blank=False, default={})
 
     def __str__(self):
@@ -1327,7 +1345,6 @@ class AdditionalData(models.Model):
             ad = cls.objects.create(name=sheet.name, risk_analysis=risk, data=data)
             out.append(ad)
         return out
-
 
 def create_risks_apps(apps, schema_editor):
     RA = apps.get_model('risks', 'RiskApp')

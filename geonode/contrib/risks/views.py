@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
 import os
+import json
 import logging
 
 from django.conf import settings
@@ -30,10 +31,7 @@ class AppAware(object):
     DEFAULT_APP = RiskApp.APP_DATA_EXTRACTION
 
     def get_app_name(self):
-        try:
-            k = self.kwargs['app_name']
-        except KeyError:
-            return self.DEFAULT_APP
+        return self.kwargs['app']
 
     def get_app(self):
         app_name = self.get_app_name()
@@ -209,14 +207,12 @@ class FeaturesSource(object):
 
     def get_dymlist_field_mapping(self, analysis, dimension, dymlist):
         out = []
-        layers = []
+        layers = [analysis.layer.typename]
         current_dim_name = self.get_dim_association(analysis, dimension)[1]
         out.append(current_dim_name)
         for dym in dymlist:
             if dym != dimension:
                 dim_association = self.get_dim_association(analysis, dym)
-                if dim_association[0].layer:
-                    layers.append(dim_association[0].layer.typename)
                 out.append(dim_association[1])
         return (out, layers)
 
@@ -230,23 +226,34 @@ class FeaturesSource(object):
                                  password=s['PASSWORD'])
         dim_name = dymlist_to_fields[0]
         layer_name = dym_layers[0]
-
         features = gs.get_features(layer_name, dim_name, **kwargs)
         return features
 
 
-class RiskDataExtractionView(AppAware, FeaturesSource, TemplateView):
+class RiskIndexView(AppAware, FeaturesSource, TemplateView):
 
-    template_name = 'risks/risk_data_extraction_index.html'
+    TEMPLATES = {RiskApp.APP_DATA_EXTRACTION: 'risks/risk_data_extraction_index.html',
+                 RiskApp.APP_COST_BENEFIT: 'risks/cost_benefit_index.html'}
+
+    def get_template_names(self):
+        app = self.get_app()
+        return [self.TEMPLATES[app.name]]
 
     def get_context_data(self, *args, **kwargs):
-        ctx = super(RiskDataExtractionView, self).get_context_data(*args, **kwargs)
-
+        ctx = super(RiskIndexView, self).get_context_data(*args, **kwargs)
         ctx['app'] = app = self.get_app()
-        ctx['geometry_url'] = app.url_for('geometry', settings.RISKS['DEFAULT_LOCATION'])
+    
+        app_ctx = {'app': app.name,
+                   'geometry': app.url_for('geometry', settings.RISKS['DEFAULT_LOCATION']),
+                   'region': settings.RISKS['DEFAULT_LOCATION'],
+                   'href': app.href}
+        ctx['app_ctx'] = json.dumps(app_ctx)
+        
         return ctx
 
-risk_data_extraction_index = RiskDataExtractionView.as_view()
+
+risk_data_extraction_index = RiskIndexView.as_view()
+cost_benefit_index = RiskIndexView.as_view()
 
 
 class LocationSource(object):
@@ -581,12 +588,10 @@ class RiskLayersView(FormView):
 
     def get_layer_choices(self):
         r = self.get_risk()
-        r_layers = r.dymensioninfo_associacion.all().values_list('layer__id', flat=True)
-        if r is None:
+        if r.layer is None:
             q = Layer.objects.all().values_list('id', flat=True)
         else:
-            q = Layer.objects.exclude(id__in=r_layers).values_list('id', flat=True)
-
+            q = Layer.objects.exclude(id=r.layer.id).values_list('id', flat=True)
         return [(str(val), str(val),) for val in q]
 
     def get_form(self, form_class=None):

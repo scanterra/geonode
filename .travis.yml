@@ -17,7 +17,7 @@ install:
   - sudo apt-get -qq -m -y --force-yes remove postgresql* mysql*
   - sudo apt-get -qq -m -y --force-yes -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confnew upgrade
   - sudo apt-get install -q -y -f --force-yes libgdal1h gdal-bin libgdal-dev
-  - sudo apt-get install -q -y -f --force-yes postgresql-server-dev-9.3 postgresql-9.3-postgis-2.1
+  - sudo apt-get install -q -y -f --force-yes postgresql-server-dev-9.5 postgresql-9.5-postgis-2.2
   - sudo apt-get install -q -y -f --force-yes python-virtualenv python-imaging python-lxml python-pyproj python-shapely python-nose python-httplib2 python-httplib2 gettext
   - sudo apt-get install -q -y -f --force-yes oracle-java8-installer ant maven2 --no-install-recommends
   - sudo update-java-alternatives --set java-8-oracle
@@ -38,9 +38,14 @@ before_script:
   - psql -c "GRANT ALL ON spatial_ref_sys TO PUBLIC;" -d geonode_data -U postgres
   - mv geonode/local_settings.py.psql_test geonode/local_settings.py
   - paver setup
+  - paver start_geoserver
+  - sleep 30
 
 script:
   - coverage run --branch --source=geonode manage.py test geonode.contrib.risks.tests.smoke
+  - coverage run --branch --source=geonode manage.py test geonode.contrib.risks.tests.views
+
+
 
 after_script:
   - paver reset_hard
@@ -51,3 +56,4 @@ after_success:
 notifications:
   email:
     - alessio.fabiani@gmail.com
+    - c.statkiewicz@gmail.com

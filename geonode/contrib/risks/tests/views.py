@@ -46,14 +46,16 @@ class RisksViewTestCase(RisksTestCase):
     def setUp(self):
         super(RisksViewTestCase, self).setUp()
 
+        from geonode.contrib.risks.models import RiskApp
         out = StringIO()
-        call_command('createriskanalysis', descriptor_file=TESTDATA_FILE_INI, stdout=out)
+        call_command('createriskanalysis', descriptor_file=TESTDATA_FILE_INI, stdout=out, risk_app=RiskApp.APP_DATA_EXTRACTION)
         call_command(
             'importriskdata',
             commit=True,
             excel_file=TESTDATA_FILE_DATA,
             region=TEST_REGION,
             risk_analysis=TEST_RISK_ANALYSIS,
+            risk_app=[RiskApp.APP_DATA_EXTRACTION],
             stdout=out)
 
         self.client = Client()
@@ -219,6 +221,17 @@ class RisksViewTestCase(RisksTestCase):
                 data = json.loads(resp.content)
                 self.assertTrue(data.get('riskAnalysisData'))
                 self.assertTrue(data['riskAnalysisData'].get('data'))
+
+
+                self.assertTrue(isinstance(data['riskAnalysisData'].get('layer'), types.DictType))
+                self.assertTrue(data['riskAnalysisData'].get('layer'))
+
+                ldict = data['riskAnalysisData']['layer']
+
+                self.assertTrue(isinstance(ldict['layerName'], types.StringTypes))
+                self.assertTrue(ldict['layerName'])
+                self.assertTrue(isinstance(ldict['layerStyle'], types.DictType))
+
                 for d in data['riskAnalysisData']['data']['dimensions']:
                     self.assertEqual(DymensionInfo.objects.filter(name=d['name']).count(), 1)
 
@@ -232,12 +245,8 @@ class RisksViewTestCase(RisksTestCase):
                     
                     for lname, ldict in d['layers'].iteritems():
                         self.assertTrue(isinstance(ldict, types.DictType))
-
-                        self.assertTrue(isinstance(ldict['layerName'], types.StringTypes))
-                        self.assertTrue(ldict['layerName'])
                         self.assertTrue(isinstance(ldict['layerAttribute'], types.StringTypes))
                         self.assertTrue(ldict['layerAttribute'])
-                        self.assertTrue(isinstance(ldict['layerStyle'], types.DictType))
 
 
                         

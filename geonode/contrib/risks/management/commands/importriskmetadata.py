@@ -26,7 +26,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db.models import Q
 
 from geonode.base.models import TopicCategory
-from geonode.contrib.risks.models import RiskAnalysis
+from geonode.contrib.risks.models import RiskAnalysis, RiskApp
 from geonode.contrib.risks.models import HazardSet, PointOfContact
 from geonode.contrib.risks.models import Region, AdministrativeDivision
 
@@ -53,38 +53,47 @@ class Command(BaseCommand):
 
     help = 'Import Risk Metadata: Loss Impact and Impact Analysis Types.'
 
-    option_list = BaseCommand.option_list + (
-        make_option(
+    def add_arguments(self, parser):
+        parser.add_argument(
             '-c',
             '--commit',
             action='store_true',
             dest='commit',
             default=True,
-            help='Commits Changes to the storage.'),
-        make_option(
+            help='Commits Changes to the storage.')
+
+        parser.add_argument(
             '-r',
             '--region',
             dest='region',
-            type="string",
-            help='Destination Region.'),
-        make_option(
+            help='Destination Region.')
+        parser.add_argument(
             '-x',
             '--excel-file',
             dest='excel_file',
-            type="string",
-            help='Input Risk Metadata Table as XLSX File.'),
-        make_option(
+            help='Input Risk Metadata Table as XLSX File.')
+        parser.add_argument(
             '-k',
             '--risk-analysis',
             dest='risk_analysis',
-            type="string",
-            help='Name of the Risk Analysis associated to the File.'))
+            help='Name of the Risk Analysis associated to the File.')
+        parser.add_argument(
+            '-a',
+            '--risk-app',
+            dest='risk_app',
+            nargs=1,
+            default=RiskApp.APP_DATA_EXTRACTION,
+            help="Name of Risk App, default: {}".format(RiskApp.APP_DATA_EXTRACTION),
+            )
+
 
     def handle(self, **options):
         commit = options.get('commit')
         region = options.get('region')
         excel_file = options.get('excel_file')
         risk_analysis = options.get('risk_analysis')
+        app_name = options['risk_app'][0]
+        app = RiskApp.objects.get(name=app_name)
 
         if region is None:
             raise CommandError("Input Destination Region '--region' \
@@ -99,7 +108,7 @@ is mandatory")
 is mandatory")
 
         wb = xlrd.open_workbook(filename=excel_file)
-        risk = RiskAnalysis.objects.get(name=risk_analysis)
+        risk = RiskAnalysis.objects.get(name=risk_analysis, app=app)
         region = Region.objects.get(name=region)
         # region_code = region.administrative_divisions.filter(parent=None)[0].code
 

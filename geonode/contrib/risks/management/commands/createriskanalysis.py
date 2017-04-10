@@ -121,7 +121,7 @@ Loss Impact and Impact Analysis Types.'
                             dest='descriptor_file',
                             type=str,
                             help='Input Risk Analysis Descriptor INI File.')
-        parser.add_argument('-r',
+        parser.add_argument('-a',
                             '--risk-app',
                             dest='risk_app',
                             default=RISK_APP_DEFAULT,
@@ -148,7 +148,6 @@ Loss Impact and Impact Analysis Types.'
             app_name = options['risk_app']
 
         app = RiskApp.objects.get(name=app_name)
-        print('got app', app.name)
 
         if RiskAnalysis.objects.filter(name=risk_name, app=app).exists():
             raise CommandError("A Risk Analysis with name '" + risk_name +
@@ -173,6 +172,7 @@ Loss Impact and Impact Analysis Types.'
         risk = RiskAnalysis(name=risk_name, app=app)
         risk.analysis_type = analysis
         risk.hazard_type = hazard
+        risk.layer = layer
         risk.save()
         risk.set_queued()
         print ("Created Risk Analysis [%s] (%s) - %s" %
@@ -192,7 +192,6 @@ Loss Impact and Impact Analysis Types.'
                 rd.riskanalysis = risk
                 rd.order = counter
                 rd.axis = dimension_values['axis']
-                rd.layer = layer
                 rd.layer_attribute = dimension_values['layer_attribute']
                 rd.save()
                 print ("Created Risk Analysis Dym %s [%s] (%s) - axis %s" %

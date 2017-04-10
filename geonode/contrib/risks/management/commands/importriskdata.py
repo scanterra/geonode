@@ -29,7 +29,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.contrib.gis import geos
 
 from geonode.contrib.risks.models import Region, AdministrativeDivision
-from geonode.contrib.risks.models import RiskAnalysis
+from geonode.contrib.risks.models import RiskAnalysis, RiskApp
 from geonode.contrib.risks.models import RiskAnalysisDymensionInfoAssociation
 from geonode.contrib.risks.models import RiskAnalysisAdministrativeDivisionAssociation
 
@@ -315,6 +315,15 @@ class Command(BaseCommand):
             dest='risk_analysis',
             type=str,
             help='Name of the Risk Analysis associated to the File.')
+        parser.add_argument(
+            '-a',
+            '--risk-app',
+            dest='risk_app',
+            type=str,
+            nargs=1,
+            default=[RiskApp.APP_DATA_EXTRACTION],
+            help="Name of Risk App, default: {}".format(RiskApp.APP_DATA_EXTRACTION),
+            )
         return parser
 
     def handle(self, **options):
@@ -323,6 +332,8 @@ class Command(BaseCommand):
         excel_file = options.get('excel_file')
         risk_analysis = options.get('risk_analysis')
         excel_metadata_file = options.get('excel_metadata_file')
+        risk_app = options['risk_app'][0]
+        app = RiskApp.objects.get(name=risk_app)
 
         if region is None:
             raise CommandError("Input Destination Region '--region' is mandatory")
@@ -334,7 +345,7 @@ class Command(BaseCommand):
         if not excel_file or len(excel_file) == 0:
             raise CommandError("Input Risk Data Table '--excel_file' is mandatory")
 
-        risk = RiskAnalysis.objects.get(name=risk_analysis)
+        risk = RiskAnalysis.objects.get(name=risk_analysis, app=app)
 
         wb = xlrd.open_workbook(filename=excel_file)
         region = Region.objects.get(name=region)
@@ -342,6 +353,11 @@ class Command(BaseCommand):
 
         scenarios = RiskAnalysisDymensionInfoAssociation.objects.filter(riskanalysis=risk, axis='x')
         round_periods = RiskAnalysisDymensionInfoAssociation.objects.filter(riskanalysis=risk, axis='y')
+
+
+        table_name = risk.layer.typename.split(":")[1] \
+            if ":" in risk.layer.typename else risk.layer.typename
+
 
         for scenario in scenarios:
             # Dump Vectorial Data from DB
@@ -384,8 +400,6 @@ class Command(BaseCommand):
                                 value = sheet.cell_value(row_num, col_num)
                                 print('[%s] (%s) %s / %s' % (scenario.value, rp.value, adm_div.name, value))
 
-                                table_name = rp.layer.typename.split(":")[1] \
-                                    if ":" in rp.layer.typename else rp.layer.typename
                                 db_values = {
                                     'table': table_name,  # From rp.layer
                                     'the_geom': geos.fromstr(adm_div.geom, srid=adm_div.srid),
@@ -427,7 +441,8 @@ class Command(BaseCommand):
             call_command('importriskmetadata',
                          region=region.name,
                          excel_file=excel_metadata_file,
-                         risk_analysis=risk_analysis)
+                         risk_analysis=risk_analysis,
+                         risk_app=[app.name])
             risk.metadata_file = excel_metadata_file
 
         # Finalize
