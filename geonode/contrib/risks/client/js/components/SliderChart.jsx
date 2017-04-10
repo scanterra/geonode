@@ -8,13 +8,13 @@
 
 const React = require('react');
 const {connect} = require('react-redux');
-const {Brush, LineChart, ReferenceLine, Line, XAxis, Tooltip, YAxis, CartesianGrid, ResponsiveContainer} = require('recharts');
+const {LineChart, ReferenceLine, Line, XAxis, Tooltip, YAxis, CartesianGrid, ResponsiveContainer} = require('recharts');
 const {Panel} = require('react-bootstrap');
 const {mapSliderSelector} = require('../selectors/disaster');
 const {chartSliderUpdate, setDimIdx} = require('../actions/disaster');
 const ExtendedSlider = connect(mapSliderSelector, {setDimIdx, chartSliderUpdate})(require('../components/ExtendedSlider'));
 const ChartTooltip = require("./ChartTooltip");
-// const values = require('../../assets/mockUpData/costValue');
+const Nouislider = require('react-nouislider');
 
 const CustomizedYLable = (props) => {
     const {y, lab, viewBox} = props;
@@ -45,7 +45,7 @@ const SliderChart = React.createClass({
             uid: '',
             labelUid: '',
             type: 'line',
-            maxLength: 10,
+            maxLength: 50,
             sliders: {},
             setDimIdx: () => {},
             chartSliderUpdate: () => {}
@@ -77,51 +77,58 @@ const SliderChart = React.createClass({
             </ResponsiveContainer>
         );
     },
-    renderChartSlider(chartData) {
+    renderChartSlider(chartData, startIndex, endIndex) {
         const {dim, dimension, uOm} = this.props;
-        const startIndex = this.props.sliders[this.props.uid] ? this.props.sliders[this.props.uid].startIndex : 0;
-        let endIndex = this.props.sliders[this.props.uid] ? this.props.sliders[this.props.uid].endIndex : this.props.maxLength - 1;
-        endIndex = startIndex === endIndex ? startIndex + 1 : endIndex;
+        const sectionData = chartData.slice(startIndex, endIndex + 1);
         return (
-            <div>
-                <div style={{position: 'relative', zIndex: 21}}>
+            <div className="disaster-chart-slider">
+                <Panel className="chart-panel">
                     <ResponsiveContainer width="100%" height={220}>
-                        <LineChart data={chartData} onClick={this.handleClick} margin={{top: 50, right: 30, left: 30, bottom: 5}}>
+                        <LineChart data={sectionData} onClick={this.handleClick} margin={{top: 50, right: 30, left: 30, bottom: 5}}>
                             <XAxis interval="preserveStartEnd" dataKey="name" tickFormatter={this.formatXTiks}/>
                             <Tooltip content={<ChartTooltip xAxisLabel={dimension[dim.dim2].name} xAxisUnit={dimension[dim.dim2].unit} uOm={uOm}/>}/>
                             <YAxis label={<CustomizedYLable lab={uOm}/>} interval="preserveStart" tickFormatter={this.formatYTiks}/>
                             <CartesianGrid horizontal={false} strokeDasharray="3 3"/>
                             <Line type="monotone" dataKey="value" stroke="#ff8f31" strokeWidth={2} isAnimationActive={false}/>
                             <ReferenceLine x={chartData[dim.dim2Idx].name} stroke={'#2c689c'} strokeWidth={4}/>
-                            <Brush startIndex={startIndex} endIndex={endIndex} dataKey="name" height={30} stroke={'#333'} fill={'rgba(255,255,255,0.6)'}
-                                onChange={(index) => {
-                                    this.props.chartSliderUpdate(index, this.props.uid);
-                                }}/>
+                            <ReferenceLine x={chartData[startIndex].name} stroke={'#333'} strokeWidth={4}/>
+                            <ReferenceLine x={chartData[endIndex].name} stroke={'#333'} strokeWidth={4}/>
                         </LineChart>
                     </ResponsiveContainer>
-                </div>
-                <div style={{position: 'relative', top: -35, zIndex: 20}}>
-                    <ResponsiveContainer width="100%" height={30}>
-                        <LineChart data={chartData} margin={{top: 0, right: 30, left: 30, bottom: 0}}>
-                            <XAxis dataKey="name" hide={true}/>
-                            <YAxis interval="preserveStart"/>
-                            <Line dot={false} type="monotone" dataKey="value" stroke="#ff8f31" strokeWidth={2} isAnimationActive={false}/>
-                            <ReferenceLine x={chartData[dim.dim2Idx].name} stroke={'#2c689c'} strokeWidth={4}/>
-                        </LineChart>
-                    </ResponsiveContainer>
-                </div>
+
+                <ResponsiveContainer width="100%" height={100}>
+                    <LineChart data={chartData}>
+                        <Line dot={false} type="monotone" dataKey="value" stroke="#ff8f31" strokeWidth={1} isAnimationActive={false}/>
+                        <XAxis interval="preserveStartEnd" dataKey="name" tickFormatter={this.formatXTiks}/>
+                        <YAxis axisLine={false} tickLine={false} tick={false} interval="preserveStart" mirror={true}/>
+                        <ReferenceLine x={chartData[dim.dim2Idx].name} stroke={'#2c689c'} strokeWidth={2}/>
+                        <ReferenceLine x={chartData[startIndex].name} stroke={'#333'} strokeWidth={1}/>
+                        <ReferenceLine x={chartData[endIndex].name} stroke={'#333'} strokeWidth={1}/>
+                    </LineChart>
+                </ResponsiveContainer>
+                <Nouislider
+                    range={{min: 0, max: chartData.length - 1}}
+                    start={[startIndex, endIndex]}
+                    limit={this.props.maxLength}
+                    behaviour={'drag'}
+                    connect={true}
+                    step={1}
+                    tooltips={false}
+                    onChange={(idx) => this.props.chartSliderUpdate({startIndex: Number.parseInt(idx[0]), endIndex: Number.parseInt(idx[1])}, this.props.uid) /*this.props.setDimIdx('dim2Idx', Number.parseInt(idx[0]))*/}
+                    /></Panel>
             </div>
         );
     },
     render() {
         const {maxLength} = this.props;
         const chartData = this.getChartData();
-        const chart = chartData.length > maxLength ? this.renderChartSlider(chartData) : this.renderChart(chartData);
+        const startIndex = this.props.sliders[this.props.uid] ? this.props.sliders[this.props.uid].startIndex : 0;
+        let endIndex = this.props.sliders[this.props.uid] ? this.props.sliders[this.props.uid].endIndex : this.props.maxLength - 1;
+        const chart = chartData.length > maxLength ? this.renderChartSlider(chartData, startIndex, endIndex) : this.renderChart(chartData);
+        endIndex = startIndex === endIndex ? startIndex + 1 : endIndex;
         return (
             <div>
-                <Panel className="chart-panel">
-                    {chart}
-                </Panel>
+                {chart}
                 <ExtendedSlider uid={this.props.labelUid} dimIdx={'dim1Idx'}/>
             </div>
         );
@@ -131,7 +138,7 @@ const SliderChart = React.createClass({
     },
     handleClick(data) {
         if (data && this.props.dimension) {
-            this.props.setDimIdx('dim2Idx', this.props.dimension[this.props.dim.dim2].values.indexOf(data.activeLabel));
+            // this.props.setDimIdx('dim2Idx', this.props.dimension[this.props.dim.dim2].values.indexOf(data.activeLabel));
         }
     },
     formatXTiks(v) {
