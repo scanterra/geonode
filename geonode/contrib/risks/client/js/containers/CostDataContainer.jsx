@@ -7,9 +7,9 @@
  */
 const React = require('react');
 const {connect} = require('react-redux');
-const {dataContainerSelector, sliderChartSelector, mapSliderSelector} = require('../selectors/disaster');
+const {dataContainerSelector, sliderChartSelector, mapSliderSelector, additionalChartSelector} = require('../selectors/disaster');
 
-const {getAnalysisData, getData, setDimIdx, chartSliderUpdate, getSFurtherResourceData} = require('../actions/disaster');
+const {getAnalysisData, getData, setDimIdx, chartSliderUpdate, getSFurtherResourceData, setAdditionalChartIndex} = require('../actions/disaster');
 const SliderChart = connect(sliderChartSelector, {setDimIdx, chartSliderUpdate})(require('../components/SliderChart'));
 
 const DownloadData = require('../components/DownloadData');
@@ -18,6 +18,7 @@ const Overview = connect(({disaster = {}}) => ({riskItems: disaster.overview || 
 const {Panel, Tooltip, OverlayTrigger} = require('react-bootstrap');
 const {show, hide} = require('react-notification-system-redux');
 const ExtendedSlider = connect(mapSliderSelector, {setDimIdx, chartSliderUpdate, show, hide, getData: getSFurtherResourceData})(require('../components/ExtendedSlider'));
+const AdditionalChart = connect(additionalChartSelector, {setIndex: setAdditionalChartIndex})(require('../components/AdditionalChart'));
 
 const DataContainer = React.createClass({
     propTypes: {
@@ -86,6 +87,7 @@ const DataContainer = React.createClass({
                 <div id="disaster-chart-container" className="row">
                     <SliderChart uid={'map_slider'}/>
                     <ExtendedSlider uid={'chart_label_tab'} dimIdx={'dim1Idx'}/>
+                    <AdditionalChart/>
                 </div>
             </div>
         );

@@ -24,6 +24,7 @@ const INIT_RISK_APP = 'INIT_RISK_APP';
 const GET_S_FURTHER_RESOURCE_DATA = 'GET_S_FURTHER_RESOURCE_DATA';
 const SET_CHART_SLIDER_INDEX = 'SET_CHART_SLIDER_INDEX';
 const CHART_SLIDER_UPDATE = 'CHART_SLIDER_UPDATE';
+const SET_ADDITIONAL_CHART_INDEX = 'SET_ADDITIONAL_CHART_INDEX';
 
 function initState({href, geomHref, gc, ac}) {
     return {
@@ -156,6 +157,14 @@ function chartSliderUpdate(index, uid) {
     };
 }
 
+function setAdditionalChartIndex(section, col) {
+    return {
+        type: SET_ADDITIONAL_CHART_INDEX,
+        section,
+        col
+    };
+}
+
 module.exports = {
     DATA_LOADING,
     DATA_LOADED,
@@ -173,6 +182,7 @@ module.exports = {
     GET_S_FURTHER_RESOURCE_DATA,
     SET_CHART_SLIDER_INDEX,
     CHART_SLIDER_UPDATE,
+    SET_ADDITIONAL_CHART_INDEX,
     featuresLoaded,
     featuresLoading,
     featuresError,
@@ -191,5 +201,6 @@ module.exports = {
     initState,
     getSFurtherResourceData,
     setChartSliderIndex,
-    chartSliderUpdate
+    chartSliderUpdate,
+    setAdditionalChartIndex
 };
