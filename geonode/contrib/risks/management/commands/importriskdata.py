@@ -369,21 +369,25 @@ class Command(BaseCommand):
 
             sheet = wb.sheet_by_name(scenario.value)
             row_headers = sheet.row(0)
-            for rp in round_periods:
+            for rp_idx, rp in enumerate(round_periods):
                 col_num = -1
-                for idx, cell_obj in enumerate(row_headers):
-                    # cell_type_str = ctype_text.get(cell_obj.ctype, 'unknown type')
-                    # print('(%s) %s %s' % (idx, cell_type_str, cell_obj.value))
-                    try:
-                        # if int(cell_obj.value) == int(rp.value):
-                        if cell_obj.value == rp.value:
-                            # print('[%s] (%s) RP-%s' % (scenario.value, idx, rp.value))
-                            col_num = idx
-                            break
-                    except:
-                        traceback.print_exc()
-                        pass
-                if col_num > 0:
+                if app.name == RiskApp.APP_DATA_EXTRACTION:
+                    for idx, cell_obj in enumerate(row_headers):
+                        # cell_type_str = ctype_text.get(cell_obj.ctype, 'unknown type')
+                        # print('(%s) %s %s' % (idx, cell_type_str, cell_obj.value))
+                        try:
+                            # if int(cell_obj.value) == int(rp.value):
+                            if cell_obj.value == rp.value:
+                                # print('[%s] (%s) RP-%s' % (scenario.value, idx, rp.value))
+                                col_num = idx
+                                break
+                        except:
+                            traceback.print_exc()
+                            pass
+                elif app.name == RiskApp.APP_COST_BENEFIT:
+                     col_num = 0
+
+                if col_num >= 0:
                     conn = self.get_db_conn(ogc_db_name, ogc_db_user, ogc_db_port, ogc_db_host, ogc_db_passwd)
                     try:
                         if app.name == RiskApp.APP_DATA_EXTRACTION:
@@ -425,40 +429,38 @@ class Command(BaseCommand):
                                             objects.\
                                             create(riskanalysis=risk, administrativedivision=adm_div)
                         elif app.name == RiskApp.APP_COST_BENEFIT:
-                            for row_num in range(1, sheet.nrows):
-                                cell_obj = sheet.cell(row_num, 0)
-                                cell_type_str = ctype_text.get(cell_obj.ctype, 'unknown type')
-                                if cell_obj.value:
-                                    adm_div = AdministrativeDivision.objects.get(name=region)
-                                    value = sheet.cell_value(row_num, col_num)
-                                    print('[%s] (%s) {%s} %s / %s' % (scenario.value, cell_obj.value, rp.value, adm_div.name, value))
+                            cell_obj = sheet.cell(rp_idx + 1, 0)
+                            cell_type_str = ctype_text.get(cell_obj.ctype, 'unknown type')
+                            if cell_obj.value:
+                                adm_div = AdministrativeDivision.objects.get(name=region)
+                                value = sheet.cell_value(rp_idx + 1, 1)
+                                print('[%s] (%s) %s / %s' % (scenario.value, rp.value, adm_div.name, value))
 
-                                    db_values = {
-                                        'table': table_name,  # From rp.layer
-                                        'the_geom': geos.fromstr(adm_div.geom, srid=adm_div.srid),
-                                        'dim1': scenario.value,
-                                        'dim1_order': scenario.order,
-                                        'dim2': rp.value,
-                                        'dim2_order': rp.order,
-                                        'dim3': str(cell_obj.value),
-                                        'dim3_order': (row_num - 1),
-                                        'dim4': None,
-                                        'dim5': None,
-                                        'risk_analysis': risk_analysis,
-                                        'hazard_type': risk.hazard_type.mnemonic,
-                                        'admin': adm_div.name,
-                                        'adm_code': adm_div.code,
-                                        'region': region.name,
-                                        'value': value
-                                    }
-                                    self.insert_db(conn, db_values)
-                                    risk_adm = RiskAnalysisAdministrativeDivisionAssociation.\
-                                        objects.\
-                                        filter(riskanalysis=risk, administrativedivision=adm_div)
-                                    if len(risk_adm) == 0:
-                                        RiskAnalysisAdministrativeDivisionAssociation.\
-                                            objects.\
-                                            create(riskanalysis=risk, administrativedivision=adm_div)
+                                db_values = {
+                                'table': table_name,  # From rp.layer
+                                'the_geom': geos.fromstr(adm_div.geom, srid=adm_div.srid),
+                                'dim1': scenario.value,
+                                'dim1_order': scenario.order,
+                                'dim2': rp.value,
+                                'dim2_order': rp.order,
+                                'dim3': None,
+                                'dim4': None,
+                                'dim5': None,
+                                'risk_analysis': risk_analysis,
+                                'hazard_type': risk.hazard_type.mnemonic,
+                                'admin': adm_div.name,
+                                'adm_code': adm_div.code,
+                                'region': region.name,
+                                'value': value
+                                }
+                                self.insert_db(conn, db_values)
+                                risk_adm = RiskAnalysisAdministrativeDivisionAssociation.\
+                                objects.\
+                                filter(riskanalysis=risk, administrativedivision=adm_div)
+                                if len(risk_adm) == 0:
+                                    RiskAnalysisAdministrativeDivisionAssociation.\
+                                    objects.\
+                                    create(riskanalysis=risk, administrativedivision=adm_div)
 
                         # Finished Import: Commit on DB
                         conn.commit()

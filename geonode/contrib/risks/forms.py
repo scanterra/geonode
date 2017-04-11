@@ -90,7 +90,7 @@ class ImportMetadataRiskAnalysisForm(models.ModelForm):
         """
         """
         model = RiskAnalysisImportMetadata
-        fields = ('region', 'riskanalysis', "metadata_file",)
+        fields = ('riskapp', 'region', 'riskanalysis', "metadata_file",)
 
     def clean_metadata_file(self):
         file_xlsx = self.cleaned_data['metadata_file']
