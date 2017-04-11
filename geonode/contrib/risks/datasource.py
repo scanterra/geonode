@@ -57,7 +57,10 @@ class GeoserverDataSource(object):
             cql_params_list.append('{}_value is not null'.format(dim_name))
         cql_filter = {'cql_filter': " and ".join(cql_params_list)}
         # cql_filter = {'cql_filter': "(risk_analysis='WP6_future_proj_Hospital' and hazard_type='EQ' and adm_code='AF' and dim1_value='Hospital')"}
-        field_names = ['risk_analysis', 'hazard_type', 'admin', 'adm_code', 'region', 'dim1_value', 'dim2_value', 'dim3_value', 'dim4_value', 'dim5_value', 'value']
+        field_names = ['risk_analysis', 'hazard_type', 'admin', 'adm_code', 'region',
+                       'dim1_value', 'dim2_value', 'dim3_value', 'dim4_value', 'dim5_value',
+                       'dim1_order', 'dim2_order', 'dim3_order', 'dim4_order', 'dim5_order',
+                       'value']
         log.info("querying %s:%s with cql params: %s", layer_name, dim_name, cql_filter)
         r = self.wfs.getfeature('{}_data'.format(layer_name), propertyname=field_names, outputFormat=self.output_format, storedQueryParams=cql_filter, storedQueryID=1)
 
