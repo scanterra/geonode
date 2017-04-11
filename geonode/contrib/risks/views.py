@@ -653,7 +653,7 @@ class PDFReportView(ContextAware, FormView):
         ctx = super(PDFReportView, self).get_context_data(*args, **kwargs)
         ctx['app'] = self.get_app()
         ctx['kwargs'] = k = self.kwargs
-        ctx['context'] = {'url': self.get_context_url(**k),
+        ctx['context'] = {'url': self.get_context_url(_full=True, **k),
                           'parts': self.get_further_resources_inputs(**k)}
         fr_map = self.get_further_resources(inputs=ctx['context']['parts'], **k)
         further_resources = []
@@ -670,6 +670,10 @@ class PDFReportView(ContextAware, FormView):
         r = self.request
 
         def p(val):
+            # for test we need full fs path
+            if settings.TEST:
+                return default_storage.path(val)
+            # otherwise, we need nice absolute url
             _path = default_storage.url(val)
             return r.build_absolute_uri(_path)
 
