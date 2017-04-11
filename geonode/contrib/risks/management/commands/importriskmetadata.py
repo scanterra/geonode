@@ -81,7 +81,7 @@ class Command(BaseCommand):
             '-a',
             '--risk-app',
             dest='risk_app',
-            nargs=1,
+            # nargs=1,
             default=RiskApp.APP_DATA_EXTRACTION,
             help="Name of Risk App, default: {}".format(RiskApp.APP_DATA_EXTRACTION),
             )
@@ -92,7 +92,7 @@ class Command(BaseCommand):
         region = options.get('region')
         excel_file = options.get('excel_file')
         risk_analysis = options.get('risk_analysis')
-        app_name = options['risk_app'][0]
+        app_name = options.get('risk_app')
         app = RiskApp.objects.get(name=app_name)
 
         if region is None:

@@ -321,7 +321,7 @@ class Command(BaseCommand):
             dest='risk_app',
             type=str,
             # nargs=1,
-            default=[RiskApp.APP_DATA_EXTRACTION],
+            default=RiskApp.APP_DATA_EXTRACTION,
             help="Name of Risk App, default: {}".format(RiskApp.APP_DATA_EXTRACTION),
             )
         return parser

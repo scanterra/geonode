@@ -47,7 +47,8 @@ def _import_risk_data(input_file, risk_app_name, risk_analysis_name, region_name
             risk = RiskAnalysis.objects.get(name=risk_analysis_name)
             risk.set_processing()
             # value = out.getvalue()
-            call_command('importriskdata', commit=False,
+            call_command('importriskdata',
+                         commit=False,
                          risk_app=risk_app_name,
                          region=region_name,
                          excel_file=input_file,
@@ -64,13 +65,13 @@ def _import_risk_data(input_file, risk_app_name, risk_analysis_name, region_name
                 risk.set_error()
             raise ValueError(error_message)
 
-def import_risk_metadata(input_file, risk_analysis, region, final_name):
+def import_risk_metadata(input_file, risk_app, risk_analysis, region, final_name):
     risk_analysis.set_queued()
-    _import_risk_metadata.apply_async(args=(input_file, risk_analysis.name, region.name, final_name,))
+    _import_risk_metadata.apply_async(args=(input_file, risk_app.name, risk_analysis.name, region.name, final_name,))
 
 
 @task(name='geonode.contrib.risks.tasks.import_risk_metadata')
-def _import_risk_metadata(input_file, risk_analysis_name, region_name, final_name):
+def _import_risk_metadata(input_file, risk_app_name, risk_analysis_name, region_name, final_name):
         out = StringIO.StringIO()
         risk = None
         try:
@@ -78,6 +79,7 @@ def _import_risk_metadata(input_file, risk_analysis_name, region_name, final_nam
             risk.set_processing()
             call_command('importriskmetadata',
                          commit=False,
+                         risk_app=risk_app_name,
                          region=region_name,
                          excel_file=input_file,
                          risk_analysis=risk_analysis_name,
