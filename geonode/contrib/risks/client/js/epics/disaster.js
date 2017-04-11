@@ -114,6 +114,14 @@ const initStateEpic = action$ =>
             return [getData(`${action.href}${action.gc || ''}`), getFeatures(action.geomHref)].concat(analysisHref && getAnalysisData(analysisHref) || [] );
         }).
         mergeAll();
+const initStateEpicCost = action$ =>
+            action$.ofType(INIT_RISK_APP) // Wait untile map config is loaded
+                .audit( () => action$.ofType('MAP_CONFIG_LOADED'))
+                .map(action => {
+                    const analysisHref = action.ac && `${action.href}${action.ac}`;
+                    return [getData(`${action.href}${action.gc || ''}`)].concat(analysisHref && getAnalysisData(analysisHref) || [] );
+                }).
+                mergeAll();
 const changeTutorial = action$ =>
     action$.ofType(DATA_LOADED, ANALYSIS_DATA_LOADED).audit( () => action$.ofType('TOGGLE_CONTROL')).switchMap( action => {
         return Rx.Observable.of(action).flatMap((actn) => {
@@ -147,4 +155,4 @@ const chartSliderUpdateEpic = action$ =>
 
     );
 
-module.exports = {getRiskDataEpic, getRiskMapConfig, getRiskFeatures, getAnalysisEpic, zoomInOutEpic, initStateEpic, changeTutorial, loadingError, getSpecificFurtherResources, chartSliderUpdateEpic};
+module.exports = {getRiskDataEpic, getRiskMapConfig, getRiskFeatures, getAnalysisEpic, zoomInOutEpic, initStateEpic, changeTutorial, loadingError, getSpecificFurtherResources, chartSliderUpdateEpic, initStateEpicCost};
