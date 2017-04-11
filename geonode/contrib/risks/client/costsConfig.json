@@ -11,48 +11,27 @@
 					"cfg":{
 						"rawSteps": [
 							{
-	            	"title": "Welcome on Risk Data Extraction & Visualization",
-	            	"text": "click on start to initialize the tutorial",
+	            	"translationHTML": "costIntro",
 	            	"selector": "#intro-tutorial"
 	        		},
 							{
-			      		"title": "Disaster Risk Selector",
-			        	"text": "...text",
+			        	"translationHTML": "riskSelector",
 			        	"selector": "#disaster-risk-selector-menu"
 			      	},
 					    {
-					      "title": "'Overview List'",
-					      "text": "'...text'",
+					      "translationHTML": "riskOverview",
 					      "selector": "#disaster-overview-list"
 					    },
 					    {
-					      "title": "'Map'",
-					      "text": "'...text'",
+					      "translationHTML": "riskMap",
 					      "selector": "#disaster-map-main-container"
 					    },
 					    {
-					      "title": "'Navigation'",
-					      "text": "'...text'",
-					      "selector": "#disaster-navigation"
-					    },
-					    {
-					      "title": "'Tools'",
-					      "text": "'...text'",
+					      "translationHTML": "riskPageTool",
 					      "selector": "#disaster-page-tools"
 					    },
 					    {
-					      "title": "'Download PDF'",
-					      "text": "'...text'",
-					      "selector": "#disaster-download-pdf"
-					    },
-					    {
-					      "title": "'Share'",
-					      "text": "'...text'",
-					      "selector": "#disaster-share-link"
-					    },
-					    {
-					      "title": "'Tutorial'",
-					      "text": "'...text'",
+					      "translationHTML": "riskHelp",
 					      "selector": "#disaster-show-tutorial"
 					    }
 						]

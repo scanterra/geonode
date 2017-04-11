@@ -15,7 +15,7 @@ const {changeLayerProperties, addLayer, removeNode} = require('../../MapStore2/w
 const assign = require('object-assign');
 const {find} = require('lodash');
 const {configLayer, makeNotificationBody} = require('../utils/DisasterUtils');
-const {defaultStep, tutorialPresets} = require('../utils/TutorialPresets');
+const {defaultStep, riskTutorialPresets, costTutorialPresets} = require('../utils/TutorialPresets');
 const {
     GET_DATA,
     LOAD_RISK_MAP_CONFIG,
@@ -116,8 +116,10 @@ const initStateEpic = action$ =>
 const changeTutorial = action$ =>
     action$.ofType(DATA_LOADED, ANALYSIS_DATA_LOADED).audit( () => action$.ofType('TOGGLE_CONTROL')).switchMap( action => {
         return Rx.Observable.of(action).flatMap((actn) => {
+            // get current app and switch tutorial
+            // riskTutorialPresets || costTutorialPresets
             let type = actn.data && actn.data.analysisType ? actn.type + '_R' : actn.type;
-            return [setupTutorial(tutorialPresets[type], {}, '', defaultStep)];
+            return [setupTutorial(riskTutorialPresets[type], {}, '', defaultStep)];
         });
     });
 const loadingError = action$ =>
