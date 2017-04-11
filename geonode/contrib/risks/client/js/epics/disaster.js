@@ -139,7 +139,7 @@ const getSpecificFurtherResources = (action$) =>
             .catch(e => Rx.Observable.of(dataError(e)));
     });
 const chartSliderUpdateEpic = action$ =>
-    action$.ofType(CHART_SLIDER_UPDATE).throttleTime(100)
+    action$.ofType(CHART_SLIDER_UPDATE)
         .switchMap( action => Rx.Observable.of(setChartSliderIndex(action.index, action.uid))
 
     );
