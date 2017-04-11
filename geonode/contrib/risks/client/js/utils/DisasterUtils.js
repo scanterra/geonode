@@ -38,14 +38,39 @@ function getViewParam({dim, showSubUnit, riskAnalysis} = {}) {
     return {viewparams};
 }
 
-function getLayerName({riskAnalysis}) {
+function getLayerTitleRisks(riskAnalysis) {
+    const {layer} = riskAnalysis.riskAnalysisData;
+    return layer && layer.layerTitle;
+}
+function getLayerTitleCosts(riskAnalysis) {
+    const {referenceLayer} = riskAnalysis.riskAnalysisData;
+    return referenceLayer && referenceLayer.layerTitle;
+}
+function getLayerTitle({riskAnalysis, app}) {
+    return app === 'costs' ? getLayerTitleCosts(riskAnalysis) : getLayerTitleRisks(riskAnalysis);
+}
+
+function getLayerNameRisks(riskAnalysis) {
     const {layer} = riskAnalysis.riskAnalysisData;
     return layer && layer.layerName;
 }
-function getStyle({riskAnalysis}) {
+function getLayerNameCosts(riskAnalysis) {
+    const {referenceLayer} = riskAnalysis.riskAnalysisData;
+    return referenceLayer && referenceLayer.layerName;
+}
+function getLayerName({riskAnalysis, app}) {
+    return app === 'costs' ? getLayerNameCosts(riskAnalysis) : getLayerNameRisks(riskAnalysis);
+}
+function getStyleRisks(riskAnalysis) {
     const {layer} = riskAnalysis.riskAnalysisData;
-
-    return layer.layerStyle && layer.layerStyle.name
+    return layer.layerStyle && layer.layerStyle.name;
+}
+function getStyleCosts(riskAnalysis) {
+    const {referenceStyle} = riskAnalysis.riskAnalysisData;
+    return referenceStyle.name && referenceStyle.name;
+}
+function getStyle({riskAnalysis, app}) {
+    return app === 'costs' ? getStyleCosts(riskAnalysis) : getStyleRisks(riskAnalysis);
 }
 
 function makeNotificationRow(data) {
@@ -93,4 +118,4 @@ function makeNotificationBody(data, title, head) {
     );
 }
 
-module.exports = {configLayer, getViewParam, getLayerName, getStyle, makeNotificationBody};
+module.exports = {configLayer, getViewParam, getLayerName, getStyle, getLayerTitle, makeNotificationBody};

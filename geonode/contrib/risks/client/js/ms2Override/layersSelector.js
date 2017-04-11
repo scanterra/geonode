@@ -19,7 +19,8 @@ const disasterSelector = state => ({
     riskAnalysis: state.disaster && state.disaster.riskAnalysis,
     dim: state.disaster && state.disaster.dim || {dim1: 0, dim2: 1, dim1Idx: 0, dim2Idx: 0},
     showSubUnit: state.disaster.showSubUnit,
-    loading: state.disaster && state.disaster.loading
+    loading: state.disaster && state.disaster.loading,
+    app: state.disaster && state.disaster.app
 });
 // TODO currently loading flag causes a re-creation of the selector on any pan
 // to avoid this separate loading from the layer object
