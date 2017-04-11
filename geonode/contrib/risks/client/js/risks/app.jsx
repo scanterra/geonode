@@ -40,7 +40,7 @@ if (Cookies.get('csrftoken')) {
 
 const initDim = init && init.d || {};
 
-const newInitState = assign({}, initialState, {defaultState: {disaster: {dim: initDim}, mapInfo: { infoFormat: "text/html"} }});
+const newInitState = assign({}, initialState, {defaultState: {disaster: {dim: initDim, app: 'risks'}, mapInfo: { infoFormat: "text/html"} }});
 const themeCfg = {
     path: '/static/js'
 };

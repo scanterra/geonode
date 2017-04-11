@@ -26,7 +26,7 @@ function disaster(state = {dim: {dim1: 0, dim2: 1, dim1Idx: 0, dim2Idx: 0}}, act
                 loading: true
             });
         case DATA_LOADED: {
-            return action.cleanState ? assign({}, { loading: false, error: null}, action.data) : assign({}, { loading: false, error: null, dim: state.dim, sliders: state.sliders, riskAnalysis: state.riskAnalysis}, action.data);
+            return action.cleanState ? assign({}, { loading: false, error: null, app: state.app}, action.data) : assign({}, { loading: false, error: null, dim: state.dim, sliders: state.sliders, riskAnalysis: state.riskAnalysis, app: state.app}, action.data);
         }
         case ANALYSIS_DATA_LOADED: {
             return assign({}, state, { loading: false, error: null, riskAnalysis: action.data});
