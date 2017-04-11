@@ -1285,6 +1285,13 @@ class RiskAnalysisImportMetadata(models.Model):
     metadata_file = models.FileField(upload_to='metadata_files', max_length=255)
 
     # Relationships
+    riskapp = models.ForeignKey(
+        RiskApp,
+        blank=False,
+        null=False,
+        unique=False,
+    )
+
     region = models.ForeignKey(
         Region,
         blank=False,
@@ -1313,7 +1320,7 @@ class RiskAnalysisImportMetadata(models.Model):
     class Meta:
         """
         """
-        ordering = ['region', 'riskanalysis']
+        ordering = ['riskapp', 'region', 'riskanalysis']
         db_table = 'risks_metadata_files'
         verbose_name = 'Risks Analysis: Import or Update Risk Metadata from \
                         XLSX file'
