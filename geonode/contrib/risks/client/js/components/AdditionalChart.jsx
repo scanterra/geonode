@@ -7,9 +7,10 @@
  */
 
 const React = require('react');
-const {LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer} = require('recharts');
+const {LineChart, Tooltip, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer} = require('recharts');
 const {Panel} = require('react-bootstrap');
 const Nouislider = require('react-nouislider');
+const ChartTooltip = require("./ChartTooltip");
 
 const CustomizedYLabel = (props) => {
     const {y, lab, viewBox} = props;
@@ -109,6 +110,7 @@ const AdditionalChart = React.createClass({
                     <LineChart data={chartData} onClick={this.handleClick} margin={{top: 50, right: 30, left: 30, bottom: 50}}>
                         <Line type="monotone" dataKey="value" stroke="#ff8f31" strokeWidth={2}/>
                         <CartesianGrid horizontal={false} strokeDasharray="3 3"/>
+                        <Tooltip content={<ChartTooltip xAxisLabel={'Scenario'} xAxisUnit={''} uOm={cols[this.props.currentCol].uOfm}/>}/>
                         <XAxis tick={<CustomizedXLabel/>} interval={0} dataKey="name" tickFormatter={this.formatXTiks}/>
                         <YAxis label={<CustomizedYLabel lab={cols[this.props.currentCol].uOfm}/>} interval="preserveStart" tickFormatter={this.formatYTiks}/>
                     </LineChart>
