@@ -705,7 +705,7 @@ class PDFReportView(ContextAware, FormView):
 
     def form_invalid(self, form):
         out = {'succes': False, 'errors': form.errors}
-        return json_response(out)
+        return json_response(out, status=400)
 
     def form_valid(self, form):
         ctx = self.get_context_url(_full=True, **self.kwargs)
