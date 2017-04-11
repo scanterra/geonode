@@ -698,7 +698,8 @@ class DymensionInfo(RiskAnalysisAware, Exportable, models.Model):
         for ax in axis:
             n = ax.value
             layer_attribute = ax.axis_attribute()
-            out[n] = {'layerAttribute': layer_attribute}
+            layer_reference_attribute = ax.layer_reference_attribute
+            out[n] = {'layerAttribute': layer_attribute, 'layerReferenceAttribute': layer_reference_attribute}
         return out
 
 
@@ -737,6 +738,7 @@ class RiskAnalysisDymensionInfoAssociation(models.Model):
     riskanalysis = models.ForeignKey(RiskAnalysis, related_name='dymensioninfo_associacion')
     dymensioninfo = models.ForeignKey(DymensionInfo, related_name='riskanalysis_associacion')
     layer_attribute = models.CharField(max_length=80, null=False, blank=False)
+    layer_reference_attribute = models.CharField(max_length=80, null=True, blank=True)
 
     DIM = {'x': 'dim1', 'y': 'dim2', 'z': 'dim3'}
 
@@ -752,16 +754,33 @@ class RiskAnalysisDymensionInfoAssociation(models.Model):
         ordering = ['order', 'value']
         db_table = 'risks_riskanalysisdymensioninfoassociation'
 
+    @classmethod
+    def get_axis(cls, risk):
+        """
+        return dimX_value for axis
+        """
+        return cls.objects.filter(riskanalysis=risk).order_by('order')
+
     def axis_to_dim(self):
         """
         return dimX_value for axis
         """
+        risk = self.riskanalysis
+        axis = self.get_axis(risk)
+        for ax in axis:
+            if self.axis == ax.axis:
+                return ax.layer_attribute
         return self.DIM[self.axis]
 
     def axis_attribute(self):
         """
         return dX for axis
         """
+        risk = self.riskanalysis
+        axis = self.get_axis(risk)
+        for ax in axis:
+            if self.axis == ax.axis:
+                return 'd{}'.format(ax.layer_attribute[3:])
         return 'd{}'.format(self.DIM[self.axis][3:])
 
 
