@@ -134,6 +134,7 @@ setup(name='GeoNode',
         "xlrd==1.0.0",
         # tests
         "factory_boy",
+        "WeasyPrint",
 
         ],
       zip_safe=False,
