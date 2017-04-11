@@ -489,13 +489,15 @@ class RiskAnalysis(RiskAppAware, Schedulable, LocationAware, HazardTypeAware, An
 
     def get_reference_layer_data(self):
         l = self.reference_layer
-        layer_name = l.typename
-        layer_title = l.title
-        layer_style = self.get_style()
-        out = {'layerName': layer_name,
-               'layerTitle': l.title,
-               'layerStyle': layer_style}
-        return out
+        if l:
+            layer_name = l.typename
+            layer_title = l.title
+            layer_style = self.get_style()
+            out = {'layerName': layer_name,
+                   'layerTitle': l.title,
+                   'layerStyle': layer_style}
+            return out
+        return {}
 
     def get_additional_data(self):
         out = []
