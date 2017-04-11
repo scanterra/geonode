@@ -6405,6 +6405,26 @@ a.disaster .label:focus {
 .disaster .noUi-value-horizontal.noUi-value-sub {
   padding-top: 0;
 }
+.disaster .disaster-chart-slider .noUi-handle {
+  border: 1px dashed #333333;
+  background: #fff;
+}
+.disaster .disaster-chart-slider .noUi-handle:hover {
+  border: 1px dashed #333333;
+  background: #ff8f31;
+}
+.disaster .disaster-chart-slider .noUi-connect {
+  background: #ff8f31;
+}
+.disaster .disaster-chart-slider .noUi-handle:before {
+  content: "";
+  display: block;
+  position: absolute;
+  height: 14px;
+  width: 1px;
+  left: 5px;
+  top: 4px;
+}
 .disaster .drc .drc-map-container {
   height: 400px;
   padding: 0 15px;
@@ -6421,6 +6441,7 @@ a.disaster .label:focus {
   color: #ff8f31;
   padding: 15px 10px;
   overflow-y: auto;
+  z-index: 1001;
 }
 .disaster .drc .toc-layer-tool.glyphicon.glyphicon-cog {
   display: none;
@@ -6500,6 +6521,13 @@ a.disaster .label:focus {
 }
 .disaster .recharts-wrapper {
   font-size: 12px;
+}
+.disaster .drc .leaflet-control-zoom {
+  left: 0px;
+}
+.disaster .drc .leaflet-control-zoom-in,
+.disaster .drc .leaflet-control-zoom-out {
+  text-decoration: none;
 }
 @font-face {
   font-family: 'thinkhazard';

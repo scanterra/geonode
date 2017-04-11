@@ -7,16 +7,17 @@
  */
 const React = require('react');
 const {connect} = require('react-redux');
-const {dataContainerSelector, sliderChartSelector} = require('../selectors/disaster');
+const {dataContainerSelector, sliderChartSelector, mapSliderSelector} = require('../selectors/disaster');
 
-const {getAnalysisData, getData, setDimIdx, chartSliderUpdate} = require('../actions/disaster');
+const {getAnalysisData, getData, setDimIdx, chartSliderUpdate, getSFurtherResourceData} = require('../actions/disaster');
 const SliderChart = connect(sliderChartSelector, {setDimIdx, chartSliderUpdate})(require('../components/SliderChart'));
-
 
 const DownloadData = require('../components/DownloadData');
 const MoreInfo = require('../components/MoreInfo');
 const Overview = connect(({disaster = {}}) => ({riskItems: disaster.overview || [] }) )(require('../components/Overview'));
 const {Panel, Tooltip, OverlayTrigger} = require('react-bootstrap');
+const {show, hide} = require('react-notification-system-redux');
+const ExtendedSlider = connect(mapSliderSelector, {setDimIdx, chartSliderUpdate, show, hide, getData: getSFurtherResourceData})(require('../components/ExtendedSlider'));
 
 const DataContainer = React.createClass({
     propTypes: {
@@ -83,7 +84,8 @@ const DataContainer = React.createClass({
                     <p>{hazardSet.purpose}</p>
                 </div>
                 <div id="disaster-chart-container" className="row">
-                    <SliderChart uid={'map_slider'} labelUid={'chart_label_tab'}/>
+                    <SliderChart uid={'map_slider'}/>
+                    <ExtendedSlider uid={'chart_label_tab'} dimIdx={'dim1Idx'}/>
                 </div>
             </div>
         );

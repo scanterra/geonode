@@ -320,6 +320,31 @@
     padding-top: 0;
 }
 
+.disaster-chart-slider .noUi-handle {
+  border: 1px dashed @brand-geonode-b;
+  background: #fff;
+}
+
+.disaster-chart-slider .noUi-handle:hover {
+  border: 1px dashed @brand-geonode-b;
+  background: @brand-geonode-o;
+}
+
+
+.disaster-chart-slider .noUi-connect {
+  background: @brand-geonode-o;
+}
+
+.disaster-chart-slider .noUi-handle:before{
+  content: "";
+  display: block;
+  position: absolute;
+  height: 14px;
+  width: 1px;
+  left: 5px;
+  top: 4px;
+}
+
 // MAP AND TOC
 .drc .drc-map-container{
     height: 400px;
@@ -336,7 +361,8 @@
     width: 60%;
     color: @brand-geonode-o;
     padding: 15px 10px;
-    overflow-y: auto
+    overflow-y: auto;
+    z-index: 1001;
 }
 .drc .toc-layer-tool.glyphicon.glyphicon-cog{
     display:none;
@@ -430,4 +456,10 @@
 }
 .recharts-wrapper {
     font-size: 12px;
+}
+.drc .leaflet-control-zoom {
+    left: 0px;
+}
+.drc .leaflet-control-zoom-in, .drc .leaflet-control-zoom-out{
+    text-decoration: none;
 }

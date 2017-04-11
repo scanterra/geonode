@@ -24,10 +24,10 @@ function configLayer(baseurl, layerName, layerId, layerTitle, visibility = true,
 function getViewParam({dim, showSubUnit, riskAnalysis} = {}) {
     const {dimensions} = riskAnalysis.riskAnalysisData.data;
     const {wms} = riskAnalysis;
-    const dim1Val = dimensions[dim.dim1].values[dim.dim1Idx];
-    const dim2Val = dimensions[dim.dim2].values[dim.dim2Idx];
-    const dim1SearchDim = dimensions[dim.dim1].layers[dim1Val].layerAttribute;
-    const dim2SearchDim = dimensions[dim.dim2].layers[dim2Val].layerAttribute;
+    const dim1Val = dimensions[dim.dim1] && dimensions[dim.dim1].values[dim.dim1Idx];
+    const dim2Val = dimensions[dim.dim2] && dimensions[dim.dim2].values[dim.dim2Idx];
+    const dim1SearchDim = dimensions[dim.dim1] && dimensions[dim.dim1].layers[dim1Val] && dimensions[dim.dim1].layers[dim1Val].layerAttribute;
+    const dim2SearchDim = dimensions[dim.dim2] && dimensions[dim.dim2].layers[dim2Val] && dimensions[dim.dim2].layers[dim2Val].layerAttribute;
     let viewparams = wms.viewparams.replace(`${dim1SearchDim}:{}`, `${dim1SearchDim}:${dim1Val}`).replace(`${dim2SearchDim}:{}`, `${dim2SearchDim}:${dim2Val}`);
     if (showSubUnit) {
         const admCode = viewparams.match(/(adm_code:)\w+/g)[0];
@@ -38,15 +38,14 @@ function getViewParam({dim, showSubUnit, riskAnalysis} = {}) {
     return {viewparams};
 }
 
-function getLayerName({dim, riskAnalysis}) {
-    const {dimensions} = riskAnalysis.riskAnalysisData.data;
-    const dim1Val = dimensions[dim.dim1].values[dim.dim1Idx];
-    return dimensions[dim.dim1].layers[dim1Val].layerName;
+function getLayerName({riskAnalysis}) {
+    const {layer} = riskAnalysis.riskAnalysisData;
+    return layer && layer.layerName;
 }
-function getStyle({dim, riskAnalysis}) {
-    const {dimensions} = riskAnalysis.riskAnalysisData.data;
-    const dim1Val = dimensions[dim.dim1].values[dim.dim1Idx];
-    return dimensions[dim.dim1].layers[dim1Val] && dimensions[dim.dim1].layers[dim1Val].layerStyle && dimensions[dim.dim1].layers[dim1Val].layerStyle.name;
+function getStyle({riskAnalysis}) {
+    const {layer} = riskAnalysis.riskAnalysisData;
+
+    return layer.layerStyle && layer.layerStyle.name
 }
 
 function makeNotificationRow(data) {

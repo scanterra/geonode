@@ -787,6 +787,10 @@
                 "title": "Welcome on Risk Data Extraction & Visualization",
                 "text": "click on start to initialize the tutorial"
             },
+            "costIntro": {
+                "title": "Welcome on Cost/Benefit Analysis & Decision Tool",
+                "text": "click on start to initialize the tutorial"
+            },
             "riskSelector": {
                 "title": "Hazard type selector",
                 "text": "Choose between these hazards to open related analyses"

@@ -22,6 +22,9 @@ const ConfigUtils = require('../../MapStore2/web/client/utils/ConfigUtils');
 ConfigUtils.setLocalConfigurationFile('/static/js/costsConfig.json');
 // Set one hour cache
 ConfigUtils.setConfigProp("cacheDataExpire", 3600);
+
+const {defaultStep, costTutorialPresets} = require('../utils/TutorialPresets');
+ConfigUtils.setConfigProp('tutorialPresets', {defaultStep, tutorialStep: costTutorialPresets});
 const StandardApp = require('../../MapStore2/web/client/components/app/StandardApp');
 const url = require('url');
 const urlQuery = url.parse(window.location.href, true).query;
@@ -38,7 +41,7 @@ if (Cookies.get('csrftoken')) {
 
 const initDim = init && init.d || {};
 
-const newInitState = assign({}, initialState, {defaultState: {disaster: {dim: initDim}}});
+const newInitState = assign({}, initialState, {defaultState: {disaster: {dim: initDim}, mapInfo: { infoFormat: "text/html"}}});
 const themeCfg = {
     path: '/static/js'
 };
@@ -49,11 +52,11 @@ const StandardRouter = connect((state) => ({
 
 }))(require('../../MapStore2/web/client/components/app/StandardRouter'));
 const loc = window.DISASTERRISK && window.DISASTERRISK.app && window.DISASTERRISK.app.region;
-const dataPath = window.DISASTERRISK && window.DISASTERRISK.app && window.DISASTERRISK.app.href + 'loc/' + loc || 'static/assets/mockupData/risks/cost_benefit_analysis/AF.json';
+const dataPath = window.DISASTERRISK && window.DISASTERRISK.app && `${window.DISASTERRISK.app.href}loc/${loc}/` || "/static/assets/mockUpData/risks/cost_benefit_analysis/AF.json";
 
 const appStore = require('../../MapStore2/web/client/stores/StandardStore').bind(null, newInitState, appReducers, {...dEpics, ...rEpics});
 
-const initialActions = init ? [() => initState(init)] : [() => getData(dataPath + loc)];
+const initialActions = init ? [() => initState(init)] : [() => getData(dataPath)];
 const appConfig = {
     storeOpts,
     appStore,
