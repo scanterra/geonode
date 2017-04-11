@@ -20,8 +20,13 @@ function configLayer(baseurl, layerName, layerId, layerTitle, visibility = true,
     "tiled": true
     }, group && {group} || {});
 }
-
-function getViewParam({dim, showSubUnit, riskAnalysis} = {}) {
+function getViewParamCosts(dim, riskAnalysis) {
+   const {dimensions} = riskAnalysis.riskAnalysisData.data;
+   const dim1Val = dimensions[dim.dim1] && dimensions[dim.dim1].values[dim.dim1Idx];
+   const dim1SearchDim = dimensions[dim.dim1] && dimensions[dim.dim1].layers[dim1Val] && dimensions[dim.dim1].layers[dim1Val].layerReferenceAttribute;
+   return {env: `${dim1SearchDim}_opacity:1.0;`};
+}
+function getViewParamRisks(dim, showSubUnit, riskAnalysis) {
     const {dimensions} = riskAnalysis.riskAnalysisData.data;
     const {wms} = riskAnalysis;
     const dim1Val = dimensions[dim.dim1] && dimensions[dim.dim1].values[dim.dim1Idx];
@@ -37,7 +42,9 @@ function getViewParam({dim, showSubUnit, riskAnalysis} = {}) {
     }
     return {viewparams};
 }
-
+function getViewParam({dim, showSubUnit, riskAnalysis, app} = {}) {
+    return app === 'costs' ? getViewParamCosts(dim, riskAnalysis) : getViewParamRisks(dim, showSubUnit, riskAnalysis);
+}
 function getLayerTitleRisks(riskAnalysis) {
     const {layer} = riskAnalysis.riskAnalysisData;
     return layer && layer.layerTitle;
