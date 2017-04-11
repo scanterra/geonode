@@ -8,6 +8,7 @@ const analysisTypeSel = ({disaster = {}}) => disaster.analysisType || {};
 const sliderSel = ({disaster = {}}) => disaster.sliders || {};
 const notificationsSel = (state) => state.notifications || [];
 const currentAnalysisUrlSel = ({disaster = {}}) => disaster.currentAnalysisUrl || '';
+const additionalChartsSel = ({disaster = {}}) => disaster.additionalCharts || {};
 const riskAnalysisDataSel = ({disaster = {}}) => disaster.riskAnalysis && disaster.riskAnalysis.riskAnalysisData || {};
 const dimInit = {dim1: 0, dim2: 1, dim1Idx: 0, dim2Idx: 0};
 const dimSelector = ({disaster = {}}) => disaster.dim || dimInit;
@@ -106,6 +107,12 @@ const sliderChartSelector = createSelector([riskAnalysisDataSel, dimSelector, sl
         uOm: riskAnalysisData.unitOfMeasure || 'Values',
         sliders
     }));
+const additionalChartSelector = createSelector([riskAnalysisDataSel, additionalChartsSel],
+    (riskAnalysisData, additionalCharts) => ({
+        table: riskAnalysisData.additionalTables && riskAnalysisData.additionalTables[0] && riskAnalysisData.additionalTables[0].table,
+        currentCol: additionalCharts.currentCol,
+        currentSection: additionalCharts.currentSection
+    }));
 module.exports = {
     drillUpSelector,
     topBarSelector,
@@ -119,6 +126,7 @@ module.exports = {
     chartSelector,
     sliderSelector,
     mapSliderSelector,
-    sliderChartSelector
+    sliderChartSelector,
+    additionalChartSelector
 };
 
