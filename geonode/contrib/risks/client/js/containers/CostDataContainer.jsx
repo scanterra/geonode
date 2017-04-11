@@ -87,6 +87,7 @@ const DataContainer = React.createClass({
                 <div id="disaster-chart-container" className="row">
                     <SliderChart uid={'map_slider'}/>
                     <ExtendedSlider uid={'chart_label_tab'} dimIdx={'dim1Idx'}/>
+                    <hr/>
                     <AdditionalChart/>
                 </div>
             </div>
