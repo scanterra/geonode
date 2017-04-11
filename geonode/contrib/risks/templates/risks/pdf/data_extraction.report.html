@@ -1,1 +1,15 @@
-{% extends 'risks/pdf/report.html' %}
+{% extends 'risks/pdf/base.html' %}
+
+{% block content %}
+    <section id="cover" class="break-page">
+        {% include 'risks/pdf/data_extraction.cover.html' %}
+    </section>
+
+    <section id="report" class="break-page">
+        {% include 'risks/pdf/report.html' %}
+    </section>
+
+    <section id="footer">
+        {% include 'risks/pdf/data_extraction.footer.html' %}
+    </section>
+{% endblock %}

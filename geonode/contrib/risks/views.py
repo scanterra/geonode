@@ -686,17 +686,21 @@ class PDFReportView(ContextAware, FormView):
 
     def get_document_urls(self, app):
         out = []
+        r = self.request
         k = self.kwargs.copy()
         for part in self.PDF_PARTS:
+            if part != 'report':
+                continue
             k['pdf_part'] = part
-            out.append(app.url_for('pdf_report_part', **k))
+            out.append(r.build_absolute_uri(app.url_for('pdf_report_part', **k)))
 
         return out
 
     def get_template_names(self):
         app = self.get_app()
         pdf_part = self.kwargs['pdf_part']
-        return [self.TEMPLATE_NAME.format(app.name, pdf_part)]
+        out = [self.TEMPLATE_NAME.format(app.name, pdf_part)]
+        return out
 
     def form_invalid(self, form):
         out = {'succes': False, 'errors': form.errors}
