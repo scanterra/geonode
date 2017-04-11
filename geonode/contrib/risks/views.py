@@ -11,6 +11,7 @@ from django.views.generic import TemplateView, View, FormView
 from django.core.urlresolvers import reverse
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
+from django.http import FileResponse
 from django.template.loader import render_to_string
 
 from geonode.layers.models import Layer
@@ -724,7 +725,8 @@ class PDFReportView(ContextAware, FormView):
 
         pdf = generate_pdf(**config)
         out['pdf'] = pdf
-        return json_response(out)
+        f = open(pdf, 'rb')
+        return FileResponse(f)
 
     def render_report_markup(self, ctx, request, *args, **kwargs): 
     
