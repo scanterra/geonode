@@ -11,12 +11,23 @@ const {LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer} = requ
 const {Panel} = require('react-bootstrap');
 const Nouislider = require('react-nouislider');
 
-const CustomizedYLable = (props) => {
+const CustomizedYLabel = (props) => {
     const {y, lab, viewBox} = props;
     return (
         <g>
             <text x={viewBox.width / 2} y={y} dy={-25} dx={0} textAnchor="middle" fill="#666" transform="rotate(0)">{lab}</text>
         </g>
+    );
+};
+
+const CustomizedXLabel = (props) => {
+    const {x, y, payload} = props;
+    let val = payload.value.split(" ")[0];
+    val = val.length > 8 ? val.substring(0, 8) + '...' : val;
+    return (
+      <g transform={`translate(${x},${y})`}>
+          <text x={0} y={0} dx={-4} textAnchor="end" fill="#666" transform="rotate(-90)">{val}</text>
+      </g>
     );
 };
 
@@ -94,12 +105,12 @@ const AdditionalChart = React.createClass({
         return (
             <Panel className="chart-panel">
                 <div className="text-center">{cols[this.props.currentCol].label}</div>
-                <ResponsiveContainer width="100%" height={220}>
-                    <LineChart data={chartData} onClick={this.handleClick} margin={{top: 50, right: 30, left: 30, bottom: 20}}>
+                <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={chartData} onClick={this.handleClick} margin={{top: 50, right: 30, left: 30, bottom: 50}}>
                         <Line type="monotone" dataKey="value" stroke="#ff8f31" strokeWidth={2}/>
                         <CartesianGrid horizontal={false} strokeDasharray="3 3"/>
-                        <XAxis interval={0} dataKey="name" tickFormatter={this.formatXTiks}/>
-                        <YAxis label={<CustomizedYLable lab={cols[this.props.currentCol].uOfm}/>} interval="preserveStart" tickFormatter={this.formatYTiks}/>
+                        <XAxis tick={<CustomizedXLabel/>} interval={0} dataKey="name" tickFormatter={this.formatXTiks}/>
+                        <YAxis label={<CustomizedYLabel lab={cols[this.props.currentCol].uOfm}/>} interval="preserveStart" tickFormatter={this.formatYTiks}/>
                     </LineChart>
                 </ResponsiveContainer>
                 {this.renderSectionSlider(this.props.currentCol, 0, cols.length - 1, this.formatToCol, {height: 80, margin: '0 30px'}, (v) => {
@@ -142,7 +153,7 @@ const AdditionalChart = React.createClass({
     formatToSection(value) {
         const {sections = []} = this.props.table;
         let val = sections[value].title.split(" ")[0];
-        return val.length > 8 ? val.substring(0, 8) + '...' : val;
+        return val.length > 7 ? val.substring(0, 7) + '...' : val;
     },
     formatFrom(value) {
         return value;
