@@ -149,14 +149,6 @@ module.exports = {
                     target: "http://localhost:8081/",
                     pathRewrite: { "^/static/js": ""}
                 },
-                '/risks/cost_benefit_analysis/loc/AF/ht/EQ/at/schools/an/1/': {
-                    target: "http://localhost:8081/",
-                    pathRewrite: { "^/risks/cost_benefit_analysis/loc/AF/ht/EQ/at/schools/an/1/": "assets/mockUpData/risks/cost_benefit_analysis/schools.json"}
-                },
-                '/risks/cost_benefit_analysis/loc/AF/ht/EQ/': {
-                    target: "http://localhost:8081/",
-                    pathRewrite: { "^/risks/cost_benefit_analysis/loc/AF/ht/EQ/": "assets/mockUpData/risks/cost_benefit_analysis/EQ.json"}
-                },
                 '/risks/': {
                     target: "http://disasterrisk-af-dev.geo-solutions.it",
                     changeOrigin: true
