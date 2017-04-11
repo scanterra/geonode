@@ -81,17 +81,21 @@ const chartSelector = createSelector([riskAnalysisDataSel, dimSelector],
         dim,
         uOm: riskAnalysisData.unitOfMeasure || 'Values'
     }));
-const sliderSelector = createSelector([riskAnalysisDataSel, dimSelector, sliderSel],
-    (riskAnalysisData, dim, sliders) => ({
+const sliderSelector = createSelector([riskAnalysisDataSel, dimSelector, sliderSel, notificationsSel, currentAnalysisUrlSel],
+    (riskAnalysisData, dim, sliders, notifications, currentUrl) => ({
         dimension: riskAnalysisData.data && riskAnalysisData.data.dimensions && riskAnalysisData.data.dimensions[dim.dim2],
         activeAxis: dim.dim2Idx,
-        sliders
+        sliders,
+        notifications,
+        currentUrl
     }));
-const mapSliderSelector = createSelector([riskAnalysisDataSel, dimSelector, sliderSel],
-    (riskAnalysisData, dim, sliders) => ({
+const mapSliderSelector = createSelector([riskAnalysisDataSel, dimSelector, sliderSel, notificationsSel, currentAnalysisUrlSel],
+    (riskAnalysisData, dim, sliders, notifications, currentUrl) => ({
         dimension: riskAnalysisData.data && riskAnalysisData.data.dimensions && riskAnalysisData.data.dimensions[dim.dim1],
         activeAxis: dim.dim1Idx,
-        sliders
+        sliders,
+        notifications,
+        currentUrl
     }));
 const sliderChartSelector = createSelector([riskAnalysisDataSel, dimSelector, sliderSel],
     (riskAnalysisData, dim, sliders) => ({

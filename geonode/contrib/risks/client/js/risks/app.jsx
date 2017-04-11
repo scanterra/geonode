@@ -22,6 +22,8 @@ const ConfigUtils = require('../../MapStore2/web/client/utils/ConfigUtils');
 ConfigUtils.setLocalConfigurationFile('/static/js/risksConfig.json');
 // Set one hour cache
 ConfigUtils.setConfigProp("cacheDataExpire", 3600);
+const {defaultStep, riskTutorialPresets} = require('../utils/TutorialPresets');
+ConfigUtils.setConfigProp('tutorialPresets', {defaultStep, tutorialStep: riskTutorialPresets});
 const StandardApp = require('../../MapStore2/web/client/components/app/StandardApp');
 const url = require('url');
 const urlQuery = url.parse(window.location.href, true).query;

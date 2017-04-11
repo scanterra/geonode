@@ -15,7 +15,8 @@ const {changeLayerProperties, addLayer, removeNode} = require('../../MapStore2/w
 const assign = require('object-assign');
 const {find} = require('lodash');
 const {configLayer, makeNotificationBody} = require('../utils/DisasterUtils');
-const {defaultStep, tutorialPresets} = require('../utils/TutorialPresets');
+const ConfigUtils = require('../../MapStore2/web/client/utils/ConfigUtils');
+
 const {
     GET_DATA,
     LOAD_RISK_MAP_CONFIG,
@@ -116,8 +117,10 @@ const initStateEpic = action$ =>
 const changeTutorial = action$ =>
     action$.ofType(DATA_LOADED, ANALYSIS_DATA_LOADED).audit( () => action$.ofType('TOGGLE_CONTROL')).switchMap( action => {
         return Rx.Observable.of(action).flatMap((actn) => {
+            // get current app and switch tutorial
+            const {defaultStep, tutorialStep} = ConfigUtils.getConfigProp('tutorialPresets');
             let type = actn.data && actn.data.analysisType ? actn.type + '_R' : actn.type;
-            return [setupTutorial(tutorialPresets[type], {}, '', defaultStep)];
+            return [setupTutorial(tutorialStep[type], {}, '', defaultStep)];
         });
     });
 const loadingError = action$ =>
@@ -139,7 +142,7 @@ const getSpecificFurtherResources = (action$) =>
             .catch(e => Rx.Observable.of(dataError(e)));
     });
 const chartSliderUpdateEpic = action$ =>
-    action$.ofType(CHART_SLIDER_UPDATE).throttleTime(100)
+    action$.ofType(CHART_SLIDER_UPDATE)
         .switchMap( action => Rx.Observable.of(setChartSliderIndex(action.index, action.uid))
 
     );

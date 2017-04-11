@@ -7,7 +7,7 @@
  */
 
 
-const tutorialPresets = {
+const riskTutorialPresets = {
     DATA_LOADED: [{
             translationHTML: 'riskSelector',
             selector: '#disaster-risk-selector-menu'
@@ -89,6 +89,72 @@ const tutorialPresets = {
     ]
 };
 
+const costTutorialPresets = {
+    DATA_LOADED: [{
+            translationHTML: 'riskSelector',
+            selector: '#disaster-risk-selector-menu'
+        },
+        {
+            translationHTML: 'riskOverview',
+            selector: '#disaster-overview-list'
+        },
+        {
+            translationHTML: 'riskMap',
+            selector: '#disaster-map-main-container'
+        },
+        {
+            translationHTML: 'riskPageTool',
+            selector: '#disaster-page-tools'
+        },
+        {
+            translationHTML: 'riskHelp',
+            selector: '#disaster-show-tutorial'
+        }
+    ],
+    DATA_LOADED_R: [{
+            translationHTML: 'riskTab',
+            selector: '#disaster-analysis-menu'
+        },
+        {
+            translationHTML: 'riskList',
+            selector: '#disaster-analysis-container'
+        }
+    ],
+    ANALYSIS_DATA_LOADED: [{
+            translationHTML: 'riskChart',
+            selector: '#disaster-chart-container'
+        },
+        {
+            translationHTML: 'riskLayer',
+            selector: '#disaster-layer-button'
+        },
+        {
+            translationHTML: 'riskInfo',
+            selector: '#disaster-identify-button'
+        },
+        {
+            translationHTML: 'riskMapSlider',
+            selector: '#disaster-map-slider'
+        },
+        {
+            translationHTML: 'riskLegend',
+            selector: '#disaster-map-legend'
+        },
+        {
+            translationHTML: 'riskMoreInfo',
+            selector: '#disaster-more-info-button'
+        },
+        {
+            translationHTML: 'riskDownloadData',
+            selector: '#disaster-download-data-button'
+        },
+        {
+            translationHTML: 'riskBack',
+            selector: '#disaster-back-button'
+        }
+    ]
+};
+
 const defaultStep = {
     title: '',
     text: '',
@@ -99,5 +165,6 @@ const defaultStep = {
 
 module.exports = {
     defaultStep,
-    tutorialPresets
+    riskTutorialPresets,
+    costTutorialPresets
 };

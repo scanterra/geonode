@@ -6406,8 +6406,12 @@ a.disaster .label:focus {
   padding-top: 0;
 }
 .disaster .disaster-chart-slider .noUi-handle {
-  border: 1px solid #333333;
-  background: #333333;
+  border: 1px dashed #333333;
+  background: #fff;
+}
+.disaster .disaster-chart-slider .noUi-handle:hover {
+  border: 1px dashed #333333;
+  background: #ff8f31;
 }
 .disaster .disaster-chart-slider .noUi-connect {
   background: #ff8f31;
