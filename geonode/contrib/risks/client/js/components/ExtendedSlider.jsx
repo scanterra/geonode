@@ -55,6 +55,7 @@ const ExtendedSlider = React.createClass({
                         limit={this.props.maxLength}
                         behaviour={'tap-drag'}
                         connect={true}
+                        margin={5}
                         step={1}
                         tooltips={false}
                         onChange={(idx) =>
