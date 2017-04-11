@@ -504,7 +504,8 @@ class DataExtractionView(FeaturesSource, HazardTypeView):
             line = []
             [line.append(p[f]) for f in fields]
             line.append(p['value'])
-            line.append(make_order_val(feat))
+            # line.append(make_order_val(feat))
+            line.append(feat)
             values.append(line)
 
         values.sort(key=order_key)

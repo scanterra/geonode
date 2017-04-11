@@ -342,6 +342,8 @@ class RiskAnalysis(RiskAppAware, Schedulable, LocationAware, HazardTypeAware, An
                               ('dataFile', 'data_file',),
                               ('metadataFile',  'metadata_file',),
                               ('layer', 'get_layer_data',),
+                              ('referenceLayer', 'get_reference_layer_data',),
+                              ('referenceStyle', 'get_reference_style',),
                               ('additionalTables', 'get_additional_data',),
                               ('hazardSet', 'get_hazard_set_extended',))
 
@@ -397,7 +399,6 @@ class RiskAnalysis(RiskAppAware, Schedulable, LocationAware, HazardTypeAware, An
         related_name='base_layer'
     )
 
-
     style = models.ForeignKey(Style,
                               blank=True,
                               null=True,
@@ -405,6 +406,20 @@ class RiskAnalysis(RiskAppAware, Schedulable, LocationAware, HazardTypeAware, An
                               related_name='style_layer'
     )
 
+    reference_layer = models.ForeignKey(
+        Layer,
+        blank=True,
+        null=True,
+        unique=False,
+        related_name='reference_layer'
+    )
+
+    reference_style = models.ForeignKey(Style,
+                              blank=True,
+                              null=True,
+                              unique=False,
+                              related_name='style_reference_layer'
+    )
 
     additional_layers = models.ManyToManyField(Layer, blank=True)
     app = models.ForeignKey(RiskApp)
@@ -444,8 +459,14 @@ class RiskAnalysis(RiskAppAware, Schedulable, LocationAware, HazardTypeAware, An
         if self.style:
             return {'name': self.style.name,
                     'title': self.style.sld_title,
-                    'url': self.style.sld_url,
-                    'sld': self.style.sld_body}
+                    'url': self.style.sld_url}
+        return {}
+
+    def get_reference_style(self):
+        if self.reference_style:
+            return {'name': self.reference_style.name,
+                    'title': self.reference_style.sld_title,
+                    'url': self.reference_style.sld_url}
         return {}
 
     def get_layer_data(self):
@@ -456,6 +477,20 @@ class RiskAnalysis(RiskAppAware, Schedulable, LocationAware, HazardTypeAware, An
         out = {'layerName': layer_name,
                'layerTitle': l.title,
                'layerStyle': layer_style}
+        return out
+
+    def get_reference_layer_data(self):
+        if self.reference_layer:
+            l = self.reference_layer
+            layer_name = l.typename
+            layer_title = l.title
+            layer_style = self.get_style()
+            out = {'layerName': layer_name,
+                   'layerTitle': l.title,
+                   'layerStyle': layer_style}
+        else:
+            out = {}
+
         return out
 
     def get_additional_data(self):
