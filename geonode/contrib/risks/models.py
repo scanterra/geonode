@@ -464,9 +464,9 @@ class RiskAnalysis(RiskAppAware, Schedulable, LocationAware, HazardTypeAware, An
 
     def get_reference_style(self):
         if self.reference_style:
-            return {'name': self.style.name,
-                    'title': self.style.sld_title,
-                    'url': self.style.sld_url}
+            return {'name': self.reference_style.name,
+                    'title': self.reference_style.sld_title,
+                    'url': self.reference_style.sld_url}
         return {}
 
     def get_layer_data(self):
