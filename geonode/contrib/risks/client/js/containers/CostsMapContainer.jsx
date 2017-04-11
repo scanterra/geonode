@@ -14,12 +14,13 @@ const MapViewer = connect(() => ({}), {
     loadMapConfig: loadMapConfig.bind(null, "/static/js/config-costs.json")
 })(require('../../MapStore2/web/client/containers/MapViewer'));
 const Legend = connect(disasterRiskLayerSelector)(require('../../MapStore2/web/client/components/TOC/fragments/legend/Legend'));
-const {sliderSelector, chartSliderUpdate} = require('../selectors/disaster');
-const {setDimIdx} = require('../actions/disaster');
+const {sliderSelector} = require('../selectors/disaster');
+const {setDimIdx, chartSliderUpdate, getSFurtherResourceData} = require('../actions/disaster');
 const {setControlProperty, toggleControl} = require('../../MapStore2/web/client/actions/controls');
+const {show, hide} = require('react-notification-system-redux');
 const LayerBtn = connect((state) => {return {enabled: state.controls && state.controls.toolbar && state.controls.toolbar.active }; }, {toggleTOC: setControlProperty.bind(null, "toolbar", "active", "toc", true)})(require('../components/LayerBtn'));
 const IdentifyBtn = connect((state) => {return {enabled: state.controls && state.controls.info && state.controls.info.enabled }; }, {toggleTOC: toggleControl.bind(null, "info", "enabled")})(require('../components/IdentifyBtn'));
-const ExtendedSlider = connect(sliderSelector, {setDimIdx, chartSliderUpdate})(require('../components/ExtendedSlider'));
+const ExtendedSlider = connect(sliderSelector, {setDimIdx, chartSliderUpdate, show, hide, getData: getSFurtherResourceData })(require('../components/ExtendedSlider'));
 const FurtherResources = connect(({disaster} = {}) => ({
     analysisType: disaster.riskAnalysis && disaster.riskAnalysis.furtherResources && disaster.riskAnalysis.furtherResources.analysisType || [],
     hazardType: disaster.riskAnalysis && disaster.riskAnalysis.furtherResources && disaster.riskAnalysis.furtherResources.hazardType || []

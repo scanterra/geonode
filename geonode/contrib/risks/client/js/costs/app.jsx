@@ -22,6 +22,9 @@ const ConfigUtils = require('../../MapStore2/web/client/utils/ConfigUtils');
 ConfigUtils.setLocalConfigurationFile('/static/js/costsConfig.json');
 // Set one hour cache
 ConfigUtils.setConfigProp("cacheDataExpire", 3600);
+
+const {defaultStep, costTutorialPresets} = require('../utils/TutorialPresets');
+ConfigUtils.setConfigProp('tutorialPresets', {defaultStep, tutorialStep: costTutorialPresets});
 const StandardApp = require('../../MapStore2/web/client/components/app/StandardApp');
 const url = require('url');
 const urlQuery = url.parse(window.location.href, true).query;
