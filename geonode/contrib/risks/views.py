@@ -705,6 +705,7 @@ class PDFReportView(ContextAware, FormView):
 
     def form_invalid(self, form):
         out = {'succes': False, 'errors': form.errors}
+        log.error("Cannot generate pdf: %s: %s", self.request.build_absolute_uri(), form.errors)
         return json_response(out, status=400)
 
     def form_valid(self, form):
@@ -715,7 +716,14 @@ class PDFReportView(ContextAware, FormView):
         for k, v in form.cleaned_data.iteritems():
             basename, ext = os.path.splitext(v.name)
             target_path = os.path.join(ctx, '{}.png'.format(k))
+            full_path = default_storage.path(target_path)
+            if os.path.exists(full_path):
+                try:
+                    os.unlink(full_path)
+                except OSError, err:
+                    log.warning("Cannot remove existing upload for %s (%s): %s", target_path, full_path, err, exc_info=err)
             default_storage.save(target_path, v)
+
             config[k] = target_path
 
         pdf_path = default_storage.path(os.path.join(ctx, 'report.pdf'))
