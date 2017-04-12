@@ -21,10 +21,10 @@ function configLayer(baseurl, layerName, layerId, layerTitle, visibility = true,
     }, group && {group} || {});
 }
 function getViewParamCosts(dim, riskAnalysis) {
-   const {dimensions} = riskAnalysis.riskAnalysisData.data;
-   const dim1Val = dimensions[dim.dim1] && dimensions[dim.dim1].values[dim.dim1Idx];
-   const dim1SearchDim = dimensions[dim.dim1] && dimensions[dim.dim1].layers[dim1Val] && dimensions[dim.dim1].layers[dim1Val].layerReferenceAttribute;
-   return {env: `${dim1SearchDim}_opacity:1.0;`};
+    const {dimensions} = riskAnalysis.riskAnalysisData.data;
+    const dim1Val = dimensions[dim.dim1] && dimensions[dim.dim1].values[dim.dim1Idx];
+    const dim1SearchDim = dimensions[dim.dim1] && dimensions[dim.dim1].layers[dim1Val] && dimensions[dim.dim1].layers[dim1Val].layerReferenceAttribute;
+    return {env: `${dim1SearchDim}_opacity:1.0`};
 }
 function getViewParamRisks(dim, showSubUnit, riskAnalysis) {
     const {dimensions} = riskAnalysis.riskAnalysisData.data;
