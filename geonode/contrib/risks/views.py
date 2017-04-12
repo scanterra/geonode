@@ -710,6 +710,7 @@ class PDFReportView(ContextAware, FormView):
 
     def form_valid(self, form):
         ctx = self.get_context_url(_full=True, **self.kwargs)
+        
         out = {'success': True}
         app = self.get_app()
         config = {}
@@ -721,7 +722,7 @@ class PDFReportView(ContextAware, FormView):
                 try:
                     os.unlink(full_path)
                 except OSError, err:
-                    log.warning("Cannot remove existing upload for %s (%s): %s", target_path, full_path, err, exc_info=err)
+                    log.error("Cannot remove existing upload for %s (%s): %s", target_path, full_path, err, exc_info=err)
             default_storage.save(target_path, v)
 
             config[k] = target_path
