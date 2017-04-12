@@ -11,7 +11,7 @@ const {dataContainerSelector, sliderChartSelector, mapSliderSelector, additional
 
 const {getAnalysisData, getData, setDimIdx, chartSliderUpdate, getSFurtherResourceData, setAdditionalChartIndex} = require('../actions/disaster');
 const SliderChart = connect(sliderChartSelector, {setDimIdx, chartSliderUpdate})(require('../components/SliderChart'));
-
+const GetCostsBtn = connect(({disaster}) => ({loading: disaster.loading || false}))(require('../components/LoadingBtn'));
 const DownloadData = require('../components/DownloadData');
 const MoreInfo = require('../components/MoreInfo');
 const Overview = connect(({disaster = {}}) => ({riskItems: disaster.overview || [] }) )(require('../components/Overview'));
@@ -124,7 +124,8 @@ const DataContainer = React.createClass({
                     <Panel collapsible header={this.renderRiskAnalysisHeader(title, getAnalysis, rs, idx)}>
                         {abstract}
                         <br/>
-                        <button className="btn btn-default pull-right" onClick={()=> getAnalysis(rs.href)}><i className="fa fa-bar-chart"/>&nbsp;{'Analysis Data'}</button>
+                        <GetCostsBtn onClick={()=> getAnalysis(rs.href)}
+                        iconClass="fa fa-bar-chart" label="Analysis Data"/>
                     </Panel>
                   </div>
               </div>

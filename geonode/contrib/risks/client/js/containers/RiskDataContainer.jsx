@@ -13,6 +13,7 @@ const {getAnalysisData, getData, setDimIdx, getSFurtherResourceData} = require('
 const Chart = connect(chartSelector, {setDimIdx})(require('../components/Chart'));
 
 const SummaryChart = connect(chartSelector)(require('../components/SummaryChart'));
+const GetAnalysisBtn = connect(({disaster}) => ({loading: disaster.loading || false}))(require('../components/LoadingBtn'));
 
 const DownloadData = require('../components/DownloadData');
 const MoreInfo = require('../components/MoreInfo');
@@ -161,7 +162,8 @@ const DataContainer = React.createClass({
                     <Panel collapsible header={this.renderRiskAnalysisHeader(title, getAnalysis, rs, idx)}>
                         {abstract}
                         <br/>
-                        <button className="btn btn-default pull-right" onClick={()=> getAnalysis(rs.href)}><i className="fa fa-bar-chart"/>&nbsp;{'Analysis Data'}</button>
+                        <GetAnalysisBtn onClick={()=> getAnalysis(rs.href)}
+                        iconClass="fa fa-bar-chart" label="Analysis Data"/>
                     </Panel>
                   </div>
               </div>
