@@ -15,7 +15,8 @@ const {
     SET_DIM_IDX,
     TOGGLE_ADMIN_UNITS,
     GET_ANALYSIS_DATA,
-    SET_CHART_SLIDER_INDEX
+    SET_CHART_SLIDER_INDEX,
+    SET_ADDITIONAL_CHART_INDEX
 } = require('../actions/disaster');
 
 function disaster(state = {dim: {dim1: 0, dim2: 1, dim1Idx: 0, dim2Idx: 0}}, action) {
@@ -25,7 +26,7 @@ function disaster(state = {dim: {dim1: 0, dim2: 1, dim1Idx: 0, dim2Idx: 0}}, act
                 loading: true
             });
         case DATA_LOADED: {
-            return action.cleanState ? assign({}, { loading: false, error: null}, action.data) : assign({}, { loading: false, error: null, dim: state.dim, sliders: state.sliders, riskAnalysis: state.riskAnalysis}, action.data);
+            return action.cleanState ? assign({}, { loading: false, error: null, app: state.app}, action.data) : assign({}, { loading: false, error: null, dim: state.dim, sliders: state.sliders, riskAnalysis: state.riskAnalysis, app: state.app}, action.data);
         }
         case ANALYSIS_DATA_LOADED: {
             return assign({}, state, { loading: false, error: null, riskAnalysis: action.data});
@@ -55,6 +56,11 @@ function disaster(state = {dim: {dim1: 0, dim2: 1, dim1Idx: 0, dim2Idx: 0}}, act
             sliders[action.uid] = action.index;
             return assign({}, state, {
                 sliders
+            });
+        case SET_ADDITIONAL_CHART_INDEX:
+            let additionalCharts = {currentSection: action.section, currentCol: action.col};
+            return assign({}, state, {
+                additionalCharts
             });
         default:
             return state;

@@ -43,7 +43,7 @@ const initDim = init && init.d || {};
 
 const initSlider = init && init.s || {};
 
-const newInitState = assign({}, initialState, {defaultState: {disaster: {dim: initDim, sliders: initSlider}, mapInfo: { infoFormat: "text/html"}}});
+const newInitState = assign({}, initialState, {defaultState: {disaster: {dim: initDim, sliders: initSlider, app: 'costs'}, mapInfo: { infoFormat: "text/html"}}});
 const themeCfg = {
     path: '/static/js'
 };

@@ -13,7 +13,6 @@
   /*! normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css */
   /*! Source: https://github.com/h5bp/html5-boilerplate/blob/master/src/css/main.css */
   /* @import "../../node_modules/bootstrap/less/glyphicons.less"; */
-  /* @import "../../node_modules/bootstrap/less/tables.less"; */
   /* @import "../../node_modules/bootstrap/less/forms.less"; */
   /* @import "../../node_modules/bootstrap/less/dropdowns.less"; */
   /* @import "../../node_modules/bootstrap/less/input-groups.less"; */
@@ -1510,6 +1509,246 @@ a.disaster .bg-danger:focus {
   }
   .disaster .col-lg-offset-0 {
     margin-left: 0%;
+  }
+}
+.disaster table {
+  background-color: transparent;
+}
+.disaster caption {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  color: #777777;
+  text-align: left;
+}
+.disaster th {
+  text-align: left;
+}
+.disaster .table {
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 20px;
+}
+.disaster .table > thead > tr > th,
+.disaster .table > tbody > tr > th,
+.disaster .table > tfoot > tr > th,
+.disaster .table > thead > tr > td,
+.disaster .table > tbody > tr > td,
+.disaster .table > tfoot > tr > td {
+  padding: 8px;
+  line-height: 1.42857143;
+  vertical-align: top;
+  border-top: 1px solid #ddd;
+}
+.disaster .table > thead > tr > th {
+  vertical-align: bottom;
+  border-bottom: 2px solid #ddd;
+}
+.disaster .table > caption + thead > tr:first-child > th,
+.disaster .table > colgroup + thead > tr:first-child > th,
+.disaster .table > thead:first-child > tr:first-child > th,
+.disaster .table > caption + thead > tr:first-child > td,
+.disaster .table > colgroup + thead > tr:first-child > td,
+.disaster .table > thead:first-child > tr:first-child > td {
+  border-top: 0;
+}
+.disaster .table > tbody + tbody {
+  border-top: 2px solid #ddd;
+}
+.disaster .table .table {
+  background-color: #fff;
+}
+.disaster .table-condensed > thead > tr > th,
+.disaster .table-condensed > tbody > tr > th,
+.disaster .table-condensed > tfoot > tr > th,
+.disaster .table-condensed > thead > tr > td,
+.disaster .table-condensed > tbody > tr > td,
+.disaster .table-condensed > tfoot > tr > td {
+  padding: 5px;
+}
+.disaster .table-bordered {
+  border: 1px solid #ddd;
+}
+.disaster .table-bordered > thead > tr > th,
+.disaster .table-bordered > tbody > tr > th,
+.disaster .table-bordered > tfoot > tr > th,
+.disaster .table-bordered > thead > tr > td,
+.disaster .table-bordered > tbody > tr > td,
+.disaster .table-bordered > tfoot > tr > td {
+  border: 1px solid #ddd;
+}
+.disaster .table-bordered > thead > tr > th,
+.disaster .table-bordered > thead > tr > td {
+  border-bottom-width: 2px;
+}
+.disaster .table-striped > tbody > tr:nth-of-type(odd) {
+  background-color: #f9f9f9;
+}
+.disaster .table-hover > tbody > tr:hover {
+  background-color: #f5f5f5;
+}
+.disaster table col[class*="col-"] {
+  position: static;
+  float: none;
+  display: table-column;
+}
+.disaster table td[class*="col-"],
+.disaster table th[class*="col-"] {
+  position: static;
+  float: none;
+  display: table-cell;
+}
+.disaster .table > thead > tr > td.active,
+.disaster .table > tbody > tr > td.active,
+.disaster .table > tfoot > tr > td.active,
+.disaster .table > thead > tr > th.active,
+.disaster .table > tbody > tr > th.active,
+.disaster .table > tfoot > tr > th.active,
+.disaster .table > thead > tr.active > td,
+.disaster .table > tbody > tr.active > td,
+.disaster .table > tfoot > tr.active > td,
+.disaster .table > thead > tr.active > th,
+.disaster .table > tbody > tr.active > th,
+.disaster .table > tfoot > tr.active > th {
+  background-color: #f5f5f5;
+}
+.disaster .table-hover > tbody > tr > td.active:hover,
+.disaster .table-hover > tbody > tr > th.active:hover,
+.disaster .table-hover > tbody > tr.active:hover > td,
+.disaster .table-hover > tbody > tr:hover > .active,
+.disaster .table-hover > tbody > tr.active:hover > th {
+  background-color: #e8e8e8;
+}
+.disaster .table > thead > tr > td.success,
+.disaster .table > tbody > tr > td.success,
+.disaster .table > tfoot > tr > td.success,
+.disaster .table > thead > tr > th.success,
+.disaster .table > tbody > tr > th.success,
+.disaster .table > tfoot > tr > th.success,
+.disaster .table > thead > tr.success > td,
+.disaster .table > tbody > tr.success > td,
+.disaster .table > tfoot > tr.success > td,
+.disaster .table > thead > tr.success > th,
+.disaster .table > tbody > tr.success > th,
+.disaster .table > tfoot > tr.success > th {
+  background-color: #dff0d8;
+}
+.disaster .table-hover > tbody > tr > td.success:hover,
+.disaster .table-hover > tbody > tr > th.success:hover,
+.disaster .table-hover > tbody > tr.success:hover > td,
+.disaster .table-hover > tbody > tr:hover > .success,
+.disaster .table-hover > tbody > tr.success:hover > th {
+  background-color: #d0e9c6;
+}
+.disaster .table > thead > tr > td.info,
+.disaster .table > tbody > tr > td.info,
+.disaster .table > tfoot > tr > td.info,
+.disaster .table > thead > tr > th.info,
+.disaster .table > tbody > tr > th.info,
+.disaster .table > tfoot > tr > th.info,
+.disaster .table > thead > tr.info > td,
+.disaster .table > tbody > tr.info > td,
+.disaster .table > tfoot > tr.info > td,
+.disaster .table > thead > tr.info > th,
+.disaster .table > tbody > tr.info > th,
+.disaster .table > tfoot > tr.info > th {
+  background-color: #d9edf7;
+}
+.disaster .table-hover > tbody > tr > td.info:hover,
+.disaster .table-hover > tbody > tr > th.info:hover,
+.disaster .table-hover > tbody > tr.info:hover > td,
+.disaster .table-hover > tbody > tr:hover > .info,
+.disaster .table-hover > tbody > tr.info:hover > th {
+  background-color: #c4e3f3;
+}
+.disaster .table > thead > tr > td.warning,
+.disaster .table > tbody > tr > td.warning,
+.disaster .table > tfoot > tr > td.warning,
+.disaster .table > thead > tr > th.warning,
+.disaster .table > tbody > tr > th.warning,
+.disaster .table > tfoot > tr > th.warning,
+.disaster .table > thead > tr.warning > td,
+.disaster .table > tbody > tr.warning > td,
+.disaster .table > tfoot > tr.warning > td,
+.disaster .table > thead > tr.warning > th,
+.disaster .table > tbody > tr.warning > th,
+.disaster .table > tfoot > tr.warning > th {
+  background-color: #fcf8e3;
+}
+.disaster .table-hover > tbody > tr > td.warning:hover,
+.disaster .table-hover > tbody > tr > th.warning:hover,
+.disaster .table-hover > tbody > tr.warning:hover > td,
+.disaster .table-hover > tbody > tr:hover > .warning,
+.disaster .table-hover > tbody > tr.warning:hover > th {
+  background-color: #faf2cc;
+}
+.disaster .table > thead > tr > td.danger,
+.disaster .table > tbody > tr > td.danger,
+.disaster .table > tfoot > tr > td.danger,
+.disaster .table > thead > tr > th.danger,
+.disaster .table > tbody > tr > th.danger,
+.disaster .table > tfoot > tr > th.danger,
+.disaster .table > thead > tr.danger > td,
+.disaster .table > tbody > tr.danger > td,
+.disaster .table > tfoot > tr.danger > td,
+.disaster .table > thead > tr.danger > th,
+.disaster .table > tbody > tr.danger > th,
+.disaster .table > tfoot > tr.danger > th {
+  background-color: #f2dede;
+}
+.disaster .table-hover > tbody > tr > td.danger:hover,
+.disaster .table-hover > tbody > tr > th.danger:hover,
+.disaster .table-hover > tbody > tr.danger:hover > td,
+.disaster .table-hover > tbody > tr:hover > .danger,
+.disaster .table-hover > tbody > tr.danger:hover > th {
+  background-color: #ebcccc;
+}
+.disaster .table-responsive {
+  overflow-x: auto;
+  min-height: 0.01%;
+}
+@media screen and (max-width: 767px) {
+  .disaster .table-responsive {
+    width: 100%;
+    margin-bottom: 15px;
+    overflow-y: hidden;
+    -ms-overflow-style: -ms-autohiding-scrollbar;
+    border: 1px solid #ddd;
+  }
+  .disaster .table-responsive > .table {
+    margin-bottom: 0;
+  }
+  .disaster .table-responsive > .table > thead > tr > th,
+  .disaster .table-responsive > .table > tbody > tr > th,
+  .disaster .table-responsive > .table > tfoot > tr > th,
+  .disaster .table-responsive > .table > thead > tr > td,
+  .disaster .table-responsive > .table > tbody > tr > td,
+  .disaster .table-responsive > .table > tfoot > tr > td {
+    white-space: nowrap;
+  }
+  .disaster .table-responsive > .table-bordered {
+    border: 0;
+  }
+  .disaster .table-responsive > .table-bordered > thead > tr > th:first-child,
+  .disaster .table-responsive > .table-bordered > tbody > tr > th:first-child,
+  .disaster .table-responsive > .table-bordered > tfoot > tr > th:first-child,
+  .disaster .table-responsive > .table-bordered > thead > tr > td:first-child,
+  .disaster .table-responsive > .table-bordered > tbody > tr > td:first-child,
+  .disaster .table-responsive > .table-bordered > tfoot > tr > td:first-child {
+    border-left: 0;
+  }
+  .disaster .table-responsive > .table-bordered > thead > tr > th:last-child,
+  .disaster .table-responsive > .table-bordered > tbody > tr > th:last-child,
+  .disaster .table-responsive > .table-bordered > tfoot > tr > th:last-child,
+  .disaster .table-responsive > .table-bordered > thead > tr > td:last-child,
+  .disaster .table-responsive > .table-bordered > tbody > tr > td:last-child,
+  .disaster .table-responsive > .table-bordered > tfoot > tr > td:last-child {
+    border-right: 0;
+  }
+  .disaster .table-responsive > .table-bordered > tbody > tr:last-child > th,
+  .disaster .table-responsive > .table-bordered > tfoot > tr:last-child > th,
+  .disaster .table-responsive > .table-bordered > tbody > tr:last-child > td,
+  .disaster .table-responsive > .table-bordered > tfoot > tr:last-child > td {
+    border-bottom: 0;
   }
 }
 .disaster .btn {
