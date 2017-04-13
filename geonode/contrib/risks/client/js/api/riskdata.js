@@ -26,11 +26,13 @@ const Api = {
             return response.data;
         });
     },
-    getReport: function(url, mapImg, chartImg, legendImg) {
+    getReport: function(url, permalink, mapImg, chartImg, legendImg) {
         const mapBlob = toBlob(mapImg);
         const chartBlob = toBlob(chartImg);
         const legendBlob = toBlob(legendImg);
+        console.log(permalink);
         let data = new FormData();
+        data.append('permalink', permalink);
         data.append('map', mapBlob);
         data.append('chart', chartBlob);
         data.append('legend', legendBlob);

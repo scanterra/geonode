@@ -25,7 +25,6 @@ const disasterSelector = state => ({
 // to avoid this separate loading from the layer object
 const layersSelector = createSelector([layersSelectorO, disasterSelector],
     (layers = [], disaster) => {
-        console.log("calcualte layers");
         let newLayers;
         const riskAnWMSIdx = findIndex(layers, l => l.id === '_riskAn_');
         if (disaster.riskAnalysis && riskAnWMSIdx !== -1) {

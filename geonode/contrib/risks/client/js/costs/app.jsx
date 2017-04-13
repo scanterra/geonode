@@ -28,7 +28,7 @@ ConfigUtils.setConfigProp('tutorialPresets', {defaultStep, tutorialStep: costTut
 const StandardApp = require('../../MapStore2/web/client/components/app/StandardApp');
 const url = require('url');
 const urlQuery = url.parse(window.location.href, true).query;
-const init = urlQuery && urlQuery.init && JSON.parse(urlQuery.init);
+const init = urlQuery && urlQuery.init && JSON.parse(decodeURIComponent(urlQuery.init));
 
 const {pages, pluginsDef, initialState, storeOpts} = require('./appConfig');
 const axios = require('../../MapStore2/web/client/libs/ajax');

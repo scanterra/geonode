@@ -107,7 +107,6 @@ let GrabLMap = React.createClass({
         return this.refs.canvas;
     },
     render() {
-        console.log("render canvas");
         return (
             <canvas
                 width={this.props.config && this.props.config.size ? this.props.config.size.width : "100%"}
@@ -136,7 +135,6 @@ let GrabLMap = React.createClass({
     },
     doSnapshot(props) {
         // get map style shifted
-        console.log("shooting");
         const body = document.querySelector("body");
         body.scrollTop = 0;
         body.style.overflowY = 'hidden';
