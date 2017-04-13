@@ -10,8 +10,8 @@ const {Promise} = require('es6-promise');
 const canvg = require('canvg-browser');
 const html2canvas = require('html2canvas');
 function chartToImg(svgs) {
-    return Promise.all(svgs.map((svg, idx) => {
-        return new Promise(function(resolve, reject) {
+    return Promise.all([].slice.call(svgs, 0, 2).map((svg, idx) => {
+        return new Promise((resolve, reject) => {
             let svgOffsetX;
             let svgOffsetY;
             let svgH;
@@ -44,7 +44,7 @@ function chartToImg(svgs) {
         });
     })).then((result) => {
         return {name: 'charts', data: result};
-    });
+    }).catch ((e) => {throw e; });
 }
 function legendToImg(img) {
     return new Promise(function(resolve, reject) {
