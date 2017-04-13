@@ -302,7 +302,6 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.humanize',
     'django.contrib.gis',
-    'fullurl',
 
     # Third party apps
 
