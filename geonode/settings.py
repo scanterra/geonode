@@ -20,6 +20,7 @@
 
 # Django settings for the GeoNode project.
 import os
+import sys
 
 from kombu import Queue
 from geonode import __file__ as geonode_path
@@ -537,6 +538,8 @@ THEME_ACCOUNT_CONTACT_EMAIL = os.getenv(
 # some problematic 3rd party apps
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
+
+TEST = 'test' in sys.argv
 # Arguments for the test runner
 NOSE_ARGS = [
     '--nocapture',

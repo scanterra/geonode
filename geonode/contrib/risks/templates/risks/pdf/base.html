@@ -1,11 +1,29 @@
+{% load static %}
 <html>
 <head>
+    <title>{% block title %}{% endblock %}</title>
+     
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="{% static "assets/css/report.css" %}" rel="stylesheet" />
+    <link href="{% static "assets/css/report_print.css" %}" rel="stylesheet" />
+
 
 </head>
-<body>
-    <div>Risk Analysis {{risk.name}}</div>
+<body class="{% block body_class %}printable{% endblock %}">
+    <div class="wrapper">
+        <div id="content {% block extra_content_class %}{% endblock %}">
+            {% block content %}
 
-    
 
+
+
+
+            {% endblock %}
+        </div>
+    </div>
+
+<footer id="footer {% block extra_footer_class %}{% endblock %}">
+    <div class="text">Afghanistan Disaster Risk Info | report generated for {{ risk_analysis.name }} on {% now 'o m d' %}</div>
+</footer>
 </body>
 </html>

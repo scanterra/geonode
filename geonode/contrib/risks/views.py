@@ -11,7 +11,9 @@ from django.views.generic import TemplateView, View, FormView
 from django.core.urlresolvers import reverse
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
+from django.http import HttpResponse, FileResponse
 from django.template.loader import render_to_string
+from django.utils.crypto import get_random_string
 
 from geonode.layers.models import Layer
 from geonode.utils import json_response
@@ -43,7 +45,11 @@ class ContextAware(AppAware):
 
     def get_context_url(self, **kwargs):
         out = []
-        for k in self.CONTEXT_KEYS:
+        if kwargs.pop('_full', None):
+            ctx_keys = ['app', 'loc' ] + self.CONTEXT_KEYS
+        else:
+            ctx_keys = self.CONTEXT_KEYS
+        for k in ctx_keys:
             if kwargs.get(k):
                 out.extend([k, kwargs[k]])
             else:
@@ -160,14 +166,15 @@ class ContextAware(AppAware):
         :rtype: dict
 
         """
-        inputs = self.get_further_resources_inputs(**kwargs)
+        inputs = kwargs.pop('inputs', None) or self.get_further_resources_inputs(**kwargs)
         out = {}
         for res_type, key_name in (('at', 'analysisType',),
                                     ('dym', 'hazardSet',),
                                     ('an', 'hazardType',)):
             res_type_handler = getattr(self, 'fr_for_{}'.format(res_type))
             if kwargs.get(res_type):
-                out[key_name] = self._fr_serialize(res_type_handler(**inputs))
+                res_list = res_type_handler(**inputs)
+                out[key_name] = self._fr_serialize(res_list)
         return out
 
 
@@ -632,59 +639,142 @@ class RiskLayersView(FormView):
         return json_response(out)
 
 
+class CleaningFileResponse(FileResponse):
+    def __init__(self, *args, **kwargs):
+
+        on_close = kwargs.pop('on_close', None)
+        super(CleaningFileResponse, self).__init__(*args, **kwargs)
+        self._on_close = on_close
+
+    def close(self):
+        print('closing', self)
+        if callable(self._on_close):
+            self._on_close()
+        super(CleaningFileResponse, self).close()
+
 class PDFUploadsForm(forms.Form):
     map = forms.ImageField(required=True)
     chart = forms.ImageField(required=True)
-    legend = forms.ImageField(required=True)
+    legend = forms.ImageField(required=False)
 
 
 class PDFReportView(ContextAware, FormView):
     form_class = PDFUploadsForm
     CONTEXT_KEYS = ContextAware.CONTEXT_KEYS + ['loc']
-    TEMPLATE_NAME = 'risks/pdf/{}.html'
+    TEMPLATE_NAME = 'risks/pdf/{}.{}.html'
+
+    PDF_PARTS = ['cover', 'report', 'footer']
 
     def get_context_data(self, *args, **kwargs):
         ctx = super(PDFReportView, self).get_context_data(*args, **kwargs)
+        
+        randomizer = self.request.GET.get('r') or ''
         ctx['app'] = self.get_app()
-        k = self.kwargs
-        ctx['context'] = {'url': self.get_context_url(**k),
+        ctx['kwargs'] = k = self.kwargs
+        ctx['context'] = {'url': self.get_context_url(_full=True, **k),
                           'parts': self.get_further_resources_inputs(**k)}
+        fr_map = self.get_further_resources(inputs=ctx['context']['parts'], **k)
+        further_resources = []
+        for fr_key, fr_list in fr_map.items():
+            for fr_item in fr_list:
+                # we could do it with set(), but we want to preserve order
+                if fr_item in further_resources:
+                    continue
+                further_resources.append(fr_item)
+        ctx['context']['further_resources'] = further_resources
+
         context = ctx['context']['url']
         ctx['risk_analysis'] = RiskAnalysis.objects.get(id=k['an'])
-        p = default_storage.path
-        ctx['paths'] = {'map': p(os.path.join(context, 'map.png')),
-                        'chart': p(os.path.join(context, 'chart.png')),
-                        'legend': p(os.path.join(context, 'legend.png'))}
+        r = self.request
+
+        def p(val):
+            # for test we need full fs path
+            if settings.TEST:
+                return default_storage.path(val)
+            # otherwise, we need nice absolute url
+            _path = default_storage.url(val)
+            return r.build_absolute_uri(_path)
+        ctx['paths'] = {'map': p(os.path.join(context, 'map_{}.png'.format(randomizer) if randomizer else 'map.png')),
+                        'chart': p(os.path.join(context, 'chart_{}.png'.format(randomizer) if randomizer else 'chart.png')),
+                        'legend': p(os.path.join(context, 'legend_{}.png'.format(randomizer) if randomizer else 'legend.png'))}
         return ctx
 
 
+    def get_document_urls(self, app, randomizer):
+        out = []
+        r = self.request
+        k = self.kwargs.copy()
+        for part in self.PDF_PARTS:
+            if part != 'report':
+                continue
+            k['pdf_part'] = part
+            out.append(r.build_absolute_uri('{}?r={}'.format(app.url_for('pdf_report_part', **k), randomizer)))
+
+        return out
+
     def get_template_names(self):
         app = self.get_app()
-        return [self.TEMPLATE_NAME.format(app.name)]
+        pdf_part = self.kwargs['pdf_part']
+        out = [self.TEMPLATE_NAME.format(app.name, pdf_part)]
+        return out
 
     def form_invalid(self, form):
         out = {'succes': False, 'errors': form.errors}
-        return json_response(out)
+        log.error("Cannot generate pdf: %s: %s", self.request.build_absolute_uri(), form.errors)
+        return json_response(out, status=400)
 
     def form_valid(self, form):
-        ctx = self.get_context_url(**self.kwargs)
+        ctx = self.get_context_url(_full=True, **self.kwargs)
+
+        r = self.request
         out = {'success': True}
+        app = self.get_app()
         config = {}
+
+        randomizer = get_random_string(7)
+        cleanup_paths = []
         for k, v in form.cleaned_data.iteritems():
             basename, ext = os.path.splitext(v.name)
-            target_path = os.path.join(ctx, '{}.png'.format(k))
-            default_storage.save(target_path, v)
+            target_path = os.path.join(ctx, '{}_{}.png'.format(k, randomizer))
+            target_path = default_storage.save(target_path, v)
+            cleanup_paths.append(default_storage.path(target_path))
+            if settings.TEST:
+                full_path = default_storage.path(target_path)
+                target_path = full_path
+            else:
+                target_path = default_storage.url(target_path)
+
             config[k] = target_path
 
-        pdf_path = default_storage.path(os.path.join(ctx, 'report.pdf'))
-        html_path = self.render_report_markup(ctx, self.request, *self.args, **self.kwargs)
-
+        pdf_path = default_storage.path(os.path.join(ctx, 'report_{}.pdf'.format(randomizer)))
+        cleanup_paths.append(pdf_path)
         config['pdf'] = pdf_path
-        config['url'] = html_path
+        config['urls'] = self.get_document_urls(app, randomizer)
 
         pdf = generate_pdf(**config)
         out['pdf'] = pdf
-        return json_response(out)
+        
+        def cleanup():
+            self.cleanup(cleanup_paths)
+
+        with open(pdf, 'rb') as fd:
+            data = fd.read()
+
+
+        resp = HttpResponse(data, content_type='application/pdf')
+        resp['Content-Disposition'] = 'attachment; filename="report.pdf"'
+        cleanup()
+        return resp
+
+        #return CleaningFileResponse(f, on_close=cleanup)
+
+    def cleanup(self, paths):
+        for path in paths:
+            if os.path.exists(path):
+                try:
+                    os.unlink(path)
+                except OSError, err:
+                    print('error when removing', path, err)
 
     def render_report_markup(self, ctx, request, *args, **kwargs): 
     
