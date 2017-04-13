@@ -30,13 +30,13 @@ const genReport = action$ =>
         });
 const uploadData = (action$, store) =>
     action$.ofType(REPORT_MAP_READY).switchMap((action) => {
-        return Rx.Observable.from([chartToImg(document.querySelector('.recharts-surface').cloneNode(true)), legendToImg(document.querySelector('#disaster-map-legend>img'))]).combineAll()
+        return Rx.Observable.from([chartToImg([document.querySelector('.recharts-surface').cloneNode(true)]), legendToImg(document.querySelector('#disaster-map-legend>img'))]).combineAll()
         .switchMap( val => {
-            const chartObj = head(val.filter( o => o.name === 'chart'));
+            const chartsObj = head(val.filter( o => o.name === 'charts'));
             const legendObj = head(val.filter( o => o.name === 'legend'));
             const url = (store.getState()).disaster.riskAnalysis.pdfReport;
             const permalink = shareUrlSelector(store.getState()) || {};
-            return Rx.Observable.from(API.getReport(url, permalink.shareUrl || '', action.dataUrl, chartObj.data, legendObj.data));
+            return Rx.Observable.from(API.getReport(url, permalink.shareUrl || '', action.dataUrl, chartsObj.data, legendObj.data));
         }).map(() => {
             return reportReady();
         }).catch((e) => Rx.Observable.of(generateReportError(e))).startWith(hide('grabmapnote'));

@@ -9,38 +9,41 @@
 const {Promise} = require('es6-promise');
 const canvg = require('canvg-browser');
 const html2canvas = require('html2canvas');
-function chartToImg(svg) {
-    return new Promise(function(resolve, reject) {
-        let svgOffsetX;
-        let svgOffsetY;
-        let svgH;
-        let svgW;
-        const svgCanv = document.createElement('canvas');
-        const svgString = svg.outerHTML;
-        [svgOffsetX = 0, svgOffsetY = 0, svgW =0, svgH = 0] = svg.getAttribute('viewBox').split(' ');
-        svg.setAttribute("style", "");
-        svgOffsetX = svgOffsetX ? svgOffsetX : 0;
-        svgOffsetY = svgOffsetY ? svgOffsetY : 0;
-        svgCanv.setAttribute("width", svgW);
-        svgCanv.setAttribute("height", svgH);
-        // svgCanv.getContext('2d').scale(2, 2);
-        canvg(svgCanv, svgString, {
-            ignoreMouse: true,
-            ignoreAnimation: true,
-            ignoreDimensions: true,
-            ignoreClear: true,
-            offsetX: svgOffsetX,
-            offsetY: svgOffsetY,
-            renderCallback: () => {
-                try {
-                    const data = svgCanv.toDataURL("image/png");
-                    resolve({name: 'chart', data});
-                }catch (e) {
-                    reject(e);
+function chartToImg(svgs) {
+    return Promise.all(svgs.map((svg, idx) => {
+        return new Promise(function(resolve, reject) {
+            let svgOffsetX;
+            let svgOffsetY;
+            let svgH;
+            let svgW;
+            const svgCanv = document.createElement('canvas');
+            const svgString = svg.outerHTML;
+            [svgOffsetX = 0, svgOffsetY = 0, svgW =0, svgH = 0] = svg.getAttribute('viewBox').split(' ');
+            svg.setAttribute("style", "");
+            svgOffsetX = svgOffsetX ? svgOffsetX : 0;
+            svgOffsetY = svgOffsetY ? svgOffsetY : 0;
+            svgCanv.setAttribute("width", svgW);
+            svgCanv.setAttribute("height", svgH);
+            // svgCanv.getContext('2d').scale(2, 2);
+            canvg(svgCanv, svgString, {
+                ignoreMouse: true,
+                ignoreAnimation: true,
+                ignoreDimensions: true,
+                ignoreClear: true,
+                offsetX: svgOffsetX,
+                offsetY: svgOffsetY,
+                renderCallback: () => {
+                    try {
+                        const data = svgCanv.toDataURL("image/png");
+                        resolve({name: `chart_${idx}`, data});
+                    }catch (e) {
+                        reject(e);
+                    }
                 }
-            }
-            }
-        );
+            });
+        });
+    })).then((result) => {
+        return {name: 'charts', data: result};
     });
 }
 function legendToImg(img) {
