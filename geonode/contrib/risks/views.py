@@ -818,7 +818,6 @@ class PDFReportView(ContextAware, FormView):
         #return CleaningFileResponse(f, on_close=cleanup)
 
     def cleanup(self, paths):
-        return
         for path in paths:
             if os.path.exists(path):
                 try:
