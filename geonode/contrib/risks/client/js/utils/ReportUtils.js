@@ -46,7 +46,7 @@ function chartToImg(svg) {
 function legendToImg(img) {
     return new Promise(function(resolve, reject) {
         html2canvas(img, {
-            logging: true,
+            logging: false,
             allowTaint: false,
             useCORS: true,
             removeContainer: true
@@ -56,7 +56,7 @@ function legendToImg(img) {
             }else {
                 try {
                     const data = canvas.toDataURL("img/png");
-                    window.open(data, '_blank');
+                    // window.open(data, '_blank');
                     resolve({name: 'legend', data});
                 }catch (e) {
                     reject(e);
