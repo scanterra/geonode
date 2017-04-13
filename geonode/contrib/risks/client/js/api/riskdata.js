@@ -26,15 +26,17 @@ const Api = {
             return response.data;
         });
     },
-    getReport: function(url, permalink, mapImg, chartImg, legendImg) {
+    getReport: function(url, permalink, mapImg, charts, legendImg) {
         const mapBlob = toBlob(mapImg);
-        const chartBlob = toBlob(chartImg);
         const legendBlob = toBlob(legendImg);
-        console.log(permalink);
         let data = new FormData();
         data.append('permalink', permalink);
         data.append('map', mapBlob);
-        data.append('chart', chartBlob);
+        charts.forEach((c) => {
+            const chartBlob = toBlob(c.data);
+            data.append(c.name, chartBlob);
+        });
+        data.append('chartsN', charts.length);
         data.append('legend', legendBlob);
         return axios.post(url, data, {responseType: 'blob'})
             .then((response) => {
