@@ -1,6 +1,7 @@
-
+{% load base_tags %}
 {% block report %}
-<h2 class="text text-center">{{ risk_analysis.name }}</h2>
+
+<h3 class="text text-center">{{ risk_analysis.hazardset.title|default:risk_analysis.name }}</h3>
 
 <h4 class="text">Hazard Type: {{ context.parts.ht.title }}</h4>
 <p class="text text-justify">{{ context.parts.ht.description }}</p>
@@ -9,41 +10,36 @@
 <h4 class="text">Analysis Type: {{ context.parts.at.title }}</h4>
 <p class="text text-justify">{{ context.parts.at.description }}</p>
 
-
-
-<h3 class="text">{{ risk_analysis.name }} risk analysis</h3>
-
-
 <div class="map-container">
     <img class="map" src="{{ paths.map }}" alt="map for risk analysis"/>
 
     <img class="legend" src="{{ paths.legend }}" alt="legend for risk analysis"/>
 </div>
 
-
 Data:
-<div class="chart-container">
-    <img class="chart" src="{{ paths.chart }}" alt="chart for risk analysis"/>
-</div>
 
+{% for chart in paths.charts %}
+<div class="chart-container">
+    <img class="chart" src="{{ chart }}" alt="chart for risk analysis"/>
+</div>
+{% endfor %}
 
 <h5 class="text">Hazardset</h5>
 
 <p class="text text-justify">{{ risk_analysis.hazardset.title }}</p>
 
-
-<div class="further-resources">
-    <ul>
-{% for field_name, field_value in risk_analysis.hazardset.export.items %}
-    <li class="text"><span class="text-left">{{ field_name }}</span> {{ field_value}}</li>
-{% endfor %}
-    </ul>
+{% with hz=risk_analysis.hazardset.export %}
+<div class="further-resources disaster">
+    <p><span class="{{ hz.fa_icon }}"></span> {{ hz.abstract }}</p>
 </div>
+{% endwith %}
 
 
 <h5 class="text">Further resources</h5>
 {% for fr in context.further_resources %}
-    <p class="text"><span class="text-left">{{ fr.title }}</span> <a href="{{ fr.resource.detail_url }}">{{ fr.text }}</a></p>
+    <p class="text"> <span class="text-left">{{ fr.title }}</span> 
+                     <a href="{% fullurl fr.resource.detail_url %}"> {{ fr.text }} </a>
+    </p>
 {% endfor %} 
 
 

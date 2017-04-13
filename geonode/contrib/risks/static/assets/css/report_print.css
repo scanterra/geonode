@@ -5832,12 +5832,3 @@ a.logo {
 .header.VLO {
   border-right: 5px solid #fecc5c;
 }
-
-body.printable {
-    padding: 4pt;
-
-}
-
-.break-page {
-    page-break-after: always;
-}
