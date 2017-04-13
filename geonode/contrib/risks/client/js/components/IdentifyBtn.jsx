@@ -13,22 +13,24 @@ const IdentifyBtn = React.createClass({
     propTypes: {
         label: React.PropTypes.string,
         toggleTOC: React.PropTypes.func,
+        active: React.PropTypes.bool,
         enabled: React.PropTypes.bool
     },
     getDefaultProps() {
         return {
             label: "Query objects on map",
             toggleTOC: () => {},
+            active: false,
             enabled: false
         };
     },
     render() {
-        const {label, enabled} = this.props;
+        const {label, active, enabled} = this.props;
         const tooltip = (<Tooltip id={"tooltip-sub-value"} className="disaster">{label}</Tooltip>);
-        const active = enabled ? ' active' : '';
+        const pressed = active ? ' active' : '';
         return (
           <OverlayTrigger placement="bottom" overlay={tooltip}>
-            <button id="disaster-identify-button" className={"btn btn-primary" + active + " drc"} onClick={this.props.toggleTOC}><i className="glyphicon glyphicon-map-marker"/></button>
+            <button disabled={!enabled}id="disaster-identify-button" className={"btn btn-primary" + pressed + " drc"} onClick={this.props.toggleTOC}><i className="glyphicon glyphicon-map-marker"/></button>
           </OverlayTrigger>);
     }
 });

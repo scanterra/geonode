@@ -8,6 +8,7 @@
 
 const React = require('react');
 const {connect} = require('react-redux');
+const {findIndex} = require('lodash');
 const {loadMapConfig} = require('../../MapStore2/web/client/actions/config');
 const {disasterRiskLayerSelector} = require('../../MapStore2/web/client/selectors/layers');
 const MapViewer = connect(() => ({}), {
@@ -20,7 +21,9 @@ const {setControlProperty, toggleControl} = require('../../MapStore2/web/client/
 
 const DrillUpBtn = connect(drillUpSelector, {zoomOut: zoomInOut})(require('../components/DrillUpBtn'));
 const LayerBtn = connect((state) => {return {enabled: state.controls && state.controls.toolbar && state.controls.toolbar.active }; }, {toggleTOC: setControlProperty.bind(null, "toolbar", "active", "toc", true)})(require('../components/LayerBtn'));
-const IdentifyBtn = connect((state) => {return {enabled: state.controls && state.controls.info && state.controls.info.enabled }; }, {toggleTOC: toggleControl.bind(null, "info", "enabled")})(require('../components/IdentifyBtn'));
+const IdentifyBtn = connect((state) => ({
+        active: state.controls && state.controls.info && state.controls.info.enabled,
+        enabled: findIndex(state.layers.flat, l => l.id === '_riskAn_') !== -1 ? true : false }), {toggleTOC: toggleControl.bind(null, "info", "enabled")})(require('../components/IdentifyBtn'));
 const SwitchDimension = connect(switchDimSelector, {toggleDim})(require('../components/SwitchDimension'));
 const AxesSelector = connect(axesSelector, {setDimIdx})(require('../components/AxesSelector'));
 
