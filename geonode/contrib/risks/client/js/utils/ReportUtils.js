@@ -46,17 +46,24 @@ function chartToImg(svg) {
 function legendToImg(img) {
     return new Promise(function(resolve, reject) {
         html2canvas(img, {
-            logging: false,
+            logging: true,
             allowTaint: false,
             useCORS: true,
-            onrendered: function(canvas) {
+            removeContainer: true
+        }).then((canvas) => {
+            if (img.height !== canvas.height) {
+                reject(new Error("Error in legend generation"));
+            }else {
                 try {
                     const data = canvas.toDataURL("img/png");
+                    window.open(data, '_blank');
                     resolve({name: 'legend', data});
                 }catch (e) {
                     reject(e);
                 }
             }
+        }).catch((e) => {
+            reject(e);
         });
     });
 }

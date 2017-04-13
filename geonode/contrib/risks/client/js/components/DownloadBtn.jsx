@@ -23,12 +23,16 @@ const DownloadBtn = React.createClass({
             active: false
         };
     },
+    onClick() {
+        const {downloading, downloadAction} = this.props;
+        downloadAction(!downloading);
+    },
     render() {
-        const {label, downloading, downloadAction, active} = this.props;
+        const {label, downloading, active} = this.props;
         const tooltip = (<Tooltip id={"tooltip-sub-value"} className="disaster">{label}</Tooltip>);
         return (
           <OverlayTrigger placement="bottom" overlay={tooltip}>
-            <button id="disaster-download-pdf" disabled={!active} className="btn btn-primary" onClick={() => downloadAction(!downloading)}>
+            <button id="disaster-download-pdf" disabled={!active} className="btn btn-primary" onClick={this.onClick}>
                   {downloading ? (<i className="icon-spinner fa-spin"/>) : (<i className="fa fa-file-pdf-o"/>)}
             </button>
           </OverlayTrigger>);

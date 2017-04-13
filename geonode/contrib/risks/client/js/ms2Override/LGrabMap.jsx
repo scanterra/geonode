@@ -107,6 +107,7 @@ let GrabLMap = React.createClass({
         return this.refs.canvas;
     },
     render() {
+        console.log("render canvas");
         return (
             <canvas
                 width={this.props.config && this.props.config.size ? this.props.config.size.width : "100%"}
@@ -135,7 +136,11 @@ let GrabLMap = React.createClass({
     },
     doSnapshot(props) {
         // get map style shifted
-        var leftString = window.getComputedStyle(this.mapDiv).getPropertyValue("left");
+        console.log("shooting");
+        const body = document.querySelector("body");
+        body.scrollTop = 0;
+        body.style.overflowY = 'hidden';
+        let leftString = window.getComputedStyle(this.mapDiv).getPropertyValue("left");
 
         // get all the informations needed to snap svg before
         let mapPanes = this.mapDiv.getElementsByClassName("leaflet-map-pane");
@@ -252,10 +257,12 @@ let GrabLMap = React.createClass({
                             cx.drawImage(c, -1 * left, 0);
                             this.props.onStatusChange("READY", this.isTainted(finalCanvas));
                             this.props.onSnapshotReady(canvas, null, null, null, this.isTainted(finalCanvas));
+                            body.style.overflowY = 'visible';
                         });
                     } else {
                         this.props.onStatusChange("READY", this.isTainted(finalCanvas));
                         this.props.onSnapshotReady(canvas, null, null, null, this.isTainted(finalCanvas));
+                        body.style.overflowY = 'visible';
                     }
                 };
 
@@ -275,7 +282,7 @@ let GrabLMap = React.createClass({
                         renderCallback: () => {
                             // window.open(svgCanv.toDataURL("image/png"), '_blank');
                             let ctx = finalCanvas.getContext('2d');
-                            ctx.drawImage(svgCanv, -1 * left, 0);
+                            ctx.drawImage(svgCanv, -1 * left, -1);
                             finialize();
                         }
                     });
