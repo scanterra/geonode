@@ -14,6 +14,8 @@ from django.core.files.base import ContentFile
 from django.http import HttpResponse, FileResponse
 from django.template.loader import render_to_string
 from django.utils.crypto import get_random_string
+from django.views.decorators.cache import cache_page
+
 
 from geonode.layers.models import Layer
 from geonode.utils import json_response
@@ -793,10 +795,11 @@ class PDFReportView(ContextAware, FormView):
 
         return html_path_absolute
 
-location_view = LocationView.as_view()
-hazard_type_view = HazardTypeView.as_view()
-analysis_type_view = HazardTypeView.as_view()
-data_extraction = DataExtractionView.as_view()
+CACHE_TTL = 120
+location_view = cache_page(CACHE_TTL)(LocationView.as_view()) 
+hazard_type_view = cache_page(CACHE_TTL)(HazardTypeView.as_view())
+analysis_type_view = cache_page(CACHE_TTL)(HazardTypeView.as_view())
+data_extraction = cache_page(CACHE_TTL)(DataExtractionView.as_view())
 
 risk_layers = RiskLayersView.as_view()
 pdf_report = PDFReportView.as_view()
