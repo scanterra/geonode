@@ -249,13 +249,13 @@ class RiskIndexView(AppAware, FeaturesSource, TemplateView):
     def get_context_data(self, *args, **kwargs):
         ctx = super(RiskIndexView, self).get_context_data(*args, **kwargs)
         ctx['app'] = app = self.get_app()
-    
+
         app_ctx = {'app': app.name,
                    'geometry': app.url_for('geometry', settings.RISKS['DEFAULT_LOCATION']),
                    'region': settings.RISKS['DEFAULT_LOCATION'],
                    'href': app.href}
         ctx['app_ctx'] = json.dumps(app_ctx)
-        
+
         return ctx
 
 
@@ -283,7 +283,7 @@ class LocationView(ContextAware, LocationSource, View):
         loc = locations[-1]
         app = self.get_app()
         hazard_types = HazardType.objects.filter(app=app)
-        
+
 
         location_data = {'navItems': [location.set_app(app).export() for location in locations],
                          'context': self.get_context_url(**kwargs),
@@ -480,6 +480,7 @@ class DataExtractionView(FeaturesSource, HazardTypeView):
 
         _fields = [self.get_dim_association(risk, d) for d in dims]
         fields = ['{}_value'.format(f[1]) for f in _fields]
+        field_orders = ['{}_order'.format(f[1]) for f in _fields]
 
         orders = [dict(d.get_axis_order()) for d in dims]
 
@@ -492,27 +493,31 @@ class DataExtractionView(FeaturesSource, HazardTypeView):
             _order_vals = []
 
             for idx, o in enumerate(orders):
-                field_name = fields[idx]
+                field_name = field_orders[idx]
                 val = feat['properties'].get(field_name)
-                order_val = o.get(val)
+                # order_val = o.get(val)
+                order_val = val
+
                 if order_val is None:
-                    order_val = 1000
+                    order_val = 0
                 # 111 > 1, 1, 1
-                mag = 10 ** (orders_len - idx)
-                _order_vals.append('{}'.format(order_val * mag))
-            return ''.join(_order_vals)
+                # mag = 10 ** (orders_len - idx)
+                mag = 1000 if idx == 0 else 1
+                _order_vals.append(int('{}'.format(order_val * mag)))
+            # return ''.join(_order_vals)
+            return sum(_order_vals)
 
         def order_key(val):
             # order by last val
-            return val.pop(-1)
+            order = val.pop(-1)
+            return order
 
         for feat in features:
             p = feat['properties']
             line = []
             [line.append(p[f]) for f in fields]
             line.append(p['value'])
-            # line.append(make_order_val(feat))
-            line.append(feat)
+            line.append(make_order_val(feat))
             values.append(line)
 
         values.sort(key=order_key)
@@ -667,7 +672,7 @@ class PDFReportView(ContextAware, FormView):
 
     def get_context_data(self, *args, **kwargs):
         ctx = super(PDFReportView, self).get_context_data(*args, **kwargs)
-        
+
         randomizer = self.request.GET.get('r') or ''
         ctx['app'] = self.get_app()
         ctx['kwargs'] = k = self.kwargs
@@ -753,7 +758,7 @@ class PDFReportView(ContextAware, FormView):
 
         pdf = generate_pdf(**config)
         out['pdf'] = pdf
-        
+
         def cleanup():
             self.cleanup(cleanup_paths)
 
@@ -776,11 +781,11 @@ class PDFReportView(ContextAware, FormView):
                 except OSError, err:
                     print('error when removing', path, err)
 
-    def render_report_markup(self, ctx, request, *args, **kwargs): 
-    
+    def render_report_markup(self, ctx, request, *args, **kwargs):
+
         html_path = os.path.join(ctx, 'template.html')
         html_path_absolute = default_storage.path(html_path)
-        
+
         pdf_ctx = self.get_context_data(*args, **kwargs)
         html_template = self.get_template_names()[0]
         tmpl = render_to_string(html_template, pdf_ctx, request=self.request)
