@@ -16,7 +16,7 @@ function configLayer(baseurl, layerName, layerId, layerTitle, visibility = true,
     "name": layerName,
     "title": layerTitle,
     "visibility": visibility,
-    "format": "image/png",
+    "format": "image/png8",
     "tiled": true
     }, group && {group} || {});
 }
