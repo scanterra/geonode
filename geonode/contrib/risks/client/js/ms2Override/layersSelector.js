@@ -19,7 +19,6 @@ const disasterSelector = state => ({
     riskAnalysis: state.disaster && state.disaster.riskAnalysis,
     dim: state.disaster && state.disaster.dim || {dim1: 0, dim2: 1, dim1Idx: 0, dim2Idx: 0},
     showSubUnit: state.disaster.showSubUnit,
-    loading: state.disaster && state.disaster.loading,
     app: state.disaster && state.disaster.app
 });
 // TODO currently loading flag causes a re-creation of the selector on any pan
@@ -28,7 +27,7 @@ const layersSelector = createSelector([layersSelectorO, disasterSelector],
     (layers = [], disaster) => {
         let newLayers;
         const riskAnWMSIdx = findIndex(layers, l => l.id === '_riskAn_');
-        if (disaster.riskAnalysis && !disaster.loading && riskAnWMSIdx !== -1) {
+        if (disaster.riskAnalysis && riskAnWMSIdx !== -1) {
             const riskAnWMS = assign({}, layers[riskAnWMSIdx], {name: getLayerName(disaster), style: getStyle(disaster), params: getViewParam(disaster)});
             newLayers = layers.slice();
             newLayers.splice(riskAnWMSIdx, riskAnWMSIdx, riskAnWMS);

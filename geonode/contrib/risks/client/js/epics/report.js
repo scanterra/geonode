@@ -10,6 +10,7 @@ const {chartToImg, legendToImg} = require('../utils/ReportUtils');
 const API = require('../api/riskdata');
 const {head} = require('lodash');
 const {info, error, hide} = require('react-notification-system-redux');
+const {shareUrlSelector} = require('../selectors/disaster');
 const {
     GENERATE_REPORT,
     REPORT_MAP_READY,
@@ -34,7 +35,8 @@ const uploadData = (action$, store) =>
             const chartObj = head(val.filter( o => o.name === 'chart'));
             const legendObj = head(val.filter( o => o.name === 'legend'));
             const url = (store.getState()).disaster.riskAnalysis.pdfReport;
-            return Rx.Observable.from(API.getReport(url, action.dataUrl, chartObj.data, legendObj.data));
+            const permalink = shareUrlSelector(store.getState()) || {};
+            return Rx.Observable.from(API.getReport(url, permalink.shareUrl || '', action.dataUrl, chartObj.data, legendObj.data));
         }).map(() => {
             return reportReady();
         }).catch((e) => Rx.Observable.of(generateReportError(e))).startWith(hide('grabmapnote'));
