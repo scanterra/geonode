@@ -30,7 +30,7 @@ const genReport = action$ =>
         });
 const uploadData = (action$, store) =>
     action$.ofType(REPORT_MAP_READY).switchMap((action) => {
-        return Rx.Observable.from([chartToImg([document.querySelector('.recharts-surface').cloneNode(true)]), legendToImg(document.querySelector('#disaster-map-legend>img'))]).combineAll()
+        return Rx.Observable.from([chartToImg(document.querySelectorAll('.recharts-surface')), legendToImg(document.querySelector('#disaster-map-legend>img'))]).combineAll()
         .switchMap( val => {
             const chartsObj = head(val.filter( o => o.name === 'charts'));
             const legendObj = head(val.filter( o => o.name === 'legend'));
