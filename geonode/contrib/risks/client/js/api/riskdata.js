@@ -26,7 +26,7 @@ const Api = {
             return response.data;
         });
     },
-    getReport: function(url, permalink, dim, mapImg, charts, legendImg) {
+    getReport: function(url, permalink, dimFields, mapImg, charts, legendImg) {
         const mapBlob = toBlob(mapImg);
         const legendBlob = toBlob(legendImg);
         let data = new FormData();
@@ -38,10 +38,8 @@ const Api = {
         });
         data.append('chartsN', charts.length);
         data.append('legend', legendBlob);
-        data.append('dim1', dim.dim1);
-        data.append('dim1Idx', dim.dim1Idx);
-        data.append('dim2', dim.dim2);
-        data.append('dim2Idx', dim.dim2Idx);
+        data.append('dims', dimFields.dims);
+        data.append('dimsVal', dimFields.dimsVal);
         return axios.post(url, data, {responseType: 'blob'})
             .then((response) => {
                 FileSaver.saveAs(response.data, "report.pdf");

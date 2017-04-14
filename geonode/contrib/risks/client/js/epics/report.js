@@ -21,6 +21,11 @@ const {
     reportReady
 } = require('../actions/report');
 
+function getDims(dim, dimensions) {
+    const dims = `${dimensions[dim.dim1].name},${dimensions[dim.dim2].name}`;
+    const dimsVal = `${dimensions[dim.dim1].values[dim.dim1Idx]},${dimensions[dim.dim2].values[dim.dim2Idx]}`;
+    return {dims, dimsVal};
+}
 const genReport = action$ =>
     action$
         .ofType(GENERATE_REPORT)
@@ -38,7 +43,8 @@ const uploadData = (action$, store) =>
             const url = state.disaster.riskAnalysis.pdfReport;
             const permalink = shareUrlSelector(state) || {};
             const dim = dimSelector(state);
-            return Rx.Observable.from(API.getReport(url, permalink.shareUrl || '', dim, action.dataUrl, chartsObj.data, legendObj.data));
+            const dimFields = getDims(dim, state.disaster.riskAnalysis.riskAnalysisData.data.dimensions);
+            return Rx.Observable.from(API.getReport(url, permalink.shareUrl || '', dimFields, action.dataUrl, chartsObj.data, legendObj.data));
         }).map(() => {
             return reportReady();
         }).catch((e) => Rx.Observable.of(generateReportError(e))).startWith(hide('grabmapnote'));
