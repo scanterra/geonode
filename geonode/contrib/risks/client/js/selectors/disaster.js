@@ -115,6 +115,7 @@ const additionalChartSelector = createSelector([riskAnalysisDataSel, additionalC
         currentSection: additionalCharts.currentSection
     }));
 module.exports = {
+    dimSelector,
     drillUpSelector,
     topBarSelector,
     dataContainerSelector,

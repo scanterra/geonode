@@ -10,7 +10,7 @@ const {chartToImg, legendToImg} = require('../utils/ReportUtils');
 const API = require('../api/riskdata');
 const {head} = require('lodash');
 const {info, error, hide} = require('react-notification-system-redux');
-const {shareUrlSelector} = require('../selectors/disaster');
+const {shareUrlSelector, dimSelector} = require('../selectors/disaster');
 const {
     GENERATE_REPORT,
     REPORT_MAP_READY,
@@ -32,11 +32,13 @@ const uploadData = (action$, store) =>
     action$.ofType(REPORT_MAP_READY).switchMap((action) => {
         return Rx.Observable.from([chartToImg(document.querySelectorAll('.recharts-surface')), legendToImg(document.querySelector('#disaster-map-legend>img'))]).combineAll()
         .switchMap( val => {
+            const state = store.getState();
             const chartsObj = head(val.filter( o => o.name === 'charts'));
             const legendObj = head(val.filter( o => o.name === 'legend'));
-            const url = (store.getState()).disaster.riskAnalysis.pdfReport;
-            const permalink = shareUrlSelector(store.getState()) || {};
-            return Rx.Observable.from(API.getReport(url, permalink.shareUrl || '', action.dataUrl, chartsObj.data, legendObj.data));
+            const url = state.disaster.riskAnalysis.pdfReport;
+            const permalink = shareUrlSelector(state) || {};
+            const dim = dimSelector(state);
+            return Rx.Observable.from(API.getReport(url, permalink.shareUrl || '', dim, action.dataUrl, chartsObj.data, legendObj.data));
         }).map(() => {
             return reportReady();
         }).catch((e) => Rx.Observable.of(generateReportError(e))).startWith(hide('grabmapnote'));
