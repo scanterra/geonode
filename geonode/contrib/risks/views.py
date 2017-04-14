@@ -19,6 +19,7 @@ from django.views.decorators.cache import cache_page
 
 from geonode.layers.models import Layer
 from geonode.utils import json_response
+from geonode.base.forms import ValuesListField
 from geonode.contrib.risks.models import (HazardType, AdministrativeDivision,
                                           RiskAnalysisDymensionInfoAssociation,
                                           RiskAnalysis, DymensionInfo, AnalysisType,
@@ -667,6 +668,9 @@ class PDFUploadsForm(forms.Form):
     chart_3 = forms.ImageField(required=False)
     legend = forms.ImageField(required=False)
     permalink = forms.URLField(required=False)
+    dims = ValuesListField(required=True)
+    dimsVal = ValuesListField(required=True)
+
 
 class PDFReportView(ContextAware, FormView):
     form_class = PDFUploadsForm
@@ -709,7 +713,7 @@ class PDFReportView(ContextAware, FormView):
                 further_resources.append(fr_item)
         ctx['context']['further_resources'] = further_resources
 
-        ctx['risk_analysis'] = RiskAnalysis.objects.get(id=k['an'])
+        ctx['risk_analysis'] = risk_analysis = RiskAnalysis.objects.get(id=k['an'])
 
         def p(val):
             # for test we need full fs path
@@ -729,15 +733,40 @@ class PDFReportView(ContextAware, FormView):
             chart_f = p(chart_path)
             ctx['paths']['charts'].append(chart_f)
 
-        state_url =  '{}?init={}'.format(r.build_absolute_uri(report_uri), self.get_client_url(app, **client_kwargs))
+        ctx['resources'] = {}
+        ctx['resources']['permalink'] =  '{}?init={}'.format(r.build_absolute_uri(report_uri), self.get_client_url(app, **client_kwargs))
 
-        url_file = default_storage.path(os.path.join(context, 'permalink_{}.txt'.format(randomizer) if randomizer else 'permalink.txt'))
-        if os.path.exists(url_file):
-            with open(url_file, 'rt') as f:
-                state_url = f.read()
-        ctx['url'] = state_url
+        for resname in ('permalink', 'dims', 'dimsVal',):
+            _fname = os.path.join(context, '{}_{}.txt'.format(resname, randomizer) if randomizer else '{}.txt'.format(resname))
+            fname = default_storage.path(_fname)
+            if os.path.exists(fname):
+                with open(fname, 'rt') as f:
+                    data = json.loads(f.read())
+                    ctx['resources'][resname] = data
+
+        ctx['dimensions'] = self.get_dimensions(risk_analysis, ctx['resources'])
         return ctx
 
+    def get_dimensions(self, risk_analysis, selected):
+        dims = selected['dims']
+        dimsVal = selected['dimsVal']
+        headers = []
+        _values = []
+
+        def make_selected(r, sel):
+            r.selected = r.value == sel
+            return r
+
+        for didx, dname in enumerate(dims):
+            dselected = dimsVal[didx]
+            di = risk_analysis.dymensioninfo_set.filter(name=dname).distinct().first()
+            headers.append(di)
+            rows = [make_selected(r, dselected) for r in risk_analysis.dymensioninfo_associacion.filter(dymensioninfo=di)]
+            _values.append(rows)
+            
+        values = zip(*_values)
+        return {'headers': headers,
+                'values': values}
 
     def get_document_urls(self, app, randomizer):
         out = []
@@ -775,9 +804,9 @@ class PDFReportView(ContextAware, FormView):
         for k, v in form.cleaned_data.iteritems():
             if v is None:
                 continue
-            if k == 'permalink':
+            if not isinstance(v, File):
                 target_path = os.path.join(ctx, '{}_{}.txt'.format(k, randomizer))
-                v = ContentFile(v)
+                v = ContentFile(json.dumps(v))
                 target_path = default_storage.save(target_path, v)
                 cleanup_paths.append(default_storage.path(target_path))
                 

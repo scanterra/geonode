@@ -2,6 +2,7 @@
 {% block report %}
 
 <h3 class="text text-center">{{ risk_analysis.hazardset.title|default:risk_analysis.name }}</h3>
+{% if risk_analysis.unit_of_measure %}<p class="text"> Unit: {{ risk_analysis.unit_of_measure }}</p>{% endif %}
 
 <h4 class="text">Hazard Type: {{ context.parts.ht.title }}</h4>
 <p class="text text-justify">{{ context.parts.ht.description }}</p>
@@ -11,9 +12,9 @@
 <p class="text text-justify">{{ context.parts.at.description }}</p>
 
 <div class="map-container">
-    <img class="map" src="{{ paths.map }}" alt="map for risk analysis"/>
+    <img class="map" style="width:58%" src="{{ paths.map }}" alt="map for risk analysis"/>
 
-    <img class="legend" src="{{ paths.legend }}" alt="legend for risk analysis"/>
+    <img class="legend" style="width:40%" src="{{ paths.legend }}" alt="legend for risk analysis"/>
 </div>
 
 Data:
@@ -23,6 +24,31 @@ Data:
     <img class="chart" src="{{ chart }}" alt="chart for risk analysis"/>
 </div>
 {% endfor %}
+
+<div class="dimensions-container">
+    <h4>Dimensions</h4>
+    <table class="table dimensions">
+        <thead>
+            <tr>
+                {% for dim in dimensions.headers %}
+                    <th>{{ dim.name }} ({{ dim.unit }})</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for dim_row in dimensions.values %}
+            <tr>
+                {% for dim in dim_row %}
+                    <td {% if dim.selected %}class="selected"{% endif %}>{{ dim.value }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+
+        </tbody>
+
+
+    </table>
+</div>
 
 <h5 class="text">Hazardset</h5>
 

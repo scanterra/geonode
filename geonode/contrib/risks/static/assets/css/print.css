@@ -12,9 +12,33 @@ h1,h2,h3,h4,h5,h6 {
     page-break-after: always;
 }
 .chart-container {
-    paddint: 1em;
+    padding: 1em;
 }
 .footer {
     position: absolute;
     bottom: 10%;
 }
+
+
+.table {
+    width: 60%;
+    text-align: center;
+    border-collapse: collapse;
+}
+
+.table td {
+    color: #445;
+}
+
+.table tr, .table td, .table th {
+    margin: 0;
+    border: 1pt solid #343;
+    border-spacing: 0;
+}
+
+.table .thead {
+        font-size: 1.1em;
+    }
+.table .selected {
+        font-weight: bold;
+    }
