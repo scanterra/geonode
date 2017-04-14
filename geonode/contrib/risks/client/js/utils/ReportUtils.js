@@ -24,11 +24,11 @@ function chartToImg(svgs) {
             svgOffsetY = svgOffsetY ? svgOffsetY : 0;
             svgCanv.setAttribute("width", svgW);
             svgCanv.setAttribute("height", svgH);
-            // svgCanv.getContext('2d').scale(2, 2);
+            svgCanv.getContext('2d').scale(2, 2);
             canvg(svgCanv, svgString, {
                 ignoreMouse: true,
                 ignoreAnimation: true,
-                ignoreDimensions: true,
+                ignoreDimensions: false,
                 ignoreClear: true,
                 offsetX: svgOffsetX,
                 offsetY: svgOffsetY,
