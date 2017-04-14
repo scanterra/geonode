@@ -10,13 +10,16 @@ from django import forms
 from django.views.generic import TemplateView, View, FormView
 from django.core.urlresolvers import reverse
 from django.core.files.storage import default_storage
-from django.core.files.base import ContentFile
+from django.core.files.base import ContentFile, File
 from django.http import HttpResponse, FileResponse
 from django.template.loader import render_to_string
 from django.utils.crypto import get_random_string
+from django.views.decorators.cache import cache_page
+
 
 from geonode.layers.models import Layer
 from geonode.utils import json_response
+from geonode.base.forms import ValuesListField
 from geonode.contrib.risks.models import (HazardType, AdministrativeDivision,
                                           RiskAnalysisDymensionInfoAssociation,
                                           RiskAnalysis, DymensionInfo, AnalysisType,
@@ -659,8 +662,14 @@ class CleaningFileResponse(FileResponse):
 
 class PDFUploadsForm(forms.Form):
     map = forms.ImageField(required=True)
-    chart = forms.ImageField(required=True)
+    chart_0 = forms.ImageField(required=True)
+    chart_1 = forms.ImageField(required=False)
+    chart_2 = forms.ImageField(required=False)
+    chart_3 = forms.ImageField(required=False)
     legend = forms.ImageField(required=False)
+    permalink = forms.URLField(required=False)
+    dims = ValuesListField(required=True)
+    dimsVal = ValuesListField(required=True)
 
 
 class PDFReportView(ContextAware, FormView):
@@ -670,13 +679,29 @@ class PDFReportView(ContextAware, FormView):
 
     PDF_PARTS = ['cover', 'report', 'footer']
 
+    def get_client_url(self, app, **kwargs):
+
+        #http://localhost:8000/risks/data_extraction/?init={"href":"/risks/data_extraction/loc/AF/","geomHref":"/risks/data_extraction/geom/AF/","gc":"ht/EQ/","ac":"ht/EQ/at/impact/an/6/","d":{"dim1":0,"dim2":1,"dim1Idx":0,"dim2Idx":0},"s":{}}
+        out = {'href': app.url_for('location', kwargs['loc']),
+               'geomHref': app.url_for('geometry', kwargs['loc']),
+               'ac': self.get_context_url(**kwargs),
+               'gc': self.get_context_url(ht=kwargs['ht']),}
+               #'s': {},
+               #'d': {}}
+        return json.dumps(out)
+
     def get_context_data(self, *args, **kwargs):
         ctx = super(PDFReportView, self).get_context_data(*args, **kwargs)
 
+        r = self.request
         randomizer = self.request.GET.get('r') or ''
-        ctx['app'] = self.get_app()
+        ctx['app'] = app = self.get_app()
         ctx['kwargs'] = k = self.kwargs
-        ctx['context'] = {'url': self.get_context_url(_full=True, **k),
+        report_uri = app.url_for('index')
+        client_kwargs = k.copy()
+        client_kwargs.pop('app', None)
+        context = self.get_context_url(_full=True, **k)
+        ctx['context'] = {'url': context,
                           'parts': self.get_further_resources_inputs(**k)}
         fr_map = self.get_further_resources(inputs=ctx['context']['parts'], **k)
         further_resources = []
@@ -688,9 +713,7 @@ class PDFReportView(ContextAware, FormView):
                 further_resources.append(fr_item)
         ctx['context']['further_resources'] = further_resources
 
-        context = ctx['context']['url']
-        ctx['risk_analysis'] = RiskAnalysis.objects.get(id=k['an'])
-        r = self.request
+        ctx['risk_analysis'] = risk_analysis = RiskAnalysis.objects.get(id=k['an'])
 
         def p(val):
             # for test we need full fs path
@@ -700,10 +723,50 @@ class PDFReportView(ContextAware, FormView):
             _path = default_storage.url(val)
             return r.build_absolute_uri(_path)
         ctx['paths'] = {'map': p(os.path.join(context, 'map_{}.png'.format(randomizer) if randomizer else 'map.png')),
-                        'chart': p(os.path.join(context, 'chart_{}.png'.format(randomizer) if randomizer else 'chart.png')),
+                        'charts': [],
                         'legend': p(os.path.join(context, 'legend_{}.png'.format(randomizer) if randomizer else 'legend.png'))}
+        
+        for cidx in range(0, 4):
+            chart_path = os.path.join(context, 'chart_{}_{}.png'.format(cidx, randomizer) if randomizer else 'chart_{}.png'.format(cidx))
+            if not os.path.exists(default_storage.path(chart_path)):
+                continue
+            chart_f = p(chart_path)
+            ctx['paths']['charts'].append(chart_f)
+
+        ctx['resources'] = {}
+        ctx['resources']['permalink'] =  '{}?init={}'.format(r.build_absolute_uri(report_uri), self.get_client_url(app, **client_kwargs))
+
+        for resname in ('permalink', 'dims', 'dimsVal',):
+            _fname = os.path.join(context, '{}_{}.txt'.format(resname, randomizer) if randomizer else '{}.txt'.format(resname))
+            fname = default_storage.path(_fname)
+            if os.path.exists(fname):
+                with open(fname, 'rt') as f:
+                    data = json.loads(f.read())
+                    ctx['resources'][resname] = data
+
+        ctx['dimensions'] = self.get_dimensions(risk_analysis, ctx['resources'])
         return ctx
 
+    def get_dimensions(self, risk_analysis, selected):
+        dims = selected['dims']
+        dimsVal = selected['dimsVal']
+        headers = []
+        _values = []
+
+        def make_selected(r, sel):
+            r.selected = r.value == sel
+            return r
+
+        for didx, dname in enumerate(dims):
+            dselected = dimsVal[didx]
+            di = risk_analysis.dymensioninfo_set.filter(name=dname).distinct().first()
+            headers.append(di)
+            rows = [make_selected(r, dselected) for r in risk_analysis.dymensioninfo_associacion.filter(dymensioninfo=di)]
+            _values.append(rows)
+            
+        values = zip(*_values)
+        return {'headers': headers,
+                'values': values}
 
     def get_document_urls(self, app, randomizer):
         out = []
@@ -739,10 +802,20 @@ class PDFReportView(ContextAware, FormView):
         randomizer = get_random_string(7)
         cleanup_paths = []
         for k, v in form.cleaned_data.iteritems():
-            basename, ext = os.path.splitext(v.name)
-            target_path = os.path.join(ctx, '{}_{}.png'.format(k, randomizer))
-            target_path = default_storage.save(target_path, v)
-            cleanup_paths.append(default_storage.path(target_path))
+            if v is None:
+                continue
+            if not isinstance(v, File):
+                target_path = os.path.join(ctx, '{}_{}.txt'.format(k, randomizer))
+                v = ContentFile(json.dumps(v))
+                target_path = default_storage.save(target_path, v)
+                cleanup_paths.append(default_storage.path(target_path))
+                
+            else:
+                basename, ext = os.path.splitext(v.name)
+                target_path = os.path.join(ctx, '{}_{}.png'.format(k, randomizer))
+                target_path = default_storage.save(target_path, v)
+                cleanup_paths.append(default_storage.path(target_path))
+
             if settings.TEST:
                 full_path = default_storage.path(target_path)
                 target_path = full_path
@@ -793,10 +866,11 @@ class PDFReportView(ContextAware, FormView):
 
         return html_path_absolute
 
-location_view = LocationView.as_view()
-hazard_type_view = HazardTypeView.as_view()
-analysis_type_view = HazardTypeView.as_view()
-data_extraction = DataExtractionView.as_view()
+CACHE_TTL = 120
+location_view = cache_page(CACHE_TTL)(LocationView.as_view()) 
+hazard_type_view = cache_page(CACHE_TTL)(HazardTypeView.as_view())
+analysis_type_view = cache_page(CACHE_TTL)(HazardTypeView.as_view())
+data_extraction = cache_page(CACHE_TTL)(DataExtractionView.as_view())
 
 risk_layers = RiskLayersView.as_view()
 pdf_report = PDFReportView.as_view()
