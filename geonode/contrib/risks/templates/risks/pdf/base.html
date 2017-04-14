@@ -11,6 +11,22 @@
 
 </head>
 <body class="{% block body_class %}printable{% endblock %}">
+
+    <div class="header {% block extra_header_class %}{% endblock %}">
+        <div class="text block green">
+        {{ context.parts.loc.name }} | {{ context.parts.ht.title }} | {{ context.parts.at.title }}
+        </div>
+    </div>
+
+    <div class="footer {% block extra_footer_class %}{% endblock %}">
+        <div class="text block green">Afghanistan Disaster Risk Info 
+            | report generated for {{ risk_analysis.name }} on {% now 'j m d' %}
+        </div>
+    </div>
+
+
+    
+
     <div class="wrapper">
         <div id="content {% block extra_content_class %}{% endblock %}">
             {% block content %}
@@ -20,8 +36,6 @@
     </div>
 
 <div class="page-break"></div>
-<footer id="footer {% block extra_footer_class %}{% endblock %}">
-    <div class="text">Afghanistan Disaster Risk Info | report generated for {{ risk_analysis.name }} on {% now 'o m d' %}</div>
-</footer>
+
 </body>
 </html>

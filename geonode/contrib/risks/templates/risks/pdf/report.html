@@ -1,6 +1,8 @@
 {% load base_tags %}
 {% block report %}
 
+
+
 <h3 class="text text-center disaster"><i class="disaster-category fa fa-{{ risk_analysis.hazardset.get_fa_class }}"></i> {{ risk_analysis.hazardset.title|default:risk_analysis.name }}</h3>
 {% if risk_analysis.unit_of_measure %}<p class="text"> Unit: {{ risk_analysis.unit_of_measure }}</p>{% endif %}
 
