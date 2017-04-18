@@ -705,7 +705,7 @@ class DymensionInfo(RiskAnalysisAware, Exportable, models.Model):
             n = ax.value
             layer_attribute = ax.axis_attribute()
             layer_reference_attribute = ax.layer_reference_attribute
-            resource = ax.resource.export() if ax.resource else "{}"
+            resource = ax.resource.export() if ax.resource else None
             out[n] = {'layerAttribute': layer_attribute, 'layerReferenceAttribute': layer_reference_attribute, 'resource': resource}
         return out
 
@@ -1065,7 +1065,7 @@ class FurtherResource(models.Model):
                'category': r.category.description if r.category else None,
                'is_published': r.is_published,
                'thumbnail': r.get_thumbnail_url(),
-               'downloads': r.download_links(),
+               # 'downloads': r.download_links(),
                'details': r.detail_url}
         return out
 
