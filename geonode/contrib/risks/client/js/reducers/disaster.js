@@ -16,7 +16,8 @@ const {
     TOGGLE_ADMIN_UNITS,
     GET_ANALYSIS_DATA,
     SET_CHART_SLIDER_INDEX,
-    SET_ADDITIONAL_CHART_INDEX
+    SET_ADDITIONAL_CHART_INDEX,
+    TOGGLE_SWITCH_CHART
 } = require('../actions/disaster');
 
 function disaster(state = {dim: {dim1: 0, dim2: 1, dim1Idx: 0, dim2Idx: 0}}, action) {
@@ -62,6 +63,9 @@ function disaster(state = {dim: {dim1: 0, dim2: 1, dim1Idx: 0, dim2Idx: 0}}, act
             return assign({}, state, {
                 additionalCharts
             });
+        case TOGGLE_SWITCH_CHART: {
+            return assign({}, state, {showChart: !state.showChart});
+        }
         default:
             return state;
     }
