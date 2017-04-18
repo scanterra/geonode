@@ -7,17 +7,19 @@
  */
 const React = require('react');
 const {connect} = require('react-redux');
-const {dataContainerSelector, sliderChartSelector, mapSliderSelector, additionalChartSelector} = require('../selectors/disaster');
+const {dataContainerSelector, sliderChartSelector/*, mapSliderSelector*/, additionalChartSelector} = require('../selectors/disaster');
 
-const {getAnalysisData, getData, setDimIdx, chartSliderUpdate, getSFurtherResourceData, setAdditionalChartIndex} = require('../actions/disaster');
+const {getAnalysisData, getData, setDimIdx, chartSliderUpdate/*, getSFurtherResourceData*/, setAdditionalChartIndex, toggleSwitchChart} = require('../actions/disaster');
 const SliderChart = connect(sliderChartSelector, {setDimIdx, chartSliderUpdate})(require('../components/SliderChart'));
 const GetCostsBtn = connect(({disaster}) => ({loading: disaster.loading || false}))(require('../components/LoadingBtn'));
 const DownloadData = require('../components/DownloadData');
+const MenuScenario = require('../components/MenuScenario');
 const MoreInfo = require('../components/MoreInfo');
+const SwitchChartBtn = connect(() => { return {}; }, { onToggle: toggleSwitchChart })(require('../components/SwitchChartBtn'));
 const Overview = connect(({disaster = {}}) => ({riskItems: disaster.overview || [] }) )(require('../components/Overview'));
 const {Panel, Tooltip, OverlayTrigger} = require('react-bootstrap');
-const {show, hide} = require('react-notification-system-redux');
-const ExtendedSlider = connect(mapSliderSelector, {setDimIdx, chartSliderUpdate, show, hide, getData: getSFurtherResourceData})(require('../components/ExtendedSlider'));
+// const {show, hide} = require('react-notification-system-redux');
+// const ExtendedSlider = connect(mapSliderSelector, {setDimIdx, chartSliderUpdate, show, hide, getData: getSFurtherResourceData})(require('../components/ExtendedSlider'));
 const AdditionalChart = connect(additionalChartSelector, {setIndex: setAdditionalChartIndex})(require('../components/AdditionalChart'));
 
 const DataContainer = React.createClass({
@@ -31,6 +33,7 @@ const DataContainer = React.createClass({
         analysisType: React.PropTypes.object,
         riskAnalysisData: React.PropTypes.object,
         dim: React.PropTypes.object,
+        showChart: React.PropTypes.bool,
         hazardType: React.PropTypes.shape({
             mnemonic: React.PropTypes.string,
             description: React.PropTypes.string,
@@ -63,7 +66,7 @@ const DataContainer = React.createClass({
         return data.filter((d) => d[nameIdx] === val ).map((v) => {return {"name": v[dim], "value": parseInt(v[2], 10)}; });
     },
     renderAnalysisData() {
-        const {hazardSet} = this.props.riskAnalysisData;
+        const {hazardSet, data} = this.props.riskAnalysisData;
         const tooltip = (<Tooltip id={"tooltip-back"} className="disaster">{'Back to Analysis Table'}</Tooltip>);
         return (
             <div id="disaster-analysis-data-container" className="container-fluid">
@@ -76,6 +79,7 @@ const DataContainer = React.createClass({
                         </OverlayTrigger>
                         <DownloadData/>
                         <MoreInfo/>
+                        <SwitchChartBtn/>
                     </div>
                 </div>
                 <div className="row">
@@ -84,11 +88,9 @@ const DataContainer = React.createClass({
                 <div className="row">
                     <p>{hazardSet.purpose}</p>
                 </div>
+                <MenuScenario dim={this.props.dim} dimensions={data.dimensions} setDimIdx={this.props.setDimIdx}/>
                 <div id="disaster-chart-container" className="row">
-                    <SliderChart uid={'map_slider'}/>
-                    <ExtendedSlider uid={'chart_label_tab'} dimIdx={'dim1Idx'}/>
-                    <hr/>
-                    <AdditionalChart/>
+                    {!this.props.showChart ? <AdditionalChart/> : <div><SliderChart uid={'map_slider'}/>{/*<ExtendedSlider uid={'chart_label_tab'} dimIdx={'dim1Idx'}/>*/}</div>}
                 </div>
             </div>
         );

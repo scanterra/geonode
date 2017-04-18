@@ -133,10 +133,6 @@ const costTutorialPresets = {
             selector: '#disaster-identify-button'
         },
         {
-            translationHTML: 'riskMapSlider',
-            selector: '#disaster-map-slider'
-        },
-        {
             translationHTML: 'riskLegend',
             selector: '#disaster-map-legend'
         },

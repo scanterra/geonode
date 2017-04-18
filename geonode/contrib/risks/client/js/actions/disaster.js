@@ -25,6 +25,7 @@ const GET_S_FURTHER_RESOURCE_DATA = 'GET_S_FURTHER_RESOURCE_DATA';
 const SET_CHART_SLIDER_INDEX = 'SET_CHART_SLIDER_INDEX';
 const CHART_SLIDER_UPDATE = 'CHART_SLIDER_UPDATE';
 const SET_ADDITIONAL_CHART_INDEX = 'SET_ADDITIONAL_CHART_INDEX';
+const TOGGLE_SWITCH_CHART = 'TOGGLE_SWITCH_CHART';
 
 function initState({href, geomHref, gc, ac}) {
     return {
@@ -165,6 +166,12 @@ function setAdditionalChartIndex(section, col) {
     };
 }
 
+function toggleSwitchChart() {
+    return {
+        type: TOGGLE_SWITCH_CHART
+    };
+}
+
 module.exports = {
     DATA_LOADING,
     DATA_LOADED,
@@ -183,6 +190,7 @@ module.exports = {
     SET_CHART_SLIDER_INDEX,
     CHART_SLIDER_UPDATE,
     SET_ADDITIONAL_CHART_INDEX,
+    TOGGLE_SWITCH_CHART,
     featuresLoaded,
     featuresLoading,
     featuresError,
@@ -202,5 +210,6 @@ module.exports = {
     getSFurtherResourceData,
     setChartSliderIndex,
     chartSliderUpdate,
-    setAdditionalChartIndex
+    setAdditionalChartIndex,
+    toggleSwitchChart
 };
