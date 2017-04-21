@@ -54,16 +54,19 @@ const SliderChart = React.createClass({
     renderChart(chartData) {
         const {dim, dimension, uOm} = this.props;
         return (
-            <ResponsiveContainer width="100%" height={220}>
-                <LineChart data={chartData} onClick={this.handleClick} margin={{top: 20, right: 30, left: 30, bottom: 5}}>
-                    <XAxis interval="preserveStartEnd" dataKey="name" tickFormatter={this.formatXTiks}/>
-                    <Tooltip content={<ChartTooltip xAxisLabel={dimension[dim.dim2].name} xAxisUnit={dimension[dim.dim2].unit} uOm={uOm}/>}/>
-                    <YAxis label={<CustomizedYLable lab={uOm}/>} interval="preserveStart" tickFormatter={this.formatYTiks}/>
-                    <CartesianGrid horizontal={false} strokeDasharray="3 3"/>
-                    <Line type="monotone" dataKey="value" stroke="#ff8f31" strokeWidth={2}/>
-                    <ReferenceDot isFront={true} y={chartData[dim.dim2Idx].value} x={chartData[dim.dim2Idx].name} r={8} stroke={'#2c689c'} fill="none" />
-                </LineChart>
-            </ResponsiveContainer>
+            <Panel className="panel-box">
+                <h4 className="text-center">{dimension[dim.dim1].name + ' ' + dimension[dim.dim1].values[dim.dim1Idx]}</h4>
+                <ResponsiveContainer width="100%" height={220}>
+                    <LineChart data={chartData} onClick={this.handleClick} margin={{top: 20, right: 30, left: 30, bottom: 5}}>
+                        <XAxis interval="preserveStartEnd" dataKey="name" tickFormatter={this.formatXTiks}/>
+                        <Tooltip content={<ChartTooltip xAxisLabel={dimension[dim.dim2].name} xAxisUnit={dimension[dim.dim2].unit} uOm={uOm}/>}/>
+                        <YAxis label={<CustomizedYLable lab={uOm}/>} interval="preserveStart" tickFormatter={this.formatYTiks}/>
+                        <CartesianGrid horizontal={false} strokeDasharray="3 3"/>
+                        <Line type="monotone" dataKey="value" stroke="#ff8f31" strokeWidth={2}/>
+                        <ReferenceDot isFront={true} y={chartData[dim.dim2Idx].value} x={chartData[dim.dim2Idx].name} r={8} stroke={'#2c689c'} fill="none" />
+                    </LineChart>
+                </ResponsiveContainer>
+            </Panel>
         );
     },
     renderChartSlider(chartData, startIndex, endIndex) {
@@ -71,7 +74,8 @@ const SliderChart = React.createClass({
         const sectionData = chartData.slice(startIndex, endIndex + 1);
         return (
             <div className="disaster-chart-slider">
-                <Panel className="chart-panel">
+                <Panel className="panel-box">
+                    <h4 className="text-center">{dimension[dim.dim1].name + ' ' + dimension[dim.dim1].values[dim.dim1Idx]}</h4>
                     <ResponsiveContainer width="100%" height={220}>
                         <LineChart data={sectionData} onClick={this.handleClick} margin={{top: 50, right: 30, left: 30, bottom: 5}}>
                             <XAxis interval="preserveStartEnd" dataKey="name" tickFormatter={this.formatXTiks}/>

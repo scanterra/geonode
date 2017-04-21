@@ -390,14 +390,14 @@
   height: auto;
 }
 .disaster .img-rounded {
-  border-radius: 6px;
+  border-radius: 0;
 }
 .disaster .img-thumbnail {
   padding: 4px;
   line-height: 1.42857143;
   background-color: #fff;
   border: 1px solid #ddd;
-  border-radius: 4px;
+  border-radius: 0;
   -webkit-transition: all 0.2s ease-in-out;
   -o-transition: all 0.2s ease-in-out;
   transition: all 0.2s ease-in-out;
@@ -803,14 +803,14 @@ a.disaster .bg-danger:focus {
   font-size: 90%;
   color: #c7254e;
   background-color: #f9f2f4;
-  border-radius: 4px;
+  border-radius: 0;
 }
 .disaster kbd {
   padding: 2px 4px;
   font-size: 90%;
   color: #fff;
   background-color: #333;
-  border-radius: 3px;
+  border-radius: 0;
   box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.25);
 }
 .disaster kbd kbd {
@@ -830,7 +830,7 @@ a.disaster .bg-danger:focus {
   color: #333333;
   background-color: #f5f5f5;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 0;
 }
 .disaster pre code {
   padding: 0;
@@ -1765,7 +1765,7 @@ a.disaster .bg-danger:focus {
   padding: 6px 12px;
   font-size: 14px;
   line-height: 1.42857143;
-  border-radius: 4px;
+  border-radius: 0;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -2186,19 +2186,19 @@ fieldset[disabled] .disaster .btn-link:focus {
   padding: 10px 16px;
   font-size: 18px;
   line-height: 1.3333333;
-  border-radius: 6px;
+  border-radius: 0;
 }
 .disaster .btn-sm {
   padding: 5px 10px;
   font-size: 12px;
   line-height: 1.5;
-  border-radius: 3px;
+  border-radius: 0;
 }
 .disaster .btn-xs {
   padding: 1px 5px;
   font-size: 12px;
   line-height: 1.5;
-  border-radius: 3px;
+  border-radius: 0;
 }
 .disaster .btn-block {
   display: block;
@@ -2366,16 +2366,16 @@ tbody.disaster .collapse.in {
   border-radius: 0;
 }
 .disaster .btn-group-vertical > .btn:first-child:not(:last-child) {
-  border-top-right-radius: 4px;
-  border-top-left-radius: 4px;
+  border-top-right-radius: 0;
+  border-top-left-radius: 0;
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0;
 }
 .disaster .btn-group-vertical > .btn:last-child:not(:first-child) {
   border-top-right-radius: 0;
   border-top-left-radius: 0;
-  border-bottom-right-radius: 4px;
-  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
 }
 .disaster .btn-group-vertical > .btn-group:not(:first-child):not(:last-child) > .btn {
   border-radius: 0;
@@ -2470,7 +2470,7 @@ tbody.disaster .collapse.in {
   margin-right: 2px;
   line-height: 1.42857143;
   border: 1px solid transparent;
-  border-radius: 4px 4px 0 0;
+  border-radius: 0 0 0 0;
 }
 .disaster .nav-tabs > li > a:hover {
   border-color: #eeeeee #eeeeee #ddd;
@@ -2510,7 +2510,7 @@ tbody.disaster .collapse.in {
 }
 .disaster .nav-tabs.nav-justified > li > a {
   margin-right: 0;
-  border-radius: 4px;
+  border-radius: 0;
 }
 .disaster .nav-tabs.nav-justified > .active > a,
 .disaster .nav-tabs.nav-justified > .active > a:hover,
@@ -2520,7 +2520,7 @@ tbody.disaster .collapse.in {
 @media (min-width: 768px) {
   .disaster .nav-tabs.nav-justified > li > a {
     border-bottom: 1px solid #ddd;
-    border-radius: 4px 4px 0 0;
+    border-radius: 0 0 0 0;
   }
   .disaster .nav-tabs.nav-justified > .active > a,
   .disaster .nav-tabs.nav-justified > .active > a:hover,
@@ -2532,7 +2532,7 @@ tbody.disaster .collapse.in {
   float: left;
 }
 .disaster .nav-pills > li > a {
-  border-radius: 4px;
+  border-radius: 0;
 }
 .disaster .nav-pills > li + li {
   margin-left: 2px;
@@ -2578,7 +2578,7 @@ tbody.disaster .collapse.in {
 }
 .disaster .nav-tabs-justified > li > a {
   margin-right: 0;
-  border-radius: 4px;
+  border-radius: 0;
 }
 .disaster .nav-tabs-justified > .active > a,
 .disaster .nav-tabs-justified > .active > a:hover,
@@ -2588,7 +2588,7 @@ tbody.disaster .collapse.in {
 @media (min-width: 768px) {
   .disaster .nav-tabs-justified > li > a {
     border-bottom: 1px solid #ddd;
-    border-radius: 4px 4px 0 0;
+    border-radius: 0 0 0 0;
   }
   .disaster .nav-tabs-justified > .active > a,
   .disaster .nav-tabs-justified > .active > a:hover,
@@ -2678,7 +2678,7 @@ a.disaster .label:focus {
   margin-bottom: 20px;
   background-color: #fff;
   border: 1px solid transparent;
-  border-radius: 4px;
+  border-radius: 0;
   -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
 }
@@ -2688,8 +2688,8 @@ a.disaster .label:focus {
 .disaster .panel-heading {
   padding: 10px 15px;
   border-bottom: 1px solid transparent;
-  border-top-right-radius: 3px;
-  border-top-left-radius: 3px;
+  border-top-right-radius: -1;
+  border-top-left-radius: -1;
 }
 .disaster .panel-heading > .dropdown .dropdown-toggle {
   color: inherit;
@@ -2711,8 +2711,8 @@ a.disaster .label:focus {
   padding: 10px 15px;
   background-color: #f5f5f5;
   border-top: 1px solid #ddd;
-  border-bottom-right-radius: 3px;
-  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: -1;
+  border-bottom-left-radius: -1;
 }
 .disaster .panel > .list-group,
 .disaster .panel > .panel-collapse > .list-group {
@@ -2726,14 +2726,14 @@ a.disaster .label:focus {
 .disaster .panel > .list-group:first-child .list-group-item:first-child,
 .disaster .panel > .panel-collapse > .list-group:first-child .list-group-item:first-child {
   border-top: 0;
-  border-top-right-radius: 3px;
-  border-top-left-radius: 3px;
+  border-top-right-radius: -1;
+  border-top-left-radius: -1;
 }
 .disaster .panel > .list-group:last-child .list-group-item:last-child,
 .disaster .panel > .panel-collapse > .list-group:last-child .list-group-item:last-child {
   border-bottom: 0;
-  border-bottom-right-radius: 3px;
-  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: -1;
+  border-bottom-left-radius: -1;
 }
 .disaster .panel > .panel-heading + .panel-collapse > .list-group .list-group-item:first-child {
   border-top-right-radius: 0;
@@ -2758,15 +2758,15 @@ a.disaster .label:focus {
 }
 .disaster .panel > .table:first-child,
 .disaster .panel > .table-responsive:first-child > .table:first-child {
-  border-top-right-radius: 3px;
-  border-top-left-radius: 3px;
+  border-top-right-radius: -1;
+  border-top-left-radius: -1;
 }
 .disaster .panel > .table:first-child > thead:first-child > tr:first-child,
 .disaster .panel > .table-responsive:first-child > .table:first-child > thead:first-child > tr:first-child,
 .disaster .panel > .table:first-child > tbody:first-child > tr:first-child,
 .disaster .panel > .table-responsive:first-child > .table:first-child > tbody:first-child > tr:first-child {
-  border-top-left-radius: 3px;
-  border-top-right-radius: 3px;
+  border-top-left-radius: -1;
+  border-top-right-radius: -1;
 }
 .disaster .panel > .table:first-child > thead:first-child > tr:first-child td:first-child,
 .disaster .panel > .table-responsive:first-child > .table:first-child > thead:first-child > tr:first-child td:first-child,
@@ -2776,7 +2776,7 @@ a.disaster .label:focus {
 .disaster .panel > .table-responsive:first-child > .table:first-child > thead:first-child > tr:first-child th:first-child,
 .disaster .panel > .table:first-child > tbody:first-child > tr:first-child th:first-child,
 .disaster .panel > .table-responsive:first-child > .table:first-child > tbody:first-child > tr:first-child th:first-child {
-  border-top-left-radius: 3px;
+  border-top-left-radius: -1;
 }
 .disaster .panel > .table:first-child > thead:first-child > tr:first-child td:last-child,
 .disaster .panel > .table-responsive:first-child > .table:first-child > thead:first-child > tr:first-child td:last-child,
@@ -2786,19 +2786,19 @@ a.disaster .label:focus {
 .disaster .panel > .table-responsive:first-child > .table:first-child > thead:first-child > tr:first-child th:last-child,
 .disaster .panel > .table:first-child > tbody:first-child > tr:first-child th:last-child,
 .disaster .panel > .table-responsive:first-child > .table:first-child > tbody:first-child > tr:first-child th:last-child {
-  border-top-right-radius: 3px;
+  border-top-right-radius: -1;
 }
 .disaster .panel > .table:last-child,
 .disaster .panel > .table-responsive:last-child > .table:last-child {
-  border-bottom-right-radius: 3px;
-  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: -1;
+  border-bottom-left-radius: -1;
 }
 .disaster .panel > .table:last-child > tbody:last-child > tr:last-child,
 .disaster .panel > .table-responsive:last-child > .table:last-child > tbody:last-child > tr:last-child,
 .disaster .panel > .table:last-child > tfoot:last-child > tr:last-child,
 .disaster .panel > .table-responsive:last-child > .table:last-child > tfoot:last-child > tr:last-child {
-  border-bottom-left-radius: 3px;
-  border-bottom-right-radius: 3px;
+  border-bottom-left-radius: -1;
+  border-bottom-right-radius: -1;
 }
 .disaster .panel > .table:last-child > tbody:last-child > tr:last-child td:first-child,
 .disaster .panel > .table-responsive:last-child > .table:last-child > tbody:last-child > tr:last-child td:first-child,
@@ -2808,7 +2808,7 @@ a.disaster .label:focus {
 .disaster .panel > .table-responsive:last-child > .table:last-child > tbody:last-child > tr:last-child th:first-child,
 .disaster .panel > .table:last-child > tfoot:last-child > tr:last-child th:first-child,
 .disaster .panel > .table-responsive:last-child > .table:last-child > tfoot:last-child > tr:last-child th:first-child {
-  border-bottom-left-radius: 3px;
+  border-bottom-left-radius: -1;
 }
 .disaster .panel > .table:last-child > tbody:last-child > tr:last-child td:last-child,
 .disaster .panel > .table-responsive:last-child > .table:last-child > tbody:last-child > tr:last-child td:last-child,
@@ -2818,7 +2818,7 @@ a.disaster .label:focus {
 .disaster .panel > .table-responsive:last-child > .table:last-child > tbody:last-child > tr:last-child th:last-child,
 .disaster .panel > .table:last-child > tfoot:last-child > tr:last-child th:last-child,
 .disaster .panel > .table-responsive:last-child > .table:last-child > tfoot:last-child > tr:last-child th:last-child {
-  border-bottom-right-radius: 3px;
+  border-bottom-right-radius: -1;
 }
 .disaster .panel > .panel-body + .table,
 .disaster .panel > .panel-body + .table-responsive,
@@ -2891,7 +2891,7 @@ a.disaster .label:focus {
 }
 .disaster .panel-group .panel {
   margin-bottom: 0;
-  border-radius: 4px;
+  border-radius: 0;
 }
 .disaster .panel-group .panel + .panel {
   margin-top: 5px;
@@ -3092,7 +3092,7 @@ a.disaster .label:focus {
   color: #ff8f31;
   text-align: center;
   background-color: #000;
-  border-radius: 4px;
+  border-radius: 0;
 }
 .disaster .tooltip-arrow {
   position: absolute;
@@ -6767,6 +6767,14 @@ a.disaster .label:focus {
 .disaster .drc .leaflet-control-zoom-in,
 .disaster .drc .leaflet-control-zoom-out {
   text-decoration: none;
+}
+.disaster .panel-box {
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  border-color: transparent;
+}
+.disaster .panel-box li {
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.16), inset 0 3px 6px rgba(0, 0, 0, 0.23);
+  margin-bottom: 5px;
 }
 @font-face {
   font-family: 'thinkhazard';

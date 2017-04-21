@@ -88,9 +88,11 @@ const DataContainer = React.createClass({
                 <div className="row">
                     <p>{hazardSet.purpose}</p>
                 </div>
-                <MenuScenario dim={this.props.dim} dimensions={data.dimensions} setDimIdx={this.props.setDimIdx}/>
+                <div className="row">
+                    <MenuScenario dim={this.props.dim} dimensions={data.dimensions} setDimIdx={this.props.setDimIdx}/>
+                </div>
                 <div id="disaster-chart-container" className="row">
-                    {!this.props.showChart ? <AdditionalChart/> : <div><SliderChart uid={'map_slider'}/>{/*<ExtendedSlider uid={'chart_label_tab'} dimIdx={'dim1Idx'}/>*/}</div>}
+                    {!this.props.showChart ? <AdditionalChart dim={this.props.dim} /> : <div><SliderChart uid={'map_slider'}/>{/*<ExtendedSlider uid={'chart_label_tab'} dimIdx={'dim1Idx'}/>*/}</div>}
                 </div>
             </div>
         );

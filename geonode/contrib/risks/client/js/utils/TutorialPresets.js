@@ -121,7 +121,11 @@ const costTutorialPresets = {
         }
     ],
     ANALYSIS_DATA_LOADED: [{
-            translationHTML: 'riskChart',
+            translationHTML: 'costCompare',
+            selector: '#disaster-compare-container'
+        },
+        {
+            translationHTML: 'costChart',
             selector: '#disaster-chart-container'
         },
         {
@@ -133,8 +137,16 @@ const costTutorialPresets = {
             selector: '#disaster-identify-button'
         },
         {
+            translationHTML: 'costMap',
+            selector: '#viewer'
+        },
+        {
             translationHTML: 'riskLegend',
             selector: '#disaster-map-legend'
+        },
+        {
+            translationHTML: 'costSwitch',
+            selector: '#disaster-switch-chart-button'
         },
         {
             translationHTML: 'riskMoreInfo',

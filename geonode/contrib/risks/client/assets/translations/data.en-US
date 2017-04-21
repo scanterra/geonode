@@ -866,6 +866,22 @@
             "riskBack": {
                 "title": "Back button",
                 "text": "Back to analyses list"
+            },
+            "costCompare": {
+                "title": "Scenario information",
+                "text": "Click on the risk scenario to compare with the main scenario. You'll see scenarios compared in the chart below with different color"
+            },
+            "costChart": {
+                "title": "Chart",
+                "text": "Here you'll see all the chart about the current analysis"
+            },
+            "costMap": {
+                "title": "Map",
+                "text": "Navigate on the map to find the chosen scenario displayed on it"
+            },
+            "costSwitch": {
+                "title": "Switch Chart",
+                "text": "Click on the button to change the chart type displayed below"
             }
         }
     }

@@ -7,6 +7,7 @@
  */
 
 const React = require('react');
+const {Panel} = require('react-bootstrap');
 
 const MenuScenario = React.createClass({
     propTypes: {
@@ -23,8 +24,26 @@ const MenuScenario = React.createClass({
     },
     getScenarios(values, current) {
         return values.map((val, idx) => {
-            return val === current ? null : (<li key={idx} onClick={() => { this.props.setDimIdx('dim1Idx', idx); }}><a href="#">{val}</a></li>);
+            let active = val === current ? 'active' : '';
+            return idx === 0 ? null : (<li key={idx} className={active} onClick={() => { this.props.setDimIdx('dim1Idx', idx); }}><a onClick={(e) => { e.preventDefault(); }} href="#">{val}</a></li>);
         });
+    },
+    renderScenarioPanel(title, resource, color) {
+        return (
+            <Panel className="panel-box">
+                <h4 className="text-center">{title}</h4>
+                <div style={{marginTop: 20}}>{resource.text}</div>
+                <hr style={{border: '1px dashed #ddd'}}/>
+                <div className="text-center"style={{fontFamily: 'Georgia, serif', fontStyle: 'italic', marginBottom: 20}}>{resource.title}</div>
+                <a target="_blank" href={resource.details}>
+                    <div className="row" style={{width: '100%'}}>
+                        <div className="col-xs-2"><i className="fa fa-dot-circle-o" /></div>
+                        <div className="col-xs-10">{resource.abstract}</div>
+                    </div>
+                </a>
+                <hr style={{border: '1px solid ' + color}}/>
+          </Panel>
+      );
     },
     render() {
         const {dimensions, dim} = this.props;
@@ -32,25 +51,15 @@ const MenuScenario = React.createClass({
         const current = values[dim.dim1Idx];
         const resource = dimensions[dim.dim1].layers[current].resource;
         return (
-            <div>
-                <div className="text-center slider-lab" style={{backgroundColor: '#fff', color: '#2c689c', fontWeight: 'bold'}}>
-                    {dimensions[dim.dim1].name + ' ' + current}
-                </div>
-                <div style={{marginTop: 20}}>{resource.text}</div>
-                <hr style={{border: '1px dashed #ddd'}}/>
-                <div style={{fontWeight: 'bold', marginBottom: 20}}>{resource.title}</div>
-                <a target="_blank" href={resource.details}>
-                    <div className="row" style={{width: '100%'}}>
-                      <div className="col-xs-2"><i className="fa fa-dot-circle-o" /></div>
-                      <div className="col-xs-10">{resource.abstract}</div>
-                    </div>
-                </a>
-                <br/>
-                <hr/>
-                <div style={{fontWeight: 'bold', marginBottom: 20}}>{'Select a different Scenario'}</div>
-                <ul className="nav nav-pills">
-                  {this.getScenarios(values, current)}
-                </ul>
+            <div id="disaster-compare-container">
+                {this.renderScenarioPanel('Current: ' + values[0], dimensions[dim.dim1].layers[values[0]].resource, '#ff8f31')}
+                <Panel id="disaster-compare-panel" className="panel-box">
+                    <h4 className="text-center">{'Risk Reduction Scenario Compared to ' + values[0]}</h4>
+                    <ul className="nav nav-pills">
+                        {this.getScenarios(values, current)}
+                    </ul>
+                </Panel>
+                {dim.dim1Idx === 0 ? null : this.renderScenarioPanel(dimensions[dim.dim1].name + ' ' + current, resource, '#6646c2')}
             </div>
         );
     }
