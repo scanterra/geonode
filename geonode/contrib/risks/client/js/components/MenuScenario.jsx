@@ -28,21 +28,36 @@ const MenuScenario = React.createClass({
             return idx === 0 ? null : (<li key={idx} className={active} onClick={() => { this.props.setDimIdx('dim1Idx', idx); }}><a onClick={(e) => { e.preventDefault(); }} href="#">{val}</a></li>);
         });
     },
-    renderScenarioPanel(title, resource, color) {
+    renderScenarioPanelHeader(title, resource, color) {
         return (
-            <Panel className="panel-box">
-                <h4 className="text-center">{title}</h4>
-                <div style={{marginTop: 20}}>{resource.text}</div>
-                <hr style={{border: '1px dashed #ddd'}}/>
+            <div className="container-fluid">
+                <div className="row">
+                    <h4 className="text-center">{title}</h4>
+                    <div style={{marginTop: 20}}>{resource.text}</div>
+                </div>
+                <div className="row text-center" style={{borderBottom: '1px solid ' + color}}>
+                    <i className="fa fa-chevron-down" />
+                </div>
+            </div>
+        );
+    },
+    renderScenarioPanel(title, resource, color) {
+        const header = resource ? this.renderScenarioPanelHeader(title, resource, color) : null;
+        return resource ? (
+            <Panel collapsible header={header} className="panel-box">
                 <div className="text-center"style={{fontFamily: 'Georgia, serif', fontStyle: 'italic', marginBottom: 20}}>{resource.title}</div>
                 <a target="_blank" href={resource.details}>
                     <div className="row" style={{width: '100%'}}>
                         <div className="col-xs-2"><i className="fa fa-dot-circle-o" /></div>
-                        <div className="col-xs-10">{resource.abstract}</div>
+                        <div className="col-xs-10" dangerouslySetInnerHTML={{__html: resource.abstract}}/>
                     </div>
                 </a>
-                <hr style={{border: '1px solid ' + color}}/>
           </Panel>
+      ) : (
+          <Panel className="panel-box" header={
+              <div className="row" style={{borderBottom: '1px solid ' + color, cursor: 'default'}}>
+                <h4 className="text-center">{title}</h4>
+              </div>}/>
       );
     },
     render() {

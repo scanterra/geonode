@@ -44,7 +44,7 @@ const MapContainer = (props) => (
                         <ExtendedSlider uid={'map_slider'} dimIdx={'dim2Idx'} color={'#333'}/>
                     </div>*/}
                     <div id="disaster-map-legend" className="row">
-                        <Legend legendHeigth={160} legendWidth={118}/>
+                        <Legend/>
                     </div>
                 </div>
             </div>

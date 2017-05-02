@@ -86,7 +86,7 @@ const DataContainer = React.createClass({
                     <h4 style={{margin: 0}}>{hazardSet.title}</h4>
                 </div>
                 <div className="row">
-                    <p>{hazardSet.purpose}</p>
+                    <p dangerouslySetInnerHTML={{__html: hazardSet.purpose}}/>
                 </div>
                 <div className="row">
                     <MenuScenario dim={this.props.dim} dimensions={data.dimensions} setDimIdx={this.props.setDimIdx}/>
