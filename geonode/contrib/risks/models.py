@@ -705,8 +705,13 @@ class DymensionInfo(RiskAnalysisAware, Exportable, models.Model):
             n = ax.value
             layer_attribute = ax.axis_attribute()
             layer_reference_attribute = ax.layer_reference_attribute
+            scenraio_description = ax.scenraio_description
             resource = ax.resource.export() if ax.resource else None
-            out[n] = {'layerAttribute': layer_attribute, 'layerReferenceAttribute': layer_reference_attribute, 'resource': resource}
+            out[n] = {'layerAttribute': layer_attribute,
+                      'layerReferenceAttribute': layer_reference_attribute,
+                      'resource': resource,
+                      'description': scenraio_description
+                     }
         return out
 
 
@@ -744,6 +749,7 @@ class RiskAnalysisDymensionInfoAssociation(models.Model):
     # Relationships
     riskanalysis = models.ForeignKey(RiskAnalysis, related_name='dymensioninfo_associacion')
     dymensioninfo = models.ForeignKey(DymensionInfo, related_name='riskanalysis_associacion')
+    scenraio_description = models.CharField(max_length=255, null=True, blank=True)
     layer_attribute = models.CharField(max_length=80, null=False, blank=False)
     layer_reference_attribute = models.CharField(max_length=80, null=True, blank=True)
 
