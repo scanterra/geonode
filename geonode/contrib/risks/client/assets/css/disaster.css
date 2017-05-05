@@ -6713,7 +6713,6 @@ a.disaster .label:focus {
   max-height: 400px;
 }
 .disaster .disaster-more-info-table-title {
-  background-color: #accce8;
   margin: 5px 10px 5px 0;
   padding: 15px;
 }
@@ -6791,6 +6790,9 @@ a.disaster .label:focus {
 .disaster .panel-box .panel-heading .row {
   margin-bottom: 5px;
   padding-bottom: 20px;
+}
+.disaster .panel-box .recharts-legend-item {
+  box-shadow: none;
 }
 @font-face {
   font-family: 'thinkhazard';

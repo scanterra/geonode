@@ -21,6 +21,13 @@ const {Panel, Tooltip, OverlayTrigger} = require('react-bootstrap');
 // const {show, hide} = require('react-notification-system-redux');
 // const ExtendedSlider = connect(mapSliderSelector, {setDimIdx, chartSliderUpdate, show, hide, getData: getSFurtherResourceData})(require('../components/ExtendedSlider'));
 const AdditionalChart = connect(additionalChartSelector, {setIndex: setAdditionalChartIndex})(require('../components/AdditionalChart'));
+const {generateReport} = require('../actions/report');
+const DownloadBtn = connect(({disaster, report}) => {
+    return {
+        active: disaster.riskAnalysis && disaster.riskAnalysis.riskAnalysisData && true || false,
+        downloading: report.processing
+    };
+}, {downloadAction: generateReport})(require('../components/DownloadBtn'));
 
 const DataContainer = React.createClass({
     propTypes: {
@@ -77,9 +84,12 @@ const DataContainer = React.createClass({
                                 <i className="fa fa-arrow-left"/>
                             </button>
                         </OverlayTrigger>
-                        <DownloadData/>
                         <MoreInfo/>
                         <SwitchChartBtn/>
+                    </div>
+                    <div className="btn-group pull-right">
+                        <DownloadBtn/>
+                        <DownloadData/>
                     </div>
                 </div>
                 <div className="row">

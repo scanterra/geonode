@@ -23,6 +23,13 @@ const Nouislider = require('react-nouislider');
 const {show, hide} = require('react-notification-system-redux');
 const {labelSelector} = require('../selectors/disaster');
 const LabelResource = connect(labelSelector, { show, hide, getData: getSFurtherResourceData })(require('../components/LabelResource'));
+const {generateReport} = require('../actions/report');
+const DownloadBtn = connect(({disaster, report}) => {
+    return {
+        active: disaster.riskAnalysis && disaster.riskAnalysis.riskAnalysisData && true || false,
+        downloading: report.processing
+    };
+}, {downloadAction: generateReport})(require('../components/DownloadBtn'));
 
 const DataContainer = React.createClass({
     propTypes: {
@@ -71,7 +78,8 @@ const DataContainer = React.createClass({
         const {hazardSet, data} = this.props.riskAnalysisData;
         const tooltip = (<Tooltip id={"tooltip-back"} className="disaster">{'Back to Analysis Table'}</Tooltip>);
         const val = data.dimensions[dim.dim1].values[dim.dim1Idx];
-        const header = data.dimensions[dim.dim1].name + ' ' + val;
+        const header = data.dimensions[dim.dim1].name + ': ' + val;
+        const description = data.dimensions[dim.dim1].layers && data.dimensions[dim.dim1].layers[val] && data.dimensions[dim.dim1].layers[val].description ? data.dimensions[dim.dim1].layers[val].description : '';
         return (
             <div id="disaster-analysis-data-container" className="container-fluid">
                 <div className="row">
@@ -81,8 +89,11 @@ const DataContainer = React.createClass({
                                 <i className="fa fa-arrow-left"/>
                             </button>
                         </OverlayTrigger>
-                        <DownloadData/>
                         <MoreInfo/>
+                    </div>
+                    <div className="btn-group pull-right">
+                        <DownloadBtn/>
+                        <DownloadData/>
                     </div>
                 </div>
                 <div className="row">
@@ -92,17 +103,12 @@ const DataContainer = React.createClass({
                     <p>{hazardSet.purpose}</p>
                 </div>
                 <div id="disaster-chart-container" className="row">
-                    <Panel className="chart-panel">
-                        <Chart/>
-                    </Panel>
                     {data.dimensions[dim.dim1].values.length - 1 === 0 ? (
-                    <div className="slider-box">
-                        <LabelResource uid={'chart_label_tab'} label={header} dimension={data.dimensions[dim.dim1]}/>
-                    </div>
+                    <LabelResource uid={'chart_label_tab'} description={description} label={header} dimension={data.dimensions[dim.dim1]}/>
                     ) : (
                     <div>
+                        <LabelResource uid={'chart_label_tab'} description={description} label={header} dimension={data.dimensions[dim.dim1]}/>
                         <div className="slider-box">
-                            <LabelResource uid={'chart_label_tab'} label={header} dimension={data.dimensions[dim.dim1]}/>
                             <Nouislider
                                 range={{min: 0, max: data.dimensions[dim.dim1].values.length - 1}}
                                 start={[dim.dim1Idx]}
@@ -122,10 +128,13 @@ const DataContainer = React.createClass({
                                         }
                                     }
                                 }}/>
-                          </div>
-                        <hr/>
+                        </div>
                     </div>
                     )}
+                    <Panel className="panel-box">
+                        <h4 className="text-center">{'Current ' + data.dimensions[dim.dim1].name + ' Chart'}</h4>
+                        <Chart/>
+                    </Panel>
                     <SummaryChart/>
                 </div>
             </div>

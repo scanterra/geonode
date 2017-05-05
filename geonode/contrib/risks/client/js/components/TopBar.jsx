@@ -9,13 +9,6 @@ const React = require('react');
 const {connect} = require('react-redux');
 const Navigation = require('./Navigation');
 const HelpBtn = require('./HelpBtn');
-const {generateReport} = require('../actions/report');
-const DownloadBtn = connect(({disaster, report}) => {
-    return {
-        active: disaster.riskAnalysis && disaster.riskAnalysis.riskAnalysisData && true || false,
-        downloading: report.processing
-    };
-}, {downloadAction: generateReport})(require('./DownloadBtn'));
 
 const RiskSelector = require('./RiskSelector');
 const {shareUrlSelector} = require('../selectors/disaster');
@@ -47,7 +40,6 @@ const TopBar = React.createClass({
                 <div className="disaster-breadcrumbs">
                     <Navigation items={navItems} zoom={zoom} context={context}/>
                     <div id="disaster-page-tools" className="pull-right btn-group">
-                        <DownloadBtn/>
                         <SharingLink bsSize=""/>
                         <HelpBtn toggleTutorial={toggleTutorial}/>
                     </div>

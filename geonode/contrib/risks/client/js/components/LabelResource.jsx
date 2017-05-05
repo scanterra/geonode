@@ -8,6 +8,7 @@
 
 const React = require('react');
 const {isObject} = require('lodash');
+const {Panel} = require('react-bootstrap');
 
 const LabelResource = React.createClass({
     propTypes: {
@@ -18,7 +19,8 @@ const LabelResource = React.createClass({
         hide: React.PropTypes.func,
         notifications: React.PropTypes.array,
         dimension: React.PropTypes.object,
-        getData: React.PropTypes.func
+        getData: React.PropTypes.func,
+        description: React.PropTypes.string
     },
     getDefaultProps() {
         return {
@@ -29,7 +31,8 @@ const LabelResource = React.createClass({
             hide: () => {},
             notifications: [],
             dimension: {},
-            getData: () => {}
+            getData: () => {},
+            description: ''
         };
     },
     getDataAttributes(data) {
@@ -49,7 +52,7 @@ const LabelResource = React.createClass({
         });
     },
     render() {
-        const {uid, dimension, label, notifications} = this.props;
+        const {uid, dimension, label, notifications, description} = this.props;
         const notification = notifications.filter((v) => {return v.uid === uid; });
         const url = this.props.currentUrl + 'dym/' + dimension.id;
         const active = notification.length > 0 ? ' active' : '';
@@ -62,16 +65,19 @@ const LabelResource = React.createClass({
                   <div className="disaster-more-info-table">
                       {this.getDataAttributes(dimension)}
                   </div>
-                  <button className={"btn btn-primary"} onClick={() => { this.props.getData(url, uid, title, head); }}>
-                      <i className="fa fa-ellipsis-h"/>&nbsp;{'More info'}
+                  <button className={"btn btn-default pull-right"} style={{marginRight: 10}} onClick={() => { this.props.getData(url, uid, title, head); }}>
+                      <i className="fa fa-ellipsis-h"/>
                   </button>
               </div>
           </div>
         );
+        const descriptionLabel = !description ? null : <div style={{marginTop: 20}}>{description}</div>;
         return (
-            <button className={"text-center btn slider-lab" + active} onClick={() => { return notification.length === 0 ? this.props.show({uid, position: 'bc', /*dismissible: false,*/ autoDismiss: 0, children: element}, 'info') : this.props.hide(uid); }}>
-                {label}
-            </button>
+            <Panel className="panel-box">
+                <h4 className="text-center">{label}</h4>
+                {descriptionLabel}
+                <button className={"btn btn-default pull-right" + active} onClick={() => { return notification.length === 0 ? this.props.show({uid, position: 'bc', autoDismiss: 0, children: element}, 'info') : this.props.hide(uid); }}><i className="fa fa-ellipsis-h"/></button>
+            </Panel>
         );
     }
 });

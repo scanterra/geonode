@@ -14,8 +14,7 @@
 // components required
 const React = require('react');
 const CopyToClipboard = require('react-copy-to-clipboard');
-const Message = require('../../MapStore2/web/client/components/I18N/Message');
-const {Glyphicon, Tooltip, OverlayTrigger, Button} = require('react-bootstrap');
+const {Tooltip, OverlayTrigger, Button} = require('react-bootstrap');
 
 const ShareLink = React.createClass({
     propTypes: {
@@ -25,16 +24,20 @@ const ShareLink = React.createClass({
         return {copied: false};
     },
     render() {
-        const tooltip = (<Tooltip className="disaster" placement="bottom" id="tooltip-share" style={{zIndex: 2001}}>
-          {this.state.copied ? <Message msgId="share.msgCopiedUrl"/> : <Message msgId="share.msgToCopyUrl"/>}
-      </Tooltip>);
-        return (<OverlayTrigger placement="bottom" overlay={tooltip}>
-                            <CopyToClipboard text={this.props.shareUrl} onCopy={ () => this.setState({copied: true}) } >
-                                <Button id="disaster-share-link" bsStyle="primary" onMouseLeave={() => {this.setState({copied: false}); }} >
-                                    <Glyphicon glyph="copy"/>
-                                </Button>
-                            </CopyToClipboard>
-                        </OverlayTrigger>);
+        const tooltip = (
+            <Tooltip className="disaster" placement="bottom" id="tooltip-share" style={{zIndex: 2001}}>
+                {this.state.copied ? 'The link has been copied' : 'Click to get the permalink of this page'}
+            </Tooltip>
+        );
+        return (
+            <OverlayTrigger placement="bottom" overlay={tooltip}>
+                <CopyToClipboard text={this.props.shareUrl} onCopy={ () => this.setState({copied: true}) } >
+                    <Button id="disaster-share-link" style={this.state.copied ? {backgroundColor: '#ff8f31'} : {}} bsStyle="primary" onMouseLeave={() => {this.setState({copied: false}); }} >
+                        <i className="fa fa-share" />
+                    </Button>
+                </CopyToClipboard>
+            </OverlayTrigger>
+        );
     }
 });
 

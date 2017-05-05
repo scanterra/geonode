@@ -56,7 +56,8 @@ const SummaryChart = React.createClass({
         const {uOm} = this.props;
         const chartData = this.getChartData();
         return (
-            <Panel className="chart-panel">
+            <Panel className="panel-box">
+                <h4 className="text-center">{'Summary Chart'}</h4>
                 <ResponsiveContainer width="100%" height={200}>
                     <LineChart data={chartData} margin={{top: 20, right: 30, left: 30, bottom: 5}}>
                         <XAxis dataKey="name" tickFormatter={this.formatXTiks}/>

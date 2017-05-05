@@ -28,33 +28,34 @@ const AxesSelector = React.createClass({
     },
     render() {
         const {name = '', values = []} = this.props.dimension || {};
-        const label = !this.props.dimension ? null : (
-            <div className="text-center slider-box">
-                <LabelResource uid={'map_label_tab'} label={name + ' ' + values[this.props.activeAxis]} dimension={this.props.dimension}/>
-            </div>);
+        const label = !this.props.dimension ? null : (<LabelResource uid={'map_label_tab'} label={name + ': ' + values[this.props.activeAxis]} dimension={this.props.dimension}/>);
         return !this.props.dimension || values.length - 1 === 0 ? label : (
-            <div className="text-center slider-box">
-                <LabelResource uid={'map_label_tab'} label={name + ' ' + values[this.props.activeAxis]} dimension={this.props.dimension}/>
-                <Nouislider
-                    range={{min: 0, max: values.length - 1}}
-                    start={[this.props.activeAxis]}
-                    step={1}
-                    tooltips={false}
-                    onChange={(idx) => this.props.setDimIdx('dim2Idx', Number.parseInt(idx[0]))}
-                    pips= {{
-                        mode: 'steps',
-                        density: 20,
-                        format: {
-                            to: (value) => {
-                                let val = values[value].split(" ")[0];
-                                return val.length > 8 ? val.substring(0, 8) + '...' : val;
-                            },
-                            from: (value) => {
-                                return value;
+            <div className="text-center">
+                <LabelResource uid={'map_label_tab'} label={name + ': ' + values[this.props.activeAxis]} dimension={this.props.dimension}/>
+                <div className="slider-box">
+                    <Nouislider
+                        range={{min: 0, max: values.length - 1}}
+                        start={[this.props.activeAxis]}
+                        step={1}
+                        tooltips={false}
+                        onChange={(idx) => this.props.setDimIdx('dim2Idx', Number.parseInt(idx[0]))}
+                        pips= {{
+                            mode: 'steps',
+                            density: 20,
+                            format: {
+                                to: (value) => {
+                                    let val = values[value].split(" ")[0];
+                                    return val.length > 8 ? val.substring(0, 8) + '...' : val;
+                                },
+                                from: (value) => {
+                                    return value;
+                                }
                             }
-                        }
-                    }}/>
-            </div>);
+                        }}
+                    />
+                </div>
+            </div>
+        );
     }
 });
 
