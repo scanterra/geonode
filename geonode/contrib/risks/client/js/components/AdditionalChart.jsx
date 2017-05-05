@@ -33,7 +33,8 @@ const CustomizedXLabel = (props) => {
 
 const AdditionalChart = React.createClass({
     propTypes: {
-        table: React.PropTypes.object,
+        tables: React.PropTypes.array,
+        currentTable: React.PropTypes.number,
         currentSection: React.PropTypes.number,
         currentCol: React.PropTypes.number,
         setIndex: React.PropTypes.func,
@@ -41,7 +42,8 @@ const AdditionalChart = React.createClass({
     },
     getDefaultProps() {
         return {
-            table: {},
+            tables: [],
+            currentTable: 0,
             currentSection: 0,
             currentCol: 0,
             setIndex: () => {},
@@ -54,18 +56,17 @@ const AdditionalChart = React.createClass({
     getTableData(values, scenarios) {
         return values[this.props.currentCol].map((v, idx) => {return {value: v, name: scenarios[idx].label}; });
     },
-    renderSwitchBar(cols, sections) {
+    renderSwitchBar(cols, sections, tables) {
         return (
             <div>
-                <hr/>
                 <ul className="nav nav-pills">
-                <div className="text-center" style={{marginBottom: 20}}>{'Columns'}</div>
-                {
-                    cols.map((val, idx) => {
-                        let active = idx === this.props.currentCol ? 'active' : '';
-                        return (<li key={idx} className={active} onClick={() => { this.props.setIndex(this.props.currentSection, idx); }}><a onClick={(e) => { e.preventDefault(); }} href="#">{val.label}</a></li>);
-                    })
-                }
+                    <div className="text-center" style={{marginBottom: 20}}>{'Tables'}</div>
+                    {
+                        tables.map((val, idx) => {
+                            let active = idx === this.props.currentTable ? 'active' : '';
+                            return (<li key={idx} className={active} onClick={() => { this.props.setIndex(0, 0, idx); }}><a onClick={(e) => { e.preventDefault(); }} href="#">{val.name}</a></li>);
+                        })
+                    }
                 </ul>
                 <hr/>
                 <div className="text-center" style={{marginBottom: 20}}>{'Sections'}</div>
@@ -73,7 +74,17 @@ const AdditionalChart = React.createClass({
                 {
                     sections.map((val, idx) => {
                         let active = idx === this.props.currentSection ? 'active' : '';
-                        return <li key={idx} className={active} onClick={() => { this.props.setIndex(idx, 0); }}><a onClick={(e) => { e.preventDefault(); }} href="#">{val.title}</a></li>;
+                        return <li key={idx} className={active} onClick={() => { this.props.setIndex(idx, 0, this.props.currentTable); }}><a onClick={(e) => { e.preventDefault(); }} href="#">{val.title}</a></li>;
+                    })
+                }
+                </ul>
+                <hr/>
+                <ul className="nav nav-pills">
+                <div className="text-center" style={{marginBottom: 20}}>{'Columns'}</div>
+                {
+                    cols.map((val, idx) => {
+                        let active = idx === this.props.currentCol ? 'active' : '';
+                        return (<li key={idx} className={active} onClick={() => { this.props.setIndex(this.props.currentSection, idx, this.props.currentTable); }}><a onClick={(e) => { e.preventDefault(); }} href="#">{val.label}</a></li>);
                     })
                 }
                 </ul>
@@ -125,8 +136,8 @@ const AdditionalChart = React.createClass({
             </ResponsiveContainer>
         );
     },
-    renderCharts() {
-        const {sections = [], scenarios} = this.props.table;
+    renderCharts(tables) {
+        const {sections = [], scenarios} = tables[this.props.currentTable].table;
         const {title, values, cols} = sections[this.props.currentSection];
         const display = this.checkNaN(values[this.props.currentCol]).length > 0 ? this.renderTable(values, scenarios, cols) : this.renderChart(values, scenarios, cols);
         return (
@@ -134,12 +145,18 @@ const AdditionalChart = React.createClass({
                 <h4 className="text-center">{title}</h4>
                 <div className="text-center">{cols[this.props.currentCol].label}</div>
                 {display}
-                {this.renderSwitchBar(cols, sections)}
+                {this.renderSwitchBar(cols, sections, tables)}
             </Panel>
         );
     },
+    getTables() {
+        return this.props.tables.filter((val) => {
+            return val && val.table && val.table.sections && val.table.sections.length > 0;
+        });
+    },
     render() {
-        return this.props.table && this.props.table.sections && this.props.table.sections.length > 0 ? this.renderCharts() : null;
+        const tables = this.getTables();
+        return tables.length > 0 && tables[this.props.currentTable] ? this.renderCharts(tables) : null;
     },
     formatYTiks(v) {
         return v.toLocaleString();

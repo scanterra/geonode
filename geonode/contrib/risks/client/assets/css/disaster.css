@@ -6411,6 +6411,8 @@ a.disaster .label:focus {
 .disaster .disaster-risk-selector {
   padding: 20px 10px;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  -webkit-box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  -moz-box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
   margin-bottom: 20px;
 }
 .disaster .disaster-risk-selector li.disabled > a {
@@ -6422,6 +6424,8 @@ a.disaster .label:focus {
 }
 .disaster .disaster-map-container {
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  -webkit-box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  -moz-box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
   overflow: hidden;
 }
 .disaster .disaster-map-container .row {
@@ -6538,6 +6542,8 @@ a.disaster .label:focus {
   display: block;
   width: 100%;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  -webkit-box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  -moz-box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
 }
 .disaster .slider-lab:hover,
 .disaster .slider-lab.active:hover {
@@ -6546,6 +6552,8 @@ a.disaster .label:focus {
 }
 .disaster .slider-lab.active {
   box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.16), inset 0 3px 6px rgba(0, 0, 0, 0.23);
+  -webkit-box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.16), inset 0 3px 6px rgba(0, 0, 0, 0.23);
+  -moz-box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.16), inset 0 3px 6px rgba(0, 0, 0, 0.23);
   background-color: #2c689c;
   color: #fff;
 }
@@ -6578,6 +6586,8 @@ a.disaster .label:focus {
   background-color: #fff;
   padding: 15px 15px;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  -webkit-box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  -moz-box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
 }
 .disaster .disaster-fth-res-container a {
   display: block;
@@ -6598,6 +6608,8 @@ a.disaster .label:focus {
   border: 2px solid #ff8f31;
   background: #2c689c;
   box-shadow: none;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
   cursor: pointer;
   width: 28px !important;
   height: 28px !important;
@@ -6769,10 +6781,14 @@ a.disaster .label:focus {
 }
 .disaster .panel-box {
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  -webkit-box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  -moz-box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
   border-color: transparent;
 }
 .disaster .panel-box li {
   box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.16), inset 0 3px 6px rgba(0, 0, 0, 0.23);
+  -webkit-box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.16), inset 0 3px 6px rgba(0, 0, 0, 0.23);
+  -moz-box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.16), inset 0 3px 6px rgba(0, 0, 0, 0.23);
   margin-bottom: 5px;
 }
 .disaster .panel-box .panel-heading {
@@ -6793,6 +6809,8 @@ a.disaster .label:focus {
 }
 .disaster .panel-box .recharts-legend-item {
   box-shadow: none;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
 }
 @font-face {
   font-family: 'thinkhazard';

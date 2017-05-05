@@ -112,9 +112,10 @@ const sliderChartSelector = createSelector([riskAnalysisDataSel, dimSelector, sl
     }));
 const additionalChartSelector = createSelector([riskAnalysisDataSel, additionalChartsSel],
     (riskAnalysisData, additionalCharts) => ({
-        table: riskAnalysisData.additionalTables && riskAnalysisData.additionalTables[0] && riskAnalysisData.additionalTables[0].table,
+        tables: riskAnalysisData.additionalTables || [],
         currentCol: additionalCharts.currentCol,
-        currentSection: additionalCharts.currentSection
+        currentSection: additionalCharts.currentSection,
+        currentTable: additionalCharts.currentTable
     }));
 module.exports = {
     dimSelector,
@@ -133,4 +134,3 @@ module.exports = {
     sliderChartSelector,
     additionalChartSelector
 };
-

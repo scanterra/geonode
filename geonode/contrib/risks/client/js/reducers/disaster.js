@@ -59,7 +59,7 @@ function disaster(state = {dim: {dim1: 0, dim2: 1, dim1Idx: 0, dim2Idx: 0}}, act
                 sliders
             });
         case SET_ADDITIONAL_CHART_INDEX:
-            let additionalCharts = {currentSection: action.section, currentCol: action.col};
+            let additionalCharts = {currentSection: action.section, currentCol: action.col, currentTable: action.table};
             return assign({}, state, {
                 additionalCharts
             });

@@ -158,11 +158,12 @@ function chartSliderUpdate(index, uid) {
     };
 }
 
-function setAdditionalChartIndex(section, col) {
+function setAdditionalChartIndex(section, col, table) {
     return {
         type: SET_ADDITIONAL_CHART_INDEX,
         section,
-        col
+        col,
+        table
     };
 }
 
