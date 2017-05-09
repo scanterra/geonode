@@ -20,6 +20,19 @@ function configLayer(baseurl, layerName, layerId, layerTitle, visibility = true,
     "tiled": true
     }, group && {group} || {});
 }
+function configRefLayer(baseurl, layerName, layerId, layerTitle, style, visibility = true, group) {
+    return style ? assign({
+    "id": layerId,
+    "type": "wms",
+    "url": baseurl + "wms",
+    "name": layerName,
+    "title": layerTitle,
+    "visibility": visibility,
+    "format": "image/png8",
+    "tiled": true,
+    "style": style
+  }, group && {group} || {}) : configLayer(baseurl, layerName, layerId, layerTitle, visibility, group);
+}
 function getViewParamCosts(dim, riskAnalysis) {
     const {dimensions} = riskAnalysis.riskAnalysisData.data;
     const dim1Val = dimensions[dim.dim1] && dimensions[dim.dim1].values[dim.dim1Idx];
@@ -76,6 +89,9 @@ function getStyleCosts(riskAnalysis) {
     const {referenceStyle} = riskAnalysis.riskAnalysisData;
     return referenceStyle.name && referenceStyle.name;
 }
+function getStyleRef(riskAnalysis) {
+    return riskAnalysis && riskAnalysis.riskAnalysisData && riskAnalysis.riskAnalysisData.referenceStyle && riskAnalysis.riskAnalysisData.referenceStyle.name || null;
+}
 function getStyle({riskAnalysis, app}) {
     return app === 'costs' ? getStyleCosts(riskAnalysis) : getStyleRisks(riskAnalysis);
 }
@@ -125,4 +141,4 @@ function makeNotificationBody(data, title, head) {
     );
 }
 
-module.exports = {configLayer, getViewParam, getLayerName, getStyle, getLayerTitle, makeNotificationBody};
+module.exports = {configLayer, getViewParam, getLayerName, getStyle, getStyleRef, configRefLayer, getLayerTitle, makeNotificationBody};

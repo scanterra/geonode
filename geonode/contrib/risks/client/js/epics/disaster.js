@@ -14,7 +14,7 @@ const bbox = require('turf-bbox');
 const {changeLayerProperties, addLayer, removeNode} = require('../../MapStore2/web/client/actions/layers');
 const assign = require('object-assign');
 const {find} = require('lodash');
-const {configLayer, makeNotificationBody, getLayerTitle} = require('../utils/DisasterUtils');
+const {configLayer, configRefLayer, getStyleRef, makeNotificationBody, getLayerTitle} = require('../utils/DisasterUtils');
 const ConfigUtils = require('../../MapStore2/web/client/utils/ConfigUtils');
 
 const {
@@ -85,11 +85,16 @@ const getAnalysisEpic = (action$, store) =>
             .map(val => {
                 const baseUrl = val.wms && val.wms.baseurl;
                 const anLayers = val.riskAnalysisData && val.riskAnalysisData.additionalLayers || [];
+                const referenceLayer = val.riskAnalysisData && val.riskAnalysisData.referenceLayer;
                 const layers = (store.getState()).layers;
                 const {app} = (store.getState()).disaster;
                 const hasGis = find(layers.groups, g => g.id === 'Gis Overlays');
                 const hasRiskAn = find(layers.flat, l => l.id === '_riskAn_');
-                const actions = [analysisDataLoaded(val), hasGis && removeNode("Gis Overlays", "groups"), !hasRiskAn && addLayer(configLayer(baseUrl, "", "_riskAn_", getLayerTitle({riskAnalysis: val, app}), true, "Default"), false)].concat(anLayers.map((l) => addLayer(configLayer(baseUrl, l[1], `ral_${l[0]}`, l[2] || l[1].split(':').pop(), false, 'Gis Overlays')))).filter(a => a);
+
+                const actions = [analysisDataLoaded(val), hasGis && removeNode("Gis Overlays", "groups"),
+                  !hasRiskAn && addLayer(configLayer(baseUrl, "", "_riskAn_", getLayerTitle({riskAnalysis: val, app}), true, "Default"), false),
+                  app !== 'costs' && referenceLayer && referenceLayer.layerName && referenceLayer.layerTitle && addLayer(configRefLayer(baseUrl, referenceLayer.layerName, "_refLayer_", referenceLayer.layerTitle, getStyleRef(val), true, "Gis Overlays"), false)].concat(anLayers.map((l) => addLayer(configLayer(baseUrl, l[1], `ral_${l[0]}`, l[2] || l[1].split(':').pop(), true, 'Gis Overlays')))).filter(a => a);
+
                 return actions;
             })
             .mergeAll()
