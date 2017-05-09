@@ -75,8 +75,6 @@ class FurtherResourceAdmin(admin.ModelAdmin):
     model = FurtherResource
     list_display_links = ('resource',)
     list_display = ('resource',)
-    # raw_id_fields = ('resource',)
-    filter_horizontal = ('resource',)
     group_fieldsets = True
 
 
