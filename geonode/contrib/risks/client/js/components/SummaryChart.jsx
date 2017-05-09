@@ -7,7 +7,7 @@
  */
 
 const React = require('react');
-const {Legend, LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer} = require('recharts');
+const {Cell, Bar, BarChart, Legend, LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer} = require('recharts');
 const chromaJs = require('chroma-js');
 const {Panel} = require('react-bootstrap');
 
@@ -34,8 +34,11 @@ const SummaryChart = React.createClass({
     },
     getChartData() {
         const {dim, values, dimension} = this.props;
-
-        return dimension[dim.dim2].values.map((val) => {
+        return dimension[dim.dim2].values
+        .filter((val) => {
+            return val !== 'AED';
+        })
+        .map((val) => {
             return values.filter((d) => d[dim.dim2] === val);
         }).map((v) => {
             return v.reduce((a, b, idx) => {
@@ -45,6 +48,15 @@ const SummaryChart = React.createClass({
             }, v[0]);
         });
     },
+    getAED() {
+        const {values} = this.props;
+        return values.filter((val) => {
+            return val[1] === 'AED';
+        })
+        .map((val) => {
+            return {name: val[0], value: parseFloat(val[2])};
+        });
+    },
     getLines() {
         const {dim, dimension, val} = this.props;
         const colors = chromaJs.scale('YlGnBu').mode('lch').colors(dimension[dim.dim1].values.length);
@@ -52,9 +64,17 @@ const SummaryChart = React.createClass({
             return val === v ? (<Line key={idx} type="monotone" dataKey={v} stroke="#ff8f31" strokeWidth={2}/>) : (<Line key={idx} type="monotone" dataKey={v} stroke={colors[idx]}/>);
         });
     },
+    getBars() {
+        const {dim, dimension, val} = this.props;
+        const colors = chromaJs.scale('YlGnBu').mode('lch').colors(dimension[dim.dim1].values.length);
+        return dimension[dim.dim1].values.map((v, idx) => {
+            return val === v ? (<Bar key={idx} type="monotone" dataKey={v} stroke="#ff8f31" strokeWidth={2}/>) : (<Bar key={idx} type="monotone" dataKey={v} stroke={colors[idx]}/>);
+        });
+    },
     render() {
-        const {uOm} = this.props;
+        const {uOm, dim} = this.props;
         const chartData = this.getChartData();
+        const AED = this.getAED();
         return (
             <Panel className="panel-box">
                 <h4 className="text-center">{'Summary Chart'}</h4>
@@ -67,6 +87,25 @@ const SummaryChart = React.createClass({
                         <Legend verticalAlign="bottom" height={36}/>
                     </LineChart>
                 </ResponsiveContainer>
+                { AED.length > 0 ?
+                <div>
+                <h4 className="text-center">{'AED'}</h4>
+                <ResponsiveContainer width="100%" height={200}>
+                    <BarChart data={AED} margin={{top: 20, right: 30, left: 30, bottom: 5}}>
+                        <XAxis dataKey="name" tickFormatter={this.formatXTiks}/>
+                        <YAxis label={<CustomizedYLable lab={uOm}/>} interval="preserveStart" tickFormatter={this.formatYTiks}/>
+                        <CartesianGrid strokeDasharray="3 3"/>
+                        <Bar type="monotone" dataKey={"value"}>
+                        {
+                            AED.map((entry, index) => {
+                                const active = index === dim.dim1Idx;
+                                return (<Cell strokeWidth={0} fill={active ? '#ff8f31' : '#333333'} key={`cell-${index}`}/>);
+                            })
+                        }
+                        </Bar>
+                    </BarChart>
+                </ResponsiveContainer>
+                </div> : null}
             </Panel>
         );
     },
