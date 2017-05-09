@@ -80,6 +80,9 @@ class Style(models.Model):
     def absolute_url(self):
         return self.sld_url.split(settings.OGC_SERVER['default']['LOCATION'], 1)[1]
 
+    class Meta:
+        ordering = ['sld_title', 'name']
+
 
 class LayerManager(ResourceBaseManager):
 
@@ -246,6 +249,7 @@ class Layer(ResourceBase):
             return "Unamed Layer"
 
     class Meta:
+        ordering = ['title']
         # custom permissions,
         # change and delete are standard in django-guardian
         permissions = (

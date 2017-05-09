@@ -43,6 +43,7 @@ from geonode.contrib.risks.forms import ImportMetadataRiskAnalysisForm
 
 class DymensionInfoInline(admin.TabularInline):
     model = DymensionInfo.risks_analysis.through
+    raw_id_fields = ('resource',)
     extra = 3
 
 
@@ -54,16 +55,19 @@ class AdministrativeDivisionInline(admin.StackedInline):
 
 class FurtherResourceInline(admin.TabularInline):
     model = AnalysisTypeFurtherResourceAssociation
+    raw_id_fields = ('resource',)
     extra = 3
 
 
 class LinkedResourceInline(admin.TabularInline):
     model = DymensionInfoFurtherResourceAssociation
+    raw_id_fields = ('resource',)
     extra = 3
 
 
 class AdditionalResourceInline(admin.TabularInline):
     model = HazardSetFurtherResourceAssociation
+    raw_id_fields = ('resource',)
     extra = 3
 
 
@@ -71,6 +75,8 @@ class FurtherResourceAdmin(admin.ModelAdmin):
     model = FurtherResource
     list_display_links = ('resource',)
     list_display = ('resource',)
+    # raw_id_fields = ('resource',)
+    filter_horizontal = ('resource',)
     group_fieldsets = True
 
 
@@ -135,6 +141,8 @@ class RiskAnalysisAdmin(admin.ModelAdmin):
     # inlines = [AdministrativeDivisionInline, DymensionInfoInline]
     inlines = [LinkedResourceInline, DymensionInfoInline]
     group_fieldsets = True
+    raw_id_fields = ('hazardset', 'layer', 'style', 'reference_layer', 'reference_style',)
+    filter_horizontal = ('additional_layers',)
 
     def has_add_permission(self, request):
         return False
@@ -218,6 +226,7 @@ class RiskAppAdmin(admin.ModelAdmin):
 @admin.register(AdditionalData)
 class AdditionalDataAdmin(admin.ModelAdmin):
     list_display = ('risk_analysis', 'name',)
+    raw_id_fields = ('risk_analysis',)
 
 
 admin.site.register(Region, RegionAdmin)
