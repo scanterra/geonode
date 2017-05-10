@@ -28,4 +28,5 @@ git pull
 # paver risks_static
 ./manage.sh riskstatic --full ${BUILD_INIT}
 ./manage.sh collectstatic --noinput
+./manage.sh makemigrations
 ./manage.sh migrate
