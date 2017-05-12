@@ -10,6 +10,9 @@ python:
 branches:
   only:
     - afg_risks_contrib
+    - master
+    - 2.7.x
+    - 2.6.x
 
 install:
   - sudo add-apt-repository -y ppa:webupd8team/java
