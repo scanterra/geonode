@@ -249,7 +249,7 @@ class Layer(ResourceBase):
             return "Unamed Layer"
 
     class Meta:
-        ordering = ['title']
+        # ordering = ['title']
         # custom permissions,
         # change and delete are standard in django-guardian
         permissions = (
