@@ -36,7 +36,9 @@ from django.template.defaultfilters import slugify
 from django.core.cache import cache
 
 from geonode.layers.models import Layer
-from geonode.base.models import ResourceBase, resourcebase_post_save
+from geonode.base.models import (ResourceBase,
+                                 resourcebase_post_save,
+                                 resourcebase_pre_save,)
 from geonode.maps.signals import map_changed_signal
 from geonode.utils import GXPMapBase
 from geonode.utils import GXPLayerBase
@@ -556,3 +558,4 @@ class MapSnapshot(models.Model):
 
 signals.pre_delete.connect(pre_delete_map, sender=Map)
 signals.post_save.connect(resourcebase_post_save, sender=Map)
+signals.pre_save.connect(resourcebase_pre_save, sender=Map)

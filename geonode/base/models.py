@@ -180,9 +180,12 @@ class BoundingBoxGeometry(geomodels.Model):
         return bbox_to_wkt(self.bbox_x0, self.bbox_x1, self.bbox_y0, self.bbox_y1, srid=self.srid)
     
     def get_envelope_from_bbox(self):
-        wkt = self.geographic_bounding_box()
+        wkt = self.geographic_bounding_box
         return GEOSGeometry(wkt)
     
+    def _update_from_bbox(self):
+        self.envelope = self.get_envelope_from_bbox()
+
     class Meta:
         abstract = True
 
@@ -999,56 +1002,20 @@ def resourcebase_post_save(instance, *args, **kwargs):
                 link.delete()
 
     try:
-        if instance.regions and instance.regions.all():
-            """
-            try:
-                queryset = instance.regions.all().order_by('name')
-                for region in queryset:
-                    print ("%s : %s" % (region.name, region.geographic_bounding_box))
-            except:
-                tb = traceback.format_exc()
-            else:
-                tb = None
-            finally:
-                if tb:
-                    logger.debug(tb)
-            """
-            pass
-        else:
-            srid1, wkt1 = instance.geographic_bounding_box.split(";")
-            srid1 = re.findall(r'\d+', srid1)
-
-            poly1 = GEOSGeometry(wkt1, srid=int(srid1[0]))
-            poly1.transform(4326)
+        max_regions = 30
+        if not instance.regions.exists():
+            envelope = instance.envelope
 
             queryset = Region.objects.all().order_by('name')
-            global_regions = []
-            regions_to_add = []
-            for region in queryset:
-                try:
-                    srid2, wkt2 = region.geographic_bounding_box.split(";")
-                    srid2 = re.findall(r'\d+', srid2)
+            regions = Region.objects.filter(envelope__intersects=envelope)
 
-                    poly2 = GEOSGeometry(wkt2, srid=int(srid2[0]))
-                    poly2.transform(4326)
-
-                    if poly2.intersection(poly1):
-                        regions_to_add.append(region)
-                    if region.level == 0 and region.parent is None:
-                        global_regions.append(region)
-                except:
-                    tb = traceback.format_exc()
-                    if tb:
-                        logger.debug(tb)
-            if regions_to_add or global_regions:
-                if regions_to_add and len(regions_to_add) > 0 and len(regions_to_add) <= 30:
-                    instance.regions.add(*regions_to_add)
-                else:
-                    instance.regions.add(*global_regions)
-    except:
-        tb = traceback.format_exc()
-        if tb:
-            logger.debug(tb)
+            if regions.count()<= max_regions:
+                instance.regions.add(*regions)
+            else:
+                # too many regions, lets set gloabl only
+                instance.regions.add(*regions.filter(parent__isnull=True, level=0))
+    except Exception, err:
+        logger.error("Error during regions update", exc_info=err)
 
     # set default License if no specified
     if instance.license is None:
@@ -1058,6 +1025,9 @@ def resourcebase_post_save(instance, *args, **kwargs):
             instance.license = no_license[0]
             instance.save()
 
+def resourcebase_pre_save(instance, *args, **kwargs):
+    if instance.envelope is None:
+        instance._update_from_bbox()
 
 def rating_post_save(instance, *args, **kwargs):
     """
