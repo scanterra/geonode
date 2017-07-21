@@ -19,7 +19,7 @@
 #########################################################################
 
 from django.test import TestCase
-from geonode.base.models import ResourceBase
+from geonode.base.models import ResourceBase, Region
 
 
 class ThumbnailTests(TestCase):
@@ -31,3 +31,19 @@ class ThumbnailTests(TestCase):
         self.assertFalse(self.rb.has_thumbnail())
         missing = self.rb.get_thumbnail_url()
         self.assertEquals('/static/geonode/img/missing_thumb.png', missing)
+
+
+
+class RegionTests(TestCase):
+    
+    fixtures = ['regions.json']
+
+    def test_envelope(self):
+        codes = ('GLO', 'PAC', 'EUR', 'ITA',)
+        it = Region.objects.get(code='ITA')
+        center = it.envelope.centroid
+        code_check = tuple(Region.objects
+                                 .filter(envelope__intersects=center)
+                                 .order_by('level')
+                                 .values_list('code', flat=True))
+        self.assertEqual(codes, code_check)

@@ -1026,8 +1026,7 @@ def resourcebase_post_save(instance, *args, **kwargs):
             instance.save()
 
 def resourcebase_pre_save(instance, *args, **kwargs):
-    if instance.envelope is None:
-        instance._update_from_bbox()
+    instance._update_from_bbox()
 
 def rating_post_save(instance, *args, **kwargs):
     """
@@ -1037,6 +1036,7 @@ def rating_post_save(instance, *args, **kwargs):
 
 
 signals.post_save.connect(rating_post_save, sender=OverallRating)
+signals.pre_save.connect(resourcebase_pre_save, sender=Region)
 
 
 def do_login(sender, user, request, **kwargs):
