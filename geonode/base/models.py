@@ -43,6 +43,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.contrib.auth.signals import user_logged_in, user_logged_out
+from django.contrib.gis.db import models as geomodels
 from django.core.files.storage import default_storage as storage
 from django.core.files.base import ContentFile
 from django.contrib.gis.geos import GEOSGeometry
@@ -151,13 +152,8 @@ class RegionManager(models.Manager):
         return self.get(code=code)
 
 
-class Region(MPTTModel):
-    # objects = RegionManager()
-
-    code = models.CharField(max_length=50, unique=True)
-    name = models.CharField(max_length=255)
-    parent = TreeForeignKey('self', null=True, blank=True, related_name='children')
-
+class BoundingBoxGeometry(geomodels.Model):
+    
     # Save bbox values in the database.
     # This is useful for spatial searches and for generating thumbnail images and metadata records.
     bbox_x0 = models.DecimalField(max_digits=19, decimal_places=10, blank=True, null=True)
@@ -166,9 +162,11 @@ class Region(MPTTModel):
     bbox_y1 = models.DecimalField(max_digits=19, decimal_places=10, blank=True, null=True)
     srid = models.CharField(max_length=255, default='EPSG:4326')
 
-    def __unicode__(self):
-        return self.name
-
+    envelope = geomodels.GeometryField(null=True)
+    geom = geomodels.GeometryField(null=True)
+    # geodjango manager, will be obsolete with django 1.9+: 
+    geoobjects = geomodels.GeoManager()
+    
     @property
     def bbox(self):
         return [self.bbox_x0, self.bbox_x1, self.bbox_y0, self.bbox_y1, self.srid]
@@ -180,6 +178,24 @@ class Region(MPTTModel):
     @property
     def geographic_bounding_box(self):
         return bbox_to_wkt(self.bbox_x0, self.bbox_x1, self.bbox_y0, self.bbox_y1, srid=self.srid)
+    
+    def get_envelope_from_bbox(self):
+        wkt = self.geographic_bounding_box()
+        return GEOSGeometry(wkt)
+    
+    class Meta:
+        abstract = True
+
+
+class Region(MPTTModel, BoundingBoxGeometry):
+    # objects = RegionManager()
+
+    code = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=255)
+    parent = TreeForeignKey('self', null=True, blank=True, related_name='children')
+
+    def __unicode__(self):
+        return self.name
 
     class Meta:
         ordering = ("name",)
@@ -419,7 +435,7 @@ class ResourceBaseManager(PolymorphicManager):
         return super(ResourceBaseManager, self).get_queryset()
 
 
-class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
+class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase, BoundingBoxGeometry):
     """
     Base Resource Object loosely based on ISO 19115:2003
     """
@@ -510,14 +526,6 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
     # Section 9
     # see metadata_author property definition below
 
-    # Save bbox values in the database.
-    # This is useful for spatial searches and for generating thumbnail images and metadata records.
-    bbox_x0 = models.DecimalField(max_digits=19, decimal_places=10, blank=True, null=True)
-    bbox_x1 = models.DecimalField(max_digits=19, decimal_places=10, blank=True, null=True)
-    bbox_y0 = models.DecimalField(max_digits=19, decimal_places=10, blank=True, null=True)
-    bbox_y1 = models.DecimalField(max_digits=19, decimal_places=10, blank=True, null=True)
-    srid = models.CharField(max_length=255, default='EPSG:4326')
-
     # CSW specific fields
     csw_typename = models.CharField(_('CSW typename'), max_length=32, default='gmd:MD_Metadata', null=False)
 
@@ -556,18 +564,6 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
 
     def __unicode__(self):
         return self.title
-
-    @property
-    def bbox(self):
-        return [self.bbox_x0, self.bbox_x1, self.bbox_y0, self.bbox_y1, self.srid]
-
-    @property
-    def bbox_string(self):
-        return ",".join([str(self.bbox_x0), str(self.bbox_y0), str(self.bbox_x1), str(self.bbox_y1)])
-
-    @property
-    def geographic_bounding_box(self):
-        return bbox_to_wkt(self.bbox_x0, self.bbox_x1, self.bbox_y0, self.bbox_y1, srid=self.srid)
 
     @property
     def license_light(self):
