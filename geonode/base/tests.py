@@ -39,7 +39,7 @@ class RegionTests(TestCase):
     fixtures = ['regions.json']
 
     def test_envelope(self):
-        codes = ('GLO', 'PAC', 'EUR', 'ITA',)
+        codes = ('GLO', 'EUR', 'PAC', 'ITA',)
         it = Region.objects.get(code='ITA')
         center = it.envelope.centroid
         code_check = tuple(Region.objects
