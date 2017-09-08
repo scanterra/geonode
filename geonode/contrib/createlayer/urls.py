@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #########################################################################
 #
-# Copyright (C) 2016 OSGeo
+# Copyright (C) 2017 OSGeo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,23 +18,9 @@
 #
 #########################################################################
 
-import os
+from django.conf.urls import url
+from . import views
 
-__version__ = (2, 9, 0, 'unstable', 0)
-
-
-class GeoNodeException(Exception):
-    """Base class for exceptions in this module."""
-    pass
-
-
-def get_version():
-    import geonode.version
-    return geonode.version.get_version(__version__)
-
-
-def main(global_settings, **settings):
-    from django.core.wsgi import get_wsgi_application
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', settings.get('django_settings'))
-    app = get_wsgi_application()
-    return app
+urlpatterns = [
+    url(r'$', views.layer_create, name='layer_create')
+]
