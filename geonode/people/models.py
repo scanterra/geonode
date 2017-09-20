@@ -38,6 +38,13 @@ from account.models import EmailAddress
 from .utils import format_address
 
 
+email_format = """Hello,
+
+Your username for {} is {}.
+
+Welcome!"""
+
+
 class ProfileUserManager(UserManager):
     def get_by_natural_key(self, username):
         return self.get(username__iexact=username)
@@ -177,10 +184,9 @@ def profile_pre_save(instance, sender, **kw):
         return
     if instance.is_active and not matching_profiles.get().is_active:
         send_notification((instance,), "account_active")
-        if (not instance.approved) and instance.is_active:
+        if not instance.approved:
             instance.approved = True
-            message_format = 'We inform you that your username is {}'
-            message = message_format.format(instance.username)
+            message = email_format.format(settings.SITEURL, instance.username)
             try:
                 send_mail(
                     'Account approved',
