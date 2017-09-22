@@ -20,6 +20,7 @@
 
 from django.db import models
 from django.utils.translation import ugettext as _
+from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.contrib import auth
@@ -37,6 +38,13 @@ from account.models import EmailAddress
 from .utils import format_address
 
 
+email_format = """Hello,
+
+Your username for {} is {}.
+
+Welcome!"""
+
+
 class ProfileUserManager(UserManager):
     def get_by_natural_key(self, username):
         return self.get(username__iexact=username)
@@ -46,6 +54,10 @@ class Profile(AbstractUser):
 
     """Fully featured Geonode user"""
 
+    approved = models.BooleanField(
+        _('Is the user approved?'),
+        default=False,
+        help_text=_('approve user'))
     organization = models.CharField(
         _('Organization Name'),
         max_length=255,
@@ -172,6 +184,19 @@ def profile_pre_save(instance, sender, **kw):
         return
     if instance.is_active and not matching_profiles.get().is_active:
         send_notification((instance,), "account_active")
+        if not instance.approved:
+            instance.approved = True
+            message = email_format.format(settings.SITEURL, instance.username)
+            try:
+                send_mail(
+                    'Account approved',
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [instance.email],
+                    fail_silently=True,
+                )
+            except:
+                pass
 
 
 def profile_signed_up(user, form, **kwargs):
