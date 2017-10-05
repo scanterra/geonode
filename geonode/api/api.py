@@ -258,20 +258,26 @@ class TopicCategoryResource(TypeFilteredResource):
                 anonymous_group = None
 
             if settings.GROUP_PRIVATE_RESOURCES:
+                public_groups = GroupProfile.objects.exclude(access="private").values('group')
                 if is_admin:
                     filter_set = filter_set
                 elif request.user:
                     groups = request.user.groups.all()
                     if anonymous_group:
                         filter_set = filter_set.filter(
-                            Q(group__isnull=True) | Q(group__in=groups) | Q(group=anonymous_group))
+                            Q(group__isnull=True) | Q(group__in=groups) |
+                            Q(group__in=public_groups) | Q(group=anonymous_group))
                     else:
-                        filter_set = filter_set.filter(Q(group__isnull=True) | Q(group__in=groups))
+                        filter_set = filter_set.filter(
+                            Q(group__isnull=True) |
+                            Q(group__in=public_groups) | Q(group__in=groups))
                 else:
                     if anonymous_group:
-                        filter_set = filter_set.filter(Q(group__isnull=True) | Q(group=anonymous_group))
+                        filter_set = filter_set.filter(
+                            Q(group__isnull=True) | Q(group__in=public_groups) | Q(group=anonymous_group))
                     else:
-                        filter_set = filter_set.filter(Q(group__isnull=True))
+                        filter_set = filter_set.filter(
+                            Q(group__isnull=True) | Q(group__in=public_groups))
 
         return filter_set.distinct().count()
 
