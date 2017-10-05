@@ -48,10 +48,10 @@ class ResourceBaseAutocomplete(AutocompleteModelTemplate):
 
         if settings.ADMIN_MODERATE_UPLOADS:
             if not is_admin and not is_staff:
-                self.choices = self.choices.filter(is_published=True)
+                self.choices = self.choices.filter(Q(is_published=True) | Q(owner__username__iexact=str(request.user)))
 
         if settings.RESOURCE_PUBLISHING:
-            self.choices = self.choices.filter(is_published=True)
+            self.choices = self.choices.filter(Q(is_published=True) | Q(owner__username__iexact=str(request.user)))
 
         try:
             anonymous_group = Group.objects.get(name='anonymous')

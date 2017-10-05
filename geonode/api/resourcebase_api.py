@@ -175,7 +175,7 @@ class CommonModelApi(ModelResource):
             is_staff = request.user.is_staff if request.user else False
 
         if not is_admin and not is_staff:
-            filtered = queryset.filter(Q(is_published=True))
+            filtered = queryset.filter(Q(is_published=True) | Q(owner__username__iexact=str(request.user)))
         else:
             filtered = queryset
         return filtered
@@ -439,10 +439,10 @@ class CommonModelApi(ModelResource):
                 request.user, 'base.view_resourcebase')
             if settings.ADMIN_MODERATE_UPLOADS:
                 if not is_admin and not is_staff:
-                    filter_set = filter_set.filter(is_published=True)
+                    filter_set = filter_set.filter(Q(is_published=True) | Q(owner__username__iexact=str(request.user)))
 
             if settings.RESOURCE_PUBLISHING:
-                filter_set = filter_set.filter(is_published=True)
+                filter_set = filter_set.filter(Q(is_published=True) | Q(owner__username__iexact=str(request.user)))
 
             try:
                 anonymous_group = Group.objects.get(name='anonymous')
@@ -635,8 +635,6 @@ class ResourceBaseResource(CommonModelApi):
     class Meta(CommonMetaApi):
         queryset = ResourceBase.objects.polymorphic_queryset() \
             .distinct().order_by('-date')
-        if settings.RESOURCE_PUBLISHING:
-            queryset = queryset.filter(is_published=True)
         resource_name = 'base'
         excludes = ['csw_anytext', 'metadata_xml']
 
@@ -647,8 +645,6 @@ class FeaturedResourceBaseResource(CommonModelApi):
 
     class Meta(CommonMetaApi):
         queryset = ResourceBase.objects.filter(featured=True).order_by('-date')
-        if settings.RESOURCE_PUBLISHING:
-            queryset = queryset.filter(is_published=True)
         resource_name = 'featured'
 
 
@@ -658,8 +654,6 @@ class LayerResource(CommonModelApi):
 
     class Meta(CommonMetaApi):
         queryset = Layer.objects.distinct().order_by('-date')
-        if settings.RESOURCE_PUBLISHING:
-            queryset = queryset.filter(is_published=True)
         resource_name = 'layers'
         excludes = ['csw_anytext', 'metadata_xml']
 
@@ -670,8 +664,6 @@ class MapResource(CommonModelApi):
 
     class Meta(CommonMetaApi):
         queryset = Map.objects.distinct().order_by('-date')
-        if settings.RESOURCE_PUBLISHING:
-            queryset = queryset.filter(is_published=True)
         resource_name = 'maps'
 
 
@@ -683,6 +675,4 @@ class DocumentResource(CommonModelApi):
         filtering = CommonMetaApi.filtering
         filtering.update({'doc_type': ALL})
         queryset = Document.objects.distinct().order_by('-date')
-        if settings.RESOURCE_PUBLISHING:
-            queryset = queryset.filter(is_published=True)
         resource_name = 'documents'
