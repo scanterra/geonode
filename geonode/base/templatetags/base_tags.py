@@ -92,10 +92,10 @@ def facets(context):
 
         if settings.ADMIN_MODERATE_UPLOADS:
             if not is_admin and not is_staff:
-                documents = documents.filter(is_published=True)
+                documents = documents.filter(Q(is_published=True) | Q(owner__username__iexact=str(request.user)))
 
         if settings.RESOURCE_PUBLISHING:
-            documents = documents.filter(is_published=True)
+            documents = documents.filter(Q(is_published=True) | Q(owner__username__iexact=str(request.user)))
 
         if settings.GROUP_PRIVATE_RESOURCES:
             try:
@@ -161,10 +161,10 @@ def facets(context):
 
         if settings.ADMIN_MODERATE_UPLOADS:
             if not is_admin and not is_staff:
-                layers = layers.filter(is_published=True)
+                layers = layers.filter(Q(is_published=True) | Q(owner__username__iexact=str(request.user)))
 
         if settings.RESOURCE_PUBLISHING:
-            layers = layers.filter(is_published=True)
+            layers = layers.filter(Q(is_published=True) | Q(owner__username__iexact=str(request.user)))
 
         if settings.GROUP_PRIVATE_RESOURCES:
             try:
@@ -253,12 +253,12 @@ def facets(context):
 
         if settings.ADMIN_MODERATE_UPLOADS:
             if not is_admin and not is_staff:
-                maps = maps.filter(is_published=True)
-                documents = documents.filter(is_published=True)
+                maps = maps.filter(Q(is_published=True) | Q(owner__username__iexact=str(request.user)))
+                documents = documents.filter(Q(is_published=True) | Q(owner__username__iexact=str(request.user)))
 
         if settings.RESOURCE_PUBLISHING:
-            maps = maps.filter(is_published=True)
-            documents = documents.filter(is_published=True)
+            maps = maps.filter(Q(is_published=True) | Q(owner__username__iexact=str(request.user)))
+            documents = documents.filter(Q(is_published=True) | Q(owner__username__iexact=str(request.user)))
 
         if settings.GROUP_PRIVATE_RESOURCES:
             try:
