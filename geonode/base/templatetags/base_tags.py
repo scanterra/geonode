@@ -98,6 +98,7 @@ def facets(context):
             documents = documents.filter(Q(is_published=True) | Q(owner__username__iexact=str(request.user)))
 
         if settings.GROUP_PRIVATE_RESOURCES:
+            public_groups = GroupProfile.objects.exclude(access="private").values('group')
             try:
                 anonymous_group = Group.objects.get(name='anonymous')
             except:
@@ -109,14 +110,18 @@ def facets(context):
                 groups = request.user.groups.all()
                 if anonymous_group:
                     documents = documents.filter(
-                        Q(group__isnull=True) | Q(group__in=groups) | Q(group=anonymous_group))
+                        Q(group__isnull=True) | Q(group__in=groups) |
+                        Q(group__in=public_groups) | Q(group=anonymous_group))
                 else:
-                    documents = documents.filter(Q(group__isnull=True) | Q(group__in=groups))
+                    documents = documents.filter(
+                        Q(group__isnull=True) | Q(group__in=groups) | Q(group__in=public_groups))
             else:
                 if anonymous_group:
-                    documents = documents.filter(Q(group__isnull=True) | Q(group=anonymous_group))
+                    documents = documents.filter(
+                        Q(group__isnull=True) | Q(group__in=public_groups) | Q(group=anonymous_group))
                 else:
-                    documents = documents.filter(Q(group__isnull=True))
+                    documents = documents.filter(
+                        Q(group__isnull=True) | Q(group__in=public_groups))
 
         if keywords_filter:
             treeqs = HierarchicalKeyword.objects.none()
@@ -167,6 +172,7 @@ def facets(context):
             layers = layers.filter(Q(is_published=True) | Q(owner__username__iexact=str(request.user)))
 
         if settings.GROUP_PRIVATE_RESOURCES:
+            public_groups = GroupProfile.objects.exclude(access="private").values('group')
             try:
                 anonymous_group = Group.objects.get(name='anonymous')
             except:
@@ -178,14 +184,18 @@ def facets(context):
                 groups = request.user.groups.all()
                 if anonymous_group:
                     layers = layers.filter(
-                        Q(group__isnull=True) | Q(group__in=groups) | Q(group=anonymous_group))
+                        Q(group__isnull=True) | Q(group__in=groups) |
+                        Q(group__in=public_groups) | Q(group=anonymous_group))
                 else:
-                    layers = layers.filter(Q(group__isnull=True) | Q(group__in=groups))
+                    layers = layers.filter(
+                        Q(group__isnull=True) | Q(group__in=groups) | Q(group__in=public_groups))
             else:
                 if anonymous_group:
-                    layers = layers.filter(Q(group__isnull=True) | Q(group=anonymous_group))
+                    layers = layers.filter(
+                        Q(group__isnull=True) | Q(group__in=public_groups) | Q(group=anonymous_group))
                 else:
-                    layers = layers.filter(Q(group__isnull=True))
+                    layers = layers.filter(
+                        Q(group__isnull=True) | Q(group__in=public_groups))
 
         if extent_filter:
             bbox = extent_filter.split(
@@ -261,6 +271,7 @@ def facets(context):
             documents = documents.filter(Q(is_published=True) | Q(owner__username__iexact=str(request.user)))
 
         if settings.GROUP_PRIVATE_RESOURCES:
+            public_groups = GroupProfile.objects.exclude(access="private").values('group')
             try:
                 anonymous_group = Group.objects.get(name='anonymous')
             except:

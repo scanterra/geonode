@@ -43,6 +43,7 @@ from geonode.maps.models import Map
 from geonode.documents.models import Document
 from geonode.base.models import ResourceBase
 from geonode.base.models import HierarchicalKeyword
+from geonode.groups.models import GroupProfile
 
 from .authorization import GeoNodeAuthorization
 
@@ -190,22 +191,23 @@ class CommonModelApi(ModelResource):
         except BaseException:
             anonymous_group = None
 
+        public_groups = GroupProfile.objects.exclude(access="private").values('group')
         if is_admin:
             filtered = queryset
         elif request.user:
             groups = request.user.groups.all()
             if anonymous_group:
                 filtered = queryset.filter(Q(group__isnull=True) | Q(
-                    group__in=groups) | Q(group=anonymous_group))
+                    group__in=groups) | Q(group__in=public_groups) | Q(group=anonymous_group))
             else:
                 filtered = queryset.filter(
-                    Q(group__isnull=True) | Q(group__in=groups))
+                    Q(group__isnull=True) | Q(group__in=public_groups) | Q(group__in=groups))
         else:
             if anonymous_group:
                 filtered = queryset.filter(
-                    Q(group__isnull=True) | Q(group=anonymous_group))
+                    Q(group__isnull=True) | Q(group__in=public_groups) | Q(group=anonymous_group))
             else:
-                filtered = queryset.filter(Q(group__isnull=True))
+                filtered = queryset.filter(Q(group__isnull=True) | Q(group__in=public_groups))
         return filtered
 
     def filter_h_keywords(self, queryset, keywords):
@@ -450,22 +452,23 @@ class CommonModelApi(ModelResource):
                 anonymous_group = None
 
             if settings.GROUP_PRIVATE_RESOURCES:
+                public_groups = GroupProfile.objects.exclude(access="private").values('group')
                 if is_admin:
                     filter_set = filter_set
                 elif request.user:
                     groups = request.user.groups.all()
                     if anonymous_group:
                         filter_set = filter_set.filter(Q(group__isnull=True) | Q(
-                            group__in=groups) | Q(group=anonymous_group))
+                            group__in=groups) | Q(group__in=public_groups) | Q(group=anonymous_group))
                     else:
                         filter_set = filter_set.filter(
-                            Q(group__isnull=True) | Q(group__in=groups))
+                            Q(group__isnull=True) | Q(group__in=public_groups) | Q(group__in=groups))
                 else:
                     if anonymous_group:
                         filter_set = filter_set.filter(
-                            Q(group__isnull=True) | Q(group=anonymous_group))
+                            Q(group__isnull=True) | Q(group__in=public_groups) | Q(group=anonymous_group))
                     else:
-                        filter_set = filter_set.filter(Q(group__isnull=True))
+                        filter_set = filter_set.filter(Q(group__isnull=True) | Q(group__in=public_groups))
 
             filter_set_ids = filter_set.values_list('id')
             # Do the query using the filterset and the query term. Facet the
