@@ -38,11 +38,29 @@ from account.models import EmailAddress
 from .utils import format_address
 
 
-email_format = """Hello,
+email_subject = """IHP-WINS Notifications/Notifications IHP-WINS"""
 
-Your username for {} is {}.
+email_format = """Dear contributor,
 
-Welcome!"""
+You have received the following notice from {}.
+
+Your account ({}) has been approved and is now active.
+
+To change how you receive notifications, please go to {}/notifications/settings/.
+
+The IHP-WINS Team
+
+----------------------------------------------------------
+
+Cher contributeur,
+
+Cette notification vous a été envoyée par {}.
+
+Votre compte ({}) a été approuvé et est désormais actif.
+
+Pour modifier vos paramètres de notifications, rendez-vous sur {}/notifications/settings/.
+
+L’équipe IHP-WINS"""
 
 
 class ProfileUserManager(UserManager):
@@ -186,10 +204,11 @@ def profile_pre_save(instance, sender, **kw):
         send_notification((instance,), "account_active")
         if not instance.approved:
             instance.approved = True
-            message = email_format.format(settings.SITEURL, instance.username)
+            message = email_format.format(settings.SITEURL, instance.username, settings.SITEURL,
+                                          settings.SITEURL, instance.username, settings.SITEURL)
             try:
                 send_mail(
-                    'Account approved',
+                    email_subject,
                     message,
                     settings.DEFAULT_FROM_EMAIL,
                     [instance.email],
