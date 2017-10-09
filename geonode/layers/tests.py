@@ -984,7 +984,7 @@ class LayerModerationTestCase(TestCase):
             lname = data['url'].split(':')[-1]
             l = Layer.objects.get(name=lname)
 
-            self.assertFalse(l.is_published)
+            self.assertTrue(l.is_published)
             l.delete()
 
 
