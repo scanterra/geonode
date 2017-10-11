@@ -997,11 +997,6 @@ def _create_db_featurestore(name, data, overwrite=False, charset="UTF-8", worksp
                               overwrite=overwrite,
                               charset=charset)
         resource = cat.get_resource(name, store=ds, workspace=workspace)
-        if not resource:
-            resource = cat.get_resource(name, store=ds)
-            if not resource:
-                raise Exception("Resource {} does not exists in GeoServer".format(name))
-
         return ds, resource
     except Exception:
         msg = _("An exception occurred loading data to PostGIS")
@@ -1160,7 +1155,9 @@ def geoserver_upload(
                 'successful import to GeoSever', name)
 
     # Verify the resource was created
+    # print("*********************{}******************************".format(gs_resource))
     if gs_resource is not None:
+        # print(" *********************{}/{}*****************".format(gs_resource.name, name))
         assert gs_resource.name == name
     else:
         msg = ('GeoNode encountered problems when creating layer %s.'
