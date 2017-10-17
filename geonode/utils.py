@@ -528,9 +528,9 @@ def default_map_config(request):
 
 _viewer_projection_lookup = {
     "EPSG:900913": {
-        "maxResolution": 626172.135625/2,
+        "maxResolution": 156543.03390625,
         "units": "m",
-        "maxExtent": [-80150033.36/2, -80150033.36/2, 80150033.36/2, 80150033.36/2],
+        "maxExtent": [-20037508.34, -20037508.34, 20037508.34, 20037508.34],
     },
     "EPSG:4326": {
         "max_resolution": (180 - (-180)) / 256,
