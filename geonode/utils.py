@@ -198,7 +198,7 @@ def layer_from_viewer_config(model, layer, source, ordering):
     ``ordering`` is the index of the layer within the map's layer list
     """
     layer_cfg = dict(layer)
-    for k in ["format", "name", "opacity", "styles", "transparent",
+    for k in ["format", "name", "opacity", "styles", "transparent", "wrapDateLine",
               "fixed", "group", "visibility", "source", "getFeatureInfo"]:
         if k in layer_cfg:
             del layer_cfg[k]
@@ -475,6 +475,7 @@ class GXPLayer(GXPLayerBase):
         self.fixed = False
         self.group = None
         self.visibility = True
+        self.wrapDateLine = True
         self.ows_url = ows_url
         self.layer_params = ""
         self.source_params = ""
@@ -527,9 +528,9 @@ def default_map_config(request):
 
 _viewer_projection_lookup = {
     "EPSG:900913": {
-        "maxResolution": 156543.03390625,
+        "maxResolution": 626172.135625/2,
         "units": "m",
-        "maxExtent": [-20037508.34, -20037508.34, 20037508.34, 20037508.34],
+        "maxExtent": [-80150033.36/2, -80150033.36/2, 80150033.36/2, 80150033.36/2],
     },
     "EPSG:4326": {
         "max_resolution": (180 - (-180)) / 256,
