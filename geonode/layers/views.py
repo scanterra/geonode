@@ -302,6 +302,8 @@ def layer_upload(request, template='upload/layer_upload.html'):
             status_code = 200
         else:
             status_code = 400
+        if settings.MONITORING_ENABLED:
+            request.add_resource('layer', saved_layer.alternate if saved_layer else name)
         return HttpResponse(
             json.dumps(out),
             content_type='application/json',
@@ -849,8 +851,16 @@ def layer_metadata(
         return HttpResponse(json.dumps({'message': message}))
 
     if settings.ADMIN_MODERATE_UPLOADS:
-        if not request.user.is_superuser and not request.user.is_staff:
+        if not request.user.is_superuser:
             layer_form.fields['is_published'].widget.attrs.update({'disabled': 'true'})
+        if not request.user.is_superuser and not request.user.is_staff:
+            can_change_metadata = request.user.has_perm(
+                'change_resourcebase_metadata',
+                layer.get_self_resource())
+            is_manager = request.user.groupmember_set.all().filter(role='manager').exists()
+            if not is_manager or not can_change_metadata:
+                layer_form.fields['is_approved'].widget.attrs.update({'disabled': 'true'})
+
     if poc is not None:
         layer_form.fields['poc'].initial = poc.id
         poc_form = ProfileForm(prefix="poc")
@@ -922,6 +932,10 @@ def layer_metadata_advanced(request, layername):
 @login_required
 def layer_change_poc(request, ids, template='layers/layer_change_poc.html'):
     layers = Layer.objects.filter(id__in=ids.split('_'))
+
+    if settings.MONITORING_ENABLED:
+        for l in layers:
+            request.add_resource('layer', l.altername)
     if request.method == 'POST':
         form = PocForm(request.POST)
         if form.is_valid():
@@ -1139,7 +1153,6 @@ def get_layer(request, layername):
         if isinstance(obj, decimal.Decimal):
             return float(obj)
         raise TypeError
-
     logger.debug('Call get layer')
     if request.method == 'GET':
         layer_obj = _resolve_layer(request, layername)
