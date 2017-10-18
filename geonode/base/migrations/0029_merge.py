@@ -1,0 +1,15 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
+from django.db import migrations, models
+
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ('base', '0028_resourcebase_is_approved'),
+        ('base', '0028_auto_20171005_1857'),
+    ]
+
+    operations = [
+    ]
