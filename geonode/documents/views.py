@@ -577,8 +577,15 @@ def document_metadata_detail(
         docid,
         'view_resourcebase',
         _PERMISSION_MSG_METADATA)
+    group = None
+    if document.group:
+        try:
+            group = GroupProfile.objects.get(slug=document.group.name)
+        except GroupProfile.DoesNotExist:
+            group = None
     return render_to_response(template, RequestContext(request, {
         "resource": document,
+        "group": group,
         'SITEURL': settings.SITEURL[:-1]
     }))
 

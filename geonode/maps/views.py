@@ -1189,8 +1189,15 @@ def map_metadata_detail(
         mapid,
         template='maps/map_metadata_detail.html'):
     map_obj = _resolve_map(request, mapid, 'view_resourcebase')
+    group = None
+    if map_obj.group:
+        try:
+            group = GroupProfile.objects.get(slug=map_obj.group.name)
+        except GroupProfile.DoesNotExist:
+            group = None
     return render_to_response(template, RequestContext(request, {
         "resource": map_obj,
+        "group": group,
         'SITEURL': settings.SITEURL[:-1]
     }))
 

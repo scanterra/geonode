@@ -1202,8 +1202,15 @@ def layer_metadata_detail(
         layername,
         'view_resourcebase',
         _PERMISSION_MSG_METADATA)
+    group = None
+    if layer.group:
+        try:
+            group = GroupProfile.objects.get(slug=layer.group.name)
+        except GroupProfile.DoesNotExist:
+            group = None
     return render_to_response(template, RequestContext(request, {
         "resource": layer,
+        "group": group,
         'SITEURL': settings.SITEURL[:-1]
     }))
 
