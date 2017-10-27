@@ -142,7 +142,10 @@ def map_detail(request, mapid, snapshot=None, template='maps/map_detail.html'):
 
     group = None
     if map_obj.group:
-        group = GroupProfile.objects.get(slug=map_obj.group.name)
+        try:
+            group = GroupProfile.objects.get(slug=map_obj.group.name)
+        except GroupProfile.DoesNotExist:
+            group = None
     context_dict = {
         'config': config,
         'resource': map_obj,
