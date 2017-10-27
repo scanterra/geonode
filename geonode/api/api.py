@@ -103,7 +103,7 @@ class TypeFilteredResource(ModelResource):
 
     count = fields.IntegerField()
 
-    def build_filters(self, filters=None):
+    def build_filters(self, filters=None, ignore_bad_filters=False):
         if filters is None:
             filters = {}
         self.type_filter = None
@@ -156,7 +156,7 @@ class ThesaurusKeywordResource(TypeFilteredResource):
     thesaurus_identifier = fields.CharField(null=False)
     label_id = fields.CharField(null=False)
 
-    def build_filters(self, filters={}):
+    def build_filters(self, filters={}, ignore_bad_filters=False):
         """adds filtering by current language"""
 
         id = filters.pop('id', None)
@@ -394,7 +394,7 @@ class ProfileResource(TypeFilteredResource):
     current_user = fields.BooleanField(default=False)
     activity_stream_url = fields.CharField(null=True)
 
-    def build_filters(self, filters=None):
+    def build_filters(self, filters=None, ignore_bad_filters=False):
         """adds filtering by group functionality"""
         if filters is None:
             filters = {}
