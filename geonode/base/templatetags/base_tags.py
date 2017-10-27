@@ -384,9 +384,9 @@ def facets(context):
                         documents = documents.filter(
                             Q(group__isnull=True) | Q(group__in=groups) | Q(group__in=public_groups) |
                             Q(owner__username__iexact=str(request.user)))
-            else:
-                maps = maps.filter(Q(is_published=True) | Q(owner__username__iexact=str(request.user)))
-                documents = documents.filter(Q(is_published=True) | Q(owner__username__iexact=str(request.user)))
+                else:
+                    maps = maps.filter(Q(is_published=True) | Q(owner__username__iexact=str(request.user)))
+                    documents = documents.filter(Q(is_published=True) | Q(owner__username__iexact=str(request.user)))
 
         if settings.GROUP_PRIVATE_RESOURCES:
             public_groups = GroupProfile.objects.exclude(access="private").values('group')
