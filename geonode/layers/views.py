@@ -399,8 +399,12 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
             granules = {"features": []}
             all_granules = {"features": []}
 
+    group = None
+    if layer.group:
+        group = GroupProfile.objects.get(slug=layer.group.name)
     context_dict = {
-        "resource": layer,
+        'resource': layer,
+        'group': group,
         'perms_list': get_perms(request.user, layer.get_self_resource()),
         "permissions_json": _perms_info_json(layer),
         "documents": get_related_documents(layer),

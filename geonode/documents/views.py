@@ -113,12 +113,16 @@ def document_detail(request, docid):
         metadata = document.link_set.metadata().filter(
             name__in=settings.DOWNLOAD_FORMATS_METADATA)
 
+        group = None
+        if document.group:
+            group = GroupProfile.objects.get(slug=document.group.name)
         context_dict = {
             'perms_list': get_perms(
                 request.user,
                 document.get_self_resource()),
             'permissions_json': _perms_info_json(document),
             'resource': document,
+            'group': group,
             'metadata': metadata,
             'imgtypes': IMGTYPES,
             'related': related}
