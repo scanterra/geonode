@@ -401,7 +401,10 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
 
     group = None
     if layer.group:
-        group = GroupProfile.objects.get(slug=layer.group.name)
+        try:
+            group = GroupProfile.objects.get(slug=layer.group.name)
+        except GroupProfile.DoesNotExist:
+            group = None
     context_dict = {
         'resource': layer,
         'group': group,

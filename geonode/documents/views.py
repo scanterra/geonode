@@ -115,7 +115,10 @@ def document_detail(request, docid):
 
         group = None
         if document.group:
-            group = GroupProfile.objects.get(slug=document.group.name)
+            try:
+                group = GroupProfile.objects.get(slug=document.group.name)
+            except GroupProfile.DoesNotExist:
+                group = None
         context_dict = {
             'perms_list': get_perms(
                 request.user,
