@@ -272,23 +272,24 @@ class TopicCategoryResource(TypeFilteredResource):
                                                        Q(owner__username__iexact=str(request.user)))
 
             if settings.RESOURCE_PUBLISHING:
-                if is_manager:
-                    groups = request.user.groups.all()
-                    public_groups = GroupProfile.objects.exclude(access="private").values('group')
-                    try:
-                        anonymous_group = Group.objects.get(name='anonymous')
-                        filter_set = filter_set.filter(
-                            Q(group__isnull=True) | Q(group__in=groups) |
-                            Q(group__in=public_groups) | Q(group=anonymous_group) |
-                            Q(owner__username__iexact=str(request.user)))
-                    except:
-                        filter_set = filter_set.filter(
-                            Q(group__isnull=True) | Q(group__in=groups) |
-                            Q(group__in=public_groups) |
-                            Q(owner__username__iexact=str(request.user)))
-                else:
-                    filter_set = filter_set.filter(Q(is_published=True) |
-                                                   Q(owner__username__iexact=str(request.user)))
+                if not is_admin and not is_staff:
+                    if is_manager:
+                        groups = request.user.groups.all()
+                        public_groups = GroupProfile.objects.exclude(access="private").values('group')
+                        try:
+                            anonymous_group = Group.objects.get(name='anonymous')
+                            filter_set = filter_set.filter(
+                                Q(group__isnull=True) | Q(group__in=groups) |
+                                Q(group__in=public_groups) | Q(group=anonymous_group) |
+                                Q(owner__username__iexact=str(request.user)))
+                        except:
+                            filter_set = filter_set.filter(
+                                Q(group__isnull=True) | Q(group__in=groups) |
+                                Q(group__in=public_groups) |
+                                Q(owner__username__iexact=str(request.user)))
+                    else:
+                        filter_set = filter_set.filter(Q(is_published=True) |
+                                                       Q(owner__username__iexact=str(request.user)))
 
             try:
                 anonymous_group = Group.objects.get(name='anonymous')
