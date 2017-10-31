@@ -49,6 +49,7 @@ from django.db.models.signals import pre_delete
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
 import geoserver
+from geonode.maps.models import Map
 from geoserver.catalog import Catalog
 from geoserver.catalog import ConflictingDataError
 from geoserver.catalog import FailedRequestError, UploadError
@@ -67,6 +68,7 @@ from geonode import GeoNodeException
 from geonode.layers.enumerations import LAYER_ATTRIBUTE_NUMERIC_DATA_TYPES
 from geonode.layers.models import Layer, Attribute, Style
 from geonode.layers.utils import layer_type, get_files, create_thumbnail
+from geonode.security.views import _perms_info_json
 from geonode.utils import set_attributes
 import xml.etree.ElementTree as ET
 
@@ -540,6 +542,10 @@ def gs_slurp(
                 "bbox_y1": Decimal(resource.latlon_bbox[3])
             })
 
+            # sync permissions in GeoFence
+            perm_spec = json.loads(_perms_info_json(layer))
+            layer.set_permissions(perm_spec)
+
             # recalculate the layer statistics
             set_attributes_from_geoserver(layer, overwrite=True)
 
@@ -842,6 +848,12 @@ def set_styles(layer, gs_catalog):
         style_set.append(save_style(alt_style))
 
     layer.styles = style_set
+
+    # Update default style to database
+    to_update = {
+        'default_style': layer.default_style
+    }
+    Layer.objects.filter(id=layer.id).update(**to_update)
     return layer
 
 
@@ -1867,7 +1879,7 @@ def create_gs_thumbnail(instance, overwrite=False):
     """
     Create a thumbnail with a GeoServer request.
     """
-    if instance.class_name == 'Map':
+    if isinstance(instance, Map):
         local_layers = []
         for layer in instance.layers:
             if layer.local:
