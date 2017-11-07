@@ -637,7 +637,9 @@ GeoNode.plugins.Print = Ext.extend(gxp.plugins.Tool, {
                                         } catch(err) {
                                             console.log(legendEncoded);
                                         }
-
+                                        if (!legendEncoded[0].name) {
+                                            legendEncoded[0].name = node.layer.name;
+                                        }
                                         encodedLegends = encodedLegends.concat(legendEncoded);
                                     }
                                 }, provider);
@@ -739,10 +741,11 @@ GeoNode.plugins.Print = Ext.extend(gxp.plugins.Tool, {
             }
 
             function isPrintable(layer) {
-                return layer.getVisibility() === true /*&& (
+                return layer.getVisibility() === true && (
                     layer instanceof OpenLayers.Layer.WMS ||
-                    layer instanceof OpenLayers.Layer.OSM
-                )*/;
+                    layer instanceof OpenLayers.Layer.OSM ||
+                    layer instanceof OpenLayers.Layer.XYZ
+                );
             }
 
             function createPrintWindow() {
