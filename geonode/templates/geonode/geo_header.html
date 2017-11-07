@@ -32,6 +32,24 @@ GeoExplorer.Viewer.prototype.loadConfig = function(config) {
     ptype: "gxp_getfeedfeatureinfo",
     checked: true
   });
+  
+  for (var i=0, ii=config.viewerTools.length; i<ii; i++) {
+        if (config.viewerTools[i].ptype === "gxp_styler") {
+            config.viewerTools[i].rasterStyling = true;
+        }
+        if (config.viewerTools[i].ptype === "gxp_addlayers") {
+            config.viewerTools[i].search = {
+              selectedSource: 'search'
+            };
+            config.viewerTools[i].catalogSourceKey = catalogSourceKey;
+            config.viewerTools[i].feeds = true;
+        }
+        if (config.viewerTools[i].ptype === "gxp_print") {
+            debugger;
+            config.viewerTools[i].includeLegend = true;
+            config.viewerTools[i].showButtonText = true;
+        }
+    }
 
   /* - TEMPORARLY DISABLED GXPLORER PLAYBACK -
       config.viewerTools.push({
