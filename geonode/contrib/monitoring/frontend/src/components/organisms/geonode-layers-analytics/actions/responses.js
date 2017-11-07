@@ -37,7 +37,7 @@ const fail = createAction(
 const get = (layer, interval) =>
   (dispatch) => {
     dispatch(begin());
-    let url = `${apiUrl}/metric_data/response.time/?resource=${layer}`;
+    let url = `${apiUrl}/metric_data/response.time/?layer=${layer}`;
     url += `&last=${interval}&interval=${interval}`;
     fetch({ url })
       .then(response => {
