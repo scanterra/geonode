@@ -38,7 +38,7 @@ const get = (interval, layer, owsService) =>
   (dispatch) => {
     dispatch(begin());
     const url = `${apiUrl}/metric_data/response.time/?last=${interval}&interval=${interval}`;
-    fetch({ url: `${url}&layer=${layer}&ows_service=${owsService}` })
+    fetch({ url: `${url}&resource=${layer}&ows_service=${owsService}` })
       .then(response => {
         dispatch(success(response));
         return response;
