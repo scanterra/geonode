@@ -392,9 +392,9 @@ Ext.preg(GeoNode.plugins.LayerInfo.prototype.ptype, GeoNode.plugins.LayerInfo);
  *
  *    Plugin for adding a tree of layers with their legend to a
  *    :class:`gxp.Viewer`. Also provides a context menu on layer nodes.
- */   
+ */
 /** api: example
- *  If you want to change the vendor-specific legend_options parameter that 
+ *  If you want to change the vendor-specific legend_options parameter that
  *  is sent to the WMS for GetLegendGraphic you can use ``baseAttrs`` on the
  *  ``loader`` config:
  *
@@ -412,7 +412,7 @@ Ext.preg(GeoNode.plugins.LayerInfo.prototype.ptype, GeoNode.plugins.LayerInfo);
  *
  */
 GeoNode.plugins.LayerManager = Ext.extend(gxp.plugins.LayerTree, {
-    
+
     /** api: ptype = gxp_layermanager */
     ptype: "gxp_layermanager",
 
@@ -421,7 +421,7 @@ GeoNode.plugins.LayerManager = Ext.extend(gxp.plugins.LayerTree, {
      *  Text for baselayer node of layer tree (i18n).
      */
     baseNodeText: "Base Maps",
-    
+
     /** api: config[groups]
      *  ``Object`` The groups to show in the layer tree. Keys are group names,
      *  and values are either group titles or an object with ``title`` and
@@ -439,7 +439,7 @@ GeoNode.plugins.LayerManager = Ext.extend(gxp.plugins.LayerTree, {
      *          }
      *      }
      */
-    
+
     /** private: method[createOutputConfig] */
     createOutputConfig: function() {
         var tree = gxp.plugins.LayerManager.superclass.createOutputConfig.apply(this, arguments);
@@ -451,10 +451,10 @@ GeoNode.plugins.LayerManager = Ext.extend(gxp.plugins.LayerTree, {
                 ptype: "gx_treenodecomponent"
             }]
         }, this.treeConfig));
-        
-        return tree;        
+
+        return tree;
     },
-    
+
     /** private: method[configureLayerNode] */
     configureLayerNode: function(loader, attr) {
         gxp.plugins.LayerManager.superclass.configureLayerNode.apply(this, arguments);
@@ -501,7 +501,7 @@ GeoNode.plugins.LayerManager = Ext.extend(gxp.plugins.LayerTree, {
             });
         }
     }
-    
+
 });
 
 Ext.preg(GeoNode.plugins.LayerManager.prototype.ptype, GeoNode.plugins.LayerManager);
@@ -631,7 +631,7 @@ GeoNode.plugins.Print = Ext.extend(gxp.plugins.Tool, {
                                             if((!legendEncoded[0].classes[0].icons[0].match(/\baccess_token/gi))) {
                                                 legendEncoded[0].classes[0].icons[0] += "&access_token="+access_token;
                                             } else {
-                                                legendEncoded[0].classes[0].icons[0] = 
+                                                legendEncoded[0].classes[0].icons[0] =
                                                     legendEncoded[0].classes[0].icons[0].replace(/(access_token)(.+?)(?=\&)/, "$1="+access_token);
                                             }
                                         } catch(err) {
@@ -780,6 +780,10 @@ GeoNode.plugins.Print = Ext.extend(gxp.plugins.Tool, {
                             for (key in this.target.viewerTools) {
                                 tool = this.target.viewerTools[key];
                                 if (tool.ptype === "gxp_layermanager") {
+                                    legend = tool;
+                                    break;
+                                }
+                                if (tool.ptype === "gxp_legend") {
                                     legend = tool;
                                     break;
                                 }
@@ -1021,11 +1025,10 @@ GeoNode.Viewer = window.GeoExplorer && Ext.extend(GeoExplorer.Viewer, {
                 config.viewerTools[i].includeLegend = true;
                 config.viewerTools[i].showButtonText = true;
             }
+            if (config.viewerTools[i].ptype === "gxp_legend") {
+                config.viewerTools[i].autoActivate = true;
+            }
         }
-        
-         config.tools.push({
-            ptype: 'gxp_legend'
-         });
 
          var mapUrl = window.location.hash.substr(1);
          var match = mapUrl.match(/^maps\/(\d+)$/);
@@ -1101,7 +1104,6 @@ GeoNode.Viewer = window.GeoExplorer && Ext.extend(GeoExplorer.Viewer, {
                   }
              }
 
-             //this.applyConfig(config);
              GeoNode.Viewer.superclass.loadConfig.apply(this, arguments);
          }
 
