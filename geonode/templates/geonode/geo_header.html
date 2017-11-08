@@ -15,6 +15,11 @@
 <script src="{{STATIC_URL}}geoexplorer/script/GeoExplorer-debug.js" type="text/javascript"></script>
 <script type="text/javascript">
 OpenLayers.ImgPath = "{{ STATIC_URL }}geoexplorer/externals/openlayers/theme/default/img";
+OpenLayers.Util.onImageLoadErrorColor = 'transparent';
+OpenLayers.Util.onImageLoadError = function() {
+    this.src = '{{ STATIC_URL }}geonode/img/light_gray.jpg';
+};
+
 OpenLayers.Request.DEFAULT_CONFIG.headers = {
   'X-CSRFToken': '{{ csrf_token|escapejs }}'
 };
@@ -23,6 +28,7 @@ OpenLayers.Request.DEFAULT_CONFIG.headers = {
 *  Add GetFeedFeatureInfo tool to GeoExplorer.Viewer
 */
 GeoExplorer.Viewer.prototype.loadConfig = function(config) {
+
   config.tools.push( {
     ptype: "gxp_legend",
     checked: true
@@ -38,24 +44,6 @@ GeoExplorer.Viewer.prototype.loadConfig = function(config) {
     ptype: "gxp_getfeedfeatureinfo",
     checked: true
   });
-  
-  for (var i=0, ii=config.viewerTools.length; i<ii; i++) {
-        if (config.viewerTools[i].ptype === "gxp_styler") {
-            config.viewerTools[i].rasterStyling = true;
-        }
-        if (config.viewerTools[i].ptype === "gxp_addlayers") {
-            config.viewerTools[i].search = {
-              selectedSource: 'search'
-            };
-            config.viewerTools[i].catalogSourceKey = catalogSourceKey;
-            config.viewerTools[i].feeds = true;
-        }
-        if (config.viewerTools[i].ptype === "gxp_print") {
-            debugger;
-            config.viewerTools[i].includeLegend = true;
-            config.viewerTools[i].showButtonText = true;
-        }
-    }
 
   /* - TEMPORARLY DISABLED GXPLORER PLAYBACK -
       config.viewerTools.push({

@@ -756,7 +756,7 @@ GeoNode.plugins.Print = Ext.extend(gxp.plugins.Tool, {
                         tool = this.target.tools[key];
                         if (tool.ptype === "gxp_legend") {
                             try {
-                                legend = tool.getLegendPanel();
+                                legend = (tool.getLegendPanel() ? tool.getLegendPanel() : tool);
                             } catch(err) {
                                 legend = tool;
                             }
