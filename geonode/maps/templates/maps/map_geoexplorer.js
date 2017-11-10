@@ -105,7 +105,7 @@ Ext.onReady(function() {
                        extent.bottom = bbox[2];
                        extent.top = bbox[3];
 
-                   if(crs && crs.properties) {
+                   if(map.projection != 'EPSG:900913' && crs && crs.properties) {
                        if (crs.properties != map.projection) {
                            extent = extent.clone().transform(crs.properties, map.projection);
                        }
