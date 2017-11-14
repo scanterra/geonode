@@ -22,7 +22,6 @@ import os
 
 __version__ = (2, 9, 0, 'unstable', 0)
 
-
 class GeoNodeException(Exception):
     """Base class for exceptions in this module."""
     pass
