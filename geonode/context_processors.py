@@ -103,7 +103,7 @@ def resource_urls(request):
         API_LIMIT_PER_PAGE=getattr(
             settings,
             'API_LIMIT_PER_PAGE',
-            100),
+            20),
         SRID_DETAIL=getattr(
             settings,
             'SRID',
