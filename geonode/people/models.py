@@ -223,7 +223,6 @@ def profile_post_save(instance, sender, **kwargs):
     if getattr(instance, '_disable_account_creation', False):
         return
 
-
 def profile_pre_save(instance, sender, **kw):
     matching_profiles = Profile.objects.filter(id=instance.id)
     if matching_profiles.count() == 0:
