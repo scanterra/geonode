@@ -321,7 +321,6 @@ class CommonModelApi(ModelResource):
 
         # Filter by Type and subtype
         if type_facets is not None:
-
             types = []
             subtypes = []
 
