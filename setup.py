@@ -89,7 +89,7 @@ setup(name='GeoNode',
         "django-jsonfield<=1.0.1",  # python-django-jsonfield (0.9.15, 1.0.1 in our ppa)
         "django-jsonfield-compat<=0.4.4",
         "django-leaflet<=0.22.0",
-        "django-taggit<=0.22.1",  # python-django-taggit (0.18.0)
+        "django-taggit==0.18.0",  # python-django-taggit (0.18.0)
         "django-mptt<=0.8.7",  # django-mptt (0.8.0, 0.8.6 in our ppa)
         "django-treebeard<=4.1.2",  # django-treebeard (4.0)
         "django-guardian<=1.4.9",  # django-guardian (1.4.1)
