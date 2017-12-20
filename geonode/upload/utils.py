@@ -538,7 +538,6 @@ def _get_layer_values(layer, upload_session, expand=0):
                     ff = {'value': feat_values[k], 'binding': binding}
                     feat_values[k] = ff
             layer_values.append(feat_values)
-    print(" A. ******************************* {}".format(layer_values))
     return layer_values
 
 
