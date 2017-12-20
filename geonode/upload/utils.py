@@ -535,7 +535,7 @@ def _get_layer_values(layer, upload_session, expand=0):
                 for k in feat_values.keys():
                     type_code = feat.GetFieldDefnRef(k).GetType()
                     binding = feat.GetFieldDefnRef(k).GetFieldTypeName(type_code)
-                    ff = {'value': feat_values[k], 'binding': binding}
+                    ff = {'value': feat_values[k] or 0, 'binding': binding}
                     feat_values[k] = ff
             layer_values.append(feat_values)
     return layer_values
