@@ -108,6 +108,10 @@ class Command(BaseCommand):
         utc = pytz.utc
         now = datetime.utcnow().replace(tzinfo=utc)
         Handler = get_for_service(service.service_type.name)
+        try:
+            service.last_check.astimezone(utc)
+        except:
+            service.last_check = service.last_check.replace(tzinfo=utc) if service.last_check else now
         last_check = service.last_check.astimezone(utc) if service.last_check else now
         since = since or last_check or (now - service.check_interval)
         until = until or now

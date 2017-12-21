@@ -736,6 +736,7 @@ class NotificationCheck(models.Model):
         if self.last_send is None:
             return True
         now = datetime.utcnow().replace(tzinfo=pytz.utc)
+        self.last_send = self.last_send.replace(tzinfo=pytz.utc)
         if (self.last_send + self.grace_period) > now:
             return False
         return True
@@ -1187,6 +1188,7 @@ class MetricNotificationCheck(models.Model):
             # we have to check for now, because valid_on may be in the past,
             # metric may be at the valid_on point in time
             valid_on = datetime.utcnow().replace(tzinfo=pytz.utc)
+            metric.valid_to = metric.valid_to.replace(tzinfo=pytz.utc)
             if (valid_on - metric.valid_to) > self.max_timeout:
                 total_seconds = self.max_timeout.total_seconds()
                 actual_seconds = (valid_on - metric.valid_to).total_seconds()

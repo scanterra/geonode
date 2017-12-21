@@ -41,6 +41,16 @@ Ext.onReady(function() {
         csrfToken: "{{ csrf_token }}",
         tools: [{ptype: "gxp_getfeedfeatureinfo"}],
         listeners: {
+            /* "resize": function(){
+                // Get the corresponding view of the controller (the mapPanel).
+                var mapPanel = this.getView();
+                if(!mapPanel.mapRendered){
+                    mapPanel.getMap().setTarget(mapPanel.getTargetEl().dom);
+                    mapPanel.mapRendered = true;
+                } else {
+                    mapPanel.getMap().updateSize();
+                }
+            }, */
             "ready": function() {
                 app.mapPanel.map.getMaxExtent = function() {
                     return new OpenLayers.Bounds(-80150033.36/2,-80150033.36/2,80150033.36/2,80150033.36/2);
@@ -127,9 +137,9 @@ Ext.onReady(function() {
                    }
                 }
             },
-           'save': function(obj_id) {
+            'save': function(obj_id) {
                createMapThumbnail(obj_id);
-           }
+            }
        }
     }, {{ config }});
 

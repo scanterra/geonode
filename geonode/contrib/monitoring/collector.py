@@ -65,6 +65,8 @@ class CollectorAPI(object):
         if not prev:
             return
         prev_val = prev.value_num
+        valid_to = valid_to.replace(tzinfo=pytz.utc)
+        prev.valid_to = prev.valid_to.replace(tzinfo=pytz.utc)
         interval = valid_to - prev.valid_to
         if not isinstance(current_value, Decimal):
             current_value = Decimal(current_value)
