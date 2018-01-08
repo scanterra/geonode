@@ -18,28 +18,38 @@
 #
 #########################################################################
 
-from __future__ import absolute_import
-
 import os
+from urlparse import urljoin
 
-from .celery import app as celery_app
+import pytest
+from geonode import settings as gn_settings
+from geonode.tests.bdd import __file__ as bdd_path
+from splinter import Browser
 
-__version__ = (2, 9, 0, 'unstable', 0)
-__all__ = ["celery_app"]
+# @pytest.fixture(scope='session')
+# def pytestbdd_selenium_speed():
+#     return 0.5
 
-
-class GeoNodeException(Exception):
-    """Base class for exceptions in this module."""
-    pass
-
-
-def get_version():
-    import geonode.version
-    return geonode.version.get_version(__version__)
+# @pytest.fixture(scope='session')
+# def splinter_implicit_wait():
+#     return True
 
 
-def main(global_settings, **settings):
-    from django.core.wsgi import get_wsgi_application
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', settings.get('django_settings'))
-    app = get_wsgi_application()
-    return app
+@pytest.yield_fixture(scope='function', autouse=True)
+def en_browser(browser, bdd_server):
+    """Browser login page from live server."""
+    browser = Browser('phantomjs')
+    en_browser = browser
+    en_browser.visit(urljoin(bdd_server.url, gn_settings.LOGIN_URL))
+    yield en_browser
+    en_browser.quit()
+
+
+@pytest.fixture
+def pytestbdd_feature_base_dir():
+    """Feature files base directory."""
+
+    return os.path.join(
+        os.path.dirname(bdd_path),
+        'features'
+    )

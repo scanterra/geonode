@@ -41,4 +41,3 @@ def delete_map(self, object_id):
 
     map_obj.layer_set.all().delete()
     map_obj.delete()
-

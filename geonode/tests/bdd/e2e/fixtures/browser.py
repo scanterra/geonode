@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #########################################################################
 #
-# Copyright (C) 2017 OSGeo
+# Copyright (C) 2016 OSGeo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,14 +17,28 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 #########################################################################
+from urlparse import urljoin
 
-from django.test import TestCase
+import pytest
+from geonode import settings
 
 
-class TasksTest(TestCase):
-    """
-    Tests geonode.messaging
-    """
-    def setUp(self):
-        self.adm_un = "admin"
-        self.adm_pw = "admin"
+@pytest.fixture
+def base_url():
+    return settings.SITE_URL
+
+
+@pytest.fixture
+def browser(browser, base_url, credentials):
+
+    if credentials["login"]:
+        browser.visit(urljoin(base_url, settings.LOGIN_URL))
+
+        browser.fill("username", credentials["username"])
+        browser.fill("password", credentials["password"])
+        button = browser.find_by_css("button[type=submit]").first
+        button.click()
+    else:
+        browser.visit(base_url)
+
+    return browser

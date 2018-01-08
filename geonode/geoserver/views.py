@@ -612,7 +612,8 @@ def get_layer_capabilities(workspace, layer, access_token=None):
     Retrieve a layer-specific GetCapabilities document
     """
     # TODO implement this for 1.3.0 too
-    wms_url = '%s%s/%s/wms?service=wms&version=1.1.0&request=GetCapabilities' % (ogc_server_settings.public_url, workspace, layer)
+    wms_url = '%s%s/%s/wms?service=wms&version=1.1.0&request=GetCapabilities' % (ogc_server_settings.public_url,
+                                                                                 workspace, layer)
     wms_url += ('&access_token=%s' % access_token if access_token else '')
     http = httplib2.Http()
     response, getcap = http.request(wms_url)
@@ -674,7 +675,8 @@ def get_capabilities(request, layerid=None, user=None, mapid=None, category=None
                 workspace, layername = layer.typename.split(":")
                 if rootdoc is None:  # 1st one, seed with real GetCapabilities doc
                     try:
-                        layercap = etree.fromstring(get_layer_capabilities(workspace, layername, access_token=access_token))
+                        layercap = etree.fromstring(get_layer_capabilities(workspace, layername,
+                                                                           access_token=access_token))
                         rootdoc = etree.ElementTree(layercap)
                         rootlayerelem = rootdoc.find('.//Capability/Layer')
                         format_online_resource(workspace, layername, rootdoc)

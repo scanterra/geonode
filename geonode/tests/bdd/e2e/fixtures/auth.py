@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #########################################################################
 #
-# Copyright (C) 2017 OSGeo
+# Copyright (C) 2016 OSGeo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,14 +17,14 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 #########################################################################
+import pytest
 
-from django.test import TestCase
 
-
-class TasksTest(TestCase):
-    """
-    Tests geonode.messaging
-    """
-    def setUp(self):
-        self.adm_un = "admin"
-        self.adm_pw = "admin"
+@pytest.fixture
+def credentials():
+    """Login credentials."""
+    return {
+        'username': 'admin',
+        'password': 'admin',
+        'login': True
+    }

@@ -73,6 +73,7 @@ def ajax_login(request):
             content_type="text/plain",
             status=400)
 
+
 def ajax_lookup(request):
     if request.method != 'POST':
         return HttpResponse(
@@ -100,6 +101,7 @@ def ajax_lookup(request):
         content=json.dumps(json_dict),
         content_type='text/plain'
     )
+
 
 def err403(request):
     if not request.user.is_authenticated():

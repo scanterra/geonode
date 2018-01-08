@@ -23,6 +23,7 @@ from django.core.mail import send_mail
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import AbstractUser, UserManager
+from django.contrib import auth
 from django.db.models import signals
 from django.conf import settings
 
@@ -222,6 +223,7 @@ def profile_post_save(instance, sender, **kwargs):
     # do not create email, when user-account signup code is in use
     if getattr(instance, '_disable_account_creation', False):
         return
+
 
 def profile_pre_save(instance, sender, **kw):
     matching_profiles = Profile.objects.filter(id=instance.id)
