@@ -145,7 +145,6 @@ setup(name='GeoNode',
           "geonode-avatar<=2.1.6",  # (2.1.5 in ppa) FIXME
           "geonode-announcements<=1.0.8",
           "geonode-agon-ratings<=0.3.5",  # (0.3.1 in ppa) FIXME
-          "geonode-user-accounts==1.0.15",
           "geonode-arcrest>=10.0",
           "geonode-dialogos>=0.5",
           "gsconfig<2.0.0",  # (1.0.3 in ppa) FIXME
