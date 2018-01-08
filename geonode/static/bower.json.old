@@ -22,6 +22,7 @@
     "multi-select": "https://github.com/lou/multi-select.git",
     "jquery-ajaxprogress": "https://github.com/kpozin/jquery-ajaxprogress.git",
     "jquery.ajaxQueue": "https://github.com/gnarf/jquery-ajaxQueue.git",
+    "jquery-tree-multiselect": "https://github.com/patosai/tree-multiselect.js.git",
     "angular": "1.4.0",
     "angular-cookies": "1.4.0",
     "angular-leaflet-directive": "0.7.9",
@@ -44,7 +45,6 @@
   },
   "resolutions": {
     "angular": "1.4.0",
-    "leaflet": "~1.0.1",
-    "bootstrap": "3.3.7"
+    "leaflet": "~1.0.1"
   }
 }
