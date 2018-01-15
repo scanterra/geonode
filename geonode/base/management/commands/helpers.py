@@ -189,9 +189,9 @@ def dump_db(config, db_name, db_user, db_port, db_host, db_passwd, target_folder
         for table in pg_tables:
             print "Dumping GeoServer Vectorial Data : " + table[0]
             os.system('PGPASSWORD="' + db_passwd + '" ' + config.pg_dump_cmd + ' -h ' + db_host +
-                      ' -p ' + db_port + ' -U ' + db_user + ' -F c -b -d ' + db_name +
+                      ' -p ' + db_port + ' -U ' + db_user + ' -F c -b' +
                       ' -t ' + table[0] + ' -f ' +
-                      os.path.join(target_folder, table[0] + '.dump'))
+                      os.path.join(target_folder, table[0] + '.dump ' + db_name))
 
     except Exception:
         try:
@@ -218,9 +218,9 @@ def restore_db(config, db_name, db_user, db_port, db_host, db_passwd, source_fol
         for table in file_names:
             print "Restoring GeoServer Vectorial Data : " + os.path.splitext(table)[0]
             os.system('PGPASSWORD="' + db_passwd + '" ' + config.pg_restore_cmd + ' -c -h ' + db_host +
-                      ' -p ' + db_port + ' -U ' + db_user + ' -F c -d ' + db_name +
+                      ' -p ' + db_port + ' -U ' + db_user + ' -F c ' +
                       ' -t ' + table[0] + ' ' +
-                      os.path.join(source_folder, table))
+                      os.path.join(source_folder, table) + ' ' + db_name)
 
     except Exception:
         try:
@@ -269,22 +269,31 @@ def zip_dir(basedir, archivename):
 
 
 def copy_tree(src, dst, symlinks=False, ignore=None):
-    for item in os.listdir(src):
-        s = os.path.join(src, item)
-        d = os.path.join(dst, item)
-        if os.path.isdir(s):
-            # shutil.rmtree(d)
-            if os.path.exists(d):
-                try:
-                    os.remove(d)
-                except:
+    try:
+        for item in os.listdir(src):
+            s = os.path.join(src, item)
+            d = os.path.join(dst, item)
+            if os.path.isdir(s):
+                # shutil.rmtree(d)
+                if os.path.exists(d):
                     try:
-                        shutil.rmtree(d)
+                        os.remove(d)
                     except:
-                        pass
-            shutil.copytree(s, d, symlinks, ignore)
-        else:
-            shutil.copy2(s, d)
+                        try:
+                            shutil.rmtree(d)
+                        except:
+                            pass
+                try:
+                    shutil.copytree(s, d, symlinks, ignore)
+                except:
+                    pass
+            else:
+                try:
+                    shutil.copy2(s, d)
+                except:
+                    pass
+    except Exception:
+        traceback.print_exc()
 
 
 def unzip_file(zip_file, dst):
@@ -357,3 +366,4 @@ def load_class(name):
         mod = getattr(mod, comp)
 
     return mod
+
