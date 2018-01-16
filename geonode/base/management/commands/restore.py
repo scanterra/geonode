@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #########################################################################
 #
-# Copyright (C) 2016 OSGeo
+# Copyright (C) 2018 OSGeo
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -325,28 +325,27 @@ class Command(BaseCommand):
             except:
                 traceback.print_exc()
 
-            # try:
-            #     call_command('flush', interactive=False, load_initial_data=False)
-            # except:
-            #     traceback.print_exc()
-            # Flush DB
-            try:
-                db_name = settings.DATABASES['default']['NAME']
-                db_user = settings.DATABASES['default']['USER']
-                db_port = settings.DATABASES['default']['PORT']
-                db_host = settings.DATABASES['default']['HOST']
-                db_passwd = settings.DATABASES['default']['PASSWORD']
-
-                helpers.flush_db(db_name, db_user, db_port, db_host, db_passwd)
-            except:
-                traceback.print_exc()
-                raise
-
             try:
                 # Deactivate GeoNode Signals
                 print "Deactivating GeoNode Signals..."
                 designals()
                 print "...done!"
+
+                # Flush DB
+                try:
+                    db_name = settings.DATABASES['default']['NAME']
+                    db_user = settings.DATABASES['default']['USER']
+                    db_port = settings.DATABASES['default']['PORT']
+                    db_host = settings.DATABASES['default']['HOST']
+                    db_passwd = settings.DATABASES['default']['PASSWORD']
+
+                    helpers.flush_db(db_name, db_user, db_port, db_host, db_passwd)
+                except:
+                    try:
+                        call_command('flush', interactive=False, load_initial_data=False)
+                    except:
+                        traceback.print_exc()
+                        raise
 
                 # Restore Fixtures
                 for app_name, dump_name in zip(config.app_names, config.dump_names):
@@ -471,7 +470,7 @@ class Command(BaseCommand):
                 print "...done!"
 
                 call_command('migrate', interactive=False, load_initial_data=False, fake=True)
-                
+
                 print "HINT: If you migrated from another site, do not forget to run the command 'migrate_baseurl' to fix Links"
                 print " e.g.:  DJANGO_SETTINGS_MODULE=my_geonode.settings python manage.py migrate_baseurl --source-address=my-host-dev.geonode.org --target-address=my-host-prod.geonode.org"
                 print "Restore finished. Please find restored files and dumps into:"
