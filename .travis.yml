@@ -61,6 +61,7 @@ before_script:
   # Initialize DB
   # - sudo apt-get install postgresql-9.6-postgis-2.3 -y -q
   - psql -U postgres -c "create extension postgis"
+  - chmod +x scripts/misc/create_dbs_travis.sh
   - scripts/misc/create_dbs_travis.sh before_script
   # For QGIS Server Travis steps
   - scripts/misc/qgis_server_setup.sh before_script

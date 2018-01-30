@@ -95,6 +95,7 @@ class Upload(models.Model):
             self.complete = True
             self.session = None
         else:
+            # Make sure we don't pickle UTF-8 chars
             upload_session.user.first_name = u'{}'.format(upload_session.user.first_name).encode('ascii', 'ignore')
             upload_session.user.last_name = u'{}'.format(upload_session.user.last_name).encode('ascii', 'ignore')
             unicode_session = pickle.dumps(upload_session)

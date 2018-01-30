@@ -33,12 +33,14 @@ from allauth.account.utils import user_email
 from allauth.account.utils import user_username
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 
+from invitations.adapters import BaseInvitationsAdapter
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.utils.module_loading import import_string
-
+from django.contrib.auth.models import Group
 
 logger = logging.getLogger(__name__)
 
@@ -91,7 +93,7 @@ def update_profile(sociallogin):
     return user
 
 
-class LocalAccountAdapter(DefaultAccountAdapter):
+class LocalAccountAdapter(DefaultAccountAdapter, BaseInvitationsAdapter):
     """Customizations for local accounts
 
     Check `django-allauth's documentation`_ for more details on this class.
@@ -128,8 +130,10 @@ class LocalAccountAdapter(DefaultAccountAdapter):
     def render_mail(self, template_prefix, email, context):
         user = context.get("inviter")
         full_name = " ".join((user.first_name, user.last_name))
-        manager_groups = user.groupmember_set.filter(
-            role="manager").values_list("group__title", flat=True)
+        # manager_groups = user.groupmember_set.filter(
+        #     role="manager").values_list("group__title", flat=True)
+        manager_groups = Group.objects.filter(name__in=
+                    user.groupmember_set.filter(role="manager").values_list("group__slug", flat=True))
         enhanced_context = context.copy()
         enhanced_context.update({
             "inviter_name": full_name,
@@ -142,6 +146,10 @@ class LocalAccountAdapter(DefaultAccountAdapter):
         })
         return super(LocalAccountAdapter, self).render_mail(
             template_prefix, email, enhanced_context)
+
+    def send_mail(self, template_prefix, email, context):
+        msg = self.render_mail(template_prefix, email, context)
+        msg.send()
 
     def save_user(self, request, user, form, commit=True):
         user = super(LocalAccountAdapter, self).save_user(

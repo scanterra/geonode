@@ -24,7 +24,6 @@ import base64
 import httplib2
 import os
 from lxml import etree
-from urllib2 import urlopen, HTTPError
 
 from django.contrib.auth import authenticate
 from django.http import HttpResponse, HttpResponseRedirect
@@ -410,8 +409,6 @@ def geoserver_rest_proxy(request, proxy_path, downstream_path, workspace=None):
                                 path]))
             url = _url
 
-    print(" URL. ************************************************ {}".format(url))
-
     http = httplib2.Http()
     username, password = ogc_server_settings.credentials
     auth = base64.encodestring(username + ':' + password)
@@ -730,4 +727,3 @@ def get_capabilities(request, layerid=None, user=None, mapid=None, category=None
         capabilities = etree.tostring(rootdoc, xml_declaration=True, encoding='UTF-8', pretty_print=True)
         return HttpResponse(capabilities, content_type="text/xml")
     return HttpResponse(status=200)
-
