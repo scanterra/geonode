@@ -40,7 +40,7 @@ from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.utils.module_loading import import_string
-
+from django.contrib.auth.models import Group
 
 logger = logging.getLogger(__name__)
 
@@ -130,8 +130,8 @@ class LocalAccountAdapter(DefaultAccountAdapter, BaseInvitationsAdapter):
     def render_mail(self, template_prefix, email, context):
         user = context.get("inviter")
         full_name = " ".join((user.first_name, user.last_name))
-        manager_groups = user.groupmember_set.filter(
-            role="manager").values_list("group__title", flat=True)
+        manager_groups = Group.objects.filter(
+            name__in=user.groupmember_set.filter(role="manager").values_list("group__slug", flat=True))
         enhanced_context = context.copy()
         enhanced_context.update({
             "inviter_name": full_name,
