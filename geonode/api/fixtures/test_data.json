@@ -34,24 +34,6 @@
         }
     },
     {
-        "pk": 2,
-        "model": "auth.user",
-        "fields": {
-            "username": "user1",
-            "first_name": "",
-            "last_name": "",
-            "is_active": true,
-            "is_superuser": false,
-            "is_staff": false,
-            "last_login": "2010-06-10 16:59:13",
-            "groups": [],
-            "user_permissions": [],
-            "password": "sha1$9d4e1e23bd5b727046a9e3b4b7db57bd8d6ee684", 
-            "email": "user1@geonode.org",
-            "date_joined": "2010-06-10 16:58:18"
-        }
-    },
-    {
         "pk": 11,
         "model": "auth.user",
         "fields": {
