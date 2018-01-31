@@ -388,9 +388,9 @@ class SmokeTest(TestCase):
         response = self.client.get("/groups/group/bar/update/")
         self.assertEqual(302, response.status_code)
 
-        # 405 - json endpoint, doesn't support GET
-        response = self.client.get("/groups/group/bar/invite/")
-        self.assertEqual(405, response.status_code)
+        # # 405 - json endpoint, doesn't support GET
+        # response = self.client.get("/groups/group/bar/invite/")
+        # self.assertEqual(405, response.status_code)
 
     def test_protected_pages_render(self):
         """
@@ -414,9 +414,9 @@ class SmokeTest(TestCase):
         response = self.client.get("/groups/group/bar/update/")
         self.assertEqual(200, response.status_code)
 
-        # 405 - json endpoint, doesn't support GET
-        response = self.client.get("/groups/group/bar/invite/")
-        self.assertEqual(405, response.status_code)
+        # # 405 - json endpoint, doesn't support GET
+        # response = self.client.get("/groups/group/bar/invite/")
+        # self.assertEqual(405, response.status_code)
 
     def test_group_activity_pages_render(self):
         """
