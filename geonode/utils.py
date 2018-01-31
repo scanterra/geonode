@@ -634,11 +634,25 @@ def resolve_object(request, model, query, permission='base.view_resourcebase',
                 pass
 
     if settings.RESOURCE_PUBLISHING:
-        if (not obj_to_check.is_published) and (
-            not request.user.has_perm('publish_resourcebase', obj_to_check)) and (
-                not request.user.has_perm('view_resourcebase', obj_to_check)) and (
-                    not request.user.has_perm('change_resourcebase_metadata', obj_to_check)):
-            raise Http404
+        is_admin = False
+        is_manager = False
+        is_owner = True if request.user == obj_to_check.owner else False
+        if request.user:
+            is_admin = request.user.is_superuser if request.user else False
+            try:
+                is_manager = request.user.groupmember_set.all().filter(role='manager').exists()
+            except:
+                is_manager = False
+        if (not obj_to_check.is_published):
+            if not is_admin and not is_owner:
+                if is_manager and request.user in obj_group_managers:
+                    if (not request.user.has_perm('publish_resourcebase', obj_to_check)) and (
+                        not request.user.has_perm('view_resourcebase', obj_to_check)) and (
+                            not request.user.has_perm('change_resourcebase_metadata', obj_to_check)):
+                                raise Http404
+                else:
+                    if not request.user.has_perm('publish_resourcebase', obj_to_check):
+                        raise Http404
 
     allowed = True
     if permission.split('.')[-1] in ['change_layer_data',
