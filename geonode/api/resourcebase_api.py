@@ -126,6 +126,9 @@ class CommonModelApi(ModelResource):
         'detail_url',
         'rating',
         'group__name',
+        'has_time',
+        'is_approved',
+        'is_published',
     ]
 
     def build_filters(self, filters=None, ignore_bad_filters=False, **kwargs):
@@ -185,7 +188,6 @@ class CommonModelApi(ModelResource):
         else:
             filtered = semi_filtered
 
-        print(" RESOURCE_PUBLISHING .0. *********************************** {}".format(settings.RESOURCE_PUBLISHING))
         if settings.RESOURCE_PUBLISHING or settings.ADMIN_MODERATE_UPLOADS:
             filtered = self.filter_published(filtered, request)
 

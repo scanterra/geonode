@@ -325,4 +325,3 @@ def _probe_zip_for_sld(zip_handler, destination_dir):
         zip_handler.extract(f, destination_dir)
         result.append(os.path.join(destination_dir, f))
     return result
-
