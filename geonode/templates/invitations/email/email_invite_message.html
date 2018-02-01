@@ -10,7 +10,7 @@
 <p><strong>{{ inviter_name }}</strong> is a member of the following group(s):</p>
 <ul>
     {% for group in groups %}
-        <li><a href="{{ SITEURL }}{% url "group_detail" group %}">{{ group }}</a></li>
+        <li><a href="{{ SITEURL }}{% url "group_detail" group.slug %}">{{ group }}</a></li>
     {% endfor %}
 </ul>
 <p>We look forward to seeing you on the platform,</p>

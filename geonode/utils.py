@@ -660,6 +660,7 @@ def resolve_object(request, model, query, permission='base.view_resourcebase',
                         assign_perm('publish_resourcebase', request.user, obj_to_check)
                         assign_perm('change_resourcebase_metadata', request.user, obj_to_check)
                         assign_perm('download_resourcebase', request.user, obj_to_check)
+
                         if is_owner:
                             assign_perm('change_resourcebase', request.user, obj_to_check)
                             assign_perm('delete_resourcebase', request.user, obj_to_check)
