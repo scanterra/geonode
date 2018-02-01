@@ -234,26 +234,29 @@ class CommonModelApi(ModelResource):
         except:
             pass
 
+        filtered = queryset
         if settings.ADMIN_MODERATE_UPLOADS:
             if not is_admin:
                 if is_manager:
-                    filtered = queryset.filter(
+                    filtered = filtered.filter(
                         Q(is_published=True) |
+                        Q(group__in=groups) |
                         Q(group__in=manager_groups) |
+                        Q(group__in=group_list_all) |
                         Q(owner__username__iexact=str(request.user)))
                 elif request.user:
-                    filtered = queryset.filter(
+                    filtered = filtered.filter(
                         Q(is_published=True) |
+                        Q(group__in=groups) |
+                        Q(group__in=group_list_all) |
                         Q(owner__username__iexact=str(request.user)))
                 else:
-                    filtered = queryset.filter(Q(is_published=True))
-            else:
-                filtered = queryset
+                    filtered = filtered.filter(Q(is_published=True))
 
         if settings.RESOURCE_PUBLISHING:
             if not is_admin:
                 if is_manager:
-                    filtered = queryset.filter(
+                    filtered = filtered.filter(
                         Q(group__isnull=True) |
                         Q(group__in=groups) |
                         Q(group__in=manager_groups) |
@@ -261,13 +264,13 @@ class CommonModelApi(ModelResource):
                         Q(group__in=public_groups) |
                         Q(owner__username__iexact=str(request.user)))
                 elif request.user:
-                    filtered = queryset.filter(
+                    filtered = filtered.filter(
                         Q(is_published=True) |
+                        Q(group__in=groups) |
+                        Q(group__in=group_list_all) |
                         Q(owner__username__iexact=str(request.user)))
                 else:
-                    filtered = queryset.filter(Q(is_published=True))
-            else:
-                filtered = queryset
+                    filtered = filtered.filter(Q(is_published=True))
 
         return filtered
 
@@ -576,11 +579,15 @@ class CommonModelApi(ModelResource):
                     if is_manager:
                         filter_set = filter_set.filter(
                             Q(is_published=True) |
+                            Q(group__in=groups) |
                             Q(group__in=manager_groups) |
+                            Q(group__in=group_list_all) |
                             Q(owner__username__iexact=str(request.user)))
                     elif request.user:
                         filter_set = filter_set.filter(
                             Q(is_published=True) |
+                            Q(group__in=groups) |
+                            Q(group__in=group_list_all) |
                             Q(owner__username__iexact=str(request.user)))
                     else:
                         filter_set = filter_set.filter(Q(is_published=True))
@@ -731,6 +738,9 @@ class CommonModelApi(ModelResource):
         """
         Format the objects for output in a response.
         """
+        if 'has_time' in self.VALUES:
+            idx = self.VALUES.index('has_time')
+            del self.VALUES[idx]
         objects_json = objects.values(*self.VALUES)
 
         # hack needed because dehydrate does not seem to work in CommonModelApi

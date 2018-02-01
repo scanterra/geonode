@@ -284,11 +284,15 @@ class TopicCategoryResource(TypeFilteredResource):
                     if is_manager:
                         filter_set = filter_set.filter(
                             Q(is_published=True) |
+                            Q(group__in=groups) |
                             Q(group__in=manager_groups) |
+                            Q(group__in=group_list_all) |
                             Q(owner__username__iexact=str(request.user)))
                     elif request.user:
                         filter_set = filter_set.filter(
                             Q(is_published=True) |
+                            Q(group__in=groups) |
+                            Q(group__in=group_list_all) |
                             Q(owner__username__iexact=str(request.user)))
                     else:
                         filter_set = filter_set.filter(Q(is_published=True))
@@ -306,6 +310,8 @@ class TopicCategoryResource(TypeFilteredResource):
                     elif request.user:
                         filter_set = filter_set.filter(
                             Q(is_published=True) |
+                            Q(group__in=groups) |
+                            Q(group__in=group_list_all) |
                             Q(owner__username__iexact=str(request.user)))
                     else:
                         filter_set = filter_set.filter(Q(is_published=True))

@@ -128,11 +128,15 @@ def facets(context):
                 if is_manager:
                     documents = documents.filter(
                         Q(is_published=True) |
+                        Q(group__in=groups) |
                         Q(group__in=manager_groups) |
+                        Q(group__in=group_list_all) |
                         Q(owner__username__iexact=str(request.user)))
                 elif request.user:
                     documents = documents.filter(
                         Q(is_published=True) |
+                        Q(group__in=groups) |
+                        Q(group__in=group_list_all) |
                         Q(owner__username__iexact=str(request.user)))
                 else:
                     documents = documents.filter(Q(is_published=True))
@@ -246,11 +250,15 @@ def facets(context):
                 if is_manager:
                     layers = layers.filter(
                         Q(is_published=True) |
+                        Q(group__in=groups) |
                         Q(group__in=manager_groups) |
+                        Q(group__in=group_list_all) |
                         Q(owner__username__iexact=str(request.user)))
                 elif request.user:
                     layers = layers.filter(
                         Q(is_published=True) |
+                        Q(group__in=groups) |
+                        Q(group__in=group_list_all) |
                         Q(owner__username__iexact=str(request.user)))
                 else:
                     layers = layers.filter(Q(is_published=True))
@@ -394,18 +402,26 @@ def facets(context):
                 if is_manager:
                     maps = maps.filter(
                         Q(is_published=True) |
+                        Q(group__in=groups) |
                         Q(group__in=manager_groups) |
+                        Q(group__in=group_list_all) |
                         Q(owner__username__iexact=str(request.user)))
                     documents = documents.filter(
                         Q(is_published=True) |
+                        Q(group__in=groups) |
                         Q(group__in=manager_groups) |
+                        Q(group__in=group_list_all) |
                         Q(owner__username__iexact=str(request.user)))
                 elif request.user:
                     maps = maps.filter(
                         Q(is_published=True) |
+                        Q(group__in=groups) |
+                        Q(group__in=group_list_all) |
                         Q(owner__username__iexact=str(request.user)))
                     documents = documents.filter(
                         Q(is_published=True) |
+                        Q(group__in=groups) |
+                        Q(group__in=group_list_all) |
                         Q(owner__username__iexact=str(request.user)))
                 else:
                     maps = maps.filter(Q(is_published=True))
