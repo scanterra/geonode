@@ -943,10 +943,10 @@ class UnpublishedObjectTests(TestCase):
                 response = self.client.get(reverse('layer_detail', args=('geonode:CA',)))
                 self.failUnlessEqual(response.status_code, 404)
 
-                # 200 if layer is unpublished but user has permission
+                # 404 if layer is unpublished but user has permission but does not belong to the group
                 assign_perm('publish_resourcebase', user, layer.get_self_resource())
                 response = self.client.get(reverse('layer_detail', args=('geonode:CA',)))
-                self.failUnlessEqual(response.status_code, 200)
+                self.failUnlessEqual(response.status_code, 404)
 
                 # 200 if layer is unpublished and user is owner
                 remove_perm('publish_resourcebase', user, layer.get_self_resource())
