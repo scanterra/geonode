@@ -27,7 +27,7 @@ django-allauth.
 
 import logging
 
-from allauth.account.adapter import DefaultAccountAdapter
+from allauth.account.adapter import app_settings, DefaultAccountAdapter
 from allauth.account.utils import user_field
 from allauth.account.utils import user_email
 from allauth.account.utils import user_username
@@ -36,12 +36,19 @@ from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from invitations.adapters import BaseInvitationsAdapter
 
 from django.conf import settings
+from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.utils.module_loading import import_string
+from django.template.loader import render_to_string
 # from django.contrib.auth.models import Group
 from geonode.groups.models import GroupProfile
+
+try:
+    from django.utils.encoding import force_text
+except ImportError:
+    from django.utils.encoding import force_unicode as force_text
 
 logger = logging.getLogger(__name__)
 
@@ -128,6 +135,13 @@ class LocalAccountAdapter(DefaultAccountAdapter, BaseInvitationsAdapter):
             ])
         user_username(user, safe_username)
 
+    def format_email_subject(self, subject):
+        prefix = app_settings.EMAIL_SUBJECT_PREFIX
+        if prefix is None:
+            site = get_current_site(self.request)
+            prefix = "[{name}] ".format(name=site.name)
+        return prefix + force_text(subject)
+
     def render_mail(self, template_prefix, email, context):
         user = context.get("inviter")
         full_name = " ".join((user.first_name, user.last_name)) if user.first_name or user.last_name else None
@@ -145,8 +159,47 @@ class LocalAccountAdapter(DefaultAccountAdapter, BaseInvitationsAdapter):
             "SITEURL": settings.SITEURL,
             "STATIC_URL": settings.STATIC_URL
         })
-        return super(LocalAccountAdapter, self).render_mail(
-            template_prefix, email, enhanced_context)
+        # return super(LocalAccountAdapter, self).render_mail(
+        #     template_prefix, email, enhanced_context)
+        return self.render_mail_local(template_prefix, email, enhanced_context)
+
+    def render_mail_local(self, template_prefix, email, context):
+        """
+        Renders an e-mail to `email`.  `template_prefix` identifies the
+        e-mail that is to be sent, e.g. "account/email/email_confirmation"
+        """
+        subject = render_to_string('{0}_subject.txt'.format(template_prefix),
+                                   context)
+        # remove superfluous line breaks
+        subject = " ".join(subject.splitlines()).strip()
+        subject = self.format_email_subject(subject)
+
+        from_email = self.get_from_email()
+
+        bodies = {}
+        for ext in ['html', 'txt']:
+            try:
+                template_name = '{0}_message.{1}'.format(template_prefix, ext)
+                bodies[ext] = render_to_string(template_name,
+                                               context).strip()
+            except TemplateDoesNotExist:
+                if ext == 'txt' and not bodies:
+                    # We need at least one body
+                    raise
+        if 'txt' in bodies:
+            msg = EmailMultiAlternatives(subject,
+                                         bodies['txt'],
+                                         from_email,
+                                         [email])
+            if 'html' in bodies:
+                msg.attach_alternative(bodies['html'], 'text/html')
+        else:
+            msg = EmailMessage(subject,
+                               bodies['html'],
+                               from_email,
+                               [email])
+            msg.content_subtype = 'html'  # Main content is now text/html
+        return msg
 
     def send_mail(self, template_prefix, email, context):
         msg = self.render_mail(template_prefix, email, context)
