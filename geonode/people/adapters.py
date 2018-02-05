@@ -36,9 +36,11 @@ from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from invitations.adapters import BaseInvitationsAdapter
 
 from django.conf import settings
+from django.contrib.sites.models import get_current_site
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
+from django.template import TemplateDoesNotExist
 from django.http import HttpResponseRedirect
 from django.utils.module_loading import import_string
 from django.template.loader import render_to_string

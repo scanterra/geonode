@@ -52,25 +52,27 @@ Ext.onReady(function() {
                 }
             }, */
             "ready": function() {
-                app.mapPanel.map.getMaxExtent = function() {
-                    return new OpenLayers.Bounds(-80150033.36/2,-80150033.36/2,80150033.36/2,80150033.36/2);
-                }
-                app.mapPanel.map.getMaxResolution = function() {
-                    return 626172.135625/2;
-                }
                 l = app.selectedLayer.getLayer();
                 l.addOptions({wrapDateLine:true, displayOutsideMaxExtent: true});
-                l.addOptions({maxExtent:app.mapPanel.map.getMaxExtent(), restrictedExtent:app.mapPanel.map.getMaxExtent()});
-
+                if(app.selectedLayer.data.queryable) {
+                    app.mapPanel.map.getMaxExtent = function() {
+                        return new OpenLayers.Bounds(-80150033.36/2,-80150033.36/2,80150033.36/2,80150033.36/2);
+                    }
+                    app.mapPanel.map.getMaxResolution = function() {
+                        return 626172.135625/2;
+                    }
+                    l.addOptions({maxExtent:app.mapPanel.map.getMaxExtent(), restrictedExtent:app.mapPanel.map.getMaxExtent()});
+                }
                 {% if 'access_token' in request.session %}
                     try {
-                        l.url += ( !l.url.match(/\b\?/gi) || l.url.match(/\b\?/gi).length == 0 ? '?' : '&');
-
-                        if((!l.url.match(/\baccess_token/gi))) {
-                            l.url += "access_token={{request.session.access_token}}";
-                        } else {
-                            l.url =
-                                l.url.replace(/(access_token)(.+?)(?=\&)/, "$1={{request.session.access_token}}");
+                        if(l.url != undefined && (typeof l.url) == "string") {
+                            l.url += ( !l.url.match(/\b\?/gi) || l.url.match(/\b\?/gi).length == 0 ? '?' : '&');
+                            if((!l.url.match(/\baccess_token/gi))) {
+                                l.url += "access_token={{request.session.access_token}}";
+                            } else {
+                                l.url =
+                                    l.url.replace(/(access_token)(.+?)(?=\&)/, "$1={{request.session.access_token}}");
+                            }
                         }
                     } catch(err) {
                         console.log(err);
@@ -79,19 +81,18 @@ Ext.onReady(function() {
 
                 for (var ll in app.mapPanel.map.layers) {
                     l = app.mapPanel.map.layers[ll];
-                    if (l.url && l.url.indexOf('{{GEOSERVER_BASE_URL}}') !== -1) {
+                    if (l.url != undefined && (typeof l.url) == "string" && l.url.indexOf('{{GEOSERVER_BASE_URL}}') !== -1) {
                         l.addOptions({wrapDateLine:true, displayOutsideMaxExtent: true});
                         l.addOptions({maxExtent:app.mapPanel.map.getMaxExtent(), restrictedExtent:app.mapPanel.map.getMaxExtent()});
                         {% if 'access_token' in request.session %}
                             try {
-                                    l.url += ( !l.url.match(/\b\?/gi) || l.url.match(/\b\?/gi).length == 0 ? '?' : '&');
-
-                                    if((!l.url.match(/\baccess_token/gi))) {
-                                        l.url += "access_token={{request.session.access_token}}";
-                                    } else {
-                                        l.url =
-                                            l.url.replace(/(access_token)(.+?)(?=\&)/, "$1={{request.session.access_token}}");
-                                    }
+                                l.url += ( !l.url.match(/\b\?/gi) || l.url.match(/\b\?/gi).length == 0 ? '?' : '&');
+                                if((!l.url.match(/\baccess_token/gi))) {
+                                    l.url += "access_token={{request.session.access_token}}";
+                                } else {
+                                    l.url =
+                                        l.url.replace(/(access_token)(.+?)(?=\&)/, "$1={{request.session.access_token}}");
+                                }
                             } catch(err) {
                                 console.log(err);
                             }
@@ -106,7 +107,7 @@ Ext.onReady(function() {
                 if (bbox != undefined)
                 {
                    if (!Array.isArray(bbox) && Object.keys(layer.srs) in bbox) {
-                    bbox = bbox[Object.keys(layer.srs)].bbox;
+                       bbox = bbox[Object.keys(layer.srs)].bbox;
                    }
 
                    var extent = new OpenLayers.Bounds();
@@ -131,7 +132,7 @@ Ext.onReady(function() {
                        app.mapPanel.zoom = map.zoom;
                        map.events.unregister('changebaselayer', null, zoomToData);
                    };
-                   map.events.register('changebaselayer',null,zoomToData);
+                   map.events.register('changebaselayer',null, zoomToData);
                    if(map.baseLayer){
                        map.zoomToExtent(extent, false);
                    }

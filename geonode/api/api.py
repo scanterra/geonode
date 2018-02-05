@@ -287,56 +287,39 @@ class TopicCategoryResource(TypeFilteredResource):
                             Q(group__in=groups) |
                             Q(group__in=manager_groups) |
                             Q(group__in=group_list_all) |
+                            Q(group__in=public_groups) |
                             Q(owner__username__iexact=str(request.user)))
                     elif request.user:
                         filter_set = filter_set.filter(
                             Q(is_published=True) |
                             Q(group__in=groups) |
                             Q(group__in=group_list_all) |
+                            Q(group__in=public_groups) |
                             Q(owner__username__iexact=str(request.user)))
                     else:
-                        filter_set = filter_set.filter(Q(is_published=True))
+                        filter_set = filter_set.filter(
+                            Q(is_published=True) |
+                            Q(group__in=public_groups) |
+                            Q(group__in=groups))
 
             if settings.RESOURCE_PUBLISHING:
                 if not is_admin:
-                    if is_manager:
-                        filter_set = filter_set.filter(
-                            Q(group__isnull=True) |
-                            Q(group__in=groups) |
-                            Q(group__in=manager_groups) |
-                            Q(group__in=group_list_all) |
-                            Q(group__in=public_groups) |
-                            Q(owner__username__iexact=str(request.user)))
-                    elif request.user:
-                        filter_set = filter_set.filter(
-                            Q(is_published=True) |
-                            Q(group__in=groups) |
-                            Q(group__in=group_list_all) |
-                            Q(owner__username__iexact=str(request.user)))
+                    if request.user:
+                        filter_set = filter_set.exclude(
+                            Q(is_published=False) & ~(
+                                Q(owner__username__iexact=str(request.user)) | Q(group__in=group_list_all)))
                     else:
-                        filter_set = filter_set.filter(Q(is_published=True))
+                        filter_set = filter_set.exclude(is_published=False)
 
             if settings.GROUP_PRIVATE_RESOURCES:
-                if is_admin:
-                    filter_set = filter_set
-                elif request.user:
-                    filter_set = filter_set.filter(
-                        Q(group__isnull=True) |
-                        Q(group__in=groups) |
-                        Q(group__in=manager_groups) |
-                        Q(group__in=public_groups) |
-                        Q(group__in=group_list_all) |
-                        Q(owner__username__iexact=str(request.user)))
-                else:
-                    if anonymous_group:
-                        filter_set = filter_set.filter(
-                            Q(group__isnull=True) |
-                            Q(group__in=public_groups) |
-                            Q(group=anonymous_group))
+                if not is_admin:
+                    private_groups = GroupProfile.objects.filter(access="private").values('group')
+                    if request.user:
+                        filter_set = filter_set.exclude(
+                            Q(group__in=private_groups) & ~(
+                                Q(owner__username__iexact=str(request.user)) | Q(group__in=group_list_all)))
                     else:
-                        filter_set = filter_set.filter(
-                            Q(group__isnull=True) |
-                            Q(group__in=public_groups))
+                        filter_set = filter_set.exclude(group__in=private_groups)
 
         return filter_set.distinct().count()
 

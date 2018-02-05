@@ -77,56 +77,42 @@ class ResourceBaseAutocomplete(AutocompleteModelTemplate):
                 if is_manager:
                     self.choices = self.choices.filter(
                         Q(is_published=True) |
+                        Q(group__in=groups) |
                         Q(group__in=manager_groups) |
+                        Q(group__in=group_list_all) |
+                        Q(group__in=public_groups) |
                         Q(owner__username__iexact=str(request.user)))
                 elif request.user:
                     self.choices = self.choices.filter(
                         Q(is_published=True) |
+                        Q(group__in=groups) |
+                        Q(group__in=group_list_all) |
+                        Q(group__in=public_groups) |
                         Q(owner__username__iexact=str(request.user)))
                 else:
-                    self.choices = self.choices.filter(Q(is_published=True))
+                    self.choices = self.choices.filter(
+                        Q(is_published=True) |
+                        Q(group__in=public_groups) |
+                        Q(group__in=groups))
 
         if settings.RESOURCE_PUBLISHING:
             if not is_admin:
-                if is_manager:
-                    self.choices = self.choices.filter(
-                        Q(group__isnull=True) |
-                        Q(group__in=groups) |
-                        Q(group__in=manager_groups) |
-                        Q(group__in=group_list_all) |
-                        Q(group__in=public_groups) |
-                        Q(owner__username__iexact=str(request.user)))
-                elif request.user:
-                    self.choices = self.choices.filter(
-                        Q(is_published=True) |
-                        Q(group__in=groups) |
-                        Q(group__in=group_list_all) |
-                        Q(owner__username__iexact=str(request.user)))
+                if request.user:
+                    self.choices = self.choices.exclude(
+                        Q(is_published=False) & ~(
+                            Q(owner__username__iexact=str(request.user)) | Q(group__in=group_list_all)))
                 else:
-                    self.choices = self.choices.filter(Q(is_published=True))
+                    self.choices = self.choices.exclude(is_published=False)
 
         if settings.GROUP_PRIVATE_RESOURCES:
-            public_groups = GroupProfile.objects.exclude(access="private").values('group')
-            if is_admin:
-                self.choices = self.choices
-            elif request.user:
-                self.choices = self.choices.filter(
-                    Q(group__isnull=True) |
-                    Q(group__in=groups) |
-                    Q(group__in=manager_groups) |
-                    Q(group__in=public_groups) |
-                    Q(group__in=group_list_all) |
-                    Q(owner__username__iexact=str(request.user)))
-            else:
-                if anonymous_group:
-                    self.choices = self.choices.filter(
-                        Q(group__isnull=True) |
-                        Q(group__in=public_groups) |
-                        Q(group=anonymous_group))
+            if not is_admin:
+                private_groups = GroupProfile.objects.filter(access="private").values('group')
+                if request.user:
+                    self.choices = self.choices.exclude(
+                        Q(group__in=private_groups) & ~(
+                            Q(owner__username__iexact=str(request.user)) | Q(group__in=group_list_all)))
                 else:
-                    self.choices = self.choices.filter(
-                        Q(group__isnull=True) |
-                        Q(group__in=public_groups))
+                    self.choices = self.choices.exclude(group__in=private_groups)
 
         return super(ResourceBaseAutocomplete, self).choices_for_request()
 
