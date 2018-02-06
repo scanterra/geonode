@@ -39,27 +39,25 @@ from .languages import LANGUAGES
 from .timezones import TIMEZONES
 
 
-email_subject = """IHP-WINS Notifications/Notifications IHP-WINS"""
+email_subject = """Welcome to IHP-WINS/Bienvenue sur IHP-WINS"""
 
 email_format = """Dear contributor,
 
-You have received the following notice from {}.
+Your account ({}) has been approved and is now active on the Water Information Network System.
+You can now log in to {}
 
-Your account ({}) has been approved and is now active.
-
-To change how you receive notifications, please go to {}/notifications/settings/.
+To manage your account, please go to {}/notifications/settings/.
 
 The IHP-WINS Team
 
-----------------------------------------------------------
+----------------------------------------------------
 
 Cher contributeur,
 
-Cette notification vous a été envoyée par {}.
+Votre compte ({} a été approuvé et est désormais actif sur le Système de Réseau d’Informations sur l’Eau.
+Vous pouvez dès à présent vous connecter sur {}.
 
-Votre compte ({}) a été approuvé et est désormais actif.
-
-Pour modifier vos paramètres de notifications, rendez-vous sur {}/notifications/settings/.
+Pour gérer votre compte, rendez-vous sur {}/notifications/settings/.
 
 L’équipe IHP-WINS"""
 
@@ -205,7 +203,8 @@ class Profile(AbstractUser):
         """Notify user that its account has been activated by a staff member"""
         became_active = self.is_active and not self._previous_active_state
         if became_active and self.last_login is None:
-            send_notification(users=(self,), label="account_active")
+            # send_notification(users=(self,), label="account_active")
+            pass
 
 
 def get_anonymous_user_instance(Profile):
@@ -233,8 +232,8 @@ def profile_pre_save(instance, sender, **kw):
         send_notification((instance,), "account_active")
         if not instance.approved:
             instance.approved = True
-            message = email_format.format(settings.SITEURL, instance.username, settings.SITEURL,
-                                          settings.SITEURL, instance.username, settings.SITEURL)
+            message = email_format.format(instance.username, settings.SITEURL, settings.SITEURL,
+                                          instance.username, settings.SITEURL, settings.SITEURL)
             try:
                 send_mail(
                     email_subject,

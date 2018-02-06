@@ -113,7 +113,7 @@ setup(name='GeoNode',
             "dj-database-url<=0.4.2",  # , python-dj-database-url (0.4.1 in ppa)
             "Pinax<=0.9a2",  # python-pinax (0.9a2 in our ppa)
             # pinax-comments==0.1.1
-            "pinax-notifications<=4.0.0",  # (4.0.0 in ppa)
+            "pinax-notifications==4.1.0",  # (4.0.0 in ppa)
             "pinax-theme-bootstrap<=8.0.1",  # python-pinax-theme-bootstrap (8.0.1 in our ppa)
             "django-forms-bootstrap<=3.1.0",  # python-django-forms-bootstrap (3.1.0 in our ppa)
             "django-friendly-tag-loader<=1.2.1",  # python-django-friendly-tag-loader (1.2.1 in our ppa)
@@ -151,6 +151,9 @@ setup(name='GeoNode',
 
             # AWS S3 dependencies
             "django-storages<=1.6.5",  # python-django-storages (1.6.5 in our ppa)
+
+            # DJango Caches
+            "python-memcached<=1.59",  # missing from ppa FIXME
 
             # Contribs
             "et-xmlfile<=1.0.1",  # python-et-xmlfile (1.0.1 in our ppa)
