@@ -46,7 +46,7 @@ email_format = """Dear contributor,
 Your account ({}) has been approved and is now active on the Water Information Network System.
 You can now log in to {}
 
-To manage your account, please go to {}/notifications/settings/.
+To manage your account, please go to {}/notifications/settings/
 
 The IHP-WINS Team
 
@@ -54,10 +54,10 @@ The IHP-WINS Team
 
 Cher contributeur,
 
-Votre compte ({} a été approuvé et est désormais actif sur le Système de Réseau d’Informations sur l’Eau.
-Vous pouvez dès à présent vous connecter sur {}.
+Votre compte ({}) a été approuvé et est désormais actif sur le Système de Réseau d’Informations sur l’Eau.
+Vous pouvez dès à présent vous connecter sur {}
 
-Pour gérer votre compte, rendez-vous sur {}/notifications/settings/.
+Pour gérer votre compte, rendez-vous sur {}/notifications/settings/
 
 L’équipe IHP-WINS"""
 
