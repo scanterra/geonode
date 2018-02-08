@@ -141,6 +141,12 @@ class Profile(AbstractUser):
         choices=TIMEZONES,
         blank=True,
     )
+    recommendation = models.CharField(
+        max_length=50,
+        default="",
+        blank=True,
+        null=True,
+        help_text=_('Name of the person who recommended you IHP-WINS'))
 
     def __init__(self, *args, **kwargs):
         super(Profile, self).__init__(*args, **kwargs)

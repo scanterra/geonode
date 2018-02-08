@@ -59,7 +59,7 @@ class ProfileAdmin(admin.ModelAdmin):
                                             'position', 'voice', 'fax',
                                             'delivery', 'city', 'area',
                                             'zipcode', 'country',
-                                            'keywords')}),
+                                            'keywords', 'recommendation')}),
     )
     add_fieldsets = (
         (None, {
@@ -70,9 +70,9 @@ class ProfileAdmin(admin.ModelAdmin):
     form = ProfileChangeForm
     add_form = ProfileCreationForm
     change_password_form = AdminPasswordChangeForm
-    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'is_active')
-    list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups')
-    search_fields = ('username', 'first_name', 'last_name', 'email')
+    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'is_active', 'recommendation')
+    list_filter = ('is_staff', 'is_superuser', 'is_active', 'recommendation')
+    search_fields = ('username', 'first_name', 'last_name', 'email', 'recommendation')
     ordering = ('username',)
     filter_horizontal = ('groups', 'user_permissions',)
 
