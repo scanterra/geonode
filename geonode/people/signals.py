@@ -44,12 +44,12 @@ def update_user_email_addresses(sender, **kwargs):
     except NotImplementedError:
         sociallogin_email = None
     if sociallogin_email is not None:
+        print(" ***************************************** {}".format(sociallogin_email))
         try:
             EmailAddress.objects.add_email(
                 request=None, user=user, email=sociallogin_email, confirm=False)
         except IntegrityError:
-            logging.exception(msg="Could not add email address {!r } "
-                                  "to user {}".format(sociallogin_email, user))
+            logging.exception(msg="Could not add email address {} to user {}".format(sociallogin_email, user))
 
 
 def notify_admins_new_signup(sender, **kwargs):
