@@ -1113,6 +1113,9 @@ def run_subprocess(*cmd, **kwargs):
 def parse_datetime(value):
     for patt in settings.DATETIME_INPUT_FORMATS:
         try:
+            if type(value) == type(dict()):
+                value_obj = value['$'] if '$' in value else str(value)
+                return datetime.datetime.strptime(value_obj, patt)
             return datetime.datetime.strptime(value, patt)
         except ValueError:
             pass

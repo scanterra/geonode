@@ -470,10 +470,15 @@ class RequestEvent(models.Model):
             resource_names = [resource_names]
         resources = cls._get_resources('layer', resource_names)
         if rd.get('error'):
-            etype = rd['error']['class']
-            edata = '\n'.join(rd['error']['stackTrace']['trace'])
-            emessage = rd['error']['detailMessage']
-            ExceptionEvent.add_error(service, etype, edata, message=emessage, request=inst)
+            try:
+                etype = rd['error']['@class'] if '@class' in rd['error'] else rd['error']['class']
+                edata = '\n'.join(rd['error']['stackTrace']['trace'])
+                emessage = rd['error']['detailMessage']
+                ExceptionEvent.add_error(service, etype, edata, message=emessage, request=inst)
+            except:
+                ExceptionEvent.add_error(service, 'undefined',
+                                         '\n'.join(rd['error']['stackTrace']['trace']),
+                                         message=rd['error']['detailMessage'], request=inst)
         if resources:
             inst.resources.add(*resources)
             inst.save()
