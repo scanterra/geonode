@@ -30,6 +30,7 @@ import subprocess
 import select
 import tempfile
 import tarfile
+import traceback
 
 from zipfile import ZipFile, is_zipfile
 
@@ -1113,11 +1114,14 @@ def run_subprocess(*cmd, **kwargs):
 def parse_datetime(value):
     for patt in settings.DATETIME_INPUT_FORMATS:
         try:
-            if type(value) == type(dict()):
-                value_obj = value['$'] if '$' in value else str(value)
+            if isinstance(value, dict):
+                value_obj = value['$'] if '$' in value else value['content']
                 return datetime.datetime.strptime(value_obj, patt)
-            return datetime.datetime.strptime(value, patt)
-        except ValueError:
+            else:
+                return datetime.datetime.strptime(value, patt)
+        except:
+            tb = traceback.format_exc()
+            # logger.error(tb)
             pass
     raise ValueError("Invalid datetime input: {}".format(value))
 

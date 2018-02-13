@@ -145,7 +145,7 @@ class LocalAccountAdapter(DefaultAccountAdapter, BaseInvitationsAdapter):
         return prefix + force_text(subject)
 
     def render_mail(self, template_prefix, email, context):
-        user = context.get("inviter")
+        user = context.get("inviter") if context.get("inviter") else context.get("user")
         full_name = " ".join((user.first_name, user.last_name)) if user.first_name or user.last_name else None
         # manager_groups = Group.objects.filter(
         #     name__in=user.groupmember_set.filter(role="manager").values_list("group__slug", flat=True))
