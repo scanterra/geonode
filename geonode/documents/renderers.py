@@ -74,7 +74,8 @@ def render_document(document_path, extension="png"):
                 return process.kill()
 
             unoconv = subprocess.Popen(
-                [settings.UNOCONV_EXECUTABLE, "-v", "-e", "PageRange=1-2", "-f", extension, "-o", output.name, temp_path],
+                [settings.UNOCONV_EXECUTABLE, "-v", "-e", "PageRange=1-2",
+                    "-f", extension, "-o", output.name, temp_path],
                 stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
             timeout = Timer(settings.UNOCONV_TIMEOUT, kill, [unoconv])
