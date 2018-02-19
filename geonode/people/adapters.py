@@ -27,17 +27,21 @@ django-allauth.
 
 import logging
 
-from django.conf import settings
-from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
-from django.utils.module_loading import import_string
-
 from allauth.account.adapter import DefaultAccountAdapter
 from allauth.account.utils import user_field
 from allauth.account.utils import user_email
 from allauth.account.utils import user_username
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
+
+from invitations.adapters import BaseInvitationsAdapter
+
+from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
+from django.utils.module_loading import import_string
+# from django.contrib.auth.models import Group
+from geonode.groups.models import GroupProfile
 
 logger = logging.getLogger(__name__)
 
@@ -90,7 +94,7 @@ def update_profile(sociallogin):
     return user
 
 
-class LocalAccountAdapter(DefaultAccountAdapter):
+class LocalAccountAdapter(DefaultAccountAdapter, BaseInvitationsAdapter):
     """Customizations for local accounts
 
     Check `django-allauth's documentation`_ for more details on this class.
@@ -123,6 +127,30 @@ class LocalAccountAdapter(DefaultAccountAdapter):
                 user_username(user)
             ])
         user_username(user, safe_username)
+
+    def render_mail(self, template_prefix, email, context):
+        user = context.get("inviter") if context.get("inviter") else context.get("user")
+        full_name = " ".join((user.first_name, user.last_name)) if user.first_name or user.last_name else None
+        # manager_groups = Group.objects.filter(
+        #     name__in=user.groupmember_set.filter(role="manager").values_list("group__slug", flat=True))
+        user_groups = GroupProfile.objects.filter(
+            slug__in=user.groupmember_set.filter().values_list("group__slug", flat=True))
+        enhanced_context = context.copy()
+        enhanced_context.update({
+            "inviter_name": full_name or str(user),
+            "inviter_first_name": user.first_name or str(user),
+            "inviter_id": user.id,
+            "groups": user_groups,
+            "MEDIA_URL": settings.MEDIA_URL,
+            "SITEURL": settings.SITEURL,
+            "STATIC_URL": settings.STATIC_URL
+        })
+        return super(LocalAccountAdapter, self).render_mail(
+            template_prefix, email, enhanced_context)
+
+    def send_mail(self, template_prefix, email, context):
+        msg = self.render_mail(template_prefix, email, context)
+        msg.send()
 
     def save_user(self, request, user, form, commit=True):
         user = super(LocalAccountAdapter, self).save_user(

@@ -71,6 +71,7 @@ from geonode.layers.utils import layer_type, get_files, create_thumbnail
 from geonode.security.views import _perms_info_json
 from geonode.utils import set_attributes
 import xml.etree.ElementTree as ET
+from django.utils.module_loading import import_string
 
 
 logger = logging.getLogger(__name__)
@@ -310,11 +311,18 @@ def cascading_delete(cat, layer_name):
             try:
                 store = get_store(cat, name, workspace=ws)
             except FailedRequestError:
-                try:
-                    layer = Layer.objects.get(alternate=layer_name)
-                    store = get_store(cat, layer.store, workspace=ws)
-                except FailedRequestError:
-                    logger.debug('the store was not found in geoserver')
+                if ogc_server_settings.DATASTORE:
+                    try:
+                        layers = Layer.objects.filter(alternate=layer_name)
+                        for layer in layers:
+                            store = get_store(cat, layer.store, workspace=ws)
+                    except FailedRequestError:
+                        logger.debug(
+                            'the store was not found in geoserver')
+                        return
+                else:
+                    logger.debug(
+                        'the store was not found in geoserver')
                     return
             if ws is None:
                 logger.debug(
@@ -855,10 +863,14 @@ def set_styles(layer, gs_catalog):
 
 def save_style(gs_style):
     style, created = Style.objects.get_or_create(name=gs_style.name)
-    style.sld_title = gs_style.sld_title
-    style.sld_body = gs_style.sld_body
-    style.sld_url = gs_style.body_href
-    style.save()
+    try:
+        style.sld_title = gs_style.sld_title
+    except:
+        style.sld_title = gs_style.name
+    finally:
+        style.sld_body = gs_style.sld_body
+        style.sld_url = gs_style.body_href
+        style.save()
     return style
 
 
@@ -1879,7 +1891,8 @@ def set_time_dimension(cat, layer, time_presentation, time_presentation_res, tim
     cat.save(resource)
 
 
-def create_gs_thumbnail(instance, overwrite=False):
+# this is the original implementation of create_gs_thumbnail()
+def create_gs_thumbnail_geonode(instance, overwrite=False):
     """
     Create a thumbnail with a GeoServer request.
     """
@@ -1912,6 +1925,7 @@ def create_gs_thumbnail(instance, overwrite=False):
     check_bbox = False
     if None not in instance.bbox:
         params['bbox'] = instance.bbox_string
+        params['crs'] = instance.srid
         check_bbox = True
 
     # Avoid using urllib.urlencode here because it breaks the url.
@@ -1925,3 +1939,10 @@ def create_gs_thumbnail(instance, overwrite=False):
 
     create_thumbnail(instance, thumbnail_remote_url, thumbnail_create_url,
                      ogc_client=http_client, overwrite=overwrite, check_bbox=check_bbox)
+
+
+# main entry point to create a thumbnail - will use implementation
+# defined in settings.THUMBNAIL_GENERATOR (see settings.py)
+def create_gs_thumbnail(instance, overwrite=False):
+    implementation = import_string(settings.THUMBNAIL_GENERATOR)
+    return implementation(instance, overwrite)

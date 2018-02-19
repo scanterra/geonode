@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 #########################################################################
 #
@@ -31,6 +30,7 @@ import dj_database_url
 # General Django development settings
 #
 from django.conf.global_settings import DATETIME_INPUT_FORMATS
+from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS
 from geonode import get_version
 from kombu import Queue
 
@@ -264,10 +264,17 @@ MAX_DOCUMENT_SIZE = int(os.getenv('MAX_DOCUMENT_SIZE ', '2'))  # MB
 # DOCUMENT_TYPE_MAP = {}
 # DOCUMENT_MIMETYPE_MAP = {}
 
+UNOCONV_ENABLE = strtobool(os.getenv('UNOCONV_ENABLE', 'False'))
+
+if UNOCONV_ENABLE:
+    UNOCONV_EXECUTABLE = os.getenv('UNOCONV_EXECUTABLE', '/usr/bin/unoconv')
+    UNOCONV_TIMEOUT = os.getenv('UNOCONV_TIMEOUT', 30)  # seconds
+
 GEONODE_APPS = (
     # GeoNode internal apps
     'geonode.people',
     'geonode.base',
+    'geonode.client',
     'geonode.layers',
     'geonode.maps',
     'geonode.proxy',
@@ -340,7 +347,7 @@ INSTALLED_APPS = (
     'geoexplorer',
     'leaflet',
     'django_extensions',
-    # 'geonode-client',
+    'django_basic_auth',
     # 'haystack',
     'autocomplete_light',
     'mptt',
@@ -386,7 +393,6 @@ MONITORING_DATA_TTL = timedelta(days=7)
 # this will disable csrf check for notification config views,
 # use with caution - for dev purpose only
 MONITORING_DISABLE_CSRF = False
-
 
 LOGGING = {
     'version': 1,
@@ -529,7 +535,7 @@ DEFAULT_ANONYMOUS_VIEW_PERMISSION = strtobool(
     os.getenv('DEFAULT_ANONYMOUS_VIEW_PERMISSION', 'True')
 )
 DEFAULT_ANONYMOUS_DOWNLOAD_PERMISSION = strtobool(
-    os.getenv('DEFAULT_ANONYMOUS_VIEW_PERMISSION', 'True')
+    os.getenv('DEFAULT_ANONYMOUS_DOWNLOAD_PERMISSION', 'True')
 )
 
 #
@@ -660,11 +666,20 @@ OGC_SERVER = {
 # Uploader Settings
 UPLOADER = {
     'BACKEND': 'geonode.rest',
+    # 'BACKEND': 'geonode.importer',
     'OPTIONS': {
         'TIME_ENABLED': False,
         'MOSAIC_ENABLED': False,
         'GEOGIG_ENABLED': False,
-    }
+    },
+    'SUPPORTED_CRS': [
+        'EPSG:4326',
+        'EPSG:3785',
+        'EPSG:3857',
+        'EPSG:900913',
+        'EPSG:32647',
+        'EPSG:32736'
+    ]
 }
 
 # CSW settings
@@ -1039,8 +1054,8 @@ CACHES = {
     #     }
 }
 
-LAYER_PREVIEW_LIBRARY = 'geoext'
-# LAYER_PREVIEW_LIBRARY = 'leaflet'
+GEONODE_CLIENT_LAYER_PREVIEW_LIBRARY = 'geoext'  # DEPRECATED use HOOKSET instead
+GEONODE_CLIENT_HOOKSET = "geonode.client.hooksets.GeoExtHookSet"
 
 SERVICE_UPDATE_INTERVAL = 0
 
@@ -1070,6 +1085,7 @@ _EMAIL_BACKEND = "pinax.notifications.backends.email.EmailBackend"
 PINAX_NOTIFICATIONS_BACKENDS = [
     ("email", _EMAIL_BACKEND),
 ]
+PINAX_NOTIFICATIONS_HOOKSET = "pinax.notifications.hooks.DefaultHookSet"
 
 # Queue non-blocking notifications.
 PINAX_NOTIFICATIONS_QUEUE_ALL = False
@@ -1244,3 +1260,10 @@ ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = 'optional'
 SOCIALACCOUNT_ADAPTER = 'geonode.people.adapters.SocialAccountAdapter'
+
+INVITATIONS_ADAPTER = ACCOUNT_ADAPTER
+
+TEMPLATE_CONTEXT_PROCESSORS += ('django.core.context.processors.request', )
+
+# Choose thumbnail generator -- this is the default generator
+THUMBNAIL_GENERATOR = "geonode.geoserver.helpers.create_gs_thumbnail_geonode"

@@ -371,6 +371,7 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
 
     granules = None
     all_granules = None
+    all_times = None
     filter = None
     if layer.is_mosaic:
         try:
@@ -399,6 +400,28 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
             granules = {"features": []}
             all_granules = {"features": []}
 
+    if 'geonode.geoserver' in settings.INSTALLED_APPS:
+        from geonode.geoserver.views import get_capabilities
+        if layer.has_time:
+            workspace, layername = layer.alternate.split(":")
+            # WARNING Please make sure to have enabled DJANGO CACHE as per
+            # https://docs.djangoproject.com/en/2.0/topics/cache/#filesystem-caching
+            wms_capabilities_resp = get_capabilities(request, layer.id, tolerant=True)
+            if wms_capabilities_resp.status_code >= 200 and wms_capabilities_resp.status_code < 400:
+                wms_capabilities = wms_capabilities_resp.getvalue()
+                if wms_capabilities:
+                    import xml.etree.ElementTree as ET
+                    e = ET.fromstring(wms_capabilities)
+                    for atype in e.findall("Capability/Layer/Layer[Name='%s']/Extent" % (layername)):
+                        dim_name = atype.get('name')
+                        if dim_name:
+                            dim_name = str(dim_name).lower()
+                            if dim_name == 'time':
+                                dim_values = atype.text
+                                if dim_values:
+                                    all_times = dim_values.split(",")
+                                    break
+
     group = None
     if layer.group:
         try:
@@ -421,6 +444,7 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
         "wps_enabled": settings.OGC_SERVER['default']['WPS_ENABLED'],
         "granules": granules,
         "all_granules": all_granules,
+        "all_times": all_times,
         "show_popup": show_popup,
         "filter": filter,
     }
@@ -435,8 +459,8 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
         request.user, access_token, * (NON_WMS_BASE_LAYERS + [maplayer])))
     context_dict["preview"] = getattr(
         settings,
-        'LAYER_PREVIEW_LIBRARY',
-        'leaflet')
+        'GEONODE_CLIENT_LAYER_PREVIEW_LIBRARY',
+        'geoext')
     context_dict["crs"] = getattr(
         settings,
         'DEFAULT_MAP_CRS',
@@ -486,7 +510,7 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
         context_dict["social_links"] = build_social_links(request, layer)
     layers_names = layer.alternate
     try:
-        if 'geonode' in layers_names:
+        if settings.DEFAULT_WORKSPACE and settings.DEFAULT_WORKSPACE in layers_names:
             workspace, name = layers_names.split(':', 1)
         else:
             name = layers_names
@@ -500,7 +524,10 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
         if layer.storeType == 'coverageStore':
             context_dict["layer_type"] = "raster"
         elif layer.storeType == 'dataStore':
-            context_dict["layer_type"] = "vector"
+            if layer.has_time:
+                context_dict["layer_type"] = "vector_time"
+            else:
+                context_dict["layer_type"] = "vector"
 
             location = "{location}{service}".format(** {
                 'location': settings.OGC_SERVER['default']['LOCATION'],
@@ -520,7 +547,7 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
             # filter the schema dict based on the values of layers_attributes
             layer_attributes_schema = []
             for key in schema['properties'].keys():
-                    layer_attributes_schema.append(key)
+                layer_attributes_schema.append(key)
 
             filtered_attributes = layer_attributes_schema
             context_dict["schema"] = schema
@@ -541,7 +568,7 @@ def load_layer_data(request, template='layers/layer_detail.html'):
     context_dict = {}
     data_dict = json.loads(request.POST.get('json_data'))
     layername = data_dict['layer_name']
-    filtered_attributes = data_dict['filtered_attributes']
+    filtered_attributes = [x for x in data_dict['filtered_attributes'].split(',') if '/load_layer_data' not in x]
     workspace, name = layername.split(':')
     location = "{location}{service}".format(** {
         'location': settings.OGC_SERVER['default']['LOCATION'],
@@ -549,6 +576,7 @@ def load_layer_data(request, template='layers/layer_detail.html'):
     })
 
     try:
+        # TODO: should be improved by using OAuth2 token (or at least user related to it) instead of super-powers
         username = settings.OGC_SERVER['default']['USER']
         password = settings.OGC_SERVER['default']['PASSWORD']
         wfs = WebFeatureService(location, version='1.1.0', username=username, password=password)
@@ -565,10 +593,10 @@ def load_layer_data(request, template='layers/layer_detail.html'):
         # loop the dictionary based on the values on the list and add the properties
         # in the dictionary (if doesn't exist) together with the value
         for i in range(len(decoded_features)):
-
             for key, value in decoded_features[i]['properties'].iteritems():
-                if value != '' and isinstance(value, (string_types, int, float)):
-                    properties[key].append(value)
+                if value != '' and isinstance(value, (string_types, int, float)) and (
+                '/load_layer_data' not in value):
+                        properties[key].append(value)
 
         for key in properties:
             properties[key] = list(set(properties[key]))
@@ -576,6 +604,8 @@ def load_layer_data(request, template='layers/layer_detail.html'):
 
         context_dict["feature_properties"] = properties
     except:
+        import traceback
+        traceback.print_exc()
         print "Possible error with OWSLib."
     return HttpResponse(json.dumps(context_dict), content_type="application/json")
 
@@ -885,7 +915,7 @@ def layer_metadata(
     if settings.ADMIN_MODERATE_UPLOADS:
         if not request.user.is_superuser:
             layer_form.fields['is_published'].widget.attrs.update({'disabled': 'true'})
-        if not request.user.is_superuser and not request.user.is_staff:
+
             can_change_metadata = request.user.has_perm(
                 'change_resourcebase_metadata',
                 layer.get_self_resource())
@@ -949,7 +979,7 @@ def layer_metadata(
         "category_form": category_form,
         "tkeywords_form": tkeywords_form,
         "viewer": viewer,
-        "preview": getattr(settings, 'LAYER_PREVIEW_LIBRARY', 'leaflet'),
+        "preview": getattr(settings, 'GEONODE_CLIENT_LAYER_PREVIEW_LIBRARY', 'geoext'),
         "crs": getattr(settings, 'DEFAULT_MAP_CRS', 'EPSG:900913'),
         "metadataxsl": metadataxsl,
         "freetext_readonly": getattr(
