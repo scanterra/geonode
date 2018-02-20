@@ -626,9 +626,9 @@ class MetricValue(models.Model):
                                    resource=resource,
                                    ows_service=ows_service,
                                    service_metric=service_metric)
-            inst.value = value
-            inst.value_raw = value_raw
-            inst.value_num = value_num
+            inst.value = abs(value) if value else 0
+            inst.value_raw = abs(value_raw) if value_raw else 0
+            inst.value_num = abs(value_num) if value_num else 0
             inst.samples_count = samples_count or 0
             inst.save()
             return inst

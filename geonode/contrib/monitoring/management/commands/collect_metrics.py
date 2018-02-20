@@ -114,18 +114,16 @@ class Command(BaseCommand):
             service.last_check = service.last_check.astimezone(utc)
         except:
             service.last_check = service.last_check.replace(tzinfo=utc) if service.last_check else now
-
         last_check = local_tz.localize(since).astimezone(utc).replace(tzinfo=utc) if since else service.last_check
-        if not last_check:
+        if not last_check or last_check > now:
             last_check = (now - service.check_interval)
+            service.last_check = last_check
 
         if not until:
             until = now
         else:
             until = local_tz.localize(until).astimezone(utc).replace(tzinfo=utc)
 
-        service.last_check = last_check
-        service.save()
         print('[',now ,'] checking', service.name, 'since', last_check, 'until', until)
         data_in = None
         h = Handler(service, force_check=force_check)
