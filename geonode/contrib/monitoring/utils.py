@@ -125,8 +125,10 @@ class GeoServerMonitorClient(object):
         rest_url = '{}rest/monitor/requests.html'.format(self.base_url)
         qargs = {}
         if since:
+            # since = since.astimezone(utc)
             qargs['from'] = since.strftime(GS_FORMAT)
         if until:
+            # until = until.astimezone(utc)
             qargs['to'] = until.strftime(GS_FORMAT)
         if qargs:
             rest_url = '{}?{}'.format(rest_url, urlencode(qargs))
@@ -168,19 +170,19 @@ class GeoServerMonitorClient(object):
 
     def _from_xml(self, val):
         try:
-           return xmljson.yahoo.data(val)
-        except:
-           # raise ValueError("Cannot convert from val %s" % val)
-           pass
+            return xmljson.yahoo.data(val)
+        except BaseException:
+            # raise ValueError("Cannot convert from val %s" % val)
+            pass
 
     def _from_html(self, val):
         raise ValueError("Cannot convert from html")
 
     def to_json(self, data, from_format):
         h = getattr(self, '_from_{}'.format(from_format), None)
-        print(h)
         if not h or not data:
-            raise ValueError("Cannot convert from {} - no handler".format(from_format))
+            raise ValueError(
+                "Cannot convert from {} - no handler".format(from_format))
         return h(data)
 
 
@@ -195,7 +197,8 @@ def align_period_end(end, interval):
     # rounding to last lower full period
     interval_num = ceil(diff_s / float(int_s))
 
-    return day_end + timedelta(seconds=(interval_num * interval.total_seconds()))
+    return day_end + \
+        timedelta(seconds=(interval_num * interval.total_seconds()))
 
 
 def align_period_start(start, interval):
@@ -209,7 +212,8 @@ def align_period_start(start, interval):
     # rounding to last lower full period
     interval_num = floor(diff_s / float(int_s))
 
-    return day_start + timedelta(seconds=(interval_num * interval.total_seconds()))
+    return day_start + \
+        timedelta(seconds=(interval_num * interval.total_seconds()))
 
 
 def generate_periods(since, interval, end=None, align=True):
@@ -230,7 +234,8 @@ def generate_periods(since, interval, end=None, align=True):
     if _periods[1]:
         periods_count += 1
 
-    end = since_aligned + timedelta(seconds=(periods_count * interval.total_seconds()))
+    end = since_aligned + \
+        timedelta(seconds=(periods_count * interval.total_seconds()))
 
     while since_aligned < end:
         yield (since_aligned, since_aligned + interval,)
@@ -266,7 +271,8 @@ class TypeChecks(object):
             try:
                 rtype, rname = val.split('=')
             except (ValueError, IndexError,):
-                raise ValueError("{} is not valid resource description".format(val))
+                raise ValueError(
+                    "{} is not valid resource description".format(val))
         return MonitoredResource.objects.get(type=rtype, name=rname)
 
     @staticmethod

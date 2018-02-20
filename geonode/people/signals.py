@@ -44,7 +44,6 @@ def update_user_email_addresses(sender, **kwargs):
     except NotImplementedError:
         sociallogin_email = None
     if sociallogin_email is not None:
-        print(" ***************************************** {}".format(sociallogin_email))
         try:
             EmailAddress.objects.add_email(
                 request=None, user=user, email=sociallogin_email, confirm=False)

@@ -441,7 +441,13 @@ class RequestEvent(models.Model):
                 region = client_loc['region']
                 city = client_loc['city']
 
+        from dateutil.tz import tzlocal
+        utc = pytz.utc
+        local_tz = pytz.timezone(datetime.now(tzlocal()).tzname())
+
         start_time = parse_datetime(rd['startTime'])
+        # Assuming GeoServer stores dates @ UTC
+        start_time = start_time.replace(tzinfo=utc).astimezone(local_tz)
 
         rl = rd['responseLength']
         data = {'created': start_time,
