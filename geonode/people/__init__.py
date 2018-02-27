@@ -17,8 +17,14 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 #########################################################################
+#from uuid import uuid4
+
+#from allauth.account.signals import user_signed_up
+#from allauth.socialaccount.signals import social_account_added
 from django.utils.translation import ugettext_noop as _
 from geonode.notifications_helper import NotificationsAppConfigBase
+
+#from geonode.people import signals
 
 
 class PeopleAppConfig(NotificationsAppConfigBase):

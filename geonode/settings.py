@@ -334,7 +334,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.humanize',
     'django.contrib.gis',
-
+    
     # Utility
     'dj_pagination',
     'taggit',
