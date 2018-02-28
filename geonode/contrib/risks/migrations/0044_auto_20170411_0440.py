@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
+from geonode.contrib.risks import models as risks_models
 
 
 
@@ -23,7 +24,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='riskanalysisimportmetadata',
             name='riskapp',
-            field=models.ForeignKey(default=get_default_app, to='risks.RiskApp'),
+            field=models.ForeignKey(default=risks_models.get_risk_app_default, to='risks.RiskApp'),
             preserve_default=False,
         ),
     ]

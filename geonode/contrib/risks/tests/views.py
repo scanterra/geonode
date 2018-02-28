@@ -55,7 +55,7 @@ class RisksViewTestCase(RisksTestCase):
             excel_file=TESTDATA_FILE_DATA,
             region=TEST_REGION,
             risk_analysis=TEST_RISK_ANALYSIS,
-            risk_app=[RiskApp.APP_DATA_EXTRACTION],
+            risk_app=RiskApp.APP_DATA_EXTRACTION,
             stdout=out)
 
         self.client = Client()
@@ -280,10 +280,11 @@ class RisksViewTestCase(RisksTestCase):
         pdf_url = data['pdfReport']
         upload_data = {'map': open(PDF_INPUT_TEST, 'rb'),
                        'legend': open(PDF_INPUT_TEST, 'rb'),
-                       'chart': open(PDF_INPUT_TEST, 'rb')}
+                       'dims': ['dim1', 'dim2'],
+                       'dimsVal': ['val1', 'val2'],
+                       'chart_0': open(PDF_INPUT_TEST, 'rb')}
         pdf_response = self.client.post(pdf_url, upload_data)
         self.assertTrue(pdf_response.status_code, 200)
-        pdf_data = json.loads(pdf_response.content)
-        self.assertTrue(pdf_data['success'])
+        self.assertTrue(pdf_response.content.startswith('%PDF-1.5'))
         
         

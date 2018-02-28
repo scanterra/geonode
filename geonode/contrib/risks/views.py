@@ -743,13 +743,14 @@ class PDFReportView(ContextAware, FormView):
                 with open(fname, 'rt') as f:
                     data = json.loads(f.read())
                     ctx['resources'][resname] = data
-
+            else:
+                ctx['resources'][resname] = None
         ctx['dimensions'] = self.get_dimensions(risk_analysis, ctx['resources'])
         return ctx
 
     def get_dimensions(self, risk_analysis, selected):
-        dims = selected['dims']
-        dimsVal = selected['dimsVal']
+        dims = selected['dims'] or []
+        dimsVal = selected['dimsVal'] or []
         headers = []
         _values = []
 
@@ -772,12 +773,22 @@ class PDFReportView(ContextAware, FormView):
         out = []
         r = self.request
         k = self.kwargs.copy()
+
         for part in self.PDF_PARTS:
             if part != 'report':
                 continue
             k['pdf_part'] = part
-            out.append(r.build_absolute_uri('{}?r={}'.format(app.url_for('pdf_report_part', **k), randomizer)))
 
+            if not settings.TEST:
+                out.append(r.build_absolute_uri('{}?r={}'.format(app.url_for('pdf_report_part', **k), randomizer)))
+
+            else:
+                orig_k = self.kwargs
+                self.kwargs = k 
+                ctx = self.get_context_url(_full=True, **k)
+                rendered = self.render_report_markup(ctx, r, **k)
+                out.append(rendered)
+                self.kwargs = orig_k
         return out
 
     def get_template_names(self):
@@ -795,7 +806,6 @@ class PDFReportView(ContextAware, FormView):
         ctx = self.get_context_url(_full=True, **self.kwargs)
 
         r = self.request
-        out = {'success': True}
         app = self.get_app()
         config = {}
 
@@ -827,10 +837,9 @@ class PDFReportView(ContextAware, FormView):
         pdf_path = default_storage.path(os.path.join(ctx, 'report_{}.pdf'.format(randomizer)))
         cleanup_paths.append(pdf_path)
         config['pdf'] = pdf_path
+        self._pdf_config = config
         config['urls'] = self.get_document_urls(app, randomizer)
-
         pdf = generate_pdf(**config)
-        out['pdf'] = pdf
 
         def cleanup():
             self.cleanup(cleanup_paths)
