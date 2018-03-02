@@ -475,7 +475,7 @@ def geoserver_proxy(request, proxy_path, downstream_path, workspace=None):
 
     if csrftoken:
         headers['X-Requested-With'] = "XMLHttpRequest"
-        headers['X-CSRFToken'] = value
+        headers['X-CSRFToken'] = csrftoken
         cook = "%s=%s" % ('csrftoken', csrftoken)
         cookies = cook if not cookies else (cookies + '; ' + cook)
 
