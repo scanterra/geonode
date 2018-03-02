@@ -975,10 +975,12 @@ def map_download(request, mapid, template='maps/map_download.html'):
                 j_layers.remove(j_layer)
         mapJson = json.dumps(j_map)
 
-        if 'geonode.geoserver' in settings.INSTALLED_APPS:
+        if 'geonode.geoserver' in settings.INSTALLED_APPS \
+                and ogc_server_settings.BACKEND == 'geonode.geoserver':
             # TODO the url needs to be verified on geoserver
             url = "%srest/process/batchDownload/launch/" % ogc_server_settings.LOCATION
-        elif 'geonode.qgis_server' in settings.INSTALLED_APPS:
+        elif 'geonode.qgis_server' in settings.INSTALLED_APPS \
+                and ogc_server_settings.BACKEND == 'geonode.qgis_server':
             url = urljoin(settings.SITEURL,
                           reverse("qgis_server:download-map", kwargs={'mapid': mapid}))
             # qgis-server backend stop here, continue on qgis_server/views.py

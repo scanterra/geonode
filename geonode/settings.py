@@ -286,7 +286,7 @@ GEONODE_APPS = (
     'geonode.services',
 
     # QGIS Server Apps
-    # 'geonode.qgis_server',
+    'geonode.qgis_server',
 
     # GeoServer Apps
     # Geoserver needs to come last because
@@ -408,10 +408,6 @@ LOGGING = {
         }
     },
     'handlers': {
-        'null': {
-            'level': 'ERROR',
-            'class': 'logging.NullHandler',
-        },
         'console': {
             'level': 'ERROR',
             'class': 'logging.StreamHandler',
@@ -451,15 +447,17 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
-                'django.contrib.auth.context_processors.auth',
-                'django.core.context_processors.debug',
-                'django.core.context_processors.i18n',
-                'django.core.context_processors.tz',
-                'django.core.context_processors.media',
-                'django.core.context_processors.static',
-                'django.core.context_processors.request',
-                'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.debug',
                 'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+                'django.contrib.auth.context_processors.auth',
+                # 'django.core.context_processors.debug',
+                # 'django.core.context_processors.i18n',
+                # 'django.core.context_processors.tz',
+                # 'django.core.context_processors.media',
+                # 'django.core.context_processors.static',
+                # 'django.core.context_processors.request',
                 'geonode.context_processors.resource_urls',
                 'geonode.geoserver.context_processors.geoserver_urls',
             ],

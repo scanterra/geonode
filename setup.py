@@ -147,12 +147,12 @@ setup(name='GeoNode',
 
             # GeoNode org maintained apps.
             "django-geoexplorer>=4.0.0,<5.0",  # python-django-geoexplorer (4.0.37 in our ppa) FIXME
-            "geonode-user-messages<=0.1.12",  # python-geonode-user-messages (0.1.11 in our ppa) FIXME
-            "geonode-avatar<=2.1.6",  # python-geonode-avatar (2.1.6 in our ppa)
-            "geonode-announcements<=1.0.10",  # python-geonode-announcements (1.0.9 in our ppa)
-            "geonode-agon-ratings<=0.3.6",  # python-geonode-agon-ratings (0.3.5 in our ppa) FIXME
+            "geonode-user-messages<=0.1.13",  # python-geonode-user-messages (0.1.11 in our ppa) FIXME
+            "geonode-avatar<=2.1.7",  # python-geonode-avatar (2.1.6 in our ppa) FIXME
+            "geonode-announcements<=1.0.11",  # python-geonode-announcements (1.0.9 in our ppa) FIXME
+            "geonode-agon-ratings<=0.3.8",  # python-geonode-agon-ratings (0.3.5 in our ppa) FIXME
             "geonode-arcrest>=10.0",  # python-geonode-arcrest (10.2 in our ppa)
-            "geonode-dialogos<=0.8",  # python-geonode-dialogos (0.7 in our ppa) FIXME
+            "geonode-dialogos<=0.9",  # python-geonode-dialogos (0.7 in our ppa) FIXME
             "gsconfig<2.0.0",  # python-gsconfig (1.0.8 in our ppa)
             "gn-gsimporter<2.0.0",  # python-gn-gsimporter (1.0.2 in our ppa)
             "gisdata>=0.5.4",  # python-gisdata (0.5.4 in our ppa)
