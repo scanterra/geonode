@@ -61,6 +61,7 @@ from .helpers import (get_stores, ogc_server_settings,
 
 from django_basic_auth import logged_in_or_basicauth
 from django.views.decorators.csrf import requires_csrf_token
+from django.middleware.csrf import get_token
 
 logger = logging.getLogger(__name__)
 
@@ -413,6 +414,7 @@ def geoserver_proxy(request, proxy_path, downstream_path, workspace=None):
     affected_layers = None
     headers = {}
     cookies = None
+    csrftoken = None
 
     # TODO: This won't work unless GeoServer is connected to the GeoNode Users' Repo
     #       We would need a specific GroupRoleService
@@ -465,9 +467,16 @@ def geoserver_proxy(request, proxy_path, downstream_path, workspace=None):
         name = str(cook)
         value = request.COOKIES.get(name)
         if name == 'csrftoken':
-            headers['X-Requested-With'] = "XMLHttpRequest"
-            headers['X-CSRFToken'] = value
+            csrftoken = value
         cook = "%s=%s" % (name, value)
+        cookies = cook if not cookies else (cookies + '; ' + cook)
+
+    csrftoken = get_token(request) if not csrftoken else csrftoken
+
+    if csrftoken:
+        headers['X-Requested-With'] = "XMLHttpRequest"
+        headers['X-CSRFToken'] = value
+        cook = "%s=%s" % ('csrftoken', csrftoken)
         cookies = cook if not cookies else (cookies + '; ' + cook)
 
     if cookies:

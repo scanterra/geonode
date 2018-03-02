@@ -25,6 +25,7 @@ from django.conf import settings
 from django.utils.http import is_safe_url
 from django.http.request import validate_host
 from django.views.decorators.csrf import requires_csrf_token
+from django.middleware.csrf import get_token
 # from django.views.decorators.csrf import csrf_exempt
 
 
@@ -68,6 +69,7 @@ def proxy(request):
                                 )
     headers = {}
     cookies = None
+    csrftoken = None
 
     if settings.SESSION_COOKIE_NAME in request.COOKIES and is_safe_url(url=raw_url, host=host):
         cookies = request.META["HTTP_COOKIE"]
@@ -76,9 +78,16 @@ def proxy(request):
         name = str(cook)
         value = request.COOKIES.get(name)
         if name == 'csrftoken':
-            headers['X-Requested-With'] = "XMLHttpRequest"
-            headers['X-CSRFToken'] = value
+            csrftoken = value
         cook = "%s=%s" % (name, value)
+        cookies = cook if not cookies else (cookies + '; ' + cook)
+
+    csrftoken = get_token(request) if not csrftoken else csrftoken
+
+    if csrftoken:
+        headers['X-Requested-With'] = "XMLHttpRequest"
+        headers['X-CSRFToken'] = value
+        cook = "%s=%s" % ('csrftoken', csrftoken)
         cookies = cook if not cookies else (cookies + '; ' + cook)
 
     if cookies:
