@@ -49,9 +49,6 @@ class QGISServerLayer(models.Model, PermissionLevelMixin):
     """Model for Layer in QGIS Server Backend.
     """
 
-    class Meta:
-        app_label = "geonode"
-
     accepted_format = [
         'tif', 'tiff', 'asc', 'shp', 'shx', 'dbf', 'prj', 'qml', 'xml', 'qgs']
 
@@ -321,9 +318,6 @@ class QGISServerStyle(models.Model, PermissionLevelMixin):
 
 class QGISServerMap(models.Model, PermissionLevelMixin):
     """Model wrapper for QGIS Server Map."""
-
-    class Meta:
-        app_label = "geonode"
 
     map = models.OneToOneField(
         Map,
