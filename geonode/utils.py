@@ -103,6 +103,8 @@ def unzip_file(upload_file, extension='.shp', tempdir=None):
     absolute_base_file = None
     if tempdir is None:
         tempdir = tempfile.mkdtemp()
+    if not os.path.isdir(tempdir):
+        os.makedirs(tempdir)
 
     the_zip = ZipFile(upload_file)
     the_zip.extractall(tempdir)
@@ -694,8 +696,10 @@ def resolve_object(request, model, query, permission='base.view_resourcebase',
     if not allowed:
         mesg = permission_msg or _('Permission Denied')
         raise PermissionDenied(mesg)
-    if settings.MONITORING_ENABLED:
-        request.add_resource(model._meta.verbose_name_raw, obj.alternate if hasattr(obj, 'alternate') else obj.title)
+    if settings.MONITORING_ENABLED and obj:
+        if hasattr(obj, 'alternate') or obj.title:
+            resource_name = obj.alternate if hasattr(obj, 'alternate') else obj.title
+            request.add_resource(model._meta.verbose_name_raw, resource_name)
     return obj
 
 

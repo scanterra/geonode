@@ -19,6 +19,7 @@
 #########################################################################
 
 # Django settings for the GeoNode project.
+import ast
 import os
 import re
 import sys
@@ -30,7 +31,6 @@ import dj_database_url
 # General Django development settings
 #
 from django.conf.global_settings import DATETIME_INPUT_FORMATS
-from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS
 from geonode import get_version
 from kombu import Queue
 
@@ -54,8 +54,8 @@ DEBUG_STATIC = strtobool(os.getenv('DEBUG_STATIC', 'False'))
 EMAIL_ENABLE = strtobool(os.getenv('EMAIL_ENABLE', 'False'))
 
 if EMAIL_ENABLE:
-    EMAIL_BACKEND = os.getenv('DJANGO_EMAIL_BACKEND', \
-        default='django.core.mail.backends.smtp.EmailBackend')
+    EMAIL_BACKEND = os.getenv('DJANGO_EMAIL_BACKEND',
+                              default='django.core.mail.backends.smtp.EmailBackend')
     EMAIL_HOST = 'localhost'
     EMAIL_PORT = 25
     EMAIL_HOST_USER = ''
@@ -63,15 +63,18 @@ if EMAIL_ENABLE:
     EMAIL_USE_TLS = False
     DEFAULT_FROM_EMAIL = 'GeoNode <no-reply@geonode.org>'
 else:
-    EMAIL_BACKEND = os.getenv('DJANGO_EMAIL_BACKEND', \
-        default='django.core.mail.backends.console.EmailBackend')
+    EMAIL_BACKEND = os.getenv('DJANGO_EMAIL_BACKEND',
+                              default='django.core.mail.backends.console.EmailBackend')
 
 # This is needed for integration tests, they require
 # geonode to be listening for GeoServer auth requests.
 os.environ['DJANGO_LIVE_TEST_SERVER_ADDRESS'] = 'localhost:8000'
 
-ALLOWED_HOSTS = ['localhost', 'django'] if os.getenv('ALLOWED_HOSTS') is None \
-    else re.split(r' *[,|:|;] *', os.getenv('ALLOWED_HOSTS'))
+if os.getenv('DOCKER_ENV'):
+    ALLOWED_HOSTS = ast.literal_eval(os.getenv('ALLOWED_HOSTS'))
+else:
+    ALLOWED_HOSTS = ['localhost', ] if os.getenv('ALLOWED_HOSTS') is None \
+        else re.split(r' *[,|:|;] *', os.getenv('ALLOWED_HOSTS'))
 
 # AUTH_IP_WHITELIST property limits access to users/groups REST endpoints
 # to only whitelisted IP addresses.
@@ -106,6 +109,14 @@ DATABASE_URL = os.getenv(
 DATABASES = {
     'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)
 }
+
+if os.getenv('DEFAULT_BACKEND_DATASTORE'):
+    GEODATABASE_URL = os.getenv('GEODATABASE_URL',
+                                'postgis://\
+geonode_data:geonode_data@localhost:5432/geonode_data')
+    DATABASES[os.getenv('DEFAULT_BACKEND_DATASTORE')] = dj_database_url.parse(
+        GEODATABASE_URL, conn_max_age=600
+    )
 
 MANAGERS = ADMINS = os.getenv('ADMINS', [])
 
@@ -337,8 +348,6 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     'django.contrib.gis',
 
-    # Third party apps
-
     # Utility
     'pagination',
     'taggit',
@@ -486,6 +495,9 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
+    # Security settings
+    'django.middleware.security.SecurityMiddleware',
+
     # This middleware allows to print private layers for the users that have
     # the permissions to view them.
     # It sets temporary the involved layers as public before restoring the
@@ -500,6 +512,18 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'oauth2_provider.middleware.OAuth2TokenMiddleware',
 )
+
+# Security stuff
+MIDDLEWARE_CLASSES += ('django.middleware.security.SecurityMiddleware',)
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
+CSRF_COOKIE_HTTPONLY = False
+X_FRAME_OPTIONS = 'DENY'
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_SSL_REDIRECT = False
+SECURE_HSTS_SECONDS = 3600
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 
 # Replacement of default authentication backend in order to support
 # permissions per object.
@@ -568,8 +592,6 @@ ACTSTREAM_SETTINGS = {
     'USE_JSONFIELD': True,
     'GFK_FETCH_DEPTH': 1,
 }
-
-
 
 
 # Email for users to contact admins.
@@ -657,7 +679,8 @@ OGC_SERVER = {
         'LOG_FILE': '%s/geoserver/data/logs/geoserver.log'
         % os.path.abspath(os.path.join(PROJECT_ROOT, os.pardir)),
         # Set to name of database in DATABASES dictionary to enable
-        'DATASTORE': '',  # 'datastore',
+        # 'datastore',
+        'DATASTORE': os.getenv('DEFAULT_BACKEND_DATASTORE', ''),
         'PG_GEOGIG': False,
         'TIMEOUT': 10  # number of seconds to allow for HTTP requests
     }
@@ -679,6 +702,19 @@ UPLOADER = {
         'EPSG:900913',
         'EPSG:32647',
         'EPSG:32736'
+    ],
+    'SUPPORTED_EXT': [
+        '.shp',
+        '.csv',
+        '.kml',
+        '.kmz',
+        '.json',
+        '.geojson',
+        '.tif',
+        '.tiff',
+        '.geotiff',
+        '.gml',
+        '.xml'
     ]
 }
 
@@ -1263,7 +1299,5 @@ SOCIALACCOUNT_ADAPTER = 'geonode.people.adapters.SocialAccountAdapter'
 
 INVITATIONS_ADAPTER = ACCOUNT_ADAPTER
 
-TEMPLATE_CONTEXT_PROCESSORS += ('django.core.context.processors.request', )
-
 # Choose thumbnail generator -- this is the default generator
-THUMBNAIL_GENERATOR = "geonode.geoserver.helpers.create_gs_thumbnail_geonode"
+THUMBNAIL_GENERATOR = "geonode.layers.utils.create_gs_thumbnail_geonode"
