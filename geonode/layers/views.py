@@ -303,7 +303,8 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
             "ptype": service.ptype,
             "remote": True,
             "url": service.service_url,
-            "name": service.name}
+            "name": service.name,
+            "title": "[R] %s" % service.title}
         maplayer = GXPLayer(
             name=layer.alternate,
             ows_url=layer.ows_url,
@@ -654,7 +655,8 @@ def layer_metadata(
             "ptype": service.ptype,
             "remote": True,
             "url": service.service_url,
-            "name": service.name}
+            "name": service.name,
+            "title": "[R] %s" % service.title}
         maplayer = GXPLayer(
             name=layer.alternate,
             ows_url=layer.ows_url,
