@@ -422,7 +422,7 @@ LOGGING = {
     },
     'handlers': {
         'console': {
-            'level': 'DEBUG',
+            'level': 'ERROR',
             'class': 'logging.StreamHandler',
             'formatter': 'simple'
         },
@@ -435,7 +435,7 @@ LOGGING = {
         "django": {
             "handlers": ["console"], "level": "ERROR", },
         "geonode": {
-            "handlers": ["console"], "level": "DEBUG", },
+            "handlers": ["console"], "level": "ERROR", },
         "geonode.qgis_server": {
             "handlers": ["console"], "level": "ERROR", },
         "gsconfig.catalog": {
