@@ -393,7 +393,7 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
                     import xml.etree.ElementTree as ET
                     e = ET.fromstring(wms_capabilities)
                     for atype in e.findall(
-                            "Capability/Layer/Layer[Name='%s']/Extent" % (layername)):
+                            "./[Name='%s']/Extent[@name='time']" % (layername)):
                         dim_name = atype.get('name')
                         if dim_name:
                             dim_name = str(dim_name).lower()

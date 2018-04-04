@@ -75,7 +75,7 @@ BASE = len(ALPHABET)
 SIGN_CHARACTER = '$'
 SQL_PARAMS_RE = re.compile(r'%\(([\w_\-]+)\)s')
 
-http_client = httplib2.Http(".cache", timeout=10)
+http_client = httplib2.Http("/tmp/.cache", timeout=10)
 
 custom_slugify = Slugify(separator='_')
 

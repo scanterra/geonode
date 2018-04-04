@@ -179,8 +179,11 @@ class Service(ResourceBase):
     @cached_property
     def probe(self):
         from geonode.utils import http_client
-        resp, content = http_client.request(self.service_url)
-        return resp.status
+	try:
+            resp, content = http_client.request(self.service_url)
+            return resp.status
+        except:
+            return 404
 
 
 class ServiceProfileRole(models.Model):

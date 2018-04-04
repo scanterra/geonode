@@ -713,14 +713,17 @@ def get_layer_capabilities(layer, version='1.1.0', access_token=None, tolerant=F
     http = httplib2.Http()
     response, getcap = http.request(wms_url)
     # TODO this is to bypass an actual bug of GeoServer 2.12.x
-    if tolerant and response.status == 404:
+    if tolerant and ('ServiceException' in getcap or response.status == 404):
         # WARNING Please make sure to have enabled DJANGO CACHE as per
         # https://docs.djangoproject.com/en/2.0/topics/cache/#filesystem-caching
-        wms_url = '%s%s/ows?service=wms&version=1.1.0&request=GetCapabilities&layers=%s'\
-            % (ogc_server_settings.public_url, workspace, layer)
+        wms_url = '%s%s/ows?service=wms&version=%s&request=GetCapabilities&layers=%s'\
+            % (ogc_server_settings.public_url, workspace, version, layer)
         if access_token:
             wms_url += ('&access_token=%s' % access_token)
         response, getcap = http.request(wms_url)
+
+    if 'ServiceException' in getcap or response.status == 404:
+        return None
     return getcap
 
 
@@ -781,22 +784,23 @@ def get_capabilities(request, layerid=None, user=None,
 
             try:
                 workspace, layername = layer.alternate.split(":") if ":" in layer.alternate else (None, layer.alternate)
-                if rootdoc is None:  # 1st one, seed with real GetCapabilities doc
+                layercap = get_layer_capabilities(layer,
+                                                  access_token=access_token,
+                                                  tolerant=tolerant)
+                if layercap:  # 1st one, seed with real GetCapabilities doc
                     try:
-                        layercap = get_layer_capabilities(layer,
-                                                          access_token=access_token,
-                                                          tolerant=tolerant)
                         layercap = etree.fromstring(layercap)
                         rootdoc = etree.ElementTree(layercap)
-                        rootlayerelem = rootdoc.find('.//Capability/Layer')
                         format_online_resource(workspace, layername, rootdoc)
                         rootdoc.find('.//Service/Name').text = cap_name
+                        rootdoc = rootdoc.find('.//Capability/Layer/Layer')
                     except Exception as e:
                         import traceback
                         traceback.print_exc()
                         logger.error(
                             "Error occurred creating GetCapabilities for %s: %s" %
                             (layer.typename, str(e)))
+                        rootdoc = None
                 else:
                     # Get the required info from layer model
                     tpl = get_template("geoserver/layer.xml")
@@ -808,19 +812,20 @@ def get_capabilities(request, layerid=None, user=None,
                     gc_str = tpl.render(ctx)
                     gc_str = gc_str.encode("utf-8")
                     layerelem = etree.XML(gc_str)
-                    rootlayerelem.append(layerelem)
+                    rootdoc = etree.ElementTree(layerelem)
             except Exception as e:
                 import traceback
                 traceback.print_exc()
                 logger.error(
                     "Error occurred creating GetCapabilities for %s:%s" %
                     (layer.typename, str(e)))
-                pass
+                rootdoc = None
     if rootdoc is not None:
         capabilities = etree.tostring(
             rootdoc,
             xml_declaration=True,
             encoding='UTF-8',
             pretty_print=True)
+        print(" ************ %s " % capabilities)
         return HttpResponse(capabilities, content_type="text/xml")
     return HttpResponse(status=200)
