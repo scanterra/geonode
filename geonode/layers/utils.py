@@ -866,6 +866,7 @@ def create_thumbnail(instance, thumbnail_remote_url, thumbnail_create_url=None,
                 .update(thumbnail_url=thumbnail_remote_url)
 
             # Download thumbnail and save it locally.
+            print(" ********************** %s " % thumbnail_create_url)
             resp, image = ogc_client.request(thumbnail_create_url)
             if 'ServiceException' in image or \
                resp.status < 200 or resp.status > 299:
@@ -904,8 +905,8 @@ def create_gs_thumbnail_geonode(instance, overwrite=False, check_bbox=False):
         'layers': layers,
         'format': wms_format,
         'width': 200,
-        'height': 150,
-        'TIME': '-99999999999-01-01T00:00:00.0Z/99999999999-01-01T00:00:00.0Z'
+        'height': 150
+        # 'TIME': '-99999999999-01-01T00:00:00.0Z/99999999999-01-01T00:00:00.0Z'
     }
 
     # Add the bbox param only if the bbox is different to [None, None,
