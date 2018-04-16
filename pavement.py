@@ -49,7 +49,12 @@ from geonode.settings import (on_travis,
                               GEONODE_CORE_APPS,
                               GEONODE_APPS,
                               OGC_SERVER,
-                              ASYNC_SIGNALS,)
+                              ASYNC_SIGNALS,
+                              TEST_RUNNER_KEEPDB,
+                              TEST_RUNNER_PARALLEL)
+
+_django_11 = django.VERSION[0] == 1 and django.VERSION[1] >= 11 and django.VERSION[2] >= 2
+_keepdb = '-k' if TEST_RUNNER_KEEPDB else ''
 
 assert sys.version_info >= (2, 6), \
     SystemError("GeoNode Build requires python 2.6 or better")
@@ -716,12 +721,16 @@ def test(options):
     """
     Run GeoNode's Unit Test Suite
     """
-    if on_travis:
-        sh("%s manage.py test %s.tests --noinput" % (options.get('prefix'),
-                                                     '.tests '.join(GEONODE_CORE_APPS)))
+    if on_travis and not _django_11:
+        sh("%s manage.py test %s.tests --noinput %s --parallel=%s" % (options.get('prefix'),
+                                                                                  '.tests '.join(GEONODE_CORE_APPS),
+                                                                                  _keepdb,
+                                                                                  TEST_RUNNER_PARALLEL))
     else:
-        sh("%s manage.py test %s.tests --noinput" % (options.get('prefix'),
-                                                     '.tests '.join(GEONODE_APPS)))
+        sh("%s manage.py test %s.tests --noinput %s --parallel=%s" % (options.get('prefix'),
+                                                                                  '.tests '.join(GEONODE_APPS),
+                                                                                  _keepdb,
+                                                                                  TEST_RUNNER_PARALLEL))
 
 
 @task
@@ -785,9 +794,12 @@ def test_integration(options):
     success = False
     try:
         if name == 'geonode.tests.csw':
-            call_task('sync', options={'settings': settings})
-            call_task('start', options={'settings': settings})
-            call_task('setup_data', options={'settings': settings})
+            if _django_11:
+                pass
+            else:
+                call_task('sync', options={'settings': settings})
+                call_task('start', options={'settings': settings})
+                call_task('setup_data', options={'settings': settings})
 
         settings = 'DJANGO_SETTINGS_MODULE=%s' % settings if settings else ''
 
@@ -800,21 +812,24 @@ def test_integration(options):
             sh("%s python -W ignore manage.py loaddata geonode/base/fixtures/initial_data.json" %
                settings)
             call_task('start_geoserver')
-            bind = options.get('bind', '0.0.0.0:8000')
-            foreground = '' if options.get('foreground', False) else '&'
-            sh('%s python -W ignore manage.py runmessaging %s' % (settings, foreground))
-            sh('%s python -W ignore manage.py runserver %s %s' %
-               (settings, bind, foreground))
+            if _django_11:
+                pass
+            else:
+                bind = options.get('bind', '0.0.0.0:8000')
+                foreground = '' if options.get('foreground', False) else '&'
+                sh('%s python -W ignore manage.py runmessaging %s' % (settings, foreground))
+                sh('%s python -W ignore manage.py runserver %s %s' %
+                   (settings, bind, foreground))
             sh('sleep 30')
             settings = 'REUSE_DB=1 %s' % settings
 
         live_server_option = '--liveserver=localhost:8000'
-        if django.VERSION[0] == 1 and django.VERSION[1] >= 11 and django.VERSION[2] >= 2:
+        if _django_11:
             live_server_option = ''
 
         info("GeoNode is now available, running the tests now.")
         sh(('%s python -W ignore manage.py test %s'
-            ' --noinput %s' % (settings, name, live_server_option)))
+            ' %s --parallel=%s --noinput %s' % (settings, name, _keepdb, TEST_RUNNER_PARALLEL, live_server_option)))
 
     except BuildFailure as e:
         info('Tests failed! %s' % str(e))
@@ -848,7 +863,7 @@ def run_tests(options):
     local = options.get('local', 'false')  # travis uses default to false
 
     if not integration_tests:
-        sh('%s manage.py test geonode.tests.smoke' % prefix)
+        sh('%s manage.py test geonode.tests.smoke %s --parallel=%s' % (prefix, _keepdb, TEST_RUNNER_PARALLEL))
         call_task('test', options={'prefix': prefix})
     else:
         call_task('test_integration')

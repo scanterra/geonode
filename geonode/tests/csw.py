@@ -18,25 +18,22 @@
 #
 #########################################################################
 
+from .base import GeoNodeLiveTestSupport
+
 import glob
 import os
-from unittest import TestCase
 from lxml import etree
 import gisdata
+from django.test.utils import override_settings
 from geonode.catalogue import get_catalogue
 from geonode.utils import check_ogc_backend
 from geonode import geoserver, qgis_server
 
 
-class GeoNodeCSWTest(TestCase):
+@override_settings(SITEURL='http://localhost:8000/')
+class GeoNodeCSWTest(GeoNodeLiveTestSupport):
     """Tests geonode.catalogue app/module"""
-
-    def setUp(self):
-        # call_command('loaddata', 'sample_admin', verbosity=0)
-        pass
-
-    def tearDown(self):
-        pass
+    port = 8000
 
     def test_csw_base(self):
         """Verify that GeoNode works against any CSW"""

@@ -636,13 +636,21 @@ integration_tests = ast.literal_eval(os.environ.get('TEST_RUN_INTEGRATION', 'Fal
 
 # Setting a custom test runner to avoid running the tests for
 # some problematic 3rd party apps
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+# Default Nose Test Suite
+# TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+# Django 1.11 ParallelTestSuite
+TEST_RUNNER = 'geonode.tests.suite.runner.GeoNodeBaseSuiteDiscoverRunner'
+TEST_RUNNER_KEEPDB = 0
+TEST_RUNNER_PARALLEL = 8
+
+# GeoNode test suite
 # TEST_RUNNER = 'geonode.tests.suite.runner.DjangoParallelTestSuiteRunner'
-TEST_RUNNER_WORKER_MAX = 3
-TEST_RUNNER_WORKER_COUNT = 'auto'
-TEST_RUNNER_NOT_THREAD_SAFE = None
-TEST_RUNNER_PARENT_TIMEOUT = 10
-TEST_RUNNER_WORKER_TIMEOUT = 10
+# TEST_RUNNER_WORKER_MAX = 3
+# TEST_RUNNER_WORKER_COUNT = 'auto'
+# TEST_RUNNER_NOT_THREAD_SAFE = None
+# TEST_RUNNER_PARENT_TIMEOUT = 10
+# TEST_RUNNER_WORKER_TIMEOUT = 10
 
 TEST = 'test' in sys.argv
 INTEGRATION = 'geonode.tests.integration' in sys.argv
