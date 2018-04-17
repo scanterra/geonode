@@ -20,6 +20,7 @@
 
 import json
 
+from geonode.tests.base import GeoNodeBaseTestSupport
 from tastypie.test import ResourceTestCaseMixin
 from django.test.utils import override_settings
 from django.contrib.sites.models import Site
@@ -28,7 +29,6 @@ from django.core.urlresolvers import reverse
 from guardian.shortcuts import get_anonymous_user
 from guardian.shortcuts import remove_perm
 
-from geonode.base.populate_test_data import create_models
 from geonode.people.models import Profile
 from geonode.layers.models import Layer
 from geonode.groups.models import Group
@@ -39,17 +39,18 @@ from .models import SiteResources, SitePeople
 
 @override_settings(SITE_NAME='Slave')
 @override_settings(SITE_ID=2)
-class SiteTests(ResourceTestCaseMixin):
+@override_settings(ROOT_URLCONF='geonode.contrib.geosites.urls')
+class SiteTests(ResourceTestCaseMixin, GeoNodeBaseTestSupport):
 
     """Tests the sites functionality
     """
 
-    fixtures = ['bobby']
+    type = 'layer'
+    fixtures = ['initial_data.json', 'group_test_data.json', 'initial_sites_data.json']
 
     def setUp(self):
         super(SiteTests, self).setUp()
         create_sites()
-        create_models(type='layer')
 
         self.user = 'admin'
         self.passwd = 'admin'
