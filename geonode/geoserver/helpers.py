@@ -184,8 +184,11 @@ def _style_name(resource):
 def extract_name_from_sld(gs_catalog, sld, sld_file=None):
     try:
         if sld:
+            if isfile(sld):
+                sld = open(sld, "r").read()
             dom = etree.XML(sld)
         elif sld_file and isfile(sld_file):
+            sld = open(sld_file, "r").read()
             dom = etree.parse(sld_file)
     except Exception:
         logger.exception("The uploaded SLD file is not valid XML")
@@ -239,11 +242,13 @@ def get_sld_for(gs_catalog, layer):
     # polygons, hope this doesn't happen for rasters  though)
     if layer.default_style is None:
         gs_catalog._cache.clear()
-        layer = gs_catalog.get_layer(layer.name)
-    name = layer.default_style.name if layer.default_style is not None else "raster"
+        gs_layer = gs_catalog.get_layer(layer.name)
+        name = gs_layer.default_style.name if gs_layer.default_style is not None else "raster"
+    else:
+        name = layer.default_style.name if layer.default_style is not None else "raster"
 
     # Detect geometry type if it is a FeatureType
-    if layer.resource.resource_type == 'featureType':
+    if layer.resource and layer.resource.resource_type == 'featureType':
         res = layer.resource
         res.fetch()
         ft = res.store.get_resources(res.name)
@@ -299,8 +304,20 @@ def fixup_style(cat, resource, style):
 
 def set_layer_style(saved_layer, title, sld, base_file=None):
     # Check SLD is valid
-    extract_name_from_sld(gs_catalog, sld, sld_file=base_file)
+    try:
+        if sld:
+            if isfile(sld):
+                sld = open(sld, "r").read()
+            etree.XML(sld)
+        elif base_file and isfile(base_file):
+            sld = open(base_file, "r").read()
+            etree.parse(base_file)
+    except Exception:
+        logger.exception("The uploaded SLD file is not valid XML")
+        raise Exception(
+            "The uploaded SLD file is not valid XML")
 
+    # Check Layer's available styles
     match = None
     styles = list(saved_layer.styles.all()) + [
         saved_layer.default_style]
