@@ -18,9 +18,10 @@
 #
 #########################################################################
 
+from .base import GeoNodeBaseTestSupport
+
 import glob
 import os
-from unittest import TestCase
 from lxml import etree
 import gisdata
 from geonode.catalogue import get_catalogue
@@ -28,15 +29,8 @@ from geonode.utils import check_ogc_backend
 from geonode import geoserver, qgis_server
 
 
-class GeoNodeCSWTest(TestCase):
+class GeoNodeCSWTest(GeoNodeBaseTestSupport):
     """Tests geonode.catalogue app/module"""
-
-    def setUp(self):
-        # call_command('loaddata', 'sample_admin', verbosity=0)
-        pass
-
-    def tearDown(self):
-        pass
 
     def test_csw_base(self):
         """Verify that GeoNode works against any CSW"""
@@ -126,7 +120,7 @@ class GeoNodeCSWTest(TestCase):
                 if link['scheme'] == 'OGC:WMS':
                     self.assertEqual(
                         link['url'],
-                        'http://localhost:8080/geoserver/geonode/wms',
+                        'http://localhost:8080/geoserver/geonode/ows',
                         'Expected a specific OGC:WMS URL')
                 elif link['scheme'] == 'OGC:WFS':
                     self.assertEqual(
@@ -198,7 +192,7 @@ class GeoNodeCSWTest(TestCase):
                 if link.protocol == 'OGC:WMS':
                     self.assertEqual(
                         link.url,
-                        'http://localhost:8080/geoserver/geonode/wms',
+                        'http://localhost:8080/geoserver/geonode/ows',
                         'Expected a specific OGC:WMS URL')
                 elif link.protocol == 'OGC:WFS':
                     self.assertEqual(

@@ -175,7 +175,7 @@ def geoserver_upload(
     # Step 6. Make sure our data always has a valid projection
     # FIXME: Put this in gsconfig.py
     logger.info('>>> Step 6. Making sure [%s] has a valid projection' % name)
-    if gs_resource.latlon_bbox is None:
+    if gs_resource.native_bbox is None:
         box = gs_resource.native_bbox[:4]
         minx, maxx, miny, maxy = [float(a) for a in box]
         if -180 <= minx <= 180 and -180 <= maxx <= 180 and \
@@ -199,7 +199,9 @@ def geoserver_upload(
     # Step 7. Create the style and assign it to the created resource
     # FIXME: Put this in gsconfig.py
     logger.info('>>> Step 7. Creating style for [%s]' % name)
-    publishing = cat.get_layer(name)
+    cat.save(gs_resource)
+    cat.reload()
+    publishing = cat.get_layer(name) or gs_resource
 
     if 'sld' in files:
         f = open(files['sld'], 'r')

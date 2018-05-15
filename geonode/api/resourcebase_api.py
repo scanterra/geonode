@@ -113,6 +113,18 @@ class CommonModelApi(ModelResource):
         'uuid',
         'title',
         'date',
+        'date_type',
+        'edition',
+        'purpose',
+        'maintenance_frequency',
+        'restriction_code_type',
+        'constraints_other',
+        'license',
+        'language',
+        'spatial_representation_type',
+        'temporal_extent_start',
+        'temporal_extent_end',
+        'data_quality_statement',
         'abstract',
         'csw_wkt_geometry',
         'csw_type',
@@ -120,6 +132,10 @@ class CommonModelApi(ModelResource):
         'share_count',
         'popular_count',
         'srid',
+        'bbox_x0',
+        'bbox_x1',
+        'bbox_y0',
+        'bbox_y1',
         'category__gn_description',
         'supplemental_information',
         'thumbnail_url',
@@ -224,7 +240,7 @@ class CommonModelApi(ModelResource):
         treeqs = HierarchicalKeyword.objects.none()
         for keyword in keywords:
             try:
-                kws = HierarchicalKeyword.objects.filter(name__iexact=keyword)
+                kws = HierarchicalKeyword.objects.filter(Q(name__iexact=keyword) | Q(slug__iexact=keyword))
                 for kw in kws:
                     treeqs = treeqs | HierarchicalKeyword.get_tree(kw)
             except ObjectDoesNotExist:
@@ -707,6 +723,9 @@ class LayerResource(CommonModelApi):
                 except GroupProfile.DoesNotExist:
                     formatted_obj['group_name'] = obj.group
 
+            formatted_obj['keywords'] = [k.name for k in obj.keywords.all()] if obj.keywords else []
+            formatted_obj['regions'] = [r.name for r in obj.regions.all()] if obj.regions else []
+
             # add the geogig link
             formatted_obj['geogig_link'] = obj.geogig_link
 
@@ -720,6 +739,20 @@ class LayerResource(CommonModelApi):
                     bundle)
             # Add resource uri
             formatted_obj['resource_uri'] = self.get_resource_uri(bundle)
+
+            # Probe Remote Services
+            formatted_obj['store_type'] = 'dataset'
+            formatted_obj['online'] = True
+            if hasattr(obj, 'storeType'):
+                formatted_obj['store_type'] = obj.storeType
+                if obj.storeType == 'remoteStore' and hasattr(obj, 'remote_service'):
+                    if obj.remote_service:
+                        formatted_obj['online'] = (obj.remote_service.probe == 200)
+                    else:
+                        formatted_obj['online'] = True
+
+            formatted_obj['gtype'] = self.dehydrate_gtype(bundle)
+
             # put the object on the response stack
             formatted_objects.append(formatted_obj)
         return formatted_objects
@@ -741,6 +774,9 @@ class LayerResource(CommonModelApi):
             dehydrated.append(formatted_link)
 
         return dehydrated
+
+    def dehydrate_gtype(self, bundle):
+        return bundle.obj.gtype
 
     def populate_object(self, obj):
         """Populate results with necessary fields
@@ -873,6 +909,13 @@ class MapResource(CommonModelApi):
                 except GroupProfile.DoesNotExist:
                     formatted_obj['group_name'] = obj.group
 
+            formatted_obj['keywords'] = [k.name for k in obj.keywords.all()] if obj.keywords else []
+            formatted_obj['regions'] = [r.name for r in obj.regions.all()] if obj.regions else []
+
+            # Probe Remote Services
+            formatted_obj['store_type'] = 'map'
+            formatted_obj['online'] = True
+
             # get map layers
             map_layers = obj.layers
             formatted_layers = []
@@ -906,7 +949,41 @@ class MapResource(CommonModelApi):
 
 class DocumentResource(CommonModelApi):
 
-    """Maps API"""
+    """Documents API"""
+
+    def format_objects(self, objects):
+        """
+        Formats the objects and provides reference to list of layers in map
+        resources.
+
+        :param objects: Map objects
+        """
+        formatted_objects = []
+        for obj in objects:
+            # convert the object to a dict using the standard values.
+            formatted_obj = model_to_dict(obj, fields=self.VALUES)
+            username = obj.owner.get_username()
+            full_name = (obj.owner.get_full_name() or username)
+            formatted_obj['owner__username'] = username
+            formatted_obj['owner_name'] = full_name
+            if obj.category:
+                formatted_obj['category__gn_description'] = obj.category.gn_description
+            if obj.group:
+                formatted_obj['group'] = obj.group
+                try:
+                    formatted_obj['group_name'] = GroupProfile.objects.get(slug=obj.group.name)
+                except GroupProfile.DoesNotExist:
+                    formatted_obj['group_name'] = obj.group
+
+            formatted_obj['keywords'] = [k.name for k in obj.keywords.all()] if obj.keywords else []
+            formatted_obj['regions'] = [r.name for r in obj.regions.all()] if obj.regions else []
+
+            # Probe Remote Services
+            formatted_obj['store_type'] = 'dataset'
+            formatted_obj['online'] = True
+
+            formatted_objects.append(formatted_obj)
+        return formatted_objects
 
     class Meta(CommonMetaApi):
         filtering = CommonMetaApi.filtering

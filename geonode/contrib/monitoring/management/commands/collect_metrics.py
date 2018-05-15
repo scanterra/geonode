@@ -137,3 +137,4 @@ class Command(BaseCommand):
                 return collector.process(service, data_in, last_check, until)
             finally:
                 h.mark_as_checked()
+

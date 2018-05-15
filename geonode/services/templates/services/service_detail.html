@@ -13,7 +13,7 @@ Ext.onReady(function() {
        new GeoNode.WorldMapPermissionsEditor({
                 renderTo: "permissions_form",
                 submitTo: "{% url "geonode.services.views.ajax_service_permissions" service.id %}",
-                userLookup: "{% url "geonode.views.ajax_lookup" %}",
+                userLookup: "{% url "account_ajax_lookup" %}",
                 customGroup: "{{ customGroup }}",
                 permissions: {{ permissions_json }},
         levels: {
@@ -38,8 +38,7 @@ Ext.onReady(function() {
 {% block body %}
 <div class="twocol">
   <h3>{{service.title|default:service.name}}</h3>
-      <p><strong>{% trans "Name:" %}</strong> {{service.name}}</p>
-      <p><strong>{% trans "Type:" %}</strong> {{service.type}}</p>
+      <p><strong>{% trans "Type:" %}</strong> {{service.service_type}}</p>
       <p><strong>{% trans "URL:" %}</strong> {{service.base_url}}</p>
       <p><strong>{% trans "Abstract:" %}</strong> {{service.abstract}}</p>
       <p><strong>{% trans "Keywords:" %}</strong> {{ service.keywords.all|join:", " }}</p>

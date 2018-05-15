@@ -28,7 +28,7 @@ import logging
 import zipfile
 
 from django import forms
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext as _
 
 from ..geoserver.helpers import ogc_server_settings
 from . import files
@@ -72,6 +72,8 @@ def validate_uploaded_files(cleaned, uploaded_files, field_spatial_types):
             cleaned["base_file"])
     elif base_ext.lower() == "shp":
         file_paths = [f.name for f in uploaded_files]
+        if cleaned["base_file"].name not in file_paths:
+            file_paths += [cleaned["base_file"].name]
         valid_extensions = validate_shapefile_components(
             file_paths)
     elif base_ext.lower() == "kml":
