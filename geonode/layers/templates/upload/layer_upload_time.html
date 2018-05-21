@@ -117,9 +117,9 @@
             {% endif %}
 
             <a href="{% url "layer_upload" %}" class="btn btn-primary pull-left">{% trans "Cancel" %}</a> &nbsp;
-            <button id='next' class="btn btn-default button-tip" type="submit" value="{% trans 'Next' %}"> Next
+            <button id='next' class="btn btn-default" type="submit" value="{% trans 'Next' %}"> Next
                 <i id="next-spinner" class="fa fa-spinner fa-spin hide"></i>
-                <p id="next-tooltip" style="height: 150px;">{% trans "Start Importer" %}</p>
+                <!-- p id="next-tooltip" style="height: 150px;">{% trans "Start Importer" %}</p -->
             </button>
             <div id="upload-status"></div>
 
