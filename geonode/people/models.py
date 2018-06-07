@@ -25,6 +25,7 @@ from django.core.mail import send_mail
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import AbstractUser, UserManager
+from django.contrib.sites.models import Site
 from django.contrib import auth
 from django.contrib.sites.models import Site
 from django.db.models import signals
@@ -34,7 +35,7 @@ from taggit.managers import TaggableManager
 
 from geonode.base.enumerations import COUNTRIES
 from geonode.groups.models import GroupProfile
-# from geonode.notifications_helper import send_notification
+from geonode.notifications_helper import send_notification
 
 from allauth.account.signals import user_signed_up
 from allauth.socialaccount.signals import social_account_added
@@ -62,12 +63,12 @@ The IHP-WINS Team
 
 Cher contributeur,
 
-Votre compte ({}) a été approuvé et est désormais actif sur le Système de Réseau d’Informations sur l’Eau.
-Vous pouvez dès à présent vous connecter sur {}
+Votre compte ({}) a ete approuve et est desormais actif sur le Systeme de Reseau d'Informations sur l'Eau.
+Vous pouvez des a present vous connecter sur {}
 
-Pour gérer votre compte, rendez-vous sur {}/notifications/settings/
+Pour gerer votre compte, rendez-vous sur {}/notifications/settings/
 
-L’équipe IHP-WINS"""
+L'equipe IHP-WINS"""
 
 
 class ProfileUserManager(UserManager):
@@ -265,7 +266,7 @@ def profile_pre_save(instance, sender, **kw):
     if matching_profiles.count() == 0:
         return
     if instance.is_active and not matching_profiles.get().is_active:
-        send_notification((instance,), "account_active")
+        # send_notification((instance,), "account_active")
         if not instance.approved:
             instance.approved = True
             message = email_format.format(instance.username, settings.SITEURL, settings.SITEURL,
@@ -279,12 +280,8 @@ def profile_pre_save(instance, sender, **kw):
                     fail_silently=True,
                 )
             except:
-                pass
-
-
-def profile_signed_up(user, form, **kwargs):
-    staff = auth.get_user_model().objects.filter(is_staff=True)
-    send_notification(staff, "account_approve", {"from_user": user})
+                import traceback
+                traceback.print_exc()
 
 
 """ Connect relevant signals to their corresponding handlers. """
@@ -298,5 +295,6 @@ user_signed_up.connect(
     dispatch_uid=str(uuid4()),
     weak=False
 )
+# signals.pre_save.connect(profile_pre_save, sender=Profile)
 signals.post_save.connect(profile_post_save, sender=Profile)
 

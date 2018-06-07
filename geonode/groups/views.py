@@ -66,7 +66,7 @@ group_category_detail = GroupCategoryDetailView.as_view()
 group_category_update = GroupCategoryUpdateView.as_view()
 
 
-@superuser_only
+@login_required
 def group_create(request):
     if request.method == "POST":
         form = forms.GroupForm(request.POST, request.FILES)
