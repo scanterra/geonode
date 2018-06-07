@@ -21,3 +21,4 @@ Vous pouvez dès à présent vous connecter sur http://{{ current_site.name }}
 Pour gérer votre compte, rendez-vous sur http://{{ current_site.name }}/notifications/settings/
 
 L’équipe IHP-WINS
+
