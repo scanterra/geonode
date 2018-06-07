@@ -769,6 +769,34 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
         raise NotImplementedError()
 
     @property
+    def creator(self):
+        return self.owner.get_full_name() or self.owner.username
+
+    @property
+    def organizationname(self):
+        return self.owner.organization
+
+    @property
+    def restriction_code(self):
+        return self.restriction_code_type.gn_description
+
+    @property
+    def publisher(self):
+        return self.poc.get_full_name() or self.poc.username
+
+    @property
+    def contributor(self):
+        return self.metadata_author.get_full_name() or self.metadata_author.username
+
+    @property
+    def topiccategory(self):
+        return self.category.identifier
+
+    @property
+    def csw_crs(self):
+        return self.srid
+
+    @property
     def group_name(self):
         if self.group:
             return str(self.group)
@@ -793,11 +821,15 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
     @property
     def geographic_bounding_box(self):
         """BBOX is in the format: [x0,x1,y0,y1]."""
+        from geonode.utils import bbox_to_projection
+        layer_bbox = self.bbox[0:4]
+        llbbox = bbox_to_projection([float(coord) for coord in layer_bbox] + [self.srid, ],
+                                    target_srid=4326)
         return bbox_to_wkt(
-            self.bbox_x0,
-            self.bbox_x1,
-            self.bbox_y0,
-            self.bbox_y1,
+            llbbox[0],  # x0
+            llbbox[2],  # x1
+            llbbox[1],  # y0
+            llbbox[3],  # y1
             srid=self.srid)
 
     @property
