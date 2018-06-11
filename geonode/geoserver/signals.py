@@ -477,8 +477,9 @@ def geoserver_post_save_local(instance, *args, **kwargs):
                                )
                                )
 
+    site_url = settings.SITEURL[:-1] if settings.SITEURL.endswith("/") else settings.SITEURL
     html_link_url = '%s%s' % (
-        settings.SITEURL[:-1], instance.get_absolute_url())
+        site_url, instance.get_absolute_url())
 
     Link.objects.get_or_create(resource=instance.resourcebase_ptr,
                                url=html_link_url,
