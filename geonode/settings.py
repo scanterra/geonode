@@ -691,7 +691,8 @@ NOSE_ARGS = [
 #
 # GeoNode specific settings
 #
-SITEURL = os.getenv('SITEURL', "http://localhost:8000/")
+# SITEURL = os.getenv('SITEURL', "http://localhost:8000/")
+SITEURL = 'http://ihp-wins.unesco.org'
 
 # we need hostname for deployed
 _surl = urlparse(SITEURL)
