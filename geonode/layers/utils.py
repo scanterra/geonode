@@ -556,8 +556,11 @@ def file_upload(filename,
     with transaction.atomic():
         try:
             if overwrite:
-                layer = Layer.objects.get(name=valid_name)
-            else:
+                try:
+                    layer = Layer.objects.get(name=valid_name)
+                except Layer.DoesNotExist:
+                    layer = None
+            if not layer:
                 if not metadata_upload_form:
                     layer, created = Layer.objects.get_or_create(
                         name=valid_name,
