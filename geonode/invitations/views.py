@@ -33,11 +33,12 @@ from invitations import signals
 from invitations.views import SendInvite
 from invitations.utils import get_invitation_model
 from invitations.adapters import get_invitations_adapter
+from geonode.decorators import view_decorator
 
 Invitation = get_invitation_model()
 
 
-@login_required
+@view_decorator(login_required, subclass=True)
 class GeoNodeSendInvite(SendInvite):
     template_name = 'invitations/forms/_invite.html'
     form_class = GeoNodeInviteForm
