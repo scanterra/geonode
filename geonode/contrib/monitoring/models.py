@@ -477,7 +477,7 @@ class RequestEvent(models.Model):
 
     @classmethod
     def _get_user_consent(cls, request):
-        return True
+        return settings.USER_ANALYTICS_ENABLED
         # if  request.user.is_authenticated():
         #    return request.user.allow_analytics
         # return True
