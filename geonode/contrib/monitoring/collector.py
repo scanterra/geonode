@@ -492,7 +492,10 @@ class CollectorAPI(object):
                                   'samples_count': samples,
                                   'value_raw': value or 0,
                                   'value_num': value if isinstance(value, (int, float, long, Decimal,)) else None})
-            print MetricValue.add(**metric_values)
+            if value:
+                print MetricValue.add(**metric_values)
+            else:
+                MetricValue.add(**metric_values)
 
     def process(self, service, data, valid_from, valid_to, *args, **kwargs):
         if service.is_hostgeonode:
@@ -581,9 +584,10 @@ class CollectorAPI(object):
                                   value_raw=count,
                                   samples_count=count,
                                   resource=None)
-
         # calculate overall stats
         self.set_metric_values('request.ip', 'client_ip', **metric_defaults)
+        self.set_metric_values('request.users', 'user_identifier', **metric_defaults)
+
         self.set_metric_values(
             'request.country',
             'client_country',
@@ -636,7 +640,13 @@ class CollectorAPI(object):
             MetricValue.add('request.count', valid_from, valid_to, service, 'Count', value=count, value_num=count,
                             samples_count=count, value_raw=count, resource=resource)
             self.set_metric_values(
-                'request.ip', 'client_ip', **metric_defaults)
+                'request.users',
+                'user_identifier',
+                **metric_defaults)
+            self.set_metric_values(
+                'request.ip',
+                'client_ip',
+                **metric_defaults)
             self.set_metric_values(
                 'request.country',
                 'client_country',
@@ -696,6 +706,10 @@ class CollectorAPI(object):
                 self.set_metric_values(
                     'request.ip', 'client_ip', **metric_defaults)
                 self.set_metric_values(
+                    'request.users',
+                    'user_identifier',
+                    **metric_defaults)
+                self.set_metric_values(
                     'request.country',
                     'client_country',
                     **metric_defaults)
@@ -749,6 +763,10 @@ class CollectorAPI(object):
                                           ows_service=ows_service))
                     self.set_metric_values(
                         'request.ip', 'client_ip', **metric_defaults)
+                    self.set_metric_values(
+                        'request.users',
+                        'user_identifier',
+                        **metric_defaults)
                     self.set_metric_values(
                         'request.country', 'client_country', **metric_defaults)
                     self.set_metric_values(

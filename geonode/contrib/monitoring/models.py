@@ -370,7 +370,7 @@ class RequestEvent(models.Model):
         default=None)
     user_agent_family = models.CharField(
         max_length=255, null=True, default=None, blank=True)
-    client_ip = models.GenericIPAddressField(null=False)
+    client_ip = models.GenericIPAddressField(null=True, blank=True)
     client_lat = models.DecimalField(
         max_digits=8,
         decimal_places=5,
@@ -400,6 +400,15 @@ class RequestEvent(models.Model):
         blank=True,
         db_index=True)
 
+    # keep user anonymized identifier
+    user_identifier = models.CharField(max_length=255,
+                                       null=True,
+                                       default=None,
+                                       blank=True,
+                                       db_index=True)
+    user_anonymous = models.BooleanField(null=False,
+                                         default=True)
+
     @classmethod
     def _get_resources(cls, type_name, resources_list):
         out = []
@@ -418,7 +427,7 @@ class RequestEvent(models.Model):
         """
         rqmeta = getattr(request, '_monitoring', {})
         resources = []
-        for type_name in 'layer map document style'.split():
+        for type_name in 'layer map document style download'.split():
             res = rqmeta['resources'].get(type_name) or []
             resources.extend(cls._get_resources(type_name, res))
         return resources
@@ -426,6 +435,94 @@ class RequestEvent(models.Model):
     @staticmethod
     def _get_ua_family(ua):
         return str(user_agents.parse(ua))
+
+    @classmethod
+    def _get_user_agent(cls, ua):
+        ua_family = cls._get_ua_family(ua)
+        return {'user_agent': ua,
+                'user_agent_family': ua_family}
+
+    @classmethod
+    def _get_user_location(cls, request_ip):
+        out = {}
+        lat = lon = None
+        country = region = city = None
+        if request_ip:
+            geoip = get_geoip()
+            if request_ip in ('127.0.0.1',):
+                return out
+            try:
+                client_loc = geoip.city(request_ip)
+            except Exception as err:
+                log.warning("Cannot resolve %s: %s", request_ip, err)
+                client_loc = None
+
+            if client_loc:
+                lat, lon = client_loc['latitude'], client_loc['longitude'],
+                country = client_loc.get(
+                    'country_code3') or client_loc['country_code']
+                if len(country) == 2:
+                    _c = pycountry.countries.get(alpha_2=country)
+                    country = _c.alpha_3
+                region = client_loc['region']
+                city = client_loc['city']
+
+                out.update({'client_ip': request_ip,
+                            'client_lat': lat,
+                            'client_lon': lon,
+                            'client_country': country,
+                            'client_region': region,
+                            'client_city': city})
+        return out
+
+    @classmethod
+    def _get_user_consent(cls, request):
+        return True
+        # if  request.user.is_authenticated():
+        #    return request.user.allow_analytics
+        # return True
+
+    @classmethod
+    def _get_user_data_gn(cls, request):
+        out = {}
+        # check consent
+        if not cls._get_user_consent(request):
+            return out
+
+        rqmeta = getattr(request, '_monitoring', {})
+        if rqmeta.get('user_identifier'):
+            out['user_identifier'] = rqmeta.get('user_identifier')
+        if rqmeta.get('user_anonymous') is not None:
+            out['user_anonymous'] = rqmeta.get('user_anonymous')
+
+
+        ua = request.META.get('HTTP_USER_AGENT') or ''
+        ua_data = cls._get_user_agent(ua)
+        out.update(ua_data)
+
+        request_ip, is_routable = get_client_ip(request)
+        if request_ip and is_routable:
+            location_data = cls._get_user_location(request_ip)
+            out.update(location_data)
+        return out
+
+    @classmethod
+    def _get_user_data_gs(cls, request):
+        out = {}
+
+        # check consent
+        # if not cls._get_user_consent(request):
+        #    return out
+
+        ua = request.get('remoteUserAgent') or ''
+        ua_data = cls._get_user_agent(ua)
+        out.update(ua_data)
+
+        request_ip = request.get('remoteAddr')
+        if request_ip:
+            location_data = cls._get_user_location(request_ip)
+            out.update(location_data)
+        return out
 
     @classmethod
     def from_geonode(cls, service, request, response):
@@ -440,43 +537,14 @@ class RequestEvent(models.Model):
                 tzinfo=pytz.utc))
         duration = ((_ended - created).microseconds) / 1000.0
 
-        ua = request.META.get('HTTP_USER_AGENT') or ''
-        ua_family = cls._get_ua_family(ua)
-
-        ip, is_routable = get_client_ip(request)
-        lat = lon = None
-        country = region = city = None
-        if ip and is_routable:
-            ip = ip.split(':')[0]
-            if settings.TEST and ip == 'testserver':
-                ip = '127.0.0.1'
-            try:
-                ip = gethostbyname(ip)
-            except Exception as err:
-                pass
-
-            geoip = get_geoip()
-            try:
-                client_loc = geoip.city(ip)
-            except Exception as err:
-                log.warning("Cannot resolve %s: %s", ip, err)
-                client_loc = None
-
-            if client_loc:
-                lat, lon = client_loc['latitude'], client_loc['longitude'],
-                country = client_loc.get(
-                    'country_code3') or client_loc['country_code']
-                if len(country) == 2:
-                    _c = pycountry.countries.get(alpha_2=country)
-                    country = _c.alpha_3
-
-                region = client_loc['region']
-                city = client_loc['city']
+        sensitive_data = cls._get_user_data_gn(request)
 
         data = {'received': received,
                 'created': created,
                 'host': request.get_host(),
                 'service': service,
+                'user_anonymous': True,
+                'user_identifier': '',
                 'ows_service': None,
                 'request_path': request.get_full_path(),
                 'request_method': request.method,
@@ -484,15 +552,9 @@ class RequestEvent(models.Model):
                 'response_size':
                     response.get('Content-length') or len(response.getvalue()),
                 'response_type': response.get('Content-type'),
-                'response_time': duration,
-                'user_agent': ua,
-                'user_agent_family': ua_family,
-                'client_ip': ip,
-                'client_lat': lat,
-                'client_lon': lon,
-                'client_country': country,
-                'client_region': region,
-                'client_city': city}
+                'response_time': duration}
+        data.update(sensitive_data)
+
         try:
             inst = cls.objects.create(**data)
             resources = cls._get_geonode_resources(request)
@@ -500,7 +562,7 @@ class RequestEvent(models.Model):
                 inst.resources.add(*resources)
                 inst.save()
             return inst
-        except BaseException:
+        except BaseException, err:
             return None
 
     @classmethod
@@ -516,28 +578,8 @@ class RequestEvent(models.Model):
             log.warning("request not finished %s", rd.get('status'))
             return
         received = received or datetime.utcnow().replace(tzinfo=pytz.utc)
-        ua = rd.get('remoteUserAgent') or ''
-        ua_family = cls._get_ua_family(ua)
-        ip = rd['remoteAddr']
-        lat = lon = None
-        country = region = city = None
-        if ip:
-            geoip = get_geoip()
-            try:
-                client_loc = geoip.city(ip)
-            except Exception as err:
-                log.warning("Cannot resolve %s: %s", ip, err)
-                client_loc = None
 
-            if client_loc:
-                lat, lon = client_loc['latitude'], client_loc['longitude'],
-                country = client_loc.get(
-                    'country_code3') or client_loc['country_code']
-                if len(country) == 2:
-                    _c = pycountry.countries.get(alpha_2=country)
-                    country = _c.alpha_3
-                region = client_loc['region']
-                city = client_loc['city']
+        sensitive_data = cls._get_user_data_gs(rd)
 
         from dateutil.tz import tzlocal
         utc = pytz.utc
@@ -563,16 +605,9 @@ class RequestEvent(models.Model):
                 'response_status': rd['responseStatus'],
                 'response_size': rl[0] if isinstance(rl, list) else rl,
                 'response_type': rd.get('responseContentType'),
-                'response_time': rd['totalTime'],
-                'user_agent': ua,
-                'user_agent_family': ua_family,
-                'custom_id': rd['internalid'],
-                'client_ip': ip,
-                'client_lat': lat,
-                'client_lon': lon,
-                'client_country': country,
-                'client_region': region,
-                'client_city': city}
+                'response_time': rd['totalTime']}
+        data.update(sensitive_data)
+
         inst = cls.objects.create(**data)
         resource_names = (rd.get('resources') or {}).get('string') or []
         if not isinstance(resource_names, (list, tuple,)):
@@ -1484,7 +1519,7 @@ class BuiltIns(object):
     # metrics_count = ('request.count', 'request.method', 'request.
 
     geonode_metrics = (
-        'request', 'request.count', 'request.ip', 'request.ua', 'request.path',
+        'request', 'request.count', 'request.users','request.ip', 'request.ua', 'request.path',
         'request.ua.family', 'request.method', 'response.error.count',
         'request.country', 'request.region', 'request.city',
         'response.time', 'response.status', 'response.size',
@@ -1503,7 +1538,7 @@ class BuiltIns(object):
 
     values = ('request.ip', 'request.ua', 'request.ua.family', 'request.path',
               'request.method', 'request.country', 'request.region',
-              'request.city', 'response.status', 'response.ereror.types',)
+              'request.city', 'response.status', 'response.ereror.types','request.users',)
 
     values_numeric = (
         'storage.total', 'storage.used', 'storage.free', 'mem.free', 'mem.usage',
@@ -1524,6 +1559,7 @@ class BuiltIns(object):
     unit_percentage = ('cpu.usage.percent', 'mem.usage.percent',)
 
     descriptions = {'request.count': 'Number of requests',
+                    'request.users': 'Number of users visiting',
                     'response.time': 'Time of making a response',
                     'request.ip': 'IP Address of source of request',
                     'request.ua': 'User Agent of source of request',
