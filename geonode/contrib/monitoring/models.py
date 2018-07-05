@@ -495,7 +495,6 @@ class RequestEvent(models.Model):
         if rqmeta.get('user_anonymous') is not None:
             out['user_anonymous'] = rqmeta.get('user_anonymous')
 
-
         ua = request.META.get('HTTP_USER_AGENT') or ''
         ua_data = cls._get_user_agent(ua)
         out.update(ua_data)
@@ -562,7 +561,7 @@ class RequestEvent(models.Model):
                 inst.resources.add(*resources)
                 inst.save()
             return inst
-        except BaseException, err:
+        except BaseException:
             return None
 
     @classmethod
@@ -1519,7 +1518,7 @@ class BuiltIns(object):
     # metrics_count = ('request.count', 'request.method', 'request.
 
     geonode_metrics = (
-        'request', 'request.count', 'request.users','request.ip', 'request.ua', 'request.path',
+        'request', 'request.count', 'request.users', 'request.ip', 'request.ua', 'request.path',
         'request.ua.family', 'request.method', 'response.error.count',
         'request.country', 'request.region', 'request.city',
         'response.time', 'response.status', 'response.size',
@@ -1538,7 +1537,7 @@ class BuiltIns(object):
 
     values = ('request.ip', 'request.ua', 'request.ua.family', 'request.path',
               'request.method', 'request.country', 'request.region',
-              'request.city', 'response.status', 'response.ereror.types','request.users',)
+              'request.city', 'response.status', 'response.ereror.types', 'request.users',)
 
     values_numeric = (
         'storage.total', 'storage.used', 'storage.free', 'mem.free', 'mem.usage',

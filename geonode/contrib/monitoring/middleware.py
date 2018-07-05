@@ -72,7 +72,7 @@ class MonitoringMiddleware(object):
         res_list = res.get(resource_type) or []
         res_list.append(name)
         res[resource_type] = res_list
-    
+
     def remove_resource(request, resource_type, name):
         m = getattr(request, '_monitoring', None)
         if not m:
@@ -82,7 +82,6 @@ class MonitoringMiddleware(object):
         if name in res_list:
             res_list.remove(name)
         res[resource_type] = res_list
-
 
     def register_request(self, request, response):
         if self.service:
@@ -106,12 +105,16 @@ class MonitoringMiddleware(object):
         # enforce session create
         if not request.session.session_key:
             request.session.create()
-        
+
         meta = {'started': now,
                 'resources': {},
-                'user_identifier': hashlib.sha256(request.session.session_key or '').hexdigest(),
-                'user_anonymous': not request.user.is_authenticated(),
                 'finished': None}
+        if settings.USER_ANALYTICS_ENABLED:
+            meta.update({
+                'user_identifier': hashlib.sha256(request.session.session_key or '').hexdigest(),
+                'user_anonymous': not request.user.is_authenticated()
+                 })
+
         request._monitoring = meta
 
         def add_resource(resource_type, name):
@@ -122,7 +125,6 @@ class MonitoringMiddleware(object):
 
         request.add_resource = add_resource
         request.remove_resource = remove_resource
-
 
     def process_response(self, request, response):
         m = getattr(request, '_monitoring', None)
