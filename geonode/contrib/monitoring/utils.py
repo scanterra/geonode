@@ -25,8 +25,6 @@ import traceback
 import Queue
 import logging
 import xmljson
-import types
-import re
 from urllib import urlencode
 from datetime import datetime, timedelta
 from math import floor, ceil
@@ -45,24 +43,6 @@ from geonode.contrib.monitoring.models import RequestEvent, ExceptionEvent
 GS_FORMAT = '%Y-%m-%dT%H:%M:%S'  # 2010-06-20T2:00:00
 
 log = logging.getLogger(__name__)
-
-
-class MonitoringFilter(logging.Filter):
-    def __init__(self, service, skip_urls=tuple(), *args, **kwargs):
-        super(MonitoringFilter, self).__init__(*args, **kwargs)
-        self.service = service
-        self.skip_urls = skip_urls
-
-    def filter(self, record):
-        fp = record.request.get_full_path()
-        for skip_url in self.skip_urls:
-            if isinstance(skip_url, types.StringTypes):
-                if fp.startswith(skip_url):
-                    return False
-            elif isinstance(skip_url, re.RegexObject):
-                if skip_url.match(fp):
-                    return False
-        return record
 
 
 class MonitoringHandler(logging.Handler):

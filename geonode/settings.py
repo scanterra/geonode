@@ -1486,6 +1486,17 @@ MONITORING_DATA_TTL = timedelta(days=7)
 # use with caution - for dev purpose only
 MONITORING_DISABLE_CSRF = False
 
+# skip certain paths to not to mud stats too much
+MONITORING_SKIP_PATHS = ('/api/o/',
+                         '/monitoring/',
+                         '/admin',
+                         '/lang.js',
+                         '/jsi18n',
+                         STATIC_URL,
+                         MEDIA_URL,
+                         re.compile('^/[a-z]{2}/admin/'),
+                         )
+
 # privacy settings
 USER_ANALYTICS_ENABLED = ast.literal_eval(os.getenv('USER_ANALYTICS_ENABLED', 'False'))
 

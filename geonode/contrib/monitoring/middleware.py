@@ -21,11 +21,12 @@
 import logging
 import pytz
 import hashlib
+import types
 
 from datetime import datetime
 from django.conf import settings
 from geonode.contrib.monitoring.models import Service, Host
-from geonode.contrib.monitoring.utils import MonitoringHandler, MonitoringFilter
+from geonode.contrib.monitoring.utils import MonitoringHandler
 from django.http import HttpResponse
 
 
@@ -45,9 +46,20 @@ class MonitoringMiddleware(object):
         self.service = self.get_service()
         self.handler = MonitoringHandler(self.service)
         self.handler.setLevel(logging.DEBUG)
-        self.filter = MonitoringFilter(self.service, FILTER_URLS)
-        self.handler.addFilter(self.filter)
         self.log.addHandler(self.handler)
+
+    @staticmethod
+    def should_process(request):
+        current = request.path
+
+        for skip_url in settings.MONITORING_SKIP_PATHS:
+            if isinstance(skip_url, types.StringTypes):
+                if current.startswith(skip_url):
+                    return False
+            elif hasattr(skip_url, 'match'):
+                if skip_url.match(current):
+                    return False
+        return True
 
     def get_service(self):
         hname = getattr(settings, 'MONITORING_HOST_NAME', None) or 'localhost'
@@ -99,6 +111,8 @@ class MonitoringMiddleware(object):
             del request._monitoring
 
     def process_request(self, request):
+        if not self.should_process(request):
+            return
         utc = pytz.utc
         now = datetime.utcnow().replace(tzinfo=utc)
 
