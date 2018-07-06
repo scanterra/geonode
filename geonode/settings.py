@@ -1479,9 +1479,6 @@ MONITORING_ENABLED = ast.literal_eval(os.environ.get('MONITORING_ENABLED', 'Fals
 MONITORING_HOST_NAME = os.getenv("MONITORING_HOST_NAME", HOSTNAME)
 MONITORING_SERVICE_NAME = 'geonode'
 
-# how long monitoring data should be stored
-MONITORING_DATA_TTL = timedelta(days=7)
-
 # this will disable csrf check for notification config views,
 # use with caution - for dev purpose only
 MONITORING_DISABLE_CSRF = False
@@ -1496,6 +1493,20 @@ MONITORING_SKIP_PATHS = ('/api/o/',
                          MEDIA_URL,
                          re.compile('^/[a-z]{2}/admin/'),
                          )
+
+# configure aggregation of past data to control data resolution
+# list of data age, aggregation, in reverse order
+# for current data, 1 minute resolution
+# for data older than 1 day, 1-hour resolution
+# for data older than 2 weeks, 1 day resolution
+MONITORING_DATA_AGGREGATION = (                           
+                               (timedelta(seconds=0), timedelta(minutes=1),),
+                               (timedelta(days=1), timedelta(minutes=60),,
+                               (timedelta(days=14), timedelta(days=1),),
+                               )
+
+# how long monitoring data should be stored
+MONITORING_DATA_TTL = timedelta(days=365)
 
 # privacy settings
 USER_ANALYTICS_ENABLED = ast.literal_eval(os.getenv('USER_ANALYTICS_ENABLED', 'False'))

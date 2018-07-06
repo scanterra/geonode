@@ -241,7 +241,7 @@ def download(request, resourceid, sender=Layer):
 
     if isinstance(instance, Layer):
         try:
-       
+
             resource_name = instance.alternate
             # request.remove_resource(sender._meta.verbose_name_raw, resource_name)
             request.add_resource('download', resource_name)

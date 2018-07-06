@@ -879,7 +879,7 @@ class CollectorAPI(object):
                                      'where': ['and mv.resource_id is not NULL'],
                                      'order_by': ['val desc'],
                                      'grouper': ['resource', 'name', 'type', 'id', ],
-                                     }
+                                     },
                         }
 
         q_from = ['from monitoring_metricvalue mv',

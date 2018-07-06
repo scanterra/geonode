@@ -182,12 +182,12 @@ class RequestsTestCase(GeoNodeBaseTestSupport):
         # self.assertIsNotNone(metrics)
 
     def test_ua_enabled(self):
-       
+
         with self.settings(USER_ANALYTICS_ENABLED=True):
             self.client.get('/', **{"HTTP_USER_AGENT": self.ua})
         requests = RequestEvent.objects.all()
-        
-        self.assertTrue(requests.count()>0)
+
+        self.assertTrue(requests.count() > 0)
         self.assertTrue(requests.first().user_identifier)
 
         c = CollectorAPI()
@@ -197,26 +197,26 @@ class RequestsTestCase(GeoNodeBaseTestSupport):
             requests,
             q.last().created,
             q.first().created)
-        
+
         interval = self.service.check_interval
         now = datetime.utcnow().replace(tzinfo=pytz.utc)
         valid_from = now - (2 * interval)
         valid_to = now
-        
+
         metrics = c.get_metrics_for(metric_name='request.ip',
-                                     valid_from=valid_from,
-                                     valid_to=valid_to,
-                                     interval=interval)
-        
+                                    valid_from=valid_from,
+                                    valid_to=valid_to,
+                                    interval=interval)
+
         self.assertIsNotNone(metrics)
 
     def test_ua_disabled(self):
-       
+
         with self.settings(USER_ANALYTICS_ENABLED=False):
             self.client.get('/', **{"HTTP_USER_AGENT": self.ua})
         requests = RequestEvent.objects.all()
-        
-        self.assertTrue(requests.count()>0)
+
+        self.assertTrue(requests.count() > 0)
         self.assertFalse(requests.first().user_identifier)
 
         c = CollectorAPI()
@@ -226,19 +226,18 @@ class RequestsTestCase(GeoNodeBaseTestSupport):
             requests,
             q.last().created,
             q.first().created)
-        
+
         interval = self.service.check_interval
         now = datetime.utcnow().replace(tzinfo=pytz.utc)
         valid_from = now - (2 * interval)
         valid_to = now
-        
-        metrics = c.get_metrics_for(metric_name='request.ip',
-                                     valid_from=valid_from,
-                                     valid_to=valid_to,
-                                     interval=interval)
-        
-        self.assertIsNotNone(metrics)
 
+        metrics = c.get_metrics_for(metric_name='request.ip',
+                                    valid_from=valid_from,
+                                    valid_to=valid_to,
+                                    interval=interval)
+
+        self.assertIsNotNone(metrics)
 
 
 @override_settings(USE_TZ=True)
