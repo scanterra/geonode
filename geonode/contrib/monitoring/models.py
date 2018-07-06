@@ -157,6 +157,7 @@ class MonitoredResource(models.Model):
     TYPE_EMPTY = ''
     TYPE_LAYER = 'layer'
     TYPE_MAP = 'map'
+    TYPE_RESOURCE_BASE = 'resource base'
     TYPE_DOCUMENT = 'document'
     TYPE_STYLE = 'style'
     TYPE_ADMIN = 'admin'
@@ -168,6 +169,7 @@ class MonitoredResource(models.Model):
     TYPES = ((TYPE_EMPTY, _("No resource"),),
              (TYPE_LAYER, _("Layer"),),
              (TYPE_MAP, _("Map"),),
+             (TYPE_RESOURCE_BASE, _("Resource base"),),
              (TYPE_DOCUMENT, _("Document"),),
              (TYPE_STYLE, _("Style"),),
              (TYPE_ADMIN, _("Admin"),),
@@ -292,19 +294,27 @@ class ServiceTypeMetric(models.Model):
         return '{} - {}'.format(self.service_type, self.metric)
 
 
-class OWSService(models.Model):
+class EventType(models.Model):
     _ows_types = 'tms wms-c wmts wcs wfs wms wps'.upper().split(' ')
-    OWS_OTHER = 'other'
-    OWS_ALL = 'all'
-    OWS_TYPES = zip(_ows_types, _ows_types) + \
-        [(OWS_ALL, _("All"))] + [(OWS_OTHER, _("Other"))]
+    EVENT_DOWNLOAD = 'download'
+    EVENT_VIEW = 'view'
+    EVENT_OWS = 'ows'
+    EVENT_ALL = 'all'
+    EVENT_OTHER = 'other'
+    EVENT_TYPES = zip(_ows_types, _ows_types) + \
+        [(EVENT_OTHER, _("Other"))] +\
+        [(EVENT_OWS, _("OWS"))] +\
+        [(EVENT_ALL, _("All"))] +\
+        [(EVENT_DOWNLOAD, _("Download"))] +\
+        [(EVENT_VIEW, _("View"))]
+
     name = models.CharField(max_length=16, unique=True,
-                            choices=OWS_TYPES,
+                            choices=EVENT_TYPES,
                             null=False,
                             blank=False)
 
     def __str__(self):
-        return 'OWS Service: {}'.format(self.name)
+        return 'Event Type: {}'.format(self.name)
 
     @classmethod
     def get(cls, service_name=None):
@@ -323,12 +333,24 @@ class OWSService(models.Model):
             return
 
     @property
+    def is_ows(self):
+        self.name.upper() in self._ows_types
+
+    @property
+    def is_download(self):
+        return self.name == self.EVENT_DOWNLOAD
+
+    @property
+    def is_view(self):
+        return self.name == self.EVENT_VIEW
+
+    @property
     def is_all(self):
-        return self.name == self.OWS_ALL
+        return self.name == self.EVENT_ALL
 
     @property
     def is_other(self):
-        return self.name == self.OWS_OTHER
+        return self.name == self.EVENT_OTHER
 
 
 class RequestEvent(models.Model):
@@ -337,7 +359,7 @@ class RequestEvent(models.Model):
     created = models.DateTimeField(db_index=True, null=False)
     received = models.DateTimeField(db_index=True, null=False)
     service = models.ForeignKey(Service)
-    ows_service = models.ForeignKey(OWSService, blank=True, null=True)
+    event_type = models.ForeignKey(EventType, blank=True, null=True)
     host = models.CharField(max_length=255, blank=True, default='')
     request_path = models.TextField(blank=False, default='')
 
@@ -417,6 +439,7 @@ class RequestEvent(models.Model):
                 continue
             rinst, _ = MonitoredResource.objects.get_or_create(
                 name=r, type=type_name)
+            print(rinst)
             out.append(rinst)
         return out
 
@@ -427,7 +450,8 @@ class RequestEvent(models.Model):
         """
         rqmeta = getattr(request, '_monitoring', {})
         resources = []
-        for type_name in 'layer map document style download'.split():
+        print(resources, rqmeta['resources'])
+        for type_name, type_desc in MonitoredResource.TYPES:
             res = rqmeta['resources'].get(type_name) or []
             resources.extend(cls._get_resources(type_name, res))
         return resources
@@ -544,7 +568,7 @@ class RequestEvent(models.Model):
                 'service': service,
                 'user_anonymous': True,
                 'user_identifier': '',
-                'ows_service': None,
+                'event_type': rqmeta.get('event_type'),
                 'request_path': request.get_full_path(),
                 'request_method': request.method,
                 'response_status': response.status_code,
@@ -595,7 +619,7 @@ class RequestEvent(models.Model):
         data = {'created': start_time,
                 'received': received,
                 'host': rd['host'],
-                'ows_service': OWSService.get(rd.get('service')),
+                'event_type': EventType.get(rd.get('service')),
                 'service': service,
                 'request_path':
                     '{}?{}'.format(rd['path'], rd['queryString']) if rd.get(
@@ -688,7 +712,7 @@ class ExceptionEvent(models.Model):
                                         'path': e.request.request_path,
                                         'host': e.request.host,
                                         },
-                            'ows_service': e.request.ows_service.name if e.request.ows_service else None,
+                            'event_type': e.request.event_type.name if e.request.event_type else None,
                             'resources': [{'name': str(r)} for r in e.request.resources.all()],
                             'client': {'ip': e.request.client_ip,
                                        'user_agent': e.request.user_agent,
@@ -720,8 +744,8 @@ class MetricValue(models.Model):
     valid_to = models.DateTimeField(db_index=True, null=False)
     service_metric = models.ForeignKey(ServiceTypeMetric)
     service = models.ForeignKey(Service)
-    ows_service = models.ForeignKey(
-        OWSService,
+    event_type = models.ForeignKey(
+        EventType,
         null=True,
         blank=True,
         related_name='metric_values')
@@ -749,7 +773,7 @@ class MetricValue(models.Model):
              'service_metric',
              'resource',
              'label',
-             'ows_service',
+             'event_type',
              ))
 
     def __str__(self):
@@ -770,7 +794,7 @@ class MetricValue(models.Model):
     def add(cls, metric, valid_from, valid_to, service, label,
             value_raw=None, resource=None,
             value=None, value_num=None,
-            data=None, ows_service=None, samples_count=None):
+            data=None, event_type=None, samples_count=None):
         """
         Create new MetricValue shortcut
         """
@@ -783,9 +807,9 @@ class MetricValue(models.Model):
                 service_type=service.service_type, metric__name=metric)
 
         label, _ = MetricLabel.objects.get_or_create(name=label or 'count')
-        if ows_service:
-            if not isinstance(ows_service, OWSService):
-                ows_service = OWSService.get(ows_service)
+        if event_type:
+            if not isinstance(event_type, EventType):
+                event_type = EventType.get(event_type)
         if not resource:
             resource, _ = MonitoredResource.objects.get_or_create(
                 type=MonitoredResource.TYPE_EMPTY, name='')
@@ -795,7 +819,7 @@ class MetricValue(models.Model):
                                    service=service,
                                    label=label,
                                    resource=resource,
-                                   ows_service=ows_service,
+                                   event_type=event_type,
                                    service_metric=service_metric)
             inst.value = abs(value) if value else 0
             inst.value_raw = abs(value_raw) if value_raw else 0
@@ -811,7 +835,7 @@ class MetricValue(models.Model):
                                   service_metric=service_metric,
                                   label=label,
                                   resource=resource,
-                                  ows_service=ows_service,
+                                  event_type=event_type,
                                   value=value_raw,
                                   value_raw=value_raw,
                                   value_num=value_num,
@@ -820,7 +844,7 @@ class MetricValue(models.Model):
 
     @classmethod
     def get_for(cls, metric, service=None, valid_on=None,
-                resource=None, label=None, ows_service=None):
+                resource=None, label=None, event_type=None):
         qparams = models.Q()
         if isinstance(metric, Metric):
             qparams = qparams & models.Q(service_metric__metric=metric)
@@ -853,11 +877,11 @@ class MetricValue(models.Model):
                 rtype, rname = resource.split('=')
                 qparams = qparams & models.Q(
                     resource__type=rtype, resource__name=rname)
-        if ows_service:
-            if isinstance(ows_service, OWSService):
-                qparams = qparams & models.Q(ows_service=ows_service)
+        if event_type:
+            if isinstance(event_type, EventType):
+                qparams = qparams & models.Q(event_type=event_type)
             else:
-                qparams = qparams & models.Q(ows_service__name=ows_service)
+                qparams = qparams & models.Q(event_type__name=event_type)
 
         q = cls.objects.filter(qparams).order_by('-valid_to')
         return q
@@ -1028,7 +1052,7 @@ class NotificationCheck(models.Model):
         inst.description = description
         user_thresholds = {}
         for (metric_name, field_opt, use_service,
-             use_resource, use_label, use_ows_service,
+             use_resource, use_label, use_event_type,
              minimum, maximum, thresholds, _description) in user_threshold:
 
             # metric_name is a string for metric.name
@@ -1202,7 +1226,7 @@ class NotificationMetricDefinition(models.Model):
     use_service = models.BooleanField(null=False, default=False)
     use_resource = models.BooleanField(null=False, default=False)
     use_label = models.BooleanField(null=False, default=False)
-    use_ows_service = models.BooleanField(null=False, default=False)
+    use_event_type = models.BooleanField(null=False, default=False)
     field_option = models.CharField(max_length=32,
                                     choices=FIELD_OPTION_CHOICES,
                                     null=False,
@@ -1328,7 +1352,7 @@ class MetricNotificationCheck(models.Model):
         blank=True)
     resource = models.ForeignKey(MonitoredResource, null=True, blank=True)
     label = models.ForeignKey(MetricLabel, null=True, blank=True)
-    ows_service = models.ForeignKey(OWSService, null=True, blank=True)
+    event_type = models.ForeignKey(EventType, null=True, blank=True)
     min_value = models.DecimalField(
         max_digits=16,
         decimal_places=4,
@@ -1416,12 +1440,9 @@ class MetricNotificationCheck(models.Model):
 
         def_msg = self.definition.description
         msg_prefix = []
-        if self.ows_service:
-            os = self.ows_service
-            if os.is_all or os.is_other:
-                msg_prefix.append("for {} OWS".format(os.name))
-            else:
-                msg_prefix.append("for {} OWS".format(os.name))
+        if self.event_type:
+            os = self.event_type
+            msg_prefix.append("for {} Event Type".format(os.name))
         if self.service:
             msg_prefix.append("for {} service".format(self.service.name))
         if self.resource:
@@ -1495,8 +1516,8 @@ class MetricNotificationCheck(models.Model):
             qfilter['resource'] = self.resource
         if self.label:
             qfilter['label'] = self.label
-        if self.ows_service:
-            qfilter['ows_service'] = self.ows_service
+        if self.event_type:
+            qfilter['event_type'] = self.event_type
         if self.max_timeout is None:
             metrics = MetricValue.get_for(valid_on=for_timestamp, **qfilter)
         else:
@@ -1602,8 +1623,8 @@ def populate():
         name__in=BuiltIns.values_numeric).update(
         type=Metric.TYPE_VALUE_NUMERIC)
 
-    for otype, otype_name in OWSService.OWS_TYPES:
-        OWSService.objects.get_or_create(name=otype)
+    for etype, etype_name in EventType.EVENT_TYPES:
+        EventType.objects.get_or_create(name=etype)
 
     for attr_name in dir(BuiltIns):
         if not attr_name.startswith('unit_'):

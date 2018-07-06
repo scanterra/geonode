@@ -308,12 +308,12 @@ class TypeChecks(object):
         raise ValueError("Invalid label value: {}".format(val))
 
     @staticmethod
-    def ows_service_type(val):
-        from geonode.contrib.monitoring.models import OWSService
+    def event_type_type(val):
+        from geonode.contrib.monitoring.models import EventType
         try:
-            return OWSService.objects.get(name=val)
-        except OWSService.DoesNotExist:
-            raise ValueError("OWS Service {} doesn't exist".format(val))
+            e = EventType.objects.get(name=val)
+        except EventType.DoesNotExist:
+            raise ValueError("Event Type {} doesn't exist".format(val))
 
 
 def dump(obj, additional_fields=tuple()):

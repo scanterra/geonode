@@ -39,7 +39,7 @@ from django.test.utils import override_settings
 from geonode.contrib.monitoring.models import (
     RequestEvent, Host, Service, ServiceType,
     populate, ExceptionEvent, MetricNotificationCheck,
-    MetricValue, NotificationCheck, Metric, OWSService,
+    MetricValue, NotificationCheck, Metric, EventType,
     MonitoredResource, MetricLabel,
     NotificationMetricDefinition,)
 from geonode.contrib.monitoring.models import do_autoconfigure
@@ -348,7 +348,7 @@ class MonitoringChecksTestCase(GeoNodeBaseTestSupport):
         # sanity check
         self.assertTrue(start_aligned < start < end_aligned)
 
-        ows_service = OWSService.objects.get(name='WFS')
+        event_type = EventType.objects.get(name='WFS')
         resource, _ = MonitoredResource.objects.get_or_create(
             type='layer', name='test:test')
         resource2, _ = MonitoredResource.objects.get_or_create(
@@ -398,11 +398,11 @@ class MonitoringChecksTestCase(GeoNodeBaseTestSupport):
                         value_raw=10,
                         value_num=10,
                         value=10,
-                        ows_service=ows_service)
+                        event_type=event_type)
 
         mc.min_value = 11
         mc.max_value = None
-        mc.ows_service = ows_service
+        mc.event_type = event_type
         mc.save()
 
         with self.assertRaises(mc.MetricValueError):
@@ -416,7 +416,7 @@ class MonitoringChecksTestCase(GeoNodeBaseTestSupport):
                         resource=resource)
         mc.min_value = 1
         mc.max_value = 10
-        mc.ows_service = None
+        mc.event_type = None
         mc.resource = resource
         mc.save()
 
@@ -585,7 +585,7 @@ class MonitoringChecksTestCase(GeoNodeBaseTestSupport):
         end_aligned = start_aligned + self.service.check_interval
 
         # for (metric_name, field_opt, use_service,
-        #     use_resource, use_label, use_ows_service,
+        #     use_resource, use_label, use_event_type,
         #     minimum, maximum, thresholds,) in thresholds:
 
         notifications_config = ('geonode is not working',

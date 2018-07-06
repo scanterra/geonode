@@ -139,6 +139,9 @@ def map_detail(request, mapid, snapshot=None, template='maps/map_detail.html'):
 
     config = json.dumps(config)
     layers = MapLayer.objects.filter(map=map_obj.id)
+    if settings.MONITORING_ENABLED:
+        for l in layers:
+            request.add_resource('layer', l.title)
     links = map_obj.link_set.download()
 
     group = None

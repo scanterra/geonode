@@ -39,7 +39,7 @@ from geonode.notifications_helper import send_notification
 from geonode.contrib.monitoring import MonitoringAppConfig as AppConf
 from geonode.contrib.monitoring.models import (Metric, MetricValue, ServiceTypeMetric,
                                                MonitoredResource, MetricLabel, RequestEvent,
-                                               ExceptionEvent, OWSService, NotificationCheck,)
+                                               ExceptionEvent, EventType, NotificationCheck,)
 
 from geonode.contrib.monitoring.utils import generate_periods, align_period_start, align_period_end
 from geonode.utils import parse_datetime
@@ -415,19 +415,19 @@ class CollectorAPI(object):
             out.append((res, requests.filter(resources=res).distinct(),))
         return out
 
-    def extract_ows_service(self, requests):
-        q = requests.exclude(ows_service__isnull=True).distinct(
-            'ows_service').values_list('ows_service', flat=True)
+    def extract_event_type(self, requests):
+        q = requests.exclude(event_type__isnull=True).distinct(
+            'event_type').values_list('event_type', flat=True)
         try:
             return q.get()
         except (ObjectDoesNotExist, MultipleObjectsReturned,):
             pass
 
-    def extract_ows_services(self, requests):
-        ows_services = requests.exclude(ows_service__isnull=True)\
-                               .distinct('ows_service')\
-                               .values_list('ows_service', flat=True)
-        return [OWSService.objects.get(id=ows_id) for ows_id in ows_services]
+    def extract_event_types(self, requests):
+        event_types = requests.exclude(event_type__isnull=True)\
+                               .distinct('event_type')\
+                               .values_list('event_type', flat=True)
+        return [EventType.objects.get(id=evt_id) for evt_id in event_types]
 
     def set_metric_values(self, metric_name, column_name,
                           requests, service, **metric_values):
@@ -520,7 +520,7 @@ class CollectorAPI(object):
             self.process_requests_batch(service, requests_batch, pstart, pend)
 
     def set_error_values(self, requests, valid_from, valid_to,
-                         service=None, resource=None, ows_service=None):
+                         service=None, resource=None, event_type=None):
         with_errors = requests.filter(exceptions__isnull=False)
         if not with_errors.exists():
             return
@@ -532,7 +532,7 @@ class CollectorAPI(object):
         defaults = {'valid_from': valid_from,
                     'valid_to': valid_to,
                     'resource': resource,
-                    'ows_service': ows_service,
+                    'event_type': event_type,
                     'metric': 'response.error.count',
                     'samples_count': requests.count(),
                     'label': 'count',
@@ -628,14 +628,14 @@ class CollectorAPI(object):
             service=service,
             resource=None)
 
-        ows_all = OWSService.objects.get(name=OWSService.OWS_ALL)
+        event_all = EventType.objects.get(name=EventType.EVENT_ALL)
         # for each resource we should calculate another set of stats
         for resource, _requests in [(None, requests,)] + resources:
             count = _requests.count()
-            ows_services = self.extract_ows_services(_requests)
+            event_types = self.extract_event_types(_requests)
             metric_defaults['resource'] = resource
             metric_defaults['requests'] = _requests
-            metric_defaults['ows_service'] = None
+            metric_defaults['event_type'] = None
 
             MetricValue.add('request.count', valid_from, valid_to, service, 'Count', value=count, value_num=count,
                             samples_count=count, value_raw=count, resource=resource)
@@ -688,13 +688,13 @@ class CollectorAPI(object):
                 service=service,
                 resource=resource)
 
-            # ows_services may be subset of all requests in a batch, so we do
+            # event_types may be subset of all requests in a batch, so we do
             # calculation separately
-            if ows_services:
-                ows_requests = _requests.filter(ows_service__isnull=False)
-                count = ows_requests.count()
-                metric_defaults['requests'] = ows_requests
-                metric_defaults['ows_service'] = ows_all
+            if event_types:
+                event_requests = _requests.filter(event_type__isnull=False)
+                count = event_requests.count()
+                metric_defaults['requests'] = event_requests
+                metric_defaults['event_type'] = event_all
 
                 print(MetricValue.add('request.count', valid_from,
                                       valid_to, service, 'Count',
@@ -702,7 +702,7 @@ class CollectorAPI(object):
                                       samples_count=count,
                                       value_raw=count,
                                       resource=resource,
-                                      ows_service=ows_all))
+                                      event_type=event_all))
                 self.set_metric_values(
                     'request.ip', 'client_ip', **metric_defaults)
                 self.set_metric_values(
@@ -737,13 +737,13 @@ class CollectorAPI(object):
                     'request.method',
                     'request_method',
                     **metric_defaults)
-                for ows_service in ows_services:
-                    ows_requests = _requests.filter(ows_service=ows_service)
+                for event_type in event_types:
+                    event_type_requests = _requests.filter(event_type=event_type)
 
-                    paths = ows_requests.distinct(
+                    paths = event_type_requests.distinct(
                         'request_path').values_list('request_path', flat=True)
                     for path in paths:
-                        count = ows_requests.filter(request_path=path).count()
+                        count = event_type_requests.filter(request_path=path).count()
                         print MetricValue.add('request.path', valid_from, valid_to, service, path,
                                               value=count,
                                               value_num=count,
@@ -751,16 +751,16 @@ class CollectorAPI(object):
                                               samples_count=count,
                                               resource=resource)
 
-                    count = ows_requests.count()
-                    metric_defaults['ows_service'] = ows_service
-                    metric_defaults['requests'] = ows_requests
+                    count = event_type_requests.count()
+                    metric_defaults['event_type'] = event_type
+                    metric_defaults['requests'] = event_type_requests
                     print(MetricValue.add('request.count', valid_from, valid_to, service, 'Count',
                                           value=count,
                                           value_num=count,
                                           samples_count=count,
                                           value_raw=count,
                                           resource=resource,
-                                          ows_service=ows_service))
+                                          event_type=event_type))
                     self.set_metric_values(
                         'request.ip', 'client_ip', **metric_defaults)
                     self.set_metric_values(
@@ -787,10 +787,10 @@ class CollectorAPI(object):
                         'response.status', 'response_status', **metric_defaults)
                     self.set_metric_values(
                         'request.method', 'request_method', **metric_defaults)
-                    self.set_error_values(ows_requests, valid_from, valid_to,
+                    self.set_error_values(event_type_requests, valid_from, valid_to,
                                           service=service,
                                           resource=resource,
-                                          ows_service=ows_service)
+                                          event_type=event_type)
 
     def get_metrics_for(self, metric_name,
                         valid_from=None,
@@ -799,7 +799,7 @@ class CollectorAPI(object):
                         service=None,
                         label=None,
                         resource=None,
-                        ows_service=None,
+                        event_type=None,
                         service_type=None,
                         group_by=None,
                         resource_type=None):
@@ -838,7 +838,7 @@ class CollectorAPI(object):
                                           interval=interval,
                                           service=service,
                                           label=label,
-                                          ows_service=ows_service,
+                                          event_type=event_type,
                                           service_type=service_type,
                                           resource=resource,
                                           resource_type=resource_type,
@@ -867,7 +867,7 @@ class CollectorAPI(object):
                          label=None,
                          resource=None,
                          resource_type=None,
-                         ows_service=None,
+                         event_type=None,
                          service_type=None,
                          group_by=None):
         """
@@ -915,11 +915,11 @@ class CollectorAPI(object):
                           '(ms.id = mv.service_id and ms.service_type_id = %(service_type_id)s ) ')
             params['service_type_id'] = service_type.id
 
-        if ows_service:
-            q_where.append(' and mv.ows_service_id = %(ows_service)s ')
-            params['ows_service'] = ows_service.id
+        if event_type:
+            q_where.append(' and mv.event_type_id = %(event_type)s ')
+            params['event_type'] = event_type.id
         else:
-            q_where.append(' and mv.ows_service_id is null ')
+            q_where.append(' and mv.event_type_id is null ')
 
         if label:
             q_where.append(' and ml.id = %(label)s')
