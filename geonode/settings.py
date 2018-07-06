@@ -1501,7 +1501,7 @@ MONITORING_SKIP_PATHS = ('/api/o/',
 # for data older than 2 weeks, 1 day resolution
 MONITORING_DATA_AGGREGATION = (                           
                                (timedelta(seconds=0), timedelta(minutes=1),),
-                               (timedelta(days=1), timedelta(minutes=60),,
+                               (timedelta(days=1), timedelta(minutes=60),),
                                (timedelta(days=14), timedelta(days=1),),
                                )
 
