@@ -243,9 +243,10 @@ def download(request, resourceid, sender=Layer):
         try:
 
             resource_name = instance.alternate
-            # request.remove_resource(sender._meta.verbose_name_raw, resource_name)
-            request.add_resource('layer', resource_name)
-            request.add_event_type('download')
+
+            if settings.MONITORING_ENABLED:
+                request.add_resource('layer', resource_name)
+                request.add_event_type('download')
 
             upload_session = instance.get_upload_session()
             layer_files = [item for idx, item in enumerate(LayerFile.objects.filter(upload_session=upload_session))]
