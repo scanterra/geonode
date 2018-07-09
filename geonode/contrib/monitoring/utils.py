@@ -311,7 +311,7 @@ class TypeChecks(object):
     def event_type_type(val):
         from geonode.contrib.monitoring.models import EventType
         try:
-            e = EventType.objects.get(name=val)
+            return EventType.objects.get(name=val)
         except EventType.DoesNotExist:
             raise ValueError("Event Type {} doesn't exist".format(val))
 

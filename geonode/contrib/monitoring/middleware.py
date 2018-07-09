@@ -103,8 +103,6 @@ class MonitoringMiddleware(object):
             return
         m['event_type'] = event_type
 
-        
-
     def register_request(self, request, response):
         if self.service:
             self.log.info('request', extra={'request': request, 'response': response})
