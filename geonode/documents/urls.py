@@ -24,15 +24,18 @@ from django.views.generic import TemplateView
 
 from .views import DocumentUploadView, DocumentUpdateView
 from . import views
+from geonode.contrib.monitoring import register_url_event
 
 js_info_dict = {
     'packages': ('geonode.documents',),
 }
 
+documents_list = register_url_event()(TemplateView.as_view(
+        template_name='documents/document_list.html'))
+
 urlpatterns = [  # 'geonode.documents.views',
     url(r'^$',
-        TemplateView.as_view(
-        template_name='documents/document_list.html'),
+        documents_list,
         {'facet_type': 'documents'},
         name='document_browse'),
     url(r'^(?P<docid>\d+)/?$',

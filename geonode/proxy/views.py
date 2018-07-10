@@ -46,6 +46,7 @@ from geonode.utils import (resolve_object,
                            get_dir_time_suffix,
                            zip_dir)
 from geonode import geoserver, qgis_server  # noqa
+from geonode.contrib.monitoring import register_event
 
 TIMEOUT = 30
 
@@ -241,13 +242,6 @@ def download(request, resourceid, sender=Layer):
 
     if isinstance(instance, Layer):
         try:
-
-            resource_name = instance.alternate
-
-            if settings.MONITORING_ENABLED:
-                request.add_resource('layer', resource_name)
-                request.add_event_type('download')
-
             upload_session = instance.get_upload_session()
             layer_files = [item for idx, item in enumerate(LayerFile.objects.filter(upload_session=upload_session))]
 
@@ -331,6 +325,7 @@ def download(request, resourceid, sender=Layer):
             target_file_name = "".join([instance.name, ".zip"])
             target_file = os.path.join(dirpath, target_file_name)
             zip_dir(target_folder, target_file)
+            register_event(request, 'download', instance)
             response = HttpResponse(
                 content=open(target_file),
                 status=200,

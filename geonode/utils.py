@@ -773,9 +773,6 @@ def resolve_object(request, model, query, permission='base.view_resourcebase',
     if not allowed:
         mesg = permission_msg or _('Permission Denied')
         raise PermissionDenied(mesg)
-    if settings.MONITORING_ENABLED and obj:
-        resource_name = getattr(obj, 'alternate', None) or obj.title
-        request.add_resource(model._meta.verbose_name_raw, resource_name)
     return obj
 
 

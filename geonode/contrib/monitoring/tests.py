@@ -348,7 +348,7 @@ class MonitoringChecksTestCase(GeoNodeBaseTestSupport):
         # sanity check
         self.assertTrue(start_aligned < start < end_aligned)
 
-        event_type = EventType.objects.get(name='WFS')
+        event_type = EventType.objects.get(name='OWS:WFS')
         resource, _ = MonitoredResource.objects.get_or_create(
             type='layer', name='test:test')
         resource2, _ = MonitoredResource.objects.get_or_create(

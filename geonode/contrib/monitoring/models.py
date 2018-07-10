@@ -161,10 +161,11 @@ class MonitoredResource(models.Model):
     TYPE_DOCUMENT = 'document'
     TYPE_STYLE = 'style'
     TYPE_ADMIN = 'admin'
+    TYPE_URL = 'url'
     TYPE_OTHER = 'other'
     _TYPES = (TYPE_EMPTY, TYPE_LAYER, TYPE_MAP,
               TYPE_DOCUMENT, TYPE_STYLE, TYPE_ADMIN,
-              TYPE_OTHER,)
+              TYPE_URL, TYPE_OTHER,)
 
     TYPES = ((TYPE_EMPTY, _("No resource"),),
              (TYPE_LAYER, _("Layer"),),
@@ -173,6 +174,7 @@ class MonitoredResource(models.Model):
              (TYPE_DOCUMENT, _("Document"),),
              (TYPE_STYLE, _("Style"),),
              (TYPE_ADMIN, _("Admin"),),
+             (TYPE_URL, _("URL"),),
              (TYPE_OTHER, _("Other"),))
 
     name = models.CharField(max_length=255, null=False, blank=True, default='')
@@ -297,11 +299,19 @@ class ServiceTypeMetric(models.Model):
 class EventType(models.Model):
     _ows_types = 'tms wms-c wmts wcs wfs wms wps'.upper().split(' ')
     EVENT_DOWNLOAD = 'download'
+    EVENT_CREATE = 'create'
+    EVENT_CHANGE = 'change'
+    EVENT_CHANGE_METADATA = 'change_metadata'
+    EVENT_REMOVE = 'remove'
     EVENT_VIEW = 'view'
-    EVENT_OWS = 'ows'
-    EVENT_ALL = 'all'
-    EVENT_OTHER = 'other'
-    EVENT_TYPES = zip(_ows_types, _ows_types) + \
+    EVENT_VIEW_METADATA = 'view_metadata'
+    EVENT_PUBLISH = 'publish'
+    EVENT_UPLOAD = 'upload'
+    EVENT_ALL = 'all'  # all events - baseline
+    EVENT_OWS = 'OWS:ALL'  # any ows event
+    EVENT_OTHER = 'other'  # other event, not covered by
+
+    EVENT_TYPES = zip(['OWS:{}'.format(ows) for ows in _ows_types], _ows_types) + \
         [(EVENT_OTHER, _("Other"))] +\
         [(EVENT_OWS, _("OWS"))] +\
         [(EVENT_ALL, _("All"))] +\
@@ -449,12 +459,23 @@ class RequestEvent(models.Model):
         Return serialized resources affected by request
         """
         rqmeta = getattr(request, '_monitoring', {})
+        events = rqmeta['events']
         resources = []
-        print(resources, rqmeta['resources'])
-        for type_name, type_desc in MonitoredResource.TYPES:
-            res = rqmeta['resources'].get(type_name) or []
-            resources.extend(cls._get_resources(type_name, res))
+        for evt_type, res_type, res_name in events:
+            resources.extend(cls._get_resources(res_type, [res_name]))
         return resources
+
+    @classmethod
+    def _get_event_type(cls, request, default_event_type='view'):
+        """
+        Returns event type based on events
+        """
+        rqmeta = getattr(request, '_monitoring', {})
+        events = set(e[0] for e in rqmeta['events'])
+        event_name = default_event_type
+        if len(events) == 1:
+            event_name = events.pop()
+        return EventType.get(event_name)
 
     @staticmethod
     def _get_ua_family(ua):
@@ -561,6 +582,7 @@ class RequestEvent(models.Model):
         duration = ((_ended - created).microseconds) / 1000.0
 
         sensitive_data = cls._get_user_data_gn(request)
+        event_type = cls._get_event_type(request)
 
         data = {'received': received,
                 'created': created,
@@ -568,7 +590,7 @@ class RequestEvent(models.Model):
                 'service': service,
                 'user_anonymous': True,
                 'user_identifier': '',
-                'event_type': rqmeta.get('event_type'),
+                'event_type': event_type,
                 'request_path': request.get_full_path(),
                 'request_method': request.method,
                 'response_status': response.status_code,
