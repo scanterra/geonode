@@ -874,12 +874,29 @@ class CollectorAPI(object):
         Returns metric values for metric within given time span
         """
         params = {}
+        col = 'mv.value_num'
+        agg_f = self.get_aggregate_function(col, metric_name, service)
+        has_agg = agg_f != col
+
         group_by_map = {'resource': {'select': ['mr.id', 'mr.type', 'mr.name', ],
                                      'from': ['join monitoring_monitoredresource mr on (mv.resource_id = mr.id)'],
                                      'where': ['and mv.resource_id is not NULL'],
                                      'order_by': ['val desc'],
+                                     'group_by': None,
                                      'grouper': ['resource', 'name', 'type', 'id', ],
                                      },
+
+                        'resource_no_label': {'select_only': ['mr.id', 'mr.type', 'mr.name', '{} as val'.format(agg_f),
+                                                              'count(1) as metric_count, sum(samples_count) as samples_count',
+                                                              'sum(mv.value_num), min(mv.value_num), max(mv.value_num)',
+                                                             ],
+                                     'from': ['join monitoring_monitoredresource mr on (mv.resource_id = mr.id)'],
+                                     'where': ['and mv.resource_id is not NULL'],
+                                     'order_by': ['val desc'],
+                                     'group_by': ['mr.id', 'mr.type', 'mr.name'],
+                                     'grouper': ['resource', 'name', 'type', 'id', ],
+                                     },
+
                         }
 
         q_from = ['from monitoring_metricvalue mv',
@@ -896,9 +913,6 @@ class CollectorAPI(object):
                        'valid_from': valid_from.strftime('%Y-%m-%d %H:%M:%S'),
                        'valid_to': valid_to.strftime('%Y-%m-%d %H:%M:%S')})
 
-        col = 'mv.value_num'
-        agg_f = self.get_aggregate_function(col, metric_name, service)
-        has_agg = agg_f != col
         q_order_by = ['val desc']
 
         q_select = [('select ml.name as label, {} as val, '
@@ -929,11 +943,11 @@ class CollectorAPI(object):
             q_from.append('join monitoring_monitoredresource mr on '
                           '(mv.resource_id = mr.id and mr.id = %(resource_id)s) ')
             params['resource_id'] = resource.id
-        elif group_by != 'resource':
-            q_from.append('left join monitoring_monitoredresource mr on '
-                          '(mv.resource_id = mr.id and mr.type = %(resource_type)s and mr.name = %(resource_name)s ) ')
-            params['resource_type'] = ''
-            params['resource_name'] = ''
+        #elif group_by != 'resource':
+        #    q_from.append('left join monitoring_monitoredresource mr on '
+        #                  '(mv.resource_id = mr.id and mr.type = %(resource_type)s and mr.name = %(resource_name)s ) ')
+        #    params['resource_type'] = ''
+        #    params['resource_name'] = ''
 
         if label and has_agg:
             q_group.extend(['ml.name'])
@@ -947,11 +961,20 @@ class CollectorAPI(object):
         grouper = None
         if group_by:
             group_by_cfg = group_by_map[group_by]
-            g_sel = group_by_cfg['select']
-            q_select.append(', {}'.format(', '.join(g_sel)))
+            g_sel = group_by_cfg.get('select')
+            if g_sel:
+                q_select.append(', {}'.format(', '.join(g_sel)))
+
+            g_sel = group_by_cfg.get('select_only')
+            if g_sel:
+                q_select = ['select {}'.format(', '.join(g_sel))]
+
             q_from.extend(group_by_cfg['from'])
             q_where.extend(group_by_cfg['where'])
-            q_group.extend(group_by_cfg['select'])
+            if group_by_cfg.get('group_by'):
+                q_group = group_by_cfg['group_by']
+            else:
+                q_group.extend(group_by_cfg['select'])
             grouper = group_by_cfg['grouper']
             if resource_type:
                 q_where.append(' and mr.type = %(resource_type)s ')

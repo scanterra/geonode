@@ -313,10 +313,17 @@ class EventType(models.Model):
 
     EVENT_TYPES = zip(['OWS:{}'.format(ows) for ows in _ows_types], _ows_types) + \
         [(EVENT_OTHER, _("Other"))] +\
-        [(EVENT_OWS, _("OWS"))] +\
+        [(EVENT_OWS, _("Any OWS"))] +\
         [(EVENT_ALL, _("All"))] +\
+        [(EVENT_CREATE, _("Create"))] +\
+        [(EVENT_UPLOAD, _("Upload"))] +\
+        [(EVENT_CHANGE, _("Change"))] +\
+        [(EVENT_CHANGE_METADATA, _("Change Metadata"))] +\
+        [(EVENT_VIEW_METADATA, _("View Metadata"))] +\
+        [(EVENT_VIEW, _("View"))] +\
         [(EVENT_DOWNLOAD, _("Download"))] +\
-        [(EVENT_VIEW, _("View"))]
+        [(EVENT_PUBLISH, _("Publish"))] +\
+        [(EVENT_REMOVE, _("Remove"))]
 
     name = models.CharField(max_length=16, unique=True,
                             choices=EVENT_TYPES,
@@ -344,7 +351,7 @@ class EventType(models.Model):
 
     @property
     def is_ows(self):
-        self.name.upper() in self._ows_types
+        return self.name.upper().startswith('OWS:')
 
     @property
     def is_download(self):

@@ -147,7 +147,10 @@ class CheckTypeForm(_ValidFromToLastForm):
 
 class MetricsFilters(CheckTypeForm):
     GROUP_BY_RESOURCE = 'resource'
-    GROUP_BY_CHOICES = ((GROUP_BY_RESOURCE, "By resource",),)
+    GROUP_BY_RESOURCE_NO_LABEL = 'resource_no_label'
+    GROUP_BY_CHOICES = ((GROUP_BY_RESOURCE, "By resource",),
+                        (GROUP_BY_RESOURCE_NO_LABEL, "By resource but no label",),
+                       )
     service = forms.CharField(required=False)
     label = forms.CharField(required=False)
     resource = forms.CharField(required=False)

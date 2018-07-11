@@ -90,12 +90,14 @@ def register_event(request, event_type, resource):
     if not settings.MONITORING_ENABLED:
         return
     from geonode.base.models import ResourceBase
-    if isinstance(resource, types.StringType):
+    if isinstance(resource, types.StringTypes):
         resource_type = 'url'
         resource_name = request.path
     elif isinstance(resource, ResourceBase):
         resource_type = resource.__class__._meta.verbose_name_raw
         resource_name = getattr(resource, 'alternate', None) or resource.title
+    else:   
+        raise ValueError("Invalid resource: {}".format(resource))
     request.register_event(event_type, resource_type, resource_name)
 
 def register_proxy_event(request):
