@@ -885,8 +885,8 @@ class CollectorAPI(object):
                                      'group_by': None,
                                      'grouper': ['resource', 'name', 'type', 'id', ],
                                      },
-
-                        'resource_no_label': {'select_only': ['mr.id', 'mr.type', 'mr.name', '{} as val'.format(agg_f),
+                        # group by resource, but do not show labels. number of unique labels will be used as val
+                        'resource_no_label': {'select_only': ['mr.id', 'mr.type', 'mr.name', 'count(distinct(ml.name)) as val',
                                                               'count(1) as metric_count, sum(samples_count) as samples_count',
                                                               'sum(mv.value_num), min(mv.value_num), max(mv.value_num)',
                                                              ],
@@ -897,6 +897,16 @@ class CollectorAPI(object):
                                      'grouper': ['resource', 'name', 'type', 'id', ],
                                      },
 
+                        # group by label (resource is null or empty)
+                        'label': {'select_only': [('count(distinct(ml.name)) as val, '
+                                                  'count(1) as metric_count, sum(samples_count) as samples_count, '
+                                                  'sum(mv.value_num), min(mv.value_num), max(mv.value_num)')],
+                                     'from': [], # ['join monitoring_monitoredresource mr on (mv.resource_id = mr.id)'],
+                                     'where': [], # ["and mv.resource_id is NULL or (mr.type = '')"],
+                                     'order_by': ['val desc'],
+                                     'group_by': [],
+                                     'grouper': [],
+                                 }
                         }
 
         q_from = ['from monitoring_metricvalue mv',
@@ -971,7 +981,7 @@ class CollectorAPI(object):
 
             q_from.extend(group_by_cfg['from'])
             q_where.extend(group_by_cfg['where'])
-            if group_by_cfg.get('group_by'):
+            if group_by_cfg.get('group_by') is not None:
                 q_group = group_by_cfg['group_by']
             else:
                 q_group.extend(group_by_cfg['select'])

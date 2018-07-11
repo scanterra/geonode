@@ -412,7 +412,7 @@ def map_embed(
             config = snapshot_config(
                 snapshot, map_obj, request)
 
-    register_event(request, 'view', map_obj)
+        register_event(request, 'view', map_obj)
     return render(request, template, context={
         'config': json.dumps(config)
     })
