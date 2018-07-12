@@ -873,7 +873,6 @@ def layer_metadata(
 
     if request.method == "POST":
 
-
         if layer.metadata_uploaded_preserve:  # layer metadata cannot be edited
             out = {
                 'success': False,
@@ -1318,7 +1317,7 @@ def layer_remove(request, layername, template='layers/layer_remove.html'):
             messages.error(request, message)
             return render(
                 request, template, context={"layer": layer})
-        
+
         register_event(request, 'remove', layer)
         return HttpResponseRedirect(reverse("layer_browse"))
     else:

@@ -198,6 +198,7 @@ class MonitoredResource(models.Model):
             return res
         res = cls.objects.get(type=resource_type, name=resource_name)
 
+
 class Metric(models.Model):
     TYPE_RATE = 'rate'
     TYPE_COUNT = 'count'

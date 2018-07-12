@@ -67,8 +67,8 @@ def register_url_event(event_type=None):
         @wraps(view)
         def inner(*args, **kwargs):
             if settings.MONITORING_ENABLED:
-               request = args[0]
-               register_event(request, event_type or 'view', request.path)
+                request = args[0]
+                register_event(request, event_type or 'view', request.path)
             return view(*args, **kwargs)
         return inner
     return _register_url_event
@@ -81,11 +81,10 @@ def register_event(request, event_type, resource):
     @param request Request object
     @param event_type name of event type
     @param resource string (then resource type will be url) or Resource instance
-    
+
     >>> from geonode.contrib.monitoring import register_event
     >>> def view(request):
             register_event(request, 'view', layer)
-        
     """
     if not settings.MONITORING_ENABLED:
         return
@@ -96,9 +95,10 @@ def register_event(request, event_type, resource):
     elif isinstance(resource, ResourceBase):
         resource_type = resource.__class__._meta.verbose_name_raw
         resource_name = getattr(resource, 'alternate', None) or resource.title
-    else:   
+    else:
         raise ValueError("Invalid resource: {}".format(resource))
     request.register_event(event_type, resource_type, resource_name)
+
 
 def register_proxy_event(request):
     """

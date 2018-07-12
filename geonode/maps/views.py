@@ -70,7 +70,7 @@ from geonode.utils import num_encode, num_decode
 from geonode.utils import build_social_links
 from geonode import geoserver, qgis_server
 from geonode.base.views import batch_modify
-from geonode.contrib.monitoring import register_event, register_url_event
+from geonode.contrib.monitoring import register_event
 
 from requests.compat import urljoin
 
@@ -257,7 +257,7 @@ def map_metadata(
                         "map_edit", the_map))
             except BaseException:
                 logger.error("Could not send slack message for modified map.")
-        
+
         register_event(request, 'change_metadata', map_obj)
         if not ajax:
             return HttpResponseRedirect(

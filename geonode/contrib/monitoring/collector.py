@@ -841,7 +841,7 @@ class CollectorAPI(object):
             if resource_type:
                 q_where.append(' and mr.type = %(resource_type)s ')
                 params['resource_type'] = resource_type
-        
+
         if label and has_agg:
             q_group.extend(['ml.name'])
         if resource and group_by in ('resource', 'resource_no_label',):
@@ -879,7 +879,7 @@ class CollectorAPI(object):
             q_order_by = 'order by {}'.format(','.join(q_order_by))
 
         q = ' '.join(chain(q_select, q_from, q_where, q_group, [q_order_by]))
-        
+
         def postproc(row):
             if grouper:
                 t = {}
