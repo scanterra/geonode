@@ -653,6 +653,7 @@ class CollectorAPI(object):
         for resource, _requests in [(None, requests,)] + resources:
 
             metric_defaults['resource'] = resource
+            metric_defaults['event_type'] = event_all
             push_metric_values(_requests, **metric_defaults)
 
             # for each event type we need separate metrics set
@@ -773,19 +774,47 @@ class CollectorAPI(object):
                                                               'sum(mv.value_num), min(mv.value_num)',
                                                               'max(mv.value_num)',
                                                              ],
-                                              'from': [('join monitoring_monitoredresource mr'
+                                              'from': [('join monitoring_monitoredresource mr '
                                                         'on (mv.resource_id = mr.id)')],
                                               'where': ['and mv.resource_id is not NULL'],
                                               'order_by': ['val desc'],
                                               'group_by': ['mr.id', 'mr.type', 'mr.name'],
                                               'grouper': ['resource', 'name', 'type', 'id', ],
                                      },
+                        'event_type': {'select_only': ['ev.name as event_type', 'count(1) as val',
+                                                       'count(1) as metric_count',
+                                                       'sum(samples_count) as samples_count',
+                                                       'sum(mv.value_num), min(mv.value_num)',
+                                                       'max(mv.value_num)', ],
+                                       'from': ['join monitoring_eventtype ev on (ev.id = mv.event_type_id)',
+                                                ('join monitoring_monitoredresource mr '
+                                                 'on (mv.resource_id = mr.id)')],
+                                       'where': [],
+                                       'order_by': ['val desc'],
+                                       'group_by': ['ev.name'],
+                                       'grouper': [],
+                                      },
+                        'event_type_on_label': {'select_only': ['ev.name as event_type',
+                                                                'count(distinct(ml.name)) as val',
+                                                                'count(1) as metric_count',
+                                                                'sum(samples_count) as samples_count',
+                                                                'sum(mv.value_num), min(mv.value_num)',
+                                                                'max(mv.value_num)', ],
+                                                'from': ['join monitoring_eventtype ev on (ev.id = mv.event_type_id)',
+                                                         ('join monitoring_monitoredresource mr '
+                                                          'on (mv.resource_id = mr.id)')],
+                                                'where': [],
+                                                'order_by': ['val desc'],
+                                                'group_by': ['ev.name'],
+                                                'grouper': [],
+                                      },
 
                         # group by label (resource is null or empty)
                         'label': {'select_only': [('count(distinct(ml.name)) as val, '
                                                    'count(1) as metric_count, sum(samples_count) as samples_count, '
                                                    'sum(mv.value_num), min(mv.value_num), max(mv.value_num)')],
-                                  'from': [],  # ['join monitoring_monitoredresource mr on (mv.resource_id = mr.id)'],
+                                  'from': [('join monitoring_monitoredresource mr '
+                                            'on (mv.resource_id = mr.id)')],
                                   'where': [],  # ["and mv.resource_id is NULL or (mr.type = '')"],
                                   'order_by': ['val desc'],
                                   'group_by': [],
@@ -823,10 +852,10 @@ class CollectorAPI(object):
                           '(ms.id = mv.service_id and ms.service_type_id = %(service_type_id)s ) ')
             params['service_type_id'] = service_type.id
 
-        if event_type is None:
+        if group_by not in ('event_type', 'event_type_on_label',) and event_type is None:
             event_type = EventType.get(EventType.EVENT_ALL)
-        q_where.append(' and mv.event_type_id = %(event_type)s ')
-        params['event_type'] = event_type.id
+            q_where.append(' and mv.event_type_id = %(event_type)s ')
+            params['event_type'] = event_type.id
 
         if label:
             q_where.append(' and ml.id = %(label)s')
