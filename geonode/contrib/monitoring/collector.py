@@ -425,9 +425,36 @@ class CollectorAPI(object):
 
     def extract_event_types(self, requests):
         event_types = requests.exclude(event_type__isnull=True)\
-                               .distinct('event_type')\
-                               .values_list('event_type', flat=True)
+                                       .distinct('event_type')\
+                                       .values_list('event_type', flat=True)
         return [EventType.objects.get(id=evt_id) for evt_id in event_types]
+
+    def extract_special_event_types(self, requests):
+        """
+        Return list of pairs (event_type, requests)
+        that should be registered as one of aggregating event types: ows:all, other,
+        """
+        out = []
+
+        ows_et = requests.exclude(event_type__isnull=True)\
+                         .filter(event_type__name__startswith='OWS:')\
+                         .exclude(event_type__name=EventType.EVENT_OWS)\
+                         .distinct('event_type')\
+                         .values_list('event_type', flat=True)
+        ows_rq = requests.filter(event_type__in=ows_et)
+        ows_all = EventType.get(EventType.EVENT_OWS)
+        out.append((ows_all, ows_rq,))
+
+        nonows_et = requests.exclude(event_type__isnull=True)\
+                            .exclude(event_type__name__startswith='OWS:')\
+                            .exclude(event_type__name=EventType.EVENT_OTHER)\
+                            .distinct('event_type')\
+                            .values_list('event_type', flat=True)
+        nonows_rq = requests.filter(event_type__in=nonows_et)
+        nonows_all = EventType.get(EventType.EVENT_OTHER)
+        out.append((nonows_all, nonows_rq,))
+
+        return out
 
     def set_metric_values(self, metric_name, column_name,
                           requests, service, **metric_values):
@@ -557,240 +584,93 @@ class CollectorAPI(object):
             return
         log.info("Processing batch of %s requests from %s to %s",
                  requests.count(), valid_from, valid_to)
+
+        event_all = EventType.objects.get(name=EventType.EVENT_ALL)
         metric_defaults = {'valid_from': valid_from,
                            'valid_to': valid_to,
-                           'requests': requests,
+                           'event_type': event_all,
+                           'resource': None,
                            'service': service}
         MetricValue.objects.filter(
             valid_from__gte=valid_from,
             valid_to__lte=valid_to,
             service=service).delete()
+
         requests = requests.filter(service=service)
         resources = self.extract_resources(requests)
-        count = requests.count()
-        paths = requests.distinct('request_path').values_list(
-            'request_path', flat=True)
-        print MetricValue.add('request.count', valid_from, valid_to, service, 'Count',
-                              value=count,
-                              value_num=count,
-                              value_raw=count,
-                              samples_count=count,
-                              resource=None)
-        for path in paths:
-            count = requests.filter(request_path=path).count()
-            print MetricValue.add('request.path', valid_from, valid_to, service, path,
-                                  value=count,
-                                  value_num=count,
-                                  value_raw=count,
-                                  samples_count=count,
-                                  resource=None)
-        # calculate overall stats
-        self.set_metric_values('request.ip', 'client_ip', **metric_defaults)
-        self.set_metric_values('request.users', 'user_identifier', **metric_defaults)
 
-        self.set_metric_values(
-            'request.country',
-            'client_country',
-            **metric_defaults)
-        self.set_metric_values(
-            'request.city',
-            'client_city',
-            **metric_defaults)
-        self.set_metric_values(
-            'request.region',
-            'client_region',
-            **metric_defaults)
-        self.set_metric_values('request.ua', 'user_agent', **metric_defaults)
-        self.set_metric_values(
-            'request.ua.family',
-            'user_agent_family',
-            **metric_defaults)
-        self.set_metric_values(
-            'response.time',
-            'response_time',
-            **metric_defaults)
-        self.set_metric_values(
-            'response.size',
-            'response_size',
-            **metric_defaults)
-        self.set_metric_values(
-            'response.status',
-            'response_status',
-            **metric_defaults)
-        self.set_metric_values(
-            'request.method',
-            'request_method',
-            **metric_defaults)
-        self.set_error_values(
-            requests,
-            valid_from,
-            valid_to,
-            service=service,
-            resource=None)
+        def push_metric_values(srequests, **mdefaults):
 
-        event_all = EventType.objects.get(name=EventType.EVENT_ALL)
-        # for each resource we should calculate another set of stats
-        for resource, _requests in [(None, requests,)] + resources:
-            count = _requests.count()
-            event_types = self.extract_event_types(_requests)
-            metric_defaults['resource'] = resource
-            metric_defaults['requests'] = _requests
-            metric_defaults['event_type'] = None
+            count = requests.count()
+            count_mdefaults = mdefaults.copy()
+            count_mdefaults['value'] = count
+            count_mdefaults['label'] = 'Count'
+            count_mdefaults['value_num'] = count
+            count_mdefaults['value_raw'] = count
+            count_mdefaults['samples_count'] = count
 
-            MetricValue.add('request.count', valid_from, valid_to, service, 'Count', value=count, value_num=count,
-                            samples_count=count, value_raw=count, resource=resource)
-            self.set_metric_values(
-                'request.users',
-                'user_identifier',
-                **metric_defaults)
-            self.set_metric_values(
-                'request.ip',
-                'client_ip',
-                **metric_defaults)
-            self.set_metric_values(
-                'request.country',
-                'client_country',
-                **metric_defaults)
-            self.set_metric_values(
-                'request.city',
-                'client_city',
-                **metric_defaults)
-            self.set_metric_values(
-                'request.region',
-                'client_region',
-                **metric_defaults)
-            self.set_metric_values(
-                'request.ua', 'user_agent', **metric_defaults)
-            self.set_metric_values(
-                'request.ua.family',
-                'user_agent_family',
-                **metric_defaults)
-            self.set_metric_values(
-                'response.time',
-                'response_time',
-                **metric_defaults)
-            self.set_metric_values(
-                'response.size',
-                'response_size',
-                **metric_defaults)
-            self.set_metric_values(
-                'response.status',
-                'response_status',
-                **metric_defaults)
-            self.set_metric_values(
-                'request.method',
-                'request_method',
-                **metric_defaults)
+            print MetricValue.add('request.count',
+                                  **count_mdefaults)
+
+            paths = srequests.distinct('request_path')\
+                             .values_list('request_path', flat=True)
+            for path in paths:
+
+                count = srequests.filter(request_path=path).count()
+                count_mdefaults['value'] = count
+                count_mdefaults['label'] = path
+                count_mdefaults['value_num'] = count
+                count_mdefaults['value_raw'] = count
+                count_mdefaults['samples_count'] = count
+
+                print MetricValue.add('request.path', **count_mdefaults)
+
+            for mname, cname in (('request.ip', 'client_ip',),
+                                 ('request.users', 'user_identifier',),
+                                 ('request.country', 'client_country'),
+                                 ('request.city', 'client_city',),
+                                 ('request.region', 'client_region'),
+                                 ('request.ua', 'user_agent',),
+                                 ('request.ua.family', 'user_agent_family',),
+                                 ('response.time', 'response_time',),
+                                 ('response.size', 'response_size',),
+                                 ('response.status', 'response_status',),
+                                 ('request.method', 'request_method',),
+                                ):
+                # calculate overall stats
+                self.set_metric_values(mname, cname, srequests, **mdefaults)
+
             self.set_error_values(
-                _requests,
+                srequests,
                 valid_from,
                 valid_to,
                 service=service,
-                resource=resource)
+                resource=None)
 
-            # event_types may be subset of all requests in a batch, so we do
-            # calculation separately
-            if event_types:
-                event_requests = _requests.filter(event_type__isnull=False)
-                count = event_requests.count()
-                metric_defaults['requests'] = event_requests
-                metric_defaults['event_type'] = event_all
+        push_metric_values(requests, **metric_defaults)
 
-                print(MetricValue.add('request.count', valid_from,
-                                      valid_to, service, 'Count',
-                                      value=count, value_num=count,
-                                      samples_count=count,
-                                      value_raw=count,
-                                      resource=resource,
-                                      event_type=event_all))
-                self.set_metric_values(
-                    'request.ip', 'client_ip', **metric_defaults)
-                self.set_metric_values(
-                    'request.users',
-                    'user_identifier',
-                    **metric_defaults)
-                self.set_metric_values(
-                    'request.country',
-                    'client_country',
-                    **metric_defaults)
-                self.set_metric_values(
-                    'request.city', 'client_city', **metric_defaults)
-                self.set_metric_values(
-                    'request.region',
-                    'client_region',
-                    **metric_defaults)
-                self.set_metric_values(
-                    'request.ua', 'user_agent', **metric_defaults)
-                self.set_metric_values(
-                    'request.ua.family',
-                    'user_agent_family',
-                    **metric_defaults)
-                self.set_metric_values(
-                    'response.time', 'response_time', **metric_defaults)
-                self.set_metric_values(
-                    'response.size', 'response_size', **metric_defaults)
-                self.set_metric_values(
-                    'response.status',
-                    'response_status',
-                    **metric_defaults)
-                self.set_metric_values(
-                    'request.method',
-                    'request_method',
-                    **metric_defaults)
-                for event_type in event_types:
-                    event_type_requests = _requests.filter(event_type=event_type)
+        # for each resource we should calculate another set of stats
+        for resource, _requests in [(None, requests,)] + resources:
 
-                    paths = event_type_requests.distinct(
-                        'request_path').values_list('request_path', flat=True)
-                    for path in paths:
-                        count = event_type_requests.filter(request_path=path).count()
-                        print MetricValue.add('request.path', valid_from, valid_to, service, path,
-                                              value=count,
-                                              value_num=count,
-                                              value_raw=count,
-                                              samples_count=count,
-                                              resource=resource)
+            metric_defaults['resource'] = resource
+            push_metric_values(_requests, **metric_defaults)
 
-                    count = event_type_requests.count()
-                    metric_defaults['event_type'] = event_type
-                    metric_defaults['requests'] = event_type_requests
-                    print(MetricValue.add('request.count', valid_from, valid_to, service, 'Count',
-                                          value=count,
-                                          value_num=count,
-                                          samples_count=count,
-                                          value_raw=count,
-                                          resource=resource,
-                                          event_type=event_type))
-                    self.set_metric_values(
-                        'request.ip', 'client_ip', **metric_defaults)
-                    self.set_metric_values(
-                        'request.users',
-                        'user_identifier',
-                        **metric_defaults)
-                    self.set_metric_values(
-                        'request.country', 'client_country', **metric_defaults)
-                    self.set_metric_values(
-                        'request.city', 'client_city', **metric_defaults)
-                    self.set_metric_values(
-                        'request.region', 'client_region', **metric_defaults)
-                    self.set_metric_values(
-                        'request.ua', 'user_agent', **metric_defaults)
-                    self.set_metric_values(
-                        'request.ua.family',
-                        'user_agent_family',
-                        **metric_defaults)
-                    self.set_metric_values(
-                        'response.time', 'response_time', **metric_defaults)
-                    self.set_metric_values(
-                        'response.size', 'response_size', **metric_defaults)
-                    self.set_metric_values(
-                        'response.status', 'response_status', **metric_defaults)
-                    self.set_metric_values(
-                        'request.method', 'request_method', **metric_defaults)
-                    self.set_error_values(event_type_requests, valid_from, valid_to,
-                                          service=service,
-                                          resource=resource,
-                                          event_type=event_type)
+            # for each event type we need separate metrics set
+            event_types = self.extract_event_types(_requests)
+            for event_type in event_types:
+                event_type_requests = _requests.filter(event_type=event_type)
+                metric_defaults['event_type'] = event_type
+                push_metric_values(event_type_requests, **metric_defaults)
+
+            # combined event types: ows and non-ows
+            for evt, rq in self.extract_special_event_types(_requests):
+                metric_defaults['event_type'] = evt
+                push_metric_values(rq, **metric_defaults)
+
+        # combined event types
+        for evt, rq in self.extract_special_event_types(requests):
+            metric_defaults['event_type'] = evt
+            push_metric_values(rq, **metric_defaults)
 
     def get_metrics_for(self, metric_name,
                         valid_from=None,
@@ -886,26 +766,30 @@ class CollectorAPI(object):
                                      'grouper': ['resource', 'name', 'type', 'id', ],
                                      },
                         # group by resource, but do not show labels. number of unique labels will be used as val
-                        'resource_no_label': {'select_only': ['mr.id', 'mr.type', 'mr.name', 'count(distinct(ml.name)) as val',
-                                                              'count(1) as metric_count, sum(samples_count) as samples_count',
-                                                              'sum(mv.value_num), min(mv.value_num), max(mv.value_num)',
+                        'resource_no_label': {'select_only': ['mr.id', 'mr.type', 'mr.name',
+                                                              'count(distinct(ml.name)) as val',
+                                                              'count(1) as metric_count',
+                                                              'sum(samples_count) as samples_count',
+                                                              'sum(mv.value_num), min(mv.value_num)',
+                                                              'max(mv.value_num)',
                                                              ],
-                                     'from': ['join monitoring_monitoredresource mr on (mv.resource_id = mr.id)'],
-                                     'where': ['and mv.resource_id is not NULL'],
-                                     'order_by': ['val desc'],
-                                     'group_by': ['mr.id', 'mr.type', 'mr.name'],
-                                     'grouper': ['resource', 'name', 'type', 'id', ],
+                                              'from': [('join monitoring_monitoredresource mr'
+                                                        'on (mv.resource_id = mr.id)')],
+                                              'where': ['and mv.resource_id is not NULL'],
+                                              'order_by': ['val desc'],
+                                              'group_by': ['mr.id', 'mr.type', 'mr.name'],
+                                              'grouper': ['resource', 'name', 'type', 'id', ],
                                      },
 
                         # group by label (resource is null or empty)
                         'label': {'select_only': [('count(distinct(ml.name)) as val, '
-                                                  'count(1) as metric_count, sum(samples_count) as samples_count, '
-                                                  'sum(mv.value_num), min(mv.value_num), max(mv.value_num)')],
-                                     'from': [], # ['join monitoring_monitoredresource mr on (mv.resource_id = mr.id)'],
-                                     'where': [], # ["and mv.resource_id is NULL or (mr.type = '')"],
-                                     'order_by': ['val desc'],
-                                     'group_by': [],
-                                     'grouper': [],
+                                                   'count(1) as metric_count, sum(samples_count) as samples_count, '
+                                                   'sum(mv.value_num), min(mv.value_num), max(mv.value_num)')],
+                                  'from': [],  # ['join monitoring_monitoredresource mr on (mv.resource_id = mr.id)'],
+                                  'where': [],  # ["and mv.resource_id is NULL or (mr.type = '')"],
+                                  'order_by': ['val desc'],
+                                  'group_by': [],
+                                  'grouper': [],
                                  }
                         }
 
@@ -939,29 +823,28 @@ class CollectorAPI(object):
                           '(ms.id = mv.service_id and ms.service_type_id = %(service_type_id)s ) ')
             params['service_type_id'] = service_type.id
 
-        if event_type:
-            q_where.append(' and mv.event_type_id = %(event_type)s ')
-            params['event_type'] = event_type.id
-        else:
-            q_where.append(' and mv.event_type_id is null ')
+        if event_type is None:
+            event_type = EventType.get(EventType.EVENT_ALL)
+        q_where.append(' and mv.event_type_id = %(event_type)s ')
+        params['event_type'] = event_type.id
 
         if label:
             q_where.append(' and ml.id = %(label)s')
             params['label'] = label.id
-
-        if resource:
+        if not group_by and not resource:
+            resource = MonitoredResource.get('', '', or_create=True)
+        if resource and not group_by:
             q_from.append('join monitoring_monitoredresource mr on '
                           '(mv.resource_id = mr.id and mr.id = %(resource_id)s) ')
             params['resource_id'] = resource.id
-        #elif group_by != 'resource':
-        #    q_from.append('left join monitoring_monitoredresource mr on '
-        #                  '(mv.resource_id = mr.id and mr.type = %(resource_type)s and mr.name = %(resource_name)s ) ')
-        #    params['resource_type'] = ''
-        #    params['resource_name'] = ''
 
+            if resource_type:
+                q_where.append(' and mr.type = %(resource_type)s ')
+                params['resource_type'] = resource_type
+        
         if label and has_agg:
             q_group.extend(['ml.name'])
-        if resource and q_group == 'resource':
+        if resource and group_by in ('resource', 'resource_no_label',):
             raise ValueError(
                 "Cannot use resource and group by resource at the same time")
         if resource and has_agg:
@@ -996,7 +879,7 @@ class CollectorAPI(object):
             q_order_by = 'order by {}'.format(','.join(q_order_by))
 
         q = ' '.join(chain(q_select, q_from, q_where, q_group, [q_order_by]))
-
+        
         def postproc(row):
             if grouper:
                 t = {}

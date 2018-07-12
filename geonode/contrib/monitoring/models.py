@@ -191,6 +191,12 @@ class MonitoredResource(models.Model):
     def __str__(self):
         return 'Monitored Resource: {} {}'.format(self.name, self.type)
 
+    @classmethod
+    def get(cls, resource_type, resource_name, or_create=False):
+        if or_create:
+            res, _ = cls.objects.get_or_create(type=resource_type, name=resource_name)
+            return res
+        res = cls.objects.get(type=resource_type, name=resource_name)
 
 class Metric(models.Model):
     TYPE_RATE = 'rate'
@@ -307,12 +313,14 @@ class EventType(models.Model):
     EVENT_VIEW_METADATA = 'view_metadata'
     EVENT_PUBLISH = 'publish'
     EVENT_UPLOAD = 'upload'
-    EVENT_ALL = 'all'  # all events - baseline
+    EVENT_GEOSERVER = 'geoserver'  # other event from GS
+    # special event types
     EVENT_OWS = 'OWS:ALL'  # any ows event
-    EVENT_OTHER = 'other'  # other event, not covered by
+    EVENT_OTHER = 'other'  # non-ows event
+    EVENT_ALL = 'all'  # all events - baseline: ows + non-ows
 
     EVENT_TYPES = zip(['OWS:{}'.format(ows) for ows in _ows_types], _ows_types) + \
-        [(EVENT_OTHER, _("Other"))] +\
+        [(EVENT_OTHER, _("Non-OWS"))] +\
         [(EVENT_OWS, _("Any OWS"))] +\
         [(EVENT_ALL, _("All"))] +\
         [(EVENT_CREATE, _("Create"))] +\
@@ -323,7 +331,8 @@ class EventType(models.Model):
         [(EVENT_VIEW, _("View"))] +\
         [(EVENT_DOWNLOAD, _("Download"))] +\
         [(EVENT_PUBLISH, _("Publish"))] +\
-        [(EVENT_REMOVE, _("Remove"))]
+        [(EVENT_REMOVE, _("Remove"))] +\
+        [(EVENT_GEOSERVER, _("Geoserver event"))]
 
     name = models.CharField(max_length=16, unique=True,
                             choices=EVENT_TYPES,
@@ -645,10 +654,15 @@ class RequestEvent(models.Model):
         start_time = start_time.replace(tzinfo=utc).astimezone(local_tz)
 
         rl = rd['responseLength']
+        event_type_name = rd.get('service')
+        if event_type_name:
+            event_type = EventType.get('OWS:{}'.format(event_type_name.upper()))
+        else:
+            event_type = EventType.get(EventType.EVENT_GEOSERVER)
         data = {'created': start_time,
                 'received': received,
                 'host': rd['host'],
-                'event_type': EventType.get(rd.get('service')),
+                'event_type': event_type,
                 'service': service,
                 'request_path':
                     '{}?{}'.format(rd['path'], rd['queryString']) if rd.get(
