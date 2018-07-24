@@ -360,7 +360,8 @@ INSTALLED_APPS = (
     # 'haystack',
     'autocomplete_light',
     'mptt',
-    # 'modeltranslation',
+    # 'crispy_forms',
+
     # 'djkombu',
     # 'djcelery',
     # 'kombu.transport.django',
@@ -394,9 +395,20 @@ INSTALLED_APPS = (
     'allauth.account',
     'allauth.socialaccount',
 
+    # Django REST Framework
+    'rest_framework',
+
     # GeoNode
     'geonode',
 ) + GEONODE_APPS
+
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ]
+}
 
 # Documents application
 ALLOWED_DOCUMENT_TYPES = [
@@ -1202,6 +1214,29 @@ CACHES = {
 GEONODE_CLIENT_LAYER_PREVIEW_LIBRARY = 'geoext'  # DEPRECATED use HOOKSET instead
 GEONODE_CLIENT_HOOKSET = "geonode.client.hooksets.GeoExtHookSet"
 
+# To enable the REACT based Client enable those
+"""
+if 'geonode-client' not in INSTALLED_APPS:
+    INSTALLED_APPS += ('geonode-client', )
+GEONODE_CLIENT_LAYER_PREVIEW_LIBRARY = 'react'  # DEPRECATED use HOOKSET instead
+GEONODE_CLIENT_HOOKSET = "geonode.client.hooksets.ReactHookSet"
+"""
+
+# To enable the Leaflet based Client enable those
+"""
+GEONODE_CLIENT_LAYER_PREVIEW_LIBRARY = 'leaflet'  # DEPRECATED use HOOKSET instead
+GEONODE_CLIENT_HOOKSET = "geonode.client.hooksets.LeafletHookSet"
+"""
+
+# To enable the MapLoom based Client enable those
+"""
+GEONODE_CLIENT_LAYER_PREVIEW_LIBRARY = 'maploom'  # DEPRECATED use HOOKSET instead
+GEONODE_CLIENT_HOOKSET = "geonode.client.hooksets.MaploomHookSet"
+CORS_ORIGIN_WHITELIST = (
+    HOSTNAME
+)
+"""
+
 SERVICE_UPDATE_INTERVAL = 0
 
 SEARCH_FILTERS = {
@@ -1290,7 +1325,8 @@ if ASYNC_SIGNALS:
 else:
     _BROKER_URL = LOCAL_SIGNALS_BROKER_URL
 
-BROKER_URL = _BROKER_URL
+# Note:BROKER_URL is deprecated in favour of CELERY_BROKER_URL 
+CELERY_BROKER_URL = _BROKER_URL
 
 CELERY_RESULT_PERSISTENT = False
 
