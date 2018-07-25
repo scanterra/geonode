@@ -208,7 +208,7 @@ def align_period_start(start, interval):
 def generate_periods(since, interval, end=None, align=True):
     """
     Generator of periods: tuple of [start, end).
-    since parameter will be aligned to closest interval before since.1
+    since parameter will be aligned to closest interval before since.
     """
     utc = pytz.utc
     end = end or datetime.utcnow().replace(tzinfo=utc)

@@ -29,6 +29,8 @@ import pytz
 from xml.etree.ElementTree import fromstring
 import json
 import xmljson
+from itertools import chain, cycle, product
+
 from decimal import Decimal
 from django.core import mail
 from django.conf import settings
@@ -40,7 +42,7 @@ from geonode.contrib.monitoring.models import (
     RequestEvent, Host, Service, ServiceType,
     populate, ExceptionEvent, MetricNotificationCheck,
     MetricValue, NotificationCheck, Metric, EventType,
-    MonitoredResource, MetricLabel,
+    MonitoredResource, MetricLabel, ServiceTypeMetric,
     NotificationMetricDefinition,)
 from geonode.contrib.monitoring.models import do_autoconfigure
 
@@ -760,3 +762,89 @@ class AutoConfigTestCase(GeoNodeBaseTestSupport):
 
         resp = self.client.post(autoconf_url)
         self.assertEqual(resp.status_code, 200)
+
+
+class AggregationTestCase(GeoNodeBaseTestSupport):
+    
+
+    def setUp(self):
+        super(AggregationTestCase, self).setUp()
+        populate()
+        self._RESOURCES = (('layer', 'layera',),
+                           ('layer', 'layerb',),
+                           ('layer', 'layerc',),
+                           ('map', 'mapa',),
+                           ('map', 'mapb',),
+                           )
+        self._EVENTS = ('view', 'view_metadata', 'edit_metadata',)
+        self.RESOURCES = [MonitoredResource.objects.get_or_create(type=rtype, name=rname)[0]
+                          for rtype, rname in self._RESOURCES]
+        self.EVENTS = [EventType.objects.get_or_create(name=ename)[0]
+                       for ename in self._EVENTS]
+
+    def test_aggregation(self):
+        now = datetime.now()
+        interval = timedelta(minutes=1)
+        since = now - timedelta(minutes=30, days=1)
+        until = now - timedelta(minutes=0, days=1) + timedelta(minutes=30)
+        services = Service.objects.all()
+        events = self.EVENTS
+        resources = self.RESOURCES
+    
+        counter = generate_metric_data(since, until, interval, resources, events, services)
+        self.assertTrue(counter > 0)
+        self.assertEqual(MetricValue.objects.all().count(), counter)
+        c = CollectorAPI()
+        c.aggregate_past_periods()
+
+
+SAMPLES_COUNT = {'request.users': cycle([5, 4, 3]),
+                 'request.ua.family': cycle([4, 3, 5]),
+                 'response.time': cycle([20, 30, 40]),
+                 'response.size': cycle([20, 30, 40]),
+                 'request.count': cycle([20, 30, 40]),
+                 'response.error.count': cycle([1])}
+
+                 
+METRIC_VALUES = {'request.users': cycle(['aaa', 'bbb', 'ccc', 'ddd', 'eee']),
+                 'request.ua.family': cycle(['ua:aaa', 'ua:bbb', 'ua:ccc', 'ua:ddd', 'ua:eee']),
+                 }
+METRIC_RATES = {'response.time': cycle([100, 200, 300, 200, 100]),
+                 'response.size': cycle(['250', '2500', '2500', '3000', '1000']),
+                 }
+METRIC_COUNTERS = {'request.count': cycle([10, 20, 30, 20, 30]),
+                   'response.error.count': cycle([1, 0, 2, 1, 0])
+                   }
+METRIC_DATA = dict(chain(*(M.items() for M in (METRIC_RATES, METRIC_VALUES, METRIC_COUNTERS,))))
+
+METRICS = list(chain(*(M.keys() for M in (METRIC_RATES, METRIC_VALUES, METRIC_COUNTERS,))))
+
+
+def generate_metric_data(since, until, interval, resources, events, services):
+    metrics = Metric.objects.filter(name__in=METRICS)
+    periods = generate_periods(since=since, end=until, interval=interval)
+    counter = 0
+    prod = product(periods, metrics, resources, events, services)
+    
+    for period, metric, resource, event, service in prod:
+        period_start, period_end = period
+
+        _value = METRIC_DATA[metric.name].next()
+        value = 1 if metric.is_value else _value
+        label = _value if metric.is_value else None
+        data = {'value': value,
+                'valid_from': period_start,
+                'valid_to': period_end,
+                'value_num': value,
+                'value_raw': value,
+                'label': label,
+                'service': service,
+                'resource': resource,
+                'event_type': event,
+                'samples_count': SAMPLES_COUNT[metric.name].next()}
+        try:
+            MetricValue.add(metric, **data)
+            counter += 1
+        except ServiceTypeMetric.DoesNotExist:
+            pass
+    return counter

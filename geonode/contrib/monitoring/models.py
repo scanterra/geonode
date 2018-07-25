@@ -30,6 +30,7 @@ from decimal import Decimal
 
 from django import forms
 from django.db import models
+from django.db.models import Case, When, Sum, F, Q
 from django.conf import settings
 from django.http import Http404
 from jsonfield import JSONField
@@ -218,6 +219,14 @@ class Metric(models.Model):
                      TYPE_VALUE_NUMERIC: 'max(value_num)',
                      TYPE_COUNT: 'sum(value_num)'}
 
+    AGGREGATE_DJANGO_MAP = {TYPE_RATE: Sum(F('value_num'), output_field=models.DecimalField(max_digits=16,
+                                                                                           decimal_places=2))/
+                                       Sum(F('samples_count'), output_field=models.DecimalField(max_digits=16,
+                                                                                                decimal_places=2)),
+                            TYPE_VALUE: Sum(F('value_num')),
+                            TYPE_COUNT: Sum(F('value_num')),
+                            }
+
     UNIT_BYTES = 'B'
     UNIT_KILOBYTES = 'KB'
     UNIT_MEGABYTES = 'MB'
@@ -257,6 +266,9 @@ class Metric(models.Model):
         null=True,
         blank=True,
         choices=UNITS)
+
+    def get_aggregate_field(self):
+        return self.AGGREGATE_DJANGO_MAP[self.type]
 
     def get_aggregate_name(self):
         return self.AGGREGATE_MAP[self.type]
@@ -466,7 +478,6 @@ class RequestEvent(models.Model):
                 continue
             rinst, _ = MonitoredResource.objects.get_or_create(
                 name=r, type=type_name)
-            print(rinst)
             out.append(rinst)
         return out
 
@@ -845,10 +856,12 @@ class MetricValue(models.Model):
 
         if isinstance(metric, Metric):
             service_metric = ServiceTypeMetric.objects.get(
-                service_type=service.service_type, metric=metric)
+                service_type=service.service_type,
+                metric=metric)
         else:
             service_metric = ServiceTypeMetric.objects.get(
-                service_type=service.service_type, metric__name=metric)
+                service_type=service.service_type,
+                metric__name=metric)
 
         label, _ = MetricLabel.objects.get_or_create(name=label or 'count')
         if event_type:
