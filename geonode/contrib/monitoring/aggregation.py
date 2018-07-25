@@ -19,18 +19,22 @@
 #########################################################################
 from datetime import datetime
 from decimal import Decimal
+import logging
 
 import pytz
 
 from django.conf import settings
-from django.db.models import Sum, F
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned, IntegrityError
+from django.db import IntegrityError
+from django.db.models import Sum, F, Q
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
 from geonode.contrib.monitoring.utils import generate_periods
 from geonode.contrib.monitoring.models import (Metric, MetricValue, ServiceTypeMetric,
                                                MonitoredResource, MetricLabel, RequestEvent,
                                                ExceptionEvent, EventType, NotificationCheck,)
 
+
+log = logging.getLogger(__name__)
 
 def get_metric_names():
 
@@ -170,19 +174,27 @@ def calculate_percent(
     return rate * 100
 
 
-def aggregate_past_periods(metric_data_q=None, periods=None):
+def aggregate_past_periods(metric_data_q=None, periods=None, cleanup=True, now=None):
     """
     Aggregate past metric data into longer periods
-
+    @param metric_data_q Query for metric data to use as input 
+                         (default: all MetricValues)
+    @param periods list of tuples (cutoff, aggregation) to be used
+                   (default: settings.MONITORING_DATA_AGGREGATION)
+    @param cleanup flag if input data should be removed after aggregation
+                   (default: True)
+    @param now arbitrary now moment to start calculation of cutoff
+               (default: current now)
     """
     utc = pytz.utc
-    now = datetime.utcnow().replace(tzinfo=utc)
+    if now is None:
+        now = datetime.utcnow().replace(tzinfo=utc)
     if metric_data_q is None:
         metric_data_q = MetricValue.objects.all()
     if periods is None:
         periods = settings.MONITORING_DATA_AGGREGATION
     previous_cutoff = None
-
+    counter = 0
     # start from the end, oldest one first
     for cutoff_base, aggregation_period in reversed(periods):
         since = now - cutoff_base
@@ -193,7 +205,6 @@ def aggregate_past_periods(metric_data_q=None, periods=None):
         # and extract service, resource, event type and label combinations
         # then, for each distinctive set, calculate per-metric aggregate values
         for period_start, period_end in periods:
-            metric_data_q.filter(valid_from=period_start, valid_to=period_end).delete()
             source_metric_data = metric_data_q.filter(valid_from__gte=period_start,
                                                             valid_to__lte=period_end)\
                                                     .exclude(valid_from=period_start,
@@ -216,7 +227,14 @@ def aggregate_past_periods(metric_data_q=None, periods=None):
                     raise ValueError(f, m, err)
                 value = value_q['fvalue']
                 samples_count = value_q['fsamples_count']
-                try:
+
+                if not metric_data_q.filter(service_metric_id=metric_id,
+                                            service_id=service_id,
+                                            resource_id=resource_id,
+                                            event_type_id=event_type_id,
+                                            valid_from=period_start,
+                                            valid_to=period_end,
+                                            label_id=label_id).exists():
                     MetricValue.objects.create(service_metric_id=metric_id,
                                               service_id=service_id,
                                               resource_id=resource_id,
@@ -228,12 +246,27 @@ def aggregate_past_periods(metric_data_q=None, periods=None):
                                               valid_to=period_end,
                                               label_id=label_id,
                                               samples_count=samples_count)
+                else:
+                    metric_data_q.filter(service_metric_id=metric_id,
+                                         service_id=service_id,
+                                         resource_id=resource_id,
+                                         event_type_id=event_type_id,
+                                         valid_from=period_start,
+                                         valid_to=period_end,
+                                         label_id=label_id)\
+                                 .update(value=value,
+                                         value_num=value,
+                                         value_raw=value,
+                                         samples_count=samples_count)
+                counter += 1
+            if cleanup:
+                cleanup_q = metric_data_q.filter(valid_from__gte=period_start,
+                                                 valid_to__lte=period_end)\
+                                         .exclude(valid_to__gte=F('valid_from') + aggregation_period)
 
-                    source_metric_data.filter(service_metric_id=metric_id,
-                                              service_id=service_id,
-                                              resource_id=resource_id,
-                                              event_type_id=event_type_id,
-                                              label_id=label_id)\
-                                      .delete()
-                except IntegrityError:
-                    pass
+                log.info("removing %s fors for %s->%s (%s)", cleanup_q.count(),
+                                                             period_start,
+                                                             period_end,
+                                                             aggregation_period)
+                cleanup_q.delete()
+    return counter

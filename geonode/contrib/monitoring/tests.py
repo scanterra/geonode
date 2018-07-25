@@ -776,6 +776,12 @@ class AggregationTestCase(GeoNodeBaseTestSupport):
                            ('map', 'mapa',),
                            ('map', 'mapb',),
                            )
+        self.AGGREGATION_SETTINGS = ((timedelta(seconds=0), timedelta(minutes=1),),
+                                     (timedelta(hours=12), timedelta(minutes=5),),
+                                     (timedelta(days=1), timedelta(minutes=60),),
+                                     (timedelta(days=14), timedelta(days=1),),
+                                     )
+
         self._EVENTS = ('view', 'view_metadata', 'edit_metadata',)
         self.RESOURCES = [MonitoredResource.objects.get_or_create(type=rtype, name=rname)[0]
                           for rtype, rname in self._RESOURCES]
@@ -784,7 +790,7 @@ class AggregationTestCase(GeoNodeBaseTestSupport):
 
     def test_aggregation(self):
         now = datetime.now()
-        interval = timedelta(minutes=1)
+        interval = timedelta(minutes=2)
         since = now - timedelta(minutes=30, days=1)
         until = now - timedelta(minutes=0, days=1) + timedelta(minutes=30)
         services = Service.objects.all()
@@ -794,8 +800,11 @@ class AggregationTestCase(GeoNodeBaseTestSupport):
         counter = generate_metric_data(since, until, interval, resources, events, services)
         self.assertTrue(counter > 0)
         self.assertEqual(MetricValue.objects.all().count(), counter)
+
         c = CollectorAPI()
-        c.aggregate_past_periods()
+        ret = c.aggregate_past_periods()
+        self.assertTrue(ret > 0)
+        self.assertTrue
 
 
 SAMPLES_COUNT = {'request.users': cycle([5, 4, 3]),
