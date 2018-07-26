@@ -838,12 +838,12 @@ class CollectorAPI(object):
             return row
         return [postproc(row) for row in raw_sql(q, params)]
 
-    def aggregate_past_periods(self, metric_data_q=None, periods=None):
+    def aggregate_past_periods(self, metric_data_q=None, periods=None, **kwargs):
         """
         Aggregate past metric data into longer periods
 
         """
-        return aggregate_past_periods(metric_data_q, periods)
+        return aggregate_past_periods(metric_data_q, periods, **kwargs)
 
     def clear_old_data(self):
         utc = pytz.utc

@@ -20,6 +20,7 @@
 
 from __future__ import print_function
 
+import logging
 from geonode.tests.base import GeoNodeBaseTestSupport
 
 from datetime import datetime, timedelta
@@ -37,6 +38,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
+from django.db.models import F
 
 from geonode.contrib.monitoring.models import (
     RequestEvent, Host, Service, ServiceType,
@@ -47,9 +49,14 @@ from geonode.contrib.monitoring.models import (
 from geonode.contrib.monitoring.models import do_autoconfigure
 
 from geonode.contrib.monitoring.collector import CollectorAPI
-from geonode.contrib.monitoring.utils import generate_periods, align_period_start
+from geonode.contrib.monitoring.utils import (generate_periods,
+                                              align_period_start,
+                                              align_period_end)
+
 from geonode.layers.models import Layer
 
+
+log = logging.getLogger(__name__)
 
 res_dir = os.path.join(os.path.dirname(__file__), 'resources')
 req_err_path = os.path.join(res_dir, 'req_err.xml')
@@ -789,7 +796,7 @@ class AggregationTestCase(GeoNodeBaseTestSupport):
                        for ename in self._EVENTS]
 
     def test_aggregation(self):
-        now = datetime.now()
+        now = pytz.utc.localize(datetime.now())
         interval = timedelta(minutes=2)
         since = now - timedelta(minutes=30, days=1)
         until = now - timedelta(minutes=0, days=1) + timedelta(minutes=30)
@@ -798,13 +805,38 @@ class AggregationTestCase(GeoNodeBaseTestSupport):
         resources = self.RESOURCES
     
         counter = generate_metric_data(since, until, interval, resources, events, services)
+
+        check_periods = [(now, now - timedelta(hours=12), timedelta(minutes=1)),
+                         (now - timedelta(hours=12), now - timedelta(days=1), timedelta(minutes=5)),
+                         (now - timedelta(days=1), now - timedelta(days=14), timedelta(minutes=60),),]
+
+        
         self.assertTrue(counter > 0)
         self.assertEqual(MetricValue.objects.all().count(), counter)
 
         c = CollectorAPI()
-        ret = c.aggregate_past_periods()
+        ret = c.aggregate_past_periods(max_since=now-timedelta(days=3), periods=self.AGGREGATION_SETTINGS)
         self.assertTrue(ret > 0)
-        self.assertTrue
+
+        # check: we provide unaligned period limits, but data are within aligned
+        for _cp_end, _cp_start, cp_agg in check_periods:
+            cp_end = align_period_end(_cp_end, cp_agg)
+            cp_start = align_period_start(_cp_start, cp_agg)
+            for metric_name in METRICS:
+                q = MetricValue.objects.filter(service_metric__metric__name=metric_name,
+                                               valid_from__gte=cp_start,
+                                               valid_to__lte=cp_end)
+                log.info("Metric %s from %s to %s: %s", metric_name, cp_start, cp_end, q.count())
+                if q.count():
+                    self.assertFalse(q.filter(valid_to__gt=F('valid_from') + cp_agg).exists(),
+                        'period above {} should be empty: {}: {} {}'.format( cp_agg, q.query, q.count(), q[0:1]))
+                    self.assertFalse(q.filter(valid_to__lt=F('valid_from') + cp_agg).exists(),
+                        'period below {} should be empty: {}: {} {}'.format(cp_agg, q.query, q.count(), q[0:1]))
+
+                    self.assertTrue(q.filter(valid_to__exact=F('valid_from') + cp_agg).exists(), q.query)
+
+                    
+
 
 
 SAMPLES_COUNT = {'request.users': cycle([5, 4, 3]),
