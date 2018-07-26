@@ -23,7 +23,7 @@ from __future__ import print_function
 import logging
 from geonode.tests.base import GeoNodeBaseTestSupport
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 
 import os
 import pytz
@@ -38,7 +38,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
-from django.db.models import F
+from django.db.models import F, Sum, Min, Max
 
 from geonode.contrib.monitoring.models import (
     RequestEvent, Host, Service, ServiceType,
@@ -49,6 +49,7 @@ from geonode.contrib.monitoring.models import (
 from geonode.contrib.monitoring.models import do_autoconfigure
 
 from geonode.contrib.monitoring.collector import CollectorAPI
+from geonode.contrib.monitoring.aggregation import aggregate_period
 from geonode.contrib.monitoring.utils import (generate_periods,
                                               align_period_start,
                                               align_period_end)
@@ -772,7 +773,6 @@ class AutoConfigTestCase(GeoNodeBaseTestSupport):
 
 
 class AggregationTestCase(GeoNodeBaseTestSupport):
-    
 
     def setUp(self):
         super(AggregationTestCase, self).setUp()
@@ -795,27 +795,92 @@ class AggregationTestCase(GeoNodeBaseTestSupport):
         self.EVENTS = [EventType.objects.get_or_create(name=ename)[0]
                        for ename in self._EVENTS]
 
+    def test_aggregation_small(self):
+        now = pytz.utc.localize(datetime(2018, 07, 01, 10, 30, 1))
+
+        interval = timedelta(minutes=1)
+
+        metric_name = 'request.count'
+
+        m = Metric.objects.get(name=metric_name)
+        s = Service.objects.get(service_type__name='geonode')
+        tstart = now - timedelta(minutes=25)
+
+        MetricValue.objects.all().delete()
+        resource = MonitoredResource.objects.create(type='layer', name='aa')
+        label = MetricLabel.objects.create(name='eee')
+        # create metricvalue for base periods
+        for pstart, pend in generate_periods(tstart, interval, now):
+            MetricValue.add(metric=m,
+                            service=s,
+                            valid_from=pstart,
+                            valid_to=pend,
+                            label=None,
+                            value=10,
+                            value_num=10,
+                            value_raw=10,
+                            event_type='view',
+                            samples_count=10)
+
+            MetricValue.add(metric=m,
+                            service=s,
+                            valid_from=pstart,
+                            valid_to=pend,
+                            resource=resource,
+                            label=label,
+                            value=10,
+                            value_num=10,
+                            value_raw=10,
+                            event_type='view',
+                            samples_count=10)
+        orig_count = MetricValue.objects.all().count()
+        count = aggregate_period(tstart, now, MetricValue.objects.all())
+        log.info('original count %s, got %s', orig_count, count)
+        self.assertEqual(count, 2)
+        self.assertEqual(MetricValue.objects.all().count(), 4)
+
     def test_aggregation(self):
-        now = pytz.utc.localize(datetime.now())
+        # reset time to 0:00:00. we basically should not start this anywhere
+        # within open day
+        now = pytz.utc.localize(datetime.combine(datetime.now().date(), time(0, 0, 0)))
         interval = timedelta(minutes=2)
         since = now - timedelta(minutes=30, days=1)
         until = now - timedelta(minutes=0, days=1) + timedelta(minutes=30)
         services = Service.objects.all()
         events = self.EVENTS
         resources = self.RESOURCES
-    
+
+        # generate some data
         counter = generate_metric_data(since, until, interval, resources, events, services)
 
         check_periods = [(now, now - timedelta(hours=12), timedelta(minutes=1)),
                          (now - timedelta(hours=12), now - timedelta(days=1), timedelta(minutes=5)),
-                         (now - timedelta(days=1), now - timedelta(days=14), timedelta(minutes=60),),]
+                         (now - timedelta(days=1), now - timedelta(days=14), timedelta(minutes=60),), ]
 
-        
         self.assertTrue(counter > 0)
         self.assertEqual(MetricValue.objects.all().count(), counter)
 
+        initial_sums = {}
+
+        valid_times = MetricValue.objects.aggregate(min_valid_from=Min(F('valid_from')),
+                                                    max_valid_from=Max(F('valid_from')),
+                                                    min_valid_to=Min(F('valid_to')),
+                                                    max_valid_to=Max(F('valid_to')))
+        log.info('timeframe %s', valid_times)
+        for _cp_end, _cp_start, cp_agg in check_periods:
+            cp_end = align_period_end(_cp_end, cp_agg)
+            cp_start = align_period_start(_cp_start, cp_agg)
+            for metric_name in METRICS:
+                msum = MetricValue.objects.filter(service_metric__metric__name=metric_name,
+                                                  valid_from__gte=cp_start,
+                                                  valid_to__lte=cp_end).aggregate(Sum(F('value_num')))
+                try:
+                    initial_sums[metric_name][(cp_start, cp_end,)] = msum
+                except KeyError:
+                    initial_sums[metric_name] = {(cp_start, cp_end,): msum}
+
         c = CollectorAPI()
-        ret = c.aggregate_past_periods(max_since=now-timedelta(days=3), periods=self.AGGREGATION_SETTINGS)
+        ret = c.aggregate_past_periods(max_since=now-timedelta(days=3), now=now, periods=self.AGGREGATION_SETTINGS)
         self.assertTrue(ret > 0)
 
         # check: we provide unaligned period limits, but data are within aligned
@@ -826,17 +891,29 @@ class AggregationTestCase(GeoNodeBaseTestSupport):
                 q = MetricValue.objects.filter(service_metric__metric__name=metric_name,
                                                valid_from__gte=cp_start,
                                                valid_to__lte=cp_end)
-                log.info("Metric %s from %s to %s: %s", metric_name, cp_start, cp_end, q.count())
-                if q.count():
+                # for periods we expect to have data,
+                # check if all metric values are within target aggregation period
+                msum = initial_sums[metric_name].get((cp_start, cp_end,))
+                if msum['value_num__sum']:
                     self.assertFalse(q.filter(valid_to__gt=F('valid_from') + cp_agg).exists(),
-                        'period above {} should be empty: {}: {} {}'.format( cp_agg, q.query, q.count(), q[0:1]))
+                                     'period above {} should be empty for period {} {}:\n {} items {}'.format(
+                                     cp_agg, cp_start, cp_end, q.count(),
+                                     q[0:2].values_list('valid_from', 'valid_to')))
                     self.assertFalse(q.filter(valid_to__lt=F('valid_from') + cp_agg).exists(),
-                        'period below {} should be empty: {}: {} {}'.format(cp_agg, q.query, q.count(), q[0:1]))
+                                     'period below {} should be empty for period {} {}:\n {} items {}'.format(
+                                      cp_agg, cp_start, cp_end, q.count(),
+                                      q[0:2].values_list('valid_from', 'valid_to')))
 
                     self.assertTrue(q.filter(valid_to__exact=F('valid_from') + cp_agg).exists(), q.query)
-
-                    
-
+                
+                new_q = MetricValue.objects.filter(service_metric__metric__name=metric_name,
+                                                   valid_from=cp_start,
+                                                   valid_to=cp_end)
+                asum = new_q.aggregate(Sum(F('value_num')))
+                self.assertEqual(asum, msum,
+                                 'sums should be equal for {} {} - {} [{} '
+                                 'diff] with {} period,\n got {} before and {} after'.format(
+                                 metric_name, cp_start, cp_end, cp_end - cp_start, cp_agg, msum, asum))
 
 
 SAMPLES_COUNT = {'request.users': cycle([5, 4, 3]),
@@ -846,12 +923,11 @@ SAMPLES_COUNT = {'request.users': cycle([5, 4, 3]),
                  'request.count': cycle([20, 30, 40]),
                  'response.error.count': cycle([1])}
 
-                 
 METRIC_VALUES = {'request.users': cycle(['aaa', 'bbb', 'ccc', 'ddd', 'eee']),
                  'request.ua.family': cycle(['ua:aaa', 'ua:bbb', 'ua:ccc', 'ua:ddd', 'ua:eee']),
                  }
 METRIC_RATES = {'response.time': cycle([100, 200, 300, 200, 100]),
-                 'response.size': cycle(['250', '2500', '2500', '3000', '1000']),
+                'response.size': cycle(['250', '2500', '2500', '3000', '1000']),
                  }
 METRIC_COUNTERS = {'request.count': cycle([10, 20, 30, 20, 30]),
                    'response.error.count': cycle([1, 0, 2, 1, 0])
@@ -866,7 +942,7 @@ def generate_metric_data(since, until, interval, resources, events, services):
     periods = generate_periods(since=since, end=until, interval=interval)
     counter = 0
     prod = product(periods, metrics, resources, events, services)
-    
+
     for period, metric, resource, event, service in prod:
         period_start, period_end = period
 

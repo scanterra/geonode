@@ -24,17 +24,16 @@ import logging
 import pytz
 
 from django.conf import settings
-from django.db import IntegrityError
-from django.db.models import Sum, F, Q
+from django.db.models import Sum, F
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
-from geonode.contrib.monitoring.utils import generate_periods, align_period_start, align_period_end
+from geonode.contrib.monitoring.utils import generate_periods
 from geonode.contrib.monitoring.models import (Metric, MetricValue, ServiceTypeMetric,
-                                               MonitoredResource, MetricLabel, RequestEvent,
-                                               ExceptionEvent, EventType, NotificationCheck,)
+                                               MonitoredResource, MetricLabel, EventType,)
 
 
 log = logging.getLogger(__name__)
+
 
 def get_metric_names():
 
@@ -177,7 +176,7 @@ def calculate_percent(
 def aggregate_past_periods(metric_data_q=None, periods=None, cleanup=True, now=None, max_since=None):
     """
     Aggregate past metric data into longer periods
-    @param metric_data_q Query for metric data to use as input 
+    @param metric_data_q Query for metric data to use as input
                          (default: all MetricValues)
     @param periods list of tuples (cutoff, aggregation) to be used
                    (default: settings.MONITORING_DATA_AGGREGATION)
@@ -202,11 +201,11 @@ def aggregate_past_periods(metric_data_q=None, periods=None, cleanup=True, now=N
     for cutoff_base, aggregation_period in reversed(periods):
         since = previous_cutoff or max_since
         until = now - cutoff_base
-        aligned_since, aligned_until = align_period_start(since, aggregation_period), align_period_end(until, aggregation_period)
-        if not MetricValue.objects.filter(valid_from__gte=aligned_since,
-                                          valid_to__lte=aligned_until).exists():
-            log.info("No data within %s - %s", aligned_since, aligned_until)
-            continue
+
+        # if not MetricValue.objects.filter(valid_from__gte=aligned_since,
+        #                                  valid_to__lte=aligned_until).exists():
+        #    log.info("No data within %s - %s", aligned_since, aligned_until)
+        #    continue
         periods = generate_periods(since, aggregation_period, end=previous_cutoff)
         log.info("aggregation params: cutoff: %s agg period: %s\n  since: '%s' until '%s', aggregate to '%s'",
                  cutoff_base, aggregation_period, since, until, aggregation_period)
@@ -215,72 +214,71 @@ def aggregate_past_periods(metric_data_q=None, periods=None, cleanup=True, now=N
         # and extract service, resource, event type and label combinations
         # then, for each distinctive set, calculate per-metric aggregate values
         for period_start, period_end in periods:
-            source_metric_data = metric_data_q.filter(valid_from__gte=period_start,
-                                                            valid_to__lte=period_end)\
-                                                    .exclude(valid_from=period_start,
-                                                             valid_to=period_end)
-            r = source_metric_data.values_list('service_id', 'service_metric_id', 'resource_id', 'event_type_id', 'label_id',)
+            ret = aggregate_period(period_start, period_end, metric_data_q, cleanup)
+            counter += ret
 
-            for service_id, metric_id, resource_id, event_type_id, label_id in r:
-                m = Metric.objects.filter(service_type__id=metric_id).get()
-                f = m.get_aggregate_field()
-                per_metric_q =source_metric_data.filter(service_metric_id=metric_id,
-                                                        service_id=service_id,
-                                                        resource_id=resource_id,
-                                                        event_type_id=event_type_id,
-                                                        label_id=label_id)
+    return counter
 
-                try:
-                    value_q = per_metric_q.aggregate(fvalue=f,
-                                                     fsamples_count=Sum(F('samples_count')))
-                except TypeError, err:
-                    raise ValueError(f, m, err)
-                value = value_q['fvalue']
-                samples_count = value_q['fsamples_count']
 
-                if not metric_data_q.filter(service_metric_id=metric_id,
-                                            service_id=service_id,
-                                            resource_id=resource_id,
-                                            event_type_id=event_type_id,
-                                            valid_from=period_start,
-                                            valid_to=period_end,
-                                            label_id=label_id).exists():
-                    MetricValue.objects.create(service_metric_id=metric_id,
-                                              service_id=service_id,
-                                              resource_id=resource_id,
-                                              event_type_id=event_type_id,
-                                              value=value,
-                                              value_num=value,
-                                              value_raw=value,
-                                              valid_from=period_start,
-                                              valid_to=period_end,
-                                              label_id=label_id,
-                                              samples_count=samples_count)
-                else:
-                    metric_data_q.filter(service_metric_id=metric_id,
-                                         service_id=service_id,
-                                         resource_id=resource_id,
-                                         event_type_id=event_type_id,
-                                         valid_from=period_start,
-                                         valid_to=period_end,
-                                         label_id=label_id)\
-                                 .update(value=value,
-                                         value_num=value,
-                                         value_raw=value,
-                                         samples_count=samples_count)
-                counter += 1
-            if cleanup:
-                cleanup_q = metric_data_q.filter(valid_from__gte=period_start,
-                                                 valid_to__lte=period_end)\
-                                         .exclude(valid_to__exact=F('valid_from') + aggregation_period)
+def aggregate_period(period_start, period_end, metric_data_q, cleanup=True):
+    counter = 0
+    to_remove_data = {'remove_at': period_start.strftime("%Y%m%d%H%M%S")}
+    source_metric_data = metric_data_q.filter(valid_from__gte=period_start,
+                                              valid_to__lte=period_end)\
+                                      .exclude(valid_from=period_start,
+                                               valid_to=period_end)
+    r = source_metric_data.values_list('service_id', 'service_metric_id', 'resource_id', 'event_type_id', 'label_id',)\
+                          .distinct('service_id', 'service_metric_id', 'resource_id', 'event_type_id', 'label_id')
+    source_metric_data.update(data=to_remove_data)
 
-                ccount = cleanup_q.count()
-                if ccount:
-                    log.info("removing %s fors for %s->%s (%s)", ccount,
-                                                                 period_start,
-                                                                 period_end,
-                                                                 aggregation_period)
-                    cleanup_q.delete()
-                    log.info("items left: %s", metric_data_q.filter(valid_from__gte=period_start,
-                                                                    valid_to__lte=period_end).count())
+    for service_id, metric_id, resource_id, event_type_id, label_id in r:
+        m = Metric.objects.filter(service_type__id=metric_id).get()
+        f = m.get_aggregate_field()
+        per_metric_q = source_metric_data.filter(service_metric_id=metric_id,
+                                                 service_id=service_id,
+                                                 resource_id=resource_id,
+                                                 event_type_id=event_type_id,
+                                                 label_id=label_id)
+
+        try:
+            value_q = per_metric_q.aggregate(fvalue=f,
+                                             fsamples_count=Sum(F('samples_count')))
+        except TypeError, err:
+            raise ValueError(f, m, err)
+        value = value_q['fvalue']
+        samples_count = value_q['fsamples_count']
+        if cleanup:
+            per_metric_q.delete()
+        if not metric_data_q.filter(service_metric_id=metric_id,
+                                    service_id=service_id,
+                                    resource_id=resource_id,
+                                    event_type_id=event_type_id,
+                                    valid_from=period_start,
+                                    valid_to=period_end,
+                                    label_id=label_id).exists():
+            MetricValue.objects.create(service_metric_id=metric_id,
+                                       service_id=service_id,
+                                       resource_id=resource_id,
+                                       event_type_id=event_type_id,
+                                       value=value,
+                                       value_num=value,
+                                       value_raw=value,
+                                       valid_from=period_start,
+                                       valid_to=period_end,
+                                       label_id=label_id,
+                                       samples_count=samples_count)
+        else:
+            metric_data_q.filter(service_metric_id=metric_id,
+                                 service_id=service_id,
+                                 resource_id=resource_id,
+                                 event_type_id=event_type_id,
+                                 valid_from=period_start,
+                                 valid_to=period_end,
+                                 label_id=label_id)\
+                         .update(value=value,
+                                 value_num=value,
+                                 value_raw=value,
+                                 data=None,
+                                 samples_count=samples_count)
+        counter += 1
     return counter
