@@ -25,7 +25,6 @@ from decimal import Decimal
 from itertools import chain
 
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.db import models
 from django.utils.html import strip_tags
 from django.template.loader import get_template
@@ -37,11 +36,17 @@ from django.db.models import Max
 from geonode.utils import raw_sql
 from geonode.notifications_helper import send_notification
 from geonode.contrib.monitoring import MonitoringAppConfig as AppConf
-from geonode.contrib.monitoring.models import (Metric, MetricValue, ServiceTypeMetric,
-                                               MonitoredResource, MetricLabel, RequestEvent,
+from geonode.contrib.monitoring.models import (Metric, MetricValue,
+                                               MonitoredResource, RequestEvent,
                                                ExceptionEvent, EventType, NotificationCheck,)
 
 from geonode.contrib.monitoring.utils import generate_periods, align_period_start, align_period_end
+from geonode.contrib.monitoring.aggregation import (aggregate_past_periods,
+                                                    calculate_rate, calculate_percent,
+                                                    extract_resources, extract_event_type,
+                                                    extract_event_types, extract_special_event_types,
+                                                    get_resources_for_metric, get_labels_for_metric,
+                                                    get_metric_names)
 from geonode.utils import parse_datetime
 
 
@@ -58,35 +63,14 @@ class CollectorAPI(object):
         """
         Find previous network metric value and caclulate rate between them
         """
-        prev = MetricValue.objects.filter(service_metric__metric__name=metric_name,
-                                          label__name=metric_label,
-                                          valid_to__lt=valid_to)\
-            .order_by('-valid_to').first()
-        if not prev:
-            return
-        prev_val = prev.value_num
-        valid_to = valid_to.replace(tzinfo=pytz.utc)
-        prev.valid_to = prev.valid_to.replace(tzinfo=pytz.utc)
-        interval = valid_to - prev.valid_to
-        if not isinstance(current_value, Decimal):
-            current_value = Decimal(current_value)
-
-        # this means counter was reset, don't want rates below 0
-        if current_value < prev_val:
-            return
-        rate = float((current_value - prev_val)) / interval.total_seconds()
-        return rate
+        return calculate_rate(metric_name, metric_label, current_value, valid_to)
 
     def _calculate_percent(
             self, metric_name, metric_label, current_value, valid_to):
         """
         Find previous network metric value and caclulate percent
         """
-        rate = self._calculate_rate(
-            metric_name, metric_label, current_value, valid_to)
-        if rate is None:
-            return
-        return rate * 100
+        return calculate_percent(metric_name, metric_label, current_value, valid_to)
 
     def process_host_geoserver(self, service, data, valid_from, valid_to):
         """
@@ -364,97 +348,32 @@ class CollectorAPI(object):
             print MetricValue.add(**mdata)
 
     def get_labels_for_metric(self, metric_name, resource=None):
-        mt = ServiceTypeMetric.objects.filter(metric__name=metric_name)
-        if not mt:
-            raise ValueError("No metric for {}".format(metric_name))
-
-        qparams = {'metric_values__service_metric__in': mt}
-        if resource:
-            qparams['metricvalue__resource'] = resource
-        return list(MetricLabel.objects.filter(
-            **qparams).distinct().values_list('id', 'name'))
+        return get_labels_for_metric(metric_name, resource)
 
     def get_resources_for_metric(self, metric_name):
-        mt = ServiceTypeMetric.objects.filter(metric__name=metric_name)
-        if not mt:
-            raise ValueError("No metric for {}".format(metric_name))
-        return list(MonitoredResource.objects.filter(metric_values__service_metric__in=mt)
-                                             .exclude(name='', type='')
-                                             .distinct()
-                                             .order_by('type', 'name')
-                                             .values_list('type', 'name'))
+        return get_resources_for_metric(metric_name)
 
     def get_metric_names(self):
         """
         Returns list of tuples: (service type, list of metrics)
         """
-        q = ServiceTypeMetric.objects.all().select_related(
-        ).order_by('service_type', 'metric')
-
-        out = []
-        current_service = None
-        current_set = []
-        for item in q:
-            service, metric = item.service_type, item.metric
-            if current_service != service:
-                if current_service is not None:
-                    out.append((current_service, current_set,))
-                    current_set = []
-                current_service = service
-            current_set.append(metric)
-        if current_set:
-            out.append((current_service, current_set,))
-
-        return out
+        return get_metric_names()
 
     def extract_resources(self, requests):
-        resources = MonitoredResource.objects.filter(
-            requests__in=requests).distinct()
-        out = []
-        for res in resources:
-            out.append((res, requests.filter(resources=res).distinct(),))
-        return out
+        return extract_resources(requests)
 
     def extract_event_type(self, requests):
-        q = requests.exclude(event_type__isnull=True).distinct(
-            'event_type').values_list('event_type', flat=True)
-        try:
-            return q.get()
-        except (ObjectDoesNotExist, MultipleObjectsReturned,):
-            pass
+        return extract_event_type(requests)
 
     def extract_event_types(self, requests):
-        event_types = requests.exclude(event_type__isnull=True)\
-                                       .distinct('event_type')\
-                                       .values_list('event_type', flat=True)
-        return [EventType.objects.get(id=evt_id) for evt_id in event_types]
+        return extract_event_types(requests)
 
     def extract_special_event_types(self, requests):
         """
         Return list of pairs (event_type, requests)
         that should be registered as one of aggregating event types: ows:all, other,
         """
-        out = []
-
-        ows_et = requests.exclude(event_type__isnull=True)\
-                         .filter(event_type__name__startswith='OWS:')\
-                         .exclude(event_type__name=EventType.EVENT_OWS)\
-                         .distinct('event_type')\
-                         .values_list('event_type', flat=True)
-        ows_rq = requests.filter(event_type__in=ows_et)
-        ows_all = EventType.get(EventType.EVENT_OWS)
-        out.append((ows_all, ows_rq,))
-
-        nonows_et = requests.exclude(event_type__isnull=True)\
-                            .exclude(event_type__name__startswith='OWS:')\
-                            .exclude(event_type__name=EventType.EVENT_OTHER)\
-                            .distinct('event_type')\
-                            .values_list('event_type', flat=True)
-        nonows_rq = requests.filter(event_type__in=nonows_et)
-        nonows_all = EventType.get(EventType.EVENT_OTHER)
-        out.append((nonows_all, nonows_rq,))
-
-        return out
+        return extract_special_event_types(requests)
 
     def set_metric_values(self, metric_name, column_name,
                           requests, service, **metric_values):
@@ -597,7 +516,7 @@ class CollectorAPI(object):
             service=service).delete()
 
         requests = requests.filter(service=service)
-        resources = self.extract_resources(requests)
+        resources = extract_resources(requests)
 
         def push_metric_values(srequests, **mdefaults):
 
@@ -918,6 +837,13 @@ class CollectorAPI(object):
                 row[tcol] = t
             return row
         return [postproc(row) for row in raw_sql(q, params)]
+
+    def aggregate_past_periods(self, metric_data_q=None, periods=None, **kwargs):
+        """
+        Aggregate past metric data into longer periods
+
+        """
+        return aggregate_past_periods(metric_data_q, periods, **kwargs)
 
     def clear_old_data(self):
         utc = pytz.utc

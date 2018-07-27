@@ -208,7 +208,7 @@ def align_period_start(start, interval):
 def generate_periods(since, interval, end=None, align=True):
     """
     Generator of periods: tuple of [start, end).
-    since parameter will be aligned to closest interval before since.1
+    since parameter will be aligned to closest interval before since.
     """
     utc = pytz.utc
     end = end or datetime.utcnow().replace(tzinfo=utc)
@@ -216,7 +216,8 @@ def generate_periods(since, interval, end=None, align=True):
         since_aligned = align_period_start(since, interval)
     else:
         since_aligned = since
-
+    if end < since:
+        raise ValueError("End cannot be earlienr than beginning")
     full_interval = (end - since).total_seconds()
     _periods = divmod(full_interval, interval.total_seconds())
     periods_count = _periods[0]

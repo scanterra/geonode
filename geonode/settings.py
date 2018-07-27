@@ -1529,6 +1529,13 @@ MONITORING_SKIP_PATHS = ('/api/o/',
                          re.compile('^/[a-z]{2}/admin/'),
                          )
 
+
+MONITORING_CUSTOM_EVENTS = (
+        
+)
+
+
+
 # configure aggregation of past data to control data resolution
 # list of data age, aggregation, in reverse order
 # for current data, 1 minute resolution
