@@ -23,7 +23,7 @@ from __future__ import print_function
 import logging
 from geonode.tests.base import GeoNodeBaseTestSupport
 
-from datetime import datetime, timedelta, time
+from datetime import datetime, timedelta, time, date
 
 import os
 import pytz
@@ -835,82 +835,104 @@ class AggregationTestCase(GeoNodeBaseTestSupport):
                             samples_count=10)
         orig_count = MetricValue.objects.all().count()
         count = aggregate_period(tstart, now, MetricValue.objects.all())
-        log.info('original count %s, got %s', orig_count, count)
+        log.debug('original count %s, got %s', orig_count, count)
         self.assertEqual(count, 2)
         self.assertEqual(MetricValue.objects.all().count(), 4)
 
     def test_aggregation(self):
         # reset time to 0:00:00. we basically should not start this anywhere
         # within open day
-        now = pytz.utc.localize(datetime.combine(datetime.now().date(), time(0, 0, 0)))
-        interval = timedelta(minutes=2)
-        since = now - timedelta(minutes=30, days=1)
-        until = now - timedelta(minutes=0, days=1) + timedelta(minutes=30)
+        now = pytz.utc.localize(datetime.utcnow())
+        now_adjusted = pytz.utc.localize(datetime.combine(date.today(), time(0, 0, 0)))
+        interval = timedelta(minutes=1)
+        since = now_adjusted - timedelta(minutes=30, days=1)
+        until = now_adjusted - timedelta(minutes=0, days=1) + timedelta(minutes=30)
         services = Service.objects.all()
         events = self.EVENTS
         resources = self.RESOURCES
 
         # generate some data
         counter = generate_metric_data(since, until, interval, resources, events, services)
+        log.debug('generated %s (since %s until %s interval %s)', counter, since, until, interval)
 
-        check_periods = [(now, now - timedelta(hours=12), timedelta(minutes=1)),
-                         (now - timedelta(hours=12), now - timedelta(days=1), timedelta(minutes=5)),
-                         (now - timedelta(days=1), now - timedelta(days=14), timedelta(minutes=60),), ]
+        check_periods = [(now_adjusted, now_adjusted - timedelta(hours=12), timedelta(minutes=1)),
+                         (now_adjusted - timedelta(hours=12), now_adjusted - timedelta(days=1), timedelta(minutes=5)),
+                         (now_adjusted - timedelta(days=1), now_adjusted - timedelta(days=14), timedelta(minutes=60),), ]
 
         self.assertTrue(counter > 0)
         self.assertEqual(MetricValue.objects.all().count(), counter)
 
         initial_sums = {}
 
+        # input checks
         valid_times = MetricValue.objects.aggregate(min_valid_from=Min(F('valid_from')),
                                                     max_valid_from=Max(F('valid_from')),
                                                     min_valid_to=Min(F('valid_to')),
                                                     max_valid_to=Max(F('valid_to')))
-        log.info('timeframe %s', valid_times)
+
+        total_sum = MetricValue.objects.filter(service_metric__metric__name='request.count')\
+                                       .aggregate(total_sum=Sum(F('value_num')))
+        log.debug('timeframe %s,\n total sum: %s', valid_times, total_sum)
+        # for each checked period do simple values sum, so we can verify
+        # aggregated data
         for _cp_end, _cp_start, cp_agg in check_periods:
             cp_end = align_period_end(_cp_end, cp_agg)
             cp_start = align_period_start(_cp_start, cp_agg)
             for metric_name in METRICS:
                 msum = MetricValue.objects.filter(service_metric__metric__name=metric_name,
                                                   valid_from__gte=cp_start,
-                                                  valid_to__lte=cp_end).aggregate(Sum(F('value_num')))
+                                                  valid_to__lte=cp_end).aggregate(val=Sum(F('value_num')),
+                                                                                  smp=Sum(F('samples_count')))
                 try:
                     initial_sums[metric_name][(cp_start, cp_end,)] = msum
                 except KeyError:
                     initial_sums[metric_name] = {(cp_start, cp_end,): msum}
 
         c = CollectorAPI()
-        ret = c.aggregate_past_periods(max_since=now-timedelta(days=3), now=now, periods=self.AGGREGATION_SETTINGS)
+        ret = c.aggregate_past_periods(max_since=now_adjusted-timedelta(days=3), now=now, periods=self.AGGREGATION_SETTINGS)
         self.assertTrue(ret > 0)
+
+        # total sum check
+        total_new_sum = MetricValue.objects.filter(service_metric__metric__name='request.count')\
+                                           .aggregate(total_sum=Sum(F('value_num')))
+        self.assertEqual(total_sum, total_new_sum)
 
         # check: we provide unaligned period limits, but data are within aligned
         for _cp_end, _cp_start, cp_agg in check_periods:
             cp_end = align_period_end(_cp_end, cp_agg)
             cp_start = align_period_start(_cp_start, cp_agg)
             for metric_name in METRICS:
+                # note this contains all periods for aggregated period
+                # (1day periods in 30 days span for example)
                 q = MetricValue.objects.filter(service_metric__metric__name=metric_name,
                                                valid_from__gte=cp_start,
                                                valid_to__lte=cp_end)
                 # for periods we expect to have data,
                 # check if all metric values are within target aggregation period
                 msum = initial_sums[metric_name].get((cp_start, cp_end,))
-                if msum['value_num__sum']:
+
+                if msum['val']:
                     self.assertFalse(q.filter(valid_to__gt=F('valid_from') + cp_agg).exists(),
                                      'period above {} should be empty for period {} {}:\n {} items {}'.format(
                                      cp_agg, cp_start, cp_end, q.count(),
                                      q[0:2].values_list('valid_from', 'valid_to')))
+                    tcheck = q.filter(valid_to__lt=F('valid_from') + cp_agg)[0:1].values_list('valid_from', 'valid_to')
+                    if tcheck:
+                        log.debug("existing data: %s", 
+                                 q.filter(valid_to__lt=F('valid_from') + cp_agg).values_list('service_metric__metric__name', 'data', 'valid_from', 'valid_to').distinct())
                     self.assertFalse(q.filter(valid_to__lt=F('valid_from') + cp_agg).exists(),
                                      'period below {} should be empty for period {} {}:\n {} items {}'.format(
-                                      cp_agg, cp_start, cp_end, q.count(),
-                                      q[0:2].values_list('valid_from', 'valid_to')))
+                                      cp_agg, cp_start, cp_end, q.count(), tcheck[0][1]-tcheck[0][0] if tcheck else None
+                                      ))
 
-                    self.assertTrue(q.filter(valid_to__exact=F('valid_from') + cp_agg).exists(), q.query)
+                    #self.assertTrue(q.exists(),
+                    #                "expected data for {} '{}'-'{}' ('{}' aggregation)\n"
+                    #                "sum: {}, whole query: {}".format(
+                    #                metric_name, cp_start, cp_end, cp_agg, msum, q))
                 
-                new_q = MetricValue.objects.filter(service_metric__metric__name=metric_name,
-                                                   valid_from=cp_start,
-                                                   valid_to=cp_end)
-                asum = new_q.aggregate(Sum(F('value_num')))
-                self.assertEqual(asum, msum,
+                asum = q.aggregate(val=Sum(F('value_num')),
+                                   smp=Sum(F('samples_count')))
+                self.assertEqual(asum['smp'], msum['smp'],
                                  'sums should be equal for {} {} - {} [{} '
                                  'diff] with {} period,\n got {} before and {} after'.format(
                                  metric_name, cp_start, cp_end, cp_end - cp_start, cp_agg, msum, asum))

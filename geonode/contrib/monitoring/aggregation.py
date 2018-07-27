@@ -17,7 +17,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 #########################################################################
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 from decimal import Decimal
 import logging
 
@@ -173,6 +173,9 @@ def calculate_percent(
     return rate * 100
 
 
+def adjust_now_to_noon(now):
+    return pytz.utc.localize(datetime.combine(now.date(), time(0, 0, 0)))
+
 def aggregate_past_periods(metric_data_q=None, periods=None, cleanup=True, now=None, max_since=None):
     """
     Aggregate past metric data into longer periods
@@ -197,26 +200,31 @@ def aggregate_past_periods(metric_data_q=None, periods=None, cleanup=True, now=N
     max_since = max_since or now - timedelta(days=356)
     previous_cutoff = None
     counter = 0
+    now = adjust_now_to_noon(now)
     # start from the end, oldest one first
     for cutoff_base, aggregation_period in reversed(periods):
         since = previous_cutoff or max_since
         until = now - cutoff_base
 
-        # if not MetricValue.objects.filter(valid_from__gte=aligned_since,
-        #                                  valid_to__lte=aligned_until).exists():
-        #    log.info("No data within %s - %s", aligned_since, aligned_until)
-        #    continue
-        periods = generate_periods(since, aggregation_period, end=previous_cutoff)
-        log.info("aggregation params: cutoff: %s agg period: %s\n  since: '%s' until '%s', aggregate to '%s'",
-                 cutoff_base, aggregation_period, since, until, aggregation_period)
+        if since > until:
+            log.info("Wrong period boundaries, end %s is before start %s, agg: %s",
+                until, since, aggregation_period)
+            previous_cutoff = max(until, since)
+            continue
+        
+        log.info("aggregation params: cutoff: %s agg period: %s\n  since: '%s' until '%s', but previous cutoff: '%s', aggregate to '%s'",
+                 cutoff_base, aggregation_period, since, until, previous_cutoff, aggregation_period)
+        
+        periods = generate_periods(since, aggregation_period, end=until)
 
         # for each target period we select mertic values within it
         # and extract service, resource, event type and label combinations
         # then, for each distinctive set, calculate per-metric aggregate values
         for period_start, period_end in periods:
+            log.info('period %s - %s (%s s)', period_start, period_end, period_end-period_start)
             ret = aggregate_period(period_start, period_end, metric_data_q, cleanup)
             counter += ret
-
+        previous_cutoff = until
     return counter
 
 
@@ -226,7 +234,8 @@ def aggregate_period(period_start, period_end, metric_data_q, cleanup=True):
     source_metric_data = metric_data_q.filter(valid_from__gte=period_start,
                                               valid_to__lte=period_end)\
                                       .exclude(valid_from=period_start,
-                                               valid_to=period_end)
+                                               valid_to=period_end,
+                                               data={})
     r = source_metric_data.values_list('service_id', 'service_metric_id', 'resource_id', 'event_type_id', 'label_id',)\
                           .distinct('service_id', 'service_metric_id', 'resource_id', 'event_type_id', 'label_id')
     source_metric_data.update(data=to_remove_data)
@@ -249,6 +258,8 @@ def aggregate_period(period_start, period_end, metric_data_q, cleanup=True):
         samples_count = value_q['fsamples_count']
         if cleanup:
             per_metric_q.delete()
+        log.info('Metric %s: %s - %s (value: %s, samples: %s)',
+                m, period_start, period_end, value, samples_count)
         if not metric_data_q.filter(service_metric_id=metric_id,
                                     service_id=service_id,
                                     resource_id=resource_id,
@@ -281,4 +292,7 @@ def aggregate_period(period_start, period_end, metric_data_q, cleanup=True):
                                  data=None,
                                  samples_count=samples_count)
         counter += 1
+
+    if cleanup:
+        source_metric_data.filter(data=to_remove_data).delete()
     return counter
