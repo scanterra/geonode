@@ -20,11 +20,7 @@
 
 from __future__ import print_function
 import logging
-import pytz
-from datetime import datetime
-from dateutil.tz import tzlocal
 
-from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from geonode.contrib.monitoring.collector import CollectorAPI

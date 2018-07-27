@@ -176,6 +176,7 @@ def calculate_percent(
 def adjust_now_to_noon(now):
     return pytz.utc.localize(datetime.combine(now.date(), time(0, 0, 0)))
 
+
 def aggregate_past_periods(metric_data_q=None, periods=None, cleanup=True, now=None, max_since=None):
     """
     Aggregate past metric data into longer periods
@@ -208,13 +209,15 @@ def aggregate_past_periods(metric_data_q=None, periods=None, cleanup=True, now=N
 
         if since > until:
             log.info("Wrong period boundaries, end %s is before start %s, agg: %s",
-                until, since, aggregation_period)
+                     until, since, aggregation_period)
             previous_cutoff = max(until, since)
             continue
-        
-        log.info("aggregation params: cutoff: %s agg period: %s\n  since: '%s' until '%s', but previous cutoff: '%s', aggregate to '%s'",
+
+        log.info("aggregation params: cutoff: %s agg period: %s"
+                 "\n  since: '%s' until '%s', but previous cutoff:"
+                 " '%s', aggregate to '%s'",
                  cutoff_base, aggregation_period, since, until, previous_cutoff, aggregation_period)
-        
+
         periods = generate_periods(since, aggregation_period, end=until)
 
         # for each target period we select mertic values within it
@@ -259,7 +262,7 @@ def aggregate_period(period_start, period_end, metric_data_q, cleanup=True):
         if cleanup:
             per_metric_q.delete()
         log.info('Metric %s: %s - %s (value: %s, samples: %s)',
-                m, period_start, period_end, value, samples_count)
+                 m, period_start, period_end, value, samples_count)
         if not metric_data_q.filter(service_metric_id=metric_id,
                                     service_id=service_id,
                                     resource_id=resource_id,

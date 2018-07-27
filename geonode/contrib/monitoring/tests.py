@@ -855,9 +855,14 @@ class AggregationTestCase(GeoNodeBaseTestSupport):
         counter = generate_metric_data(since, until, interval, resources, events, services)
         log.debug('generated %s (since %s until %s interval %s)', counter, since, until, interval)
 
-        check_periods = [(now_adjusted, now_adjusted - timedelta(hours=12), timedelta(minutes=1)),
-                         (now_adjusted - timedelta(hours=12), now_adjusted - timedelta(days=1), timedelta(minutes=5)),
-                         (now_adjusted - timedelta(days=1), now_adjusted - timedelta(days=14), timedelta(minutes=60),), ]
+        check_periods = [(now_adjusted, now_adjusted - timedelta(hours=12),
+                          timedelta(minutes=1)),
+                         (now_adjusted - timedelta(hours=12),
+                          now_adjusted - timedelta(days=1),
+                          timedelta(minutes=5)),
+                         (now_adjusted - timedelta(days=1),
+                          now_adjusted - timedelta(days=14),
+                          timedelta(minutes=60),), ]
 
         self.assertTrue(counter > 0)
         self.assertEqual(MetricValue.objects.all().count(), counter)
@@ -889,7 +894,9 @@ class AggregationTestCase(GeoNodeBaseTestSupport):
                     initial_sums[metric_name] = {(cp_start, cp_end,): msum}
 
         c = CollectorAPI()
-        ret = c.aggregate_past_periods(max_since=now_adjusted-timedelta(days=3), now=now, periods=self.AGGREGATION_SETTINGS)
+        ret = c.aggregate_past_periods(max_since=now_adjusted-timedelta(days=3),
+                                       now=now,
+                                       periods=self.AGGREGATION_SETTINGS)
         self.assertTrue(ret > 0)
 
         # total sum check
@@ -918,18 +925,14 @@ class AggregationTestCase(GeoNodeBaseTestSupport):
                                      q[0:2].values_list('valid_from', 'valid_to')))
                     tcheck = q.filter(valid_to__lt=F('valid_from') + cp_agg)[0:1].values_list('valid_from', 'valid_to')
                     if tcheck:
-                        log.debug("existing data: %s", 
-                                 q.filter(valid_to__lt=F('valid_from') + cp_agg).values_list('service_metric__metric__name', 'data', 'valid_from', 'valid_to').distinct())
+                        log.debug("existing data: %s",
+                                  q.filter(valid_to__lt=F('valid_from') + cp_agg)
+                                   .values_list('service_metric__metric__name', 'data', 'valid_from', 'valid_to')
+                                   .distinct())
                     self.assertFalse(q.filter(valid_to__lt=F('valid_from') + cp_agg).exists(),
                                      'period below {} should be empty for period {} {}:\n {} items {}'.format(
                                       cp_agg, cp_start, cp_end, q.count(), tcheck[0][1]-tcheck[0][0] if tcheck else None
-                                      ))
-
-                    #self.assertTrue(q.exists(),
-                    #                "expected data for {} '{}'-'{}' ('{}' aggregation)\n"
-                    #                "sum: {}, whole query: {}".format(
-                    #                metric_name, cp_start, cp_end, cp_agg, msum, q))
-                
+                                       ))
                 asum = q.aggregate(val=Sum(F('value_num')),
                                    smp=Sum(F('samples_count')))
                 self.assertEqual(asum['smp'], msum['smp'],

@@ -30,7 +30,7 @@ from decimal import Decimal
 
 from django import forms
 from django.db import models
-from django.db.models import Sum, F
+from django.db.models import Sum, F, Case, When, Max
 from django.conf import settings
 from django.http import Http404
 from django.contrib.postgres.fields import JSONField
@@ -219,13 +219,19 @@ class Metric(models.Model):
                      TYPE_VALUE_NUMERIC: 'max(value_num)',
                      TYPE_COUNT: 'sum(value_num)'}
 
-    AGGREGATE_DJANGO_MAP = {TYPE_RATE: Sum(F('value_num'),
-                                           output_field=models.DecimalField(max_digits=16,
-                                                                            decimal_places=2)) /
-                            Sum(F('samples_count'), output_field=models.DecimalField(max_digits=16,
-                                                                                     decimal_places=2)),
+    AGGREGATE_DJANGO_MAP = {TYPE_RATE: (Sum(Case(When(samples_count__gt=0,
+                                                      then=F('value_num')),
+                                                 default=0),
+                                            output_field=models.DecimalField(max_digits=16,
+                                                                             decimal_places=2)) /
+                            Sum(Case(When(samples_count__gt=0,
+                                          then=F('samples_count')),
+                                     default=1),
+                                output_field=models.DecimalField(max_digits=16,
+                                                                 decimal_places=2))),
                             TYPE_VALUE: Sum(F('value_num')),
                             TYPE_COUNT: Sum(F('value_num')),
+                            TYPE_VALUE_NUMERIC: Max(F('value_num'))
                             }
 
     UNIT_BYTES = 'B'
