@@ -124,7 +124,8 @@ def grab(src, dest, name):
 def setup_geoserver(options):
     """Prepare a testing instance of GeoServer."""
     # only start if using Geoserver backend
-    if 'geonode.geoserver' not in INSTALLED_APPS or OGC_SERVER['default']['BACKEND'] == 'geonode.qgis_server':
+    _backend = os.environ.get('BACKEND', OGC_SERVER['default']['BACKEND'])
+    if _backend == 'geonode.qgis_server' or 'geonode.geoserver' not in INSTALLED_APPS:
         return
 
     download_dir = path('downloaded')
@@ -169,7 +170,8 @@ def setup_geoserver(options):
 def setup_qgis_server(options):
     """Prepare a testing instance of QGIS Server."""
     # only start if using QGIS Server backend
-    if 'geonode.qgis_server' not in INSTALLED_APPS or OGC_SERVER['default']['BACKEND'] == 'geonode.geoserver':
+    _backend = os.environ.get('BACKEND', OGC_SERVER['default']['BACKEND'])
+    if _backend == 'geonode.geoserver' or 'geonode.qgis_server' not in INSTALLED_APPS:
         return
 
     # QGIS Server testing instance run on top of docker
@@ -505,7 +507,8 @@ def stop_geoserver():
         return
 
     # only start if using Geoserver backend
-    if 'geonode.geoserver' not in INSTALLED_APPS or OGC_SERVER['default']['BACKEND'] == 'geonode.qgis_server':
+    _backend = os.environ.get('BACKEND', OGC_SERVER['default']['BACKEND'])
+    if _backend == 'geonode.qgis_server' or 'geonode.geoserver' not in INSTALLED_APPS:
         return
     kill('java', 'geoserver')
 
@@ -542,7 +545,8 @@ def stop_qgis_server():
     Stop QGIS Server Backend.
     """
     # only start if using QGIS Server backend
-    if 'geonode.qgis_server' not in INSTALLED_APPS or OGC_SERVER['default']['BACKEND'] == 'geonode.geoserver':
+    _backend = os.environ.get('BACKEND', OGC_SERVER['default']['BACKEND'])
+    if _backend == 'geonode.geoserver' or 'geonode.qgis_server' not in INSTALLED_APPS:
         return
     port = options.get('qgis_server_port', '9000')
 
@@ -629,7 +633,8 @@ def start_geoserver(options):
         return
 
     # only start if using Geoserver backend
-    if 'geonode.geoserver' not in INSTALLED_APPS or OGC_SERVER['default']['BACKEND'] == 'geonode.qgis_server':
+    _backend = os.environ.get('BACKEND', OGC_SERVER['default']['BACKEND'])
+    if _backend == 'geonode.qgis_server' or 'geonode.geoserver' not in INSTALLED_APPS:
         return
 
     GEOSERVER_BASE_URL = OGC_SERVER['default']['LOCATION']
@@ -742,7 +747,8 @@ def start_geoserver(options):
 def start_qgis_server():
     """Start QGIS Server instance with GeoNode related plugins."""
     # only start if using QGIS Serrver backend
-    if 'geonode.qgis_server' not in INSTALLED_APPS or OGC_SERVER['default']['BACKEND'] == 'geonode.geoserver':
+    _backend = os.environ.get('BACKEND', OGC_SERVER['default']['BACKEND'])
+    if _backend == 'geonode.geoserver' or 'geonode.qgis_server' not in INSTALLED_APPS:
         return
     info('Starting up QGIS Server...')
 
@@ -816,7 +822,8 @@ def test_integration(options):
     """
     Run GeoNode's Integration test suite against the external apps
     """
-    if 'geonode.qgis_server' not in INSTALLED_APPS or OGC_SERVER['default']['BACKEND'] == 'geonode.geoserver':
+    _backend = os.environ.get('BACKEND', OGC_SERVER['default']['BACKEND'])
+    if _backend == 'geonode.geoserver' or 'geonode.qgis_server' not in INSTALLED_APPS:
         call_task('stop_geoserver')
         _reset()
         # Start GeoServer
@@ -911,7 +918,8 @@ def run_tests(options):
         call_task('test_integration', options={'name': 'geonode.tests.csw'})
 
         # only start if using Geoserver backend
-        if 'geonode.geoserver' in INSTALLED_APPS and OGC_SERVER['default']['BACKEND'] == 'geonode.geoserver':
+        _backend = os.environ.get('BACKEND', OGC_SERVER['default']['BACKEND'])
+        if _backend == 'geonode.geoserver' and 'geonode.geoserver' in INSTALLED_APPS:
             call_task('test_integration',
                       options={'name': 'geonode.upload.tests.integration',
                                'settings': 'geonode.upload.tests.test_settings'})
@@ -1015,9 +1023,9 @@ def deb(options):
         #  use the following line instead:
         # sh(('gbp dch --spawn-editor=snapshot --git-author --new-version=%s'
         #    ' --id-length=6 --ignore-branch --release' % (simple_version)))
-        distribution = "xenial"
-        sh(('gbp dch --distribution=%s --force-distribution --spawn-editor=snapshot --git-author --new-version=%s'
-           ' --id-length=6 --ignore-branch --release' % (distribution, simple_version)))
+        distribution = "bionic"
+        # sh(('gbp dch --distribution=%s --force-distribution --spawn-editor=snapshot --git-author --new-version=%s'
+        #    ' --id-length=6 --ignore-branch --release' % (distribution, simple_version)))
 
         deb_changelog = path('debian') / 'changelog'
         for idx, line in enumerate(fileinput.input([deb_changelog], inplace=True)):
@@ -1030,16 +1038,16 @@ def deb(options):
         sh('rm -rf .git')
 
         if key is None and ppa is None:
-            # A local installable package
+            print("A local installable package")
             sh('debuild -uc -us -A')
         elif key is None and ppa is not None:
-                # A sources package, signed by daemon
+            print("A sources package, signed by daemon")
             sh('debuild -S')
         elif key is not None and ppa is None:
-            # A signed installable package
+            print("A signed installable package")
             sh('debuild -k%s -A' % key)
         elif key is not None and ppa is not None:
-            # A signed, source package
+            print("A signed, source package")
             sh('debuild -k%s -S' % key)
 
     if ppa is not None:
@@ -1054,21 +1062,28 @@ def publish():
         print "You need to set the GPG_KEY_GEONODE environment variable"
         return
 
+    if 'PPA_GEONODE' in os.environ:
+        ppa = os.environ['PPA_GEONODE']
+    else:
+        ppa = None
+
     call_task('deb', options={
         'key': key,
+        'ppa': ppa,
         # 'ppa': 'geonode/testing',
-        'ppa': 'geonode/unstable',
+        # 'ppa': 'geonode/unstable',
     })
 
     version, simple_version = versions()
-    sh('git add package/debian/changelog')
-    sh('git commit -m "Updated changelog for version %s"' % version)
-    sh('git tag -f %s' % version)
-    sh('git push origin %s' % version)
-    sh('git tag -f debian/%s' % simple_version)
-    sh('git push origin debian/%s' % simple_version)
-    # sh('git push origin master')
-    sh('python setup.py sdist upload -r pypi')
+    if ppa:
+        sh('git add package/debian/changelog')
+        sh('git commit -m "Updated changelog for version %s"' % version)
+        sh('git tag -f %s' % version)
+        sh('git push origin %s' % version)
+        sh('git tag -f debian/%s' % simple_version)
+        sh('git push origin debian/%s' % simple_version)
+        # sh('git push origin master')
+        sh('python setup.py sdist upload -r pypi')
 
 
 def versions():

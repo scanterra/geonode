@@ -357,7 +357,6 @@ INSTALLED_APPS = (
     'bootstrap3_datetime',
     'django_extensions',
     'django_basic_auth',
-    # 'haystack',
     'autocomplete_light',
     'mptt',
     # 'crispy_forms',
@@ -455,13 +454,6 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'simple'
         },
-        'celery': {
-            'level': 'ERROR',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': 'celery.log',
-            'formatter': 'simple',
-            'maxBytes': 1024 * 1024 * 10,  # 10 mb
-        },
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
@@ -482,7 +474,7 @@ LOGGING = {
         "pycsw": {
             "handlers": ["console"], "level": "ERROR", },
         "celery": {
-            'handlers': ['celery', 'console'], 'level': 'ERROR', },
+            "handlers": ["console"], "level": "ERROR", },
     },
 }
 
@@ -1055,16 +1047,18 @@ HAYSTACK_SEARCH = strtobool(os.getenv('HAYSTACK_SEARCH', 'False'))
 SKIP_PERMS_FILTER = strtobool(os.getenv('SKIP_PERMS_FILTER', 'False'))
 # Update facet counts from Haystack
 HAYSTACK_FACET_COUNTS = strtobool(os.getenv('HAYSTACK_FACET_COUNTS', 'True'))
-# HAYSTACK_CONNECTIONS = {
-#    'default': {
-#        'ENGINE': 'haystack.backends.elasticsearch_backend.'
-#        'ElasticsearchSearchEngine',
-#        'URL': 'http://127.0.0.1:9200/',
-#        'INDEX_NAME': 'geonode',
-#        },
-#    }
-# HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
-# HAYSTACK_SEARCH_RESULTS_PER_PAGE = 20
+if HAYSTACK_SEARCH:
+    if 'haystack' not in INSTALLED_APPS:
+        INSTALLED_APPS += ('haystack', )
+    HAYSTACK_CONNECTIONS = {
+       'default': {
+           'ENGINE': 'haystack.backends.elasticsearch2_backend.Elasticsearch2SearchEngine',
+           'URL': os.getenv('HAYSTACK_ENGINE_URL', 'http://127.0.0.1:9200/'),
+           'INDEX_NAME': os.getenv('HAYSTACK_ENGINE_INDEX_NAME', 'haystack'),
+           },
+       }
+    HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
+    HAYSTACK_SEARCH_RESULTS_PER_PAGE = int(os.getenv('HAYSTACK_SEARCH_RESULTS_PER_PAGE', '200'))
 
 # Available download formats
 DOWNLOAD_FORMATS_METADATA = [
@@ -1325,7 +1319,7 @@ if ASYNC_SIGNALS:
 else:
     _BROKER_URL = LOCAL_SIGNALS_BROKER_URL
 
-# Note:BROKER_URL is deprecated in favour of CELERY_BROKER_URL 
+# Note:BROKER_URL is deprecated in favour of CELERY_BROKER_URL
 CELERY_BROKER_URL = _BROKER_URL
 
 CELERY_RESULT_PERSISTENT = False
@@ -1430,19 +1424,6 @@ if S3_MEDIA_ENABLED:
     MEDIAFILES_LOCATION = 'media'
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
     MEDIA_URL = "https://%s/%s/" % (AWS_S3_BUCKET_DOMAIN, MEDIAFILES_LOCATION)
-
-
-# djcelery.setup_loader()
-
-# There are 3 ways to override GeoNode settings:
-# 1. Using environment variables, if your changes to GeoNode are minimal.
-# 2. Creating a downstream project, if you are doing a lot of customization.
-# 3. Override settings in a local_settings.py file, legacy.
-# Load more settings from a file called local_settings.py if it exists
-try:
-    from geonode.local_settings import *  # flake8: noqa
-except ImportError:
-    pass
 
 
 # Load additonal basemaps, see geonode/contrib/api_basemap/README.md

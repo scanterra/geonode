@@ -495,7 +495,7 @@ def geoserver_post_save_local(instance, *args, **kwargs):
     # immediately re-generate the thumbnail here.  use layer#save(update_fields=['thumbnail_url'])
     if not ('update_fields' in kwargs and kwargs['update_fields'] is not None and
             'thumbnail_url' in kwargs['update_fields']):
-        logger.info("Creating Thumbnail for Layer [%s]" % (instance.alternate))
+        logger.info("... Creating Thumbnail for Layer [%s]" % (instance.alternate))
         create_gs_thumbnail(instance, overwrite=True)
 
     legend_url = ogc_server_settings.PUBLIC_LOCATION + \
@@ -589,6 +589,11 @@ def geoserver_post_save_local(instance, *args, **kwargs):
     # NOTTODO by simod: we should not do this!
     # need to be removed when fixing #2015
     catalogue_post_save(instance, Layer)
+
+    # Updating HAYSTACK Indexes if needed
+    if settings.HAYSTACK_SEARCH:
+        from django.core.management import call_command
+        call_command('update_index')
 
 
 def geoserver_pre_save_maplayer(instance, sender, **kwargs):
