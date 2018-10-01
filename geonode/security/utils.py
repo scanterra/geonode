@@ -188,6 +188,36 @@ def get_geofence_rules_count():
 
 
 @on_ogc_backend(geoserver.BACKEND_PACKAGE)
+def get_highet_priority():
+    """Get the highest Rules priority"""
+    try:
+        rules_count = get_geofence_rules_count()
+
+        url = settings.OGC_SERVER['default']['LOCATION']
+        user = settings.OGC_SERVER['default']['USER']
+        passwd = settings.OGC_SERVER['default']['PASSWORD']
+        # Check first that the rules does not exist already
+        """
+        curl -X GET -u admin:geoserver \
+              http://<host>:<port>/geoserver/rest/geofence/rules.json?page=(count-1)&entries=1
+        """
+        headers = {'Content-type': 'application/json'}
+        r = requests.get(url + 'rest/geofence/rules.json?page=' + str(rules_count-1) + '&entries=1',
+                         headers=headers,
+                         auth=HTTPBasicAuth(user, passwd))
+        if (r.status_code < 200 or r.status_code > 201):
+            logger.warning("Could not retrieve GeoFence Rules count.")
+
+        rules_objs = json.loads(r.text)
+        highet_priority = rules_objs['rules'][0]['priority']
+        return int(highet_priority)
+    except BaseException:
+        tb = traceback.format_exc()
+        logger.debug(tb)
+        return -1
+
+
+@on_ogc_backend(geoserver.BACKEND_PACKAGE)
 def purge_geofence_all():
     """purge all existing GeoFence Cache Rules"""
     if settings.OGC_SERVER['default']['GEOFENCE_SECURITY_ENABLED']:
@@ -455,13 +485,13 @@ def _get_layer_workspace(layer):
 
 def _get_geofence_payload(layer, workspace, access, user=None, group=None,
                           service=None):
-    rules_count = get_geofence_rules_count()
+    highet_priority = get_highet_priority()
     root_el = etree.Element("Rule")
     if user is not None:
         username_el = etree.SubElement(root_el, "userName")
         username_el.text = user
     priority_el = etree.SubElement(root_el, "priority")
-    priority_el.text = str(rules_count - 1 if rules_count > 0 else 0)
+    priority_el.text = str(highet_priority if highet_priority >= 0 else 0)
     if group is not None:
         role_el = etree.SubElement(root_el, "roleName")
         role_el.text = "ROLE_{}".format(group.upper())
@@ -486,7 +516,7 @@ def _update_geofence_rule(layer, workspace, service, user=None, group=None):
         group=group,
         service=service
     )
-    logger.debug("request data: {}".format(payload))
+    logger.info("request data: {}".format(payload))
     response = requests.post(
         "{base_url}rest/geofence/rules".format(
             base_url=settings.OGC_SERVER['default']['LOCATION']),
