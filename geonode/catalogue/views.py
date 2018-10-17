@@ -99,7 +99,7 @@ def csw_global_dispatch(request):
         else:
             authorized_layers_filter = "id = -9999"
             mdict['repository']['filter'] += " AND " + authorized_layers_filter
-        
+
         # Filter out Documents and Maps
         if 'ALTERNATES_ONLY' in settings.CATALOGUE['default'] and settings.CATALOGUE['default']['ALTERNATES_ONLY']:
             mdict['repository']['filter'] += " AND alternate IS NOT NULL"

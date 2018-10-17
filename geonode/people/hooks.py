@@ -57,6 +57,7 @@ class IHPNotificationsHookSet(object):
                     "scoping_object_id": None
                 })
             # default = (NOTICE_MEDIA_DEFAULTS[medium] <= notice_type.default)
+
             default = settings.NOTIFICATIONS_ENABLED_BY_DEFAULT
             kwargs.update({"send": default})
             setting = user.noticesetting_set.create(**kwargs)

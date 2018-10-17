@@ -25,8 +25,7 @@ from django.core.mail import send_mail
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import AbstractUser, UserManager
-from django.contrib.sites.models import Site
-from django.contrib import auth
+# from django.contrib import auth
 from django.contrib.sites.models import Site
 from django.db.models import signals
 from django.conf import settings
@@ -35,7 +34,7 @@ from taggit.managers import TaggableManager
 
 from geonode.base.enumerations import COUNTRIES
 from geonode.groups.models import GroupProfile
-from geonode.notifications_helper import send_notification
+# from geonode.notifications_helper import send_notification
 
 from allauth.account.signals import user_signed_up
 from allauth.socialaccount.signals import social_account_added
@@ -279,7 +278,7 @@ def profile_pre_save(instance, sender, **kw):
                     [instance.email],
                     fail_silently=True,
                 )
-            except:
+            except BaseException:
                 import traceback
                 traceback.print_exc()
 
@@ -297,4 +296,3 @@ user_signed_up.connect(
 )
 # signals.pre_save.connect(profile_pre_save, sender=Profile)
 signals.post_save.connect(profile_post_save, sender=Profile)
-

@@ -1366,7 +1366,7 @@ if USE_GEOSERVER:
         Queue("geonode.layer.viewer", GEOSERVER_EXCHANGE, routing_key="geonode.viewer"),
     )
 
-from celery.schedules import crontab
+# from celery.schedules import crontab
 # EXAMPLES
 # CELERY_BEAT_SCHEDULE = {
 #     ...
@@ -1392,10 +1392,10 @@ DELAYED_SECURITY_SIGNALS = ast.literal_eval(os.environ.get('DELAYED_SECURITY_SIG
 CELERY_ENABLE_UTC = True
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_BEAT_SCHEDULE = {
-    'send-summary-every-hour': {
-        'task': 'geonode.security.tasks.synch_guardian',
-        'schedule': crontab(minute='*/10'),
-    }
+#    'send-summary-every-hour': {
+#        'task': 'geonode.security.tasks.synch_guardian',
+#        'schedule': crontab(minute='*/10'),
+#    }
 }
 
 # Half a day is enough
