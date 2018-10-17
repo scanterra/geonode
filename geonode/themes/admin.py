@@ -17,3 +17,18 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 #########################################################################
+
+from django.contrib import admin
+
+from .models import Partner, GeoNodeThemeCustomization
+
+
+@admin.register(Partner)
+class PartnerAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'title', 'href',)
+
+
+@admin.register(GeoNodeThemeCustomization)
+class GeoNodeThemeCustomizationAdmin(admin.ModelAdmin):
+    list_display = ('id', 'is_enabled', 'name', 'date', 'description')
+    list_display_links = ('id', 'name',)
