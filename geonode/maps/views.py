@@ -1359,7 +1359,8 @@ def map_thumbnail(request, mapid):
         try:
             image = None
             try:
-                image = _prepare_thumbnail_body_from_opts(request.body)
+                image = _prepare_thumbnail_body_from_opts(request.body,
+                                                          request=request)
             except BaseException:
                 image = _render_thumbnail(request.body)
 
@@ -1368,10 +1369,10 @@ def map_thumbnail(request, mapid):
             filename = "map-%s-thumb.png" % map_obj.uuid
             map_obj.save_thumbnail(filename, image)
 
-            return HttpResponse('Thumbnail saved')
+            return HttpResponse(_('Thumbnail saved'))
         except BaseException:
             return HttpResponse(
-                content='error saving thumbnail',
+                content=_('error saving thumbnail'),
                 status=500,
                 content_type='text/plain'
             )

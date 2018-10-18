@@ -165,7 +165,7 @@ class SpatialRepresentationType(models.Model):
     is_choice = models.BooleanField(default=True)
 
     def __unicode__(self):
-        return self.gn_description
+        return u"{0}".format(self.gn_description)
 
     def __str__(self):
         from django.utils.encoding import force_bytes
@@ -223,7 +223,7 @@ class Region(MPTTModel):
         default='EPSG:4326')
 
     def __unicode__(self):
-        return self.name
+        return u"{0}".format(self.name)
 
     def __str__(self):
         from django.utils.encoding import force_bytes
@@ -277,7 +277,7 @@ class RestrictionCodeType(models.Model):
     is_choice = models.BooleanField(default=True)
 
     def __unicode__(self):
-        return self.gn_description
+        return u"{0}".format(self.gn_description)
 
     def __str__(self):
         from django.utils.encoding import force_bytes
@@ -311,7 +311,7 @@ class License(models.Model):
     license_text = models.TextField(null=True, blank=True)
 
     def __unicode__(self):
-        return self.name
+        return u"{0}".format(self.name)
 
     def __str__(self):
         from django.utils.encoding import force_bytes
@@ -789,19 +789,14 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
     detail_url = models.CharField(max_length=255, null=True, blank=True)
     rating = models.IntegerField(default=0, null=True, blank=True)
 
+    def __unicode__(self):
+        return u"{0}".format(self.title)
+
     # fields controlling security state
     dirty_state = models.BooleanField(
         _("Dirty State"),
         default=False,
         help_text=_('Security Rules Are Not Synched with GeoServer!'))
-
-    def __unicode__(self):
-        from django.utils.encoding import force_bytes
-        return force_bytes(self.title)
-
-    def __str__(self):
-        from django.utils.encoding import force_bytes
-        return force_bytes(self.title)
 
     def get_upload_session(self):
         raise NotImplementedError()
@@ -1359,8 +1354,8 @@ class Link(models.Model):
 
     objects = LinkManager()
 
-    def __str__(self):
-        return '%s link' % self.link_type
+    def __unicode__(self):
+        return u"{0} link".format(self.link_type)
 
 
 def resourcebase_post_save(instance, *args, **kwargs):
