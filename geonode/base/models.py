@@ -48,7 +48,6 @@ from django.contrib.auth.signals import user_logged_in, user_logged_out
 from django.core.files.storage import default_storage as storage
 from django.core.files.base import ContentFile
 from django.contrib.gis.geos import GEOSGeometry
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.timezone import now
 
 from mptt.models import MPTTModel, TreeForeignKey
@@ -124,7 +123,6 @@ class ContactRole(models.Model):
         unique_together = (("contact", "resource", "role"),)
 
 
-@python_2_unicode_compatible
 class TopicCategory(models.Model):
     """
     Metadata about high-level geographic data thematic classification.
@@ -151,7 +149,6 @@ class TopicCategory(models.Model):
         verbose_name_plural = 'Metadata Topic Categories'
 
 
-@python_2_unicode_compatible
 class SpatialRepresentationType(models.Model):
     """
     Metadata information about the spatial representation type.
@@ -181,7 +178,6 @@ class RegionManager(models.Manager):
         return self.get(code=code)
 
 
-@python_2_unicode_compatible
 class Region(MPTTModel):
     # objects = RegionManager()
 
@@ -263,7 +259,6 @@ class Region(MPTTModel):
         order_insertion_by = ['name']
 
 
-@python_2_unicode_compatible
 class RestrictionCodeType(models.Model):
     """
     Metadata information about the spatial representation type.
@@ -301,7 +296,6 @@ class Backup(models.Model):
         verbose_name_plural = 'Backups'
 
 
-@python_2_unicode_compatible
 class License(models.Model):
     identifier = models.CharField(max_length=255, editable=False)
     name = models.CharField(max_length=100)
@@ -518,7 +512,6 @@ class ResourceBaseManager(PolymorphicManager):
         return super(ResourceBaseManager, self).get_queryset()
 
 
-@python_2_unicode_compatible
 class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
     """
     Base Resource Object loosely based on ISO 19115:2003
@@ -1323,7 +1316,6 @@ class LinkManager(models.Manager):
             link_type__in=['OGC:WMS', 'OGC:WFS', 'OGC:WCS'])
 
 
-@python_2_unicode_compatible
 class Link(models.Model):
     """Auxiliary model for storing links for resources.
 

@@ -65,7 +65,6 @@ _DEFAULT_CASCADE_WORKSPACE = "cascaded-services"
 _DEFAULT_WORKSPACE = "cascaded-services"
 
 
-@python_2_unicode_compatible
 class Style(models.Model, PermissionLevelMixin):
 
     """Model for storing styles.
@@ -118,7 +117,6 @@ class LayerManager(ResourceBaseManager):
         models.Manager.__init__(self)
 
 
-@python_2_unicode_compatible
 class Layer(ResourceBase):
 
     """
@@ -335,7 +333,6 @@ class Layer(ResourceBase):
                          .update(popular_count=models.F('popular_count') + 1)
 
 
-@python_2_unicode_compatible
 class UploadSession(models.Model):
 
     """Helper class to keep track of uploads.
@@ -353,9 +350,9 @@ class UploadSession(models.Model):
 
     def __unicode__(self):
         try:
-            _s = '%s' % self.resource or self.date
+            _s = '[Upload session-id: {}] - {}'.format(self.id, self.resource.title)
         except BaseException:
-            _s = '%s' % self.date
+            _s = '[Upload session-id: {}]'.format(self.id)
         return u"{0}".format(_s)
 
 
@@ -383,7 +380,6 @@ class AttributeManager(models.Manager):
             visible=True).order_by('display_order')
 
 
-@python_2_unicode_compatible
 class Attribute(models.Model):
 
     """
