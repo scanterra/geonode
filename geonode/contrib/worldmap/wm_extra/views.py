@@ -146,6 +146,24 @@ def ajax_layer_edit_style_check(request, layername):
     )
 
 
+def ajax_layer_download_check(request, layername):
+    """
+    Check if the the layer is downloadable.
+    """
+
+    can_download = False
+    layer = get_object_or_404(Layer, typename=layername)
+    if request.user.is_authenticated():
+        if layer.owner == request.user:
+            can_download = True
+        else:
+            can_download = request.user.has_perm('download_resourcebase', layer.resourcebase_ptr)
+
+    return HttpResponse(
+        str(can_download).lower()
+    )
+
+
 @login_required
 def ajax_layer_update(request, layername):
     """
@@ -675,6 +693,9 @@ def gxp2wm(config, map_obj=None):
         config = json.loads(config)
         config_is_string = True
 
+    if map_obj:
+        config['id'] = map_obj.id
+
     topics = TopicCategory.objects.all()
     topicArray = []
     for topic in topics:
@@ -814,21 +835,14 @@ def gxp2wm(config, map_obj=None):
         # TODO check if this works with different languages
         config['about']['introtext'] = unicode(settings.DEFAULT_MAP_ABSTRACT)
 
-    for group in groups:
-        if group not in json.dumps(config['map']['groups']):
-            config['map']['groups'].append({"expanded": "true", "group": group})
+    if not [d for d in config['map']['groups'] if d['group'] == group]:
+        config['map']['groups'].append({"expanded": "true", "group": group})
 
-    # make sure if gnsource is in sources
-    add_gnsource = True
-    for source in config['sources']:
-        if 'ptype' in config['sources'][source]:
-            if config['sources'][source]['ptype'] == 'gxp_gnsource':
-                add_gnsource = False
-    if add_gnsource:
-        config['sources']['wm'] = {
-                                    'url': settings.OGC_SERVER['default']['PUBLIC_LOCATION'] + "wms",
-                                    'restUrl': '/gs/rest', 'ptype': 'gxp_gnsource'
-                                  }
+    # make sure we have the wm source in config
+    config['sources']['wm'] = {
+                                'url': settings.OGC_SERVER['default']['PUBLIC_LOCATION'] + "wms",
+                                'restUrl': '/gs/rest', 'ptype': 'gxp_wmscsource'
+                              }
 
     if config_is_string:
         config = json.dumps(config)
@@ -841,7 +855,7 @@ def get_layer_attributes(layer):
     Return a dictionary of attributes for a layer.
     """
     attribute_fields = []
-    attributes = layer.attribute_set.filter(visible=True).order_by('display_order')
+    attributes = layer.attribute_set.order_by('display_order')
     for la in attributes:
         searchable = False
         if hasattr(la, 'extlayerattribute'):
@@ -917,9 +931,9 @@ def snapshot_config(snapshot, map_obj, request):
         if maplayer.name is not None and maplayer.source_params.find("gxp_gnsource") > -1:
             # Get parameters from GeoNode instead of WMS GetCapabilities
             try:
-                gnLayer = Layer.objects.get(typename=maplayer.name)
-                if gnLayer.srs:
-                    cfg['srs'] = gnLayer.srs
+                gnLayer = Layer.objects.get(alternate=maplayer.name)
+                if gnLayer.srid:
+                    cfg['srs'] = gnLayer.srid
                 if gnLayer.bbox:
                     cfg['bbox'] = json.loads(gnLayer.bbox)
                 if gnLayer.llbbox:
@@ -989,11 +1003,13 @@ def snapshot_config(snapshot, map_obj, request):
         for ordering, layer in enumerate(layers):
             maplayers.append(
                 layer_from_viewer_config(
+                    map_obj.id,
                     MapLayer,
                     layer,
                     config["sources"][
                         layer["source"]],
-                    ordering))
+                    ordering,
+                    False))
 #             map_obj.map.layer_set.from_viewer_config(
 # map_obj, layer, config["sources"][layer["source"]], ordering))
         config['map']['layers'] = [
@@ -1003,7 +1019,6 @@ def snapshot_config(snapshot, map_obj, request):
                 request) for l in maplayers]
     else:
         config = map_obj.viewer_json(request)
-
     return config
 
 
@@ -1073,20 +1088,20 @@ def layer_searchable_fields(
         status_message = ''
         for attribute in layer.attributes:
             ext_att, created = ExtLayerAttribute.objects.get_or_create(attribute=attribute)
-            if attribute.attribute in attributes_list:
+            ext_att.searchable = False
+            if attribute.attribute in attributes_list and attribute.attribute_type == 'xsd:string':
                 ext_att.searchable = True
                 status_message += ' %s' % attribute.attribute
-            else:
-                ext_att.searchable = False
             ext_att.save()
 
     searchable_attributes = []
     for attribute in layer.attributes:
-        if hasattr(attribute, 'extlayerattribute'):
-            attribute.searchable = attribute.extlayerattribute.searchable
-        else:
-            attribute.searchable = False
-        searchable_attributes.append(attribute)
+        if attribute.attribute_type == 'xsd:string':
+            if hasattr(attribute, 'extlayerattribute'):
+                attribute.searchable = attribute.extlayerattribute.searchable
+            else:
+                attribute.searchable = False
+            searchable_attributes.append(attribute)
 
     template = 'wm_extra/layers/edit_searchable_fields.html'
 

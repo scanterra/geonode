@@ -271,12 +271,6 @@ LOCALE_PATHS = os.getenv('LOCALE_PATHS', _DEFAULT_LOCALE_PATHS)
 # Location of url mappings
 ROOT_URLCONF = os.getenv('ROOT_URLCONF', 'geonode.urls')
 
-# Login and logout urls override
-LOGIN_URL = os.getenv('LOGIN_URL', '/account/login/')
-LOGOUT_URL = os.getenv('LOGOUT_URL', '/account/logout/')
-
-LOGIN_REDIRECT_URL = '/'
-
 GEONODE_CORE_APPS = (
     # GeoNode internal apps
     'geonode.api',
@@ -709,7 +703,14 @@ HOSTNAME = _surl.hostname
 if not SITEURL.endswith('/'):
     SITEURL = '{}/'.format(SITEURL)
 
+# Login and logout urls override
+LOGIN_URL = os.getenv('LOGIN_URL', '{}account/login/'.format(SITEURL))
+LOGOUT_URL = os.getenv('LOGOUT_URL', '{}account/logout/'.format(SITEURL))
 
+ACCOUNT_LOGIN_REDIRECT_URL = os.getenv('LOGIN_REDIRECT_URL', SITEURL)
+ACCOUNT_LOGOUT_REDIRECT_URL =  os.getenv('LOGOUT_REDIRECT_URL', SITEURL)
+
+# Backend
 DEFAULT_WORKSPACE = os.getenv('DEFAULT_WORKSPACE', 'geonode')
 CASCADE_WORKSPACE = os.getenv('CASCADE_WORKSPACE', 'geonode')
 
@@ -1235,6 +1236,14 @@ CORS_ORIGIN_WHITELIST = (
 )
 """
 
+# To enable the WorldMap based Client enable those
+"""
+GEONODE_CLIENT_HOOKSET = "geonode.client.hooksets.WorldMapHookSet"
+CORS_ORIGIN_WHITELIST = (
+    HOSTNAME
+)
+"""
+
 SERVICE_UPDATE_INTERVAL = 0
 
 SEARCH_FILTERS = {
@@ -1643,17 +1652,22 @@ USE_WORLDMAP = strtobool(os.getenv('USE_WORLDMAP', 'False'))
 
 if USE_WORLDMAP:
     GEONODE_CLIENT_LOCATION = '/static/worldmap_client/'
-    GAZETTEER_DB_ALIAS = 'default'
     INSTALLED_APPS += (
             'geoexplorer-worldmap',
             'geonode.contrib.worldmap.gazetteer',
             'geonode.contrib.worldmap.wm_extra',
             'geonode.contrib.createlayer',
         )
+    # WorldMap Gazetter settings
+    USE_GAZETTEER = True
+    GAZETTEER_DB_ALIAS = 'default'
     GAZETTEER_FULLTEXTSEARCH = False
+    # external services to be used by the gazetteer
+    GAZETTEER_SERVICES = 'worldmap,geonames,nominatim'
+    # this is the GeoNames key which is needed by the WorldMap Gazetteer
+    GAZETTEER_GEONAMES_USER = os.getenv('GEONAMES_USER', 'your-key-here')
     WM_COPYRIGHT_URL = "http://gis.harvard.edu/"
     WM_COPYRIGHT_TEXT = "Center for Geographic Analysis"
-    USE_GAZETTEER = True
     DEFAULT_MAP_ABSTRACT = """
         <h3>The Harvard WorldMap Project</h3>
         <p>WorldMap is an open source web mapping system that is currently

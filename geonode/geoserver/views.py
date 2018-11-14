@@ -54,9 +54,13 @@ from geonode.geoserver.signals import gs_catalog
 from .tasks import geoserver_update_layers
 from geonode.utils import json_response, _get_basic_auth_info
 from geoserver.catalog import FailedRequestError, ConflictingDataError
-from .helpers import (get_stores, ogc_server_settings, extract_name_from_sld, set_styles,
-                      style_update, create_gs_thumbnail,
-                      _stylefilterparams_geowebcache_layer, _invalidate_geowebcache_layer)
+from .helpers import (get_stores,
+                      ogc_server_settings,
+                      extract_name_from_sld,
+                      set_styles,
+                      style_update,
+                      _stylefilterparams_geowebcache_layer,
+                      _invalidate_geowebcache_layer)
 
 from django_basic_auth import logged_in_or_basicauth
 from django.views.decorators.csrf import csrf_exempt
@@ -272,6 +276,7 @@ def layer_style_manage(request, layername):
                     "layer": layer,
                     "gs_styles": gs_styles,
                     "layer_styles": layer_styles,
+                    "layer_style_names": [s[0] for s in layer_styles],
                     "default_style": default_style
                 }
             )
@@ -469,15 +474,6 @@ def geoserver_proxy(request,
 
     path = strip_prefix(request.get_full_path(), proxy_path)
 
-    access_token = None
-    if request and 'access_token' in request.session:
-        access_token = request.session['access_token']
-
-    if access_token and 'access_token' not in path:
-        query_separator = '&' if '?' in path else '?'
-        path = ('%s%saccess_token=%s' %
-                (path, query_separator, access_token))
-
     raw_url = str(
         "".join([ogc_server_settings.LOCATION, downstream_path, path]))
 
@@ -514,13 +510,17 @@ def geoserver_proxy(request,
             re.match(r'/(ows).*$', path, re.IGNORECASE)):
         _url = str("".join([ogc_server_settings.LOCATION, '', path[1:]]))
         raw_url = _url
-
     url = urlsplit(raw_url)
-
     affected_layers = None
-    if request.method in ("POST", "PUT"):
+
+    if '%s/layers' % ws in path:
+        downstream_path = 'rest/layers'
+    elif '%s/styles' % ws in path:
+        downstream_path = 'rest/styles'
+
+    if request.method in ("POST", "PUT", "DELETE"):
         if downstream_path in ('rest/styles', 'rest/layers',
-                               'rest/workspaces') and len(request.body) > 0:
+                               'rest/workspaces'):
             if not style_change_check(request, downstream_path):
                 return HttpResponse(
                     _(
@@ -529,9 +529,19 @@ def geoserver_proxy(request,
                     status=401)
             elif downstream_path == 'rest/styles':
                 logger.info(
-                    "[geoserver_proxy] Updating Style to ---> url %s" %
-                    url.path)
+                    "[geoserver_proxy] Updating Style ---> url %s" %
+                    url.geturl())
                 affected_layers = style_update(request, raw_url)
+            elif downstream_path == 'rest/layers':
+                logger.info(
+                    "[geoserver_proxy] Updating Layer ---> url %s" %
+                    url.geturl())
+                try:
+                    _layer_name = os.path.splitext(os.path.basename(request.path))[0]
+                    _layer = Layer.objects.get(name__icontains=_layer_name)
+                    affected_layers = [_layer]
+                except BaseException:
+                    logger.warn("Could not find any Layer %s on DB" % os.path.basename(request.path))
 
     kwargs = {'affected_layers': affected_layers}
     return proxy(request, url=raw_url, response_callback=_response_callback, **kwargs)
@@ -547,10 +557,7 @@ def _response_callback(**kwargs):
     # update thumbnails
     if status == 200 and affected_layers:
         for layer in affected_layers:
-            logger.debug(
-                'Updating thumbnail for layer with uuid %s' %
-                layer.uuid)
-            create_gs_thumbnail(layer, overwrite=True)
+            layer.save()
 
     # Replace Proxy URL
     if content_type in ('application/xml', 'text/xml', 'text/plain'):

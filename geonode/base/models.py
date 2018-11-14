@@ -795,6 +795,10 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
         raise NotImplementedError()
 
     @property
+    def site_url(self):
+        return settings.SITEURL
+
+    @property
     def creator(self):
         return self.owner.get_full_name() or self.owner.username
 
@@ -825,7 +829,7 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
     @property
     def group_name(self):
         if self.group:
-            return str(self.group)
+            return str(self.group).encode("utf-8", "replace")
         return None
 
     @property
@@ -928,13 +932,13 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
         return '{}%'.format(len(filled_fields) * 100 / len(required_fields))
 
     def keyword_list(self):
-        return [kw.name for kw in self.keywords.all()]
+        return [kw.name.encode("utf-8", "replace") for kw in self.keywords.all()]
 
     def keyword_slug_list(self):
-        return [kw.slug for kw in self.keywords.all()]
+        return [kw.slug.encode("utf-8", "replace") for kw in self.keywords.all()]
 
     def region_name_list(self):
-        return [region.name for region in self.regions.all()]
+        return [region.name.encode("utf-8", "replace") for region in self.regions.all()]
 
     def spatial_representation_type_string(self):
         if hasattr(self.spatial_representation_type, 'identifier'):
@@ -1056,24 +1060,27 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
     def download_links(self):
         """assemble download links for pycsw"""
         links = []
-        for url in self.link_set.all():
-            if url.link_type == 'metadata':  # avoid recursion
+        for link in self.link_set.all():
+            if link.link_type == 'metadata':  # avoid recursion
                 continue
-            if url.link_type == 'html':
+            if link.link_type == 'html':
                 links.append(
                     (self.title,
                      'Web address (URL)',
                      'WWW:LINK-1.0-http--link',
-                     url.url))
-            elif url.link_type in ('OGC:WMS', 'OGC:WFS', 'OGC:WCS'):
-                links.append((self.title, url.name, url.link_type, url.url))
+                     link.url))
+            elif link.link_type in ('OGC:WMS', 'OGC:WFS', 'OGC:WCS'):
+                links.append((self.title, link.name, link.link_type, link.url))
             else:
-                description = '%s (%s Format)' % (self.title, url.name)
+                _link_type = 'WWW:DOWNLOAD-1.0-http--download'
+                if self.storeType == 'remoteStore' and link.extension in ('html'):
+                    _link_type = 'WWW:DOWNLOAD-%s' % self.remote_service.type
+                description = '%s (%s Format)' % (self.title, link.name)
                 links.append(
                     (self.title,
                      description,
-                     'WWW:DOWNLOAD-1.0-http--download',
-                     url.url))
+                     _link_type,
+                     link.url))
         return links
 
     def get_tiles_url(self):
@@ -1090,15 +1097,19 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
         """Return Link for legend or None if it does not exist.
         """
         try:
-            legends_link = self.link_set.get(name='Legend')
+            legends_link = self.link_set.filter(name='Legend')
         except Link.DoesNotExist:
+            tb = traceback.format_exc()
+            logger.debug(tb)
             return None
         except Link.MultipleObjectsReturned:
+            tb = traceback.format_exc()
+            logger.debug(tb)
             return None
         else:
             return legends_link
 
-    def get_legend_url(self):
+    def get_legend_url(self, style_name=None):
         """Return URL for legend or None if it does not exist.
 
            The legend can be either an image (for Geoserver's WMS)
@@ -1109,6 +1120,13 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
         if legend is None:
             return None
 
+        if legend.count() > 0:
+            if not style_name:
+                return legend[0].url
+            else:
+                for _legend in legend:
+                    if style_name in _legend.url:
+                        return _legend.url
         return legend.url
 
     def get_ows_url(self):
