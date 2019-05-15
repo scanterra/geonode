@@ -36,6 +36,7 @@ from django.conf.global_settings import DATETIME_INPUT_FORMATS
 from geonode import get_version
 from kombu import Queue, Exchange
 
+
 # GeoNode Version
 VERSION = get_version()
 
@@ -270,12 +271,6 @@ LOCALE_PATHS = os.getenv('LOCALE_PATHS', _DEFAULT_LOCALE_PATHS)
 # Location of url mappings
 ROOT_URLCONF = os.getenv('ROOT_URLCONF', 'geonode.urls')
 
-# Login and logout urls override
-LOGIN_URL = os.getenv('LOGIN_URL', '/account/login/')
-LOGOUT_URL = os.getenv('LOGOUT_URL', '/account/logout/')
-
-LOGIN_REDIRECT_URL = '/'
-
 GEONODE_CORE_APPS = (
     # GeoNode internal apps
     'geonode.api',
@@ -291,6 +286,7 @@ GEONODE_INTERNAL_APPS = (
     # GeoNode internal apps
     'geonode.people',
     'geonode.client',
+    'geonode.themes',
     'geonode.proxy',
     'geonode.social',
     'geonode.groups',
@@ -357,7 +353,6 @@ INSTALLED_APPS = (
     'bootstrap3_datetime',
     'django_extensions',
     'django_basic_auth',
-    # 'haystack',
     'autocomplete_light',
     'mptt',
     # 'crispy_forms',
@@ -455,13 +450,6 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'simple'
         },
-        'celery': {
-            'level': 'ERROR',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': 'celery.log',
-            'formatter': 'simple',
-            'maxBytes': 1024 * 1024 * 10,  # 10 mb
-        },
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
@@ -482,7 +470,7 @@ LOGGING = {
         "pycsw": {
             "handlers": ["console"], "level": "ERROR", },
         "celery": {
-            'handlers': ['celery', 'console'], 'level': 'ERROR', },
+            "handlers": ["console"], "level": "ERROR", },
     },
 }
 
@@ -516,6 +504,7 @@ TEMPLATES = [
                 # 'django.core.context_processors.request',
                 'geonode.context_processors.resource_urls',
                 'geonode.geoserver.context_processors.geoserver_urls',
+                'geonode.themes.context_processors.custom_theme'
             ],
             # Either remove APP_DIRS or remove the 'loaders' option.
             # 'loaders': [
@@ -687,7 +676,15 @@ HOSTNAME = _surl.hostname
 if not SITEURL.endswith('/'):
     SITEURL = '{}/'.format(SITEURL)
 
+# Login and logout urls override
+LOGIN_URL = os.getenv('LOGIN_URL', '/account/login/')
+LOGOUT_URL = os.getenv('LOGOUT_URL', '/account/logout/')
 
+LOGIN_REDIRECT_URL = '/'
+ACCOUNT_LOGIN_REDIRECT_URL = os.getenv('LOGIN_REDIRECT_URL', SITEURL)
+ACCOUNT_LOGOUT_REDIRECT_URL =  os.getenv('LOGOUT_REDIRECT_URL', SITEURL)
+
+# Backend
 DEFAULT_WORKSPACE = os.getenv('DEFAULT_WORKSPACE', 'geonode')
 CASCADE_WORKSPACE = os.getenv('CASCADE_WORKSPACE', 'geonode')
 
@@ -741,6 +738,7 @@ OGC_SERVER = {
         'PRINT_NG_ENABLED': True,
         'GEONODE_SECURITY_ENABLED': True,
         'GEOFENCE_SECURITY_ENABLED': GEOFENCE_SECURITY_ENABLED,
+        'GEOFENCE_URL': os.getenv('GEOFENCE_URL', 'internal:/'),
         'GEOGIG_ENABLED': False,
         'WMST_ENABLED': False,
         'BACKEND_WRITE_ENABLED': True,
@@ -752,7 +750,7 @@ OGC_SERVER = {
         'DATASTORE': os.getenv('DEFAULT_BACKEND_DATASTORE',''),
         'PG_GEOGIG': False,
         # 'CACHE': ".cache"  # local cache file to for HTTP requests
-        'TIMEOUT': int(os.getenv('OGC_REQUEST_TIMEOUT', '10'))  # number of seconds to allow for HTTP requests
+        'TIMEOUT': int(os.getenv('OGC_REQUEST_TIMEOUT', '60'))  # number of seconds to allow for HTTP requests
     }
 }
 
@@ -1028,16 +1026,18 @@ HAYSTACK_SEARCH = strtobool(os.getenv('HAYSTACK_SEARCH', 'False'))
 SKIP_PERMS_FILTER = strtobool(os.getenv('SKIP_PERMS_FILTER', 'False'))
 # Update facet counts from Haystack
 HAYSTACK_FACET_COUNTS = strtobool(os.getenv('HAYSTACK_FACET_COUNTS', 'True'))
-# HAYSTACK_CONNECTIONS = {
-#    'default': {
-#        'ENGINE': 'haystack.backends.elasticsearch_backend.'
-#        'ElasticsearchSearchEngine',
-#        'URL': 'http://127.0.0.1:9200/',
-#        'INDEX_NAME': 'geonode',
-#        },
-#    }
-# HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
-# HAYSTACK_SEARCH_RESULTS_PER_PAGE = 20
+if HAYSTACK_SEARCH:
+    if 'haystack' not in INSTALLED_APPS:
+        INSTALLED_APPS += ('haystack', )
+    HAYSTACK_CONNECTIONS = {
+       'default': {
+           'ENGINE': 'haystack.backends.elasticsearch2_backend.Elasticsearch2SearchEngine',
+           'URL': os.getenv('HAYSTACK_ENGINE_URL', 'http://127.0.0.1:9200/'),
+           'INDEX_NAME': os.getenv('HAYSTACK_ENGINE_INDEX_NAME', 'haystack'),
+           },
+       }
+    HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
+    HAYSTACK_SEARCH_RESULTS_PER_PAGE = int(os.getenv('HAYSTACK_SEARCH_RESULTS_PER_PAGE', '200'))
 
 # Available download formats
 DOWNLOAD_FORMATS_METADATA = [
@@ -1210,6 +1210,14 @@ CORS_ORIGIN_WHITELIST = (
 )
 """
 
+# To enable the WorldMap based Client enable those
+"""
+GEONODE_CLIENT_HOOKSET = "geonode.client.hooksets.WorldMapHookSet"
+CORS_ORIGIN_WHITELIST = (
+    HOSTNAME
+)
+"""
+
 SERVICE_UPDATE_INTERVAL = 0
 
 SEARCH_FILTERS = {
@@ -1298,7 +1306,7 @@ if ASYNC_SIGNALS:
 else:
     _BROKER_URL = LOCAL_SIGNALS_BROKER_URL
 
-# Note:BROKER_URL is deprecated in favour of CELERY_BROKER_URL 
+# Note:BROKER_URL is deprecated in favour of CELERY_BROKER_URL
 CELERY_BROKER_URL = _BROKER_URL
 
 CELERY_RESULT_PERSISTENT = False
@@ -1343,13 +1351,27 @@ if USE_GEOSERVER:
         Queue("geonode.layer.viewer", GEOSERVER_EXCHANGE, routing_key="geonode.viewer"),
     )
 
-# CELERYBEAT_SCHEDULE = {
+# from celery.schedules import crontab
+# EXAMPLES
+# CELERY_BEAT_SCHEDULE = {
 #     ...
 #     'update_feeds': {
 #         'task': 'arena.social.tasks.Update',
 #         'schedule': crontab(minute='*/6'),
 #     },
 #     ...
+#     'send-summary-every-hour': {
+#        'task': 'summary',
+#         # There are 4 ways we can handle time, read further
+#        'schedule': 3600.0,
+#         # If you're using any arguments
+#        'args': (‘We don’t need any’,),
+#     },
+#     # Executes every Friday at 4pm
+#     'send-notification-on-friday-afternoon': {
+#          'task': 'my_app.tasks.send_notification',
+#          'schedule': crontab(hour=16, day_of_week=5),
+#     },
 # }
 
 # Half a day is enough
@@ -1403,19 +1425,6 @@ if S3_MEDIA_ENABLED:
     MEDIAFILES_LOCATION = 'media'
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
     MEDIA_URL = "https://%s/%s/" % (AWS_S3_BUCKET_DOMAIN, MEDIAFILES_LOCATION)
-
-
-# djcelery.setup_loader()
-
-# There are 3 ways to override GeoNode settings:
-# 1. Using environment variables, if your changes to GeoNode are minimal.
-# 2. Creating a downstream project, if you are doing a lot of customization.
-# 3. Override settings in a local_settings.py file, legacy.
-# Load more settings from a file called local_settings.py if it exists
-try:
-    from geonode.local_settings import *  # flake8: noqa
-except ImportError:
-    pass
 
 
 # Load additonal basemaps, see geonode/contrib/api_basemap/README.md
@@ -1590,7 +1599,7 @@ INVITATIONS_ADAPTER = ACCOUNT_ADAPTER
 
 # Choose thumbnail generator -- this is the default generator
 THUMBNAIL_GENERATOR = "geonode.layers.utils.create_gs_thumbnail_geonode"
-
+THUMBNAIL_GENERATOR_DEFAULT_BG = r"http://a.tile.openstreetmap.org/{z}/{x}/{y}.png"
 
 GEOTIFF_IO_ENABLED = strtobool(
     os.getenv('GEOTIFF_IO_ENABLED', 'False')
@@ -1607,6 +1616,34 @@ GEOTIFF_IO_BASE_URL = os.getenv(
 USE_WORLDMAP = strtobool(os.getenv('USE_WORLDMAP', 'False'))
 
 if USE_WORLDMAP:
+    # WorldMap requirest PostgreSQL and PostGIS
+    PG_HOST = os.getenv('PG_HOST', 'localhost')
+    PG_USERNAME = os.getenv('PG_USERNAME', 'worldmap')
+    PG_PASSWORD = os.getenv('PG_PASSWORD', 'worldmap')
+    PG_WORLDMAP_DJANGO_DB = os.getenv('PG_WORLDMAP_DJANGO_DB', 'geonode')
+    PG_WORLDMAP_UPLOADS_DB = os.getenv('PG_WORLDMAP_UPLOADS_DB', 'geonode_data')
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.contrib.gis.db.backends.postgis',
+            'NAME': PG_WORLDMAP_DJANGO_DB,
+            'USER': PG_USERNAME,
+            'PASSWORD': PG_PASSWORD,
+            'HOST': PG_HOST,
+            'PORT': '5432',
+            'CONN_TOUT': 900,
+        },
+        # vector datastore for uploads
+        'datastore': {
+            'ENGINE': 'django.contrib.gis.db.backends.postgis',
+            # 'ENGINE': '', # Empty ENGINE name disables
+            'NAME': PG_WORLDMAP_UPLOADS_DB,
+            'USER': PG_USERNAME,
+            'PASSWORD': PG_PASSWORD,
+            'HOST': PG_HOST,
+            'PORT': '5432',
+            'CONN_TOUT': 900,
+        }
+    }
     GEONODE_CLIENT_LOCATION = '/static/worldmap_client/'
     GAZETTEER_DB_ALIAS = 'default'
     INSTALLED_APPS += (

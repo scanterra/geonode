@@ -80,6 +80,7 @@ pyproj>=1.9.5,<=1.9.5.1 # python-pyproj (1.9.5.1)
 pycsw==2.2.0 # python-pycsw (1.10.1, 2.0.0, 2.0.3 in our ppa) FIXME
 SQLAlchemy==1.1.14 # required by pycsw==2.2.0
 Shapely==1.5.17 # python-shapely (1.5.13) FIXME
+mercantile==1.0.4
 
 # # Apps with packages provided in GeoNode's PPA on Launchpad.
 
@@ -116,15 +117,14 @@ geonode-avatar==2.1.8 # python-geonode-avatar (2.1.7 in our ppa) FIXME
 geonode-announcements==1.0.13 # python-geonode-announcements (1.0.13 in our ppa)
 geonode-agon-ratings==0.3.8 # python-geonode-agon-ratings (0.3.8 in our ppa)
 arcrest>=10.0 # TODO
-geonode-dialogos==0.9 # python-geonode-dialogos (0.9 in our ppa)
+geonode-dialogos==1.2 # python-geonode-dialogos (0.9 in our ppa)
 gsconfig>=1.0.10 # python-gsconfig (1.0.8 in our ppa)
 gn-gsimporter>=1.0.9 # python-gn-gsimporter (1.0.2 in our ppa)
 gisdata>=0.5.4 # python-gisdata (0.5.4 in our ppa)
 
 # haystack/elasticsearch, uncomment to use
-django-haystack==2.8.0 # (2.8.0 in our ppa)
-elasticsearch<=2.4.0 # (2.4.0 in ppa)
-pyelasticsearch<=0.6.1
+django-haystack==2.8.1 # (2.8.0 in our ppa)
+elasticsearch>=2.0.0,<3.0.0
 
 # datetimepicker widget
 django-bootstrap3-datetimepicker-2==2.5.0 # python-django-bootstrap3-datetimepicker-2 (2.5.0 in our ppa)
@@ -167,7 +167,7 @@ timeout-decorator==0.4.0 # TODO
 typing<=3.6.4 # python-typing (3.6.4 in our ppa)
 
 # required by monitoring
-psutil # (3.4.2 in ppa)
+psutil==5.4.8 # (3.4.2 in ppa)
 django-cors-headers<=2.2.0 # python-django-cors-headers (2.2.0 in our ppa)
 django-cuser==2017.3.16 # python-django-cuser (2017.3.16 in our ppa)
 django-multi-email-field<=0.5.1 # python-django-multi-email-field (0.5.1 in our ppa)
@@ -182,7 +182,7 @@ pycountry
 # required by worldmap
 datautil==0.4
 dicttoxml==1.7.4
-django-geoexplorer-worldmap==4.0.47
+django-geoexplorer-worldmap==4.0.54
 geopy==1.14.0
 
 #production
@@ -204,6 +204,8 @@ poster~=0.8.1
 py==1.5.3
 pytest==3.5.0
 pytest-bdd==2.20.0
+selenium==3.9.0
+splinter==0.7.7
 pytest-splinter==1.8.5
 pytest-django==3.1.2
 setuptools==39.0.1

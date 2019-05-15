@@ -38,7 +38,6 @@ from lxml import etree
 from urlparse import urljoin
 
 from django.conf import settings
-
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management import call_command
 from django.core.urlresolvers import reverse
@@ -80,7 +79,7 @@ LOCAL_TIMEOUT = 300
 
 LOGIN_URL = "/accounts/login/"
 
-logger = logging.getLogger("south").setLevel(logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Reconnect post_save signals that is disconnected by populate_test_data
 reconnect_signals()
@@ -166,6 +165,24 @@ class NormalUserTest(GeoNodeLiveTestSupport):
             user=norman,
             overwrite=True,
         )
+
+        # Test that layer owner can wipe GWC Cache
+        if check_ogc_backend(geoserver.BACKEND_PACKAGE):
+            from geonode.security.utils import set_geowebcache_invalidate_cache
+            set_geowebcache_invalidate_cache(saved_layer.alternate)
+
+            url = settings.OGC_SERVER['default']['LOCATION']
+            user = settings.OGC_SERVER['default']['USER']
+            passwd = settings.OGC_SERVER['default']['PASSWORD']
+
+            import requests
+            from requests.auth import HTTPBasicAuth
+            r = requests.get(url + 'gwc/rest/seed/%s.json' % saved_layer.alternate,
+                             auth=HTTPBasicAuth(user, passwd))
+            self.assertEquals(r.status_code, 200)
+            o = json.loads(r.text)
+            self.assertTrue('long-array-array' in o)
+            self.assertTrue(len(o['long-array-array']) > 0)
         try:
             saved_layer.set_default_permissions()
             url = reverse('layer_metadata', args=[saved_layer.service_typename])
@@ -439,11 +456,12 @@ class GeoNodeMapTest(GeoNodeLiveTestSupport):
                 uploaded.metadata_xml = thelayer_metadata
                 regions_resolved, regions_unresolved = resolve_regions(regions)
                 self.assertIsNotNone(regions_resolved)
-        # except:
-        #     # Sometimes failes with the message:
-        #     # UploadError: Could not save the layer air_runways,
-        #     # there was an upload error: Error occured unzipping file
-        #     pass
+        except GeoNodeException as e:
+            # layer have projection file, but has no valid srid
+            self.assertEqual(
+                str(e),
+                "GeoServer failed to detect the projection for layer [air_runways]. "
+                "It doesn't look like EPSG:4326, so backing out the layer.")
         finally:
             # Clean up and completely delete the layer
             if uploaded:
@@ -535,11 +553,57 @@ class GeoNodeMapTest(GeoNodeLiveTestSupport):
                     uploaded.metadata_xml = thelayer_metadata
                     regions_resolved, regions_unresolved = resolve_regions(regions)
                     self.assertIsNotNone(regions_resolved)
-        # except:
-        #     # Sometimes failes with the message:
-        #     # UploadError: Could not save the layer air_runways,
-        #     # there was an upload error: Error occured unzipping file
-        #     pass
+        finally:
+            # Clean up and completely delete the layer
+            if uploaded:
+                uploaded.delete()
+
+    @on_ogc_backend(geoserver.BACKEND_PACKAGE)
+    @timeout_decorator.timeout(LOCAL_TIMEOUT)
+    def test_layer_zip_upload_non_utf8(self):
+        """Test uploading a layer with non UTF-8 attributes names"""
+        uploaded = None
+        PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
+        thelayer_path = os.path.join(
+            PROJECT_ROOT,
+            'data/zhejiang_yangcan_yanyu')
+        thelayer_zip = os.path.join(
+            PROJECT_ROOT,
+            'data/',
+            'zhejiang_yangcan_yanyu.zip')
+        try:
+            if os.path.exists(thelayer_zip):
+                os.remove(thelayer_zip)
+            if os.path.exists(thelayer_path) and not os.path.exists(thelayer_zip):
+                zip_dir(thelayer_path, thelayer_zip)
+                if os.path.exists(thelayer_zip):
+                    uploaded = file_upload(thelayer_zip, overwrite=True, charset='windows-1258')
+                    self.assertEquals(uploaded.title, 'Zhejiang Yangcan Yanyu')
+                    self.assertEquals(len(uploaded.keyword_list()), 2)
+                    self.assertEquals(uploaded.constraints_other, None)
+        finally:
+            # Clean up and completely delete the layer
+            if uploaded:
+                uploaded.delete()
+
+        uploaded = None
+        thelayer_path = os.path.join(
+            PROJECT_ROOT,
+            'data/ming_female_1')
+        thelayer_zip = os.path.join(
+            PROJECT_ROOT,
+            'data/',
+            'ming_female_1.zip')
+        try:
+            if os.path.exists(thelayer_zip):
+                os.remove(thelayer_zip)
+            if os.path.exists(thelayer_path) and not os.path.exists(thelayer_zip):
+                zip_dir(thelayer_path, thelayer_zip)
+                if os.path.exists(thelayer_zip):
+                    uploaded = file_upload(thelayer_zip, overwrite=True, charset='windows-1258')
+                    self.assertEquals(uploaded.title, 'Ming Female 1')
+                    self.assertEquals(len(uploaded.keyword_list()), 2)
+                    self.assertEquals(uploaded.constraints_other, None)
         finally:
             # Clean up and completely delete the layer
             if uploaded:
@@ -1115,6 +1179,10 @@ xsi:schemaLocation="http://www.opengis.net/sld http://schemas.opengis.net/sld/1.
         layer.delete()
     """
 
+    def setUp(self):
+        super(GeoNodeLiveTestSupport, self).setUp()
+        settings.OGC_SERVER['default']['GEOFENCE_SECURITY_ENABLED'] = True
+
     @on_ogc_backend(geoserver.BACKEND_PACKAGE)
     @timeout_decorator.timeout(LOCAL_TIMEOUT)
     def test_unpublished(self):
@@ -1141,10 +1209,10 @@ xsi:schemaLocation="http://www.opengis.net/sld http://schemas.opengis.net/sld/1.
             str_to_check = '<Name>geonode:san_andres_y_providencia_highway</Name>'
             request = urllib2.Request(url)
             response = urllib2.urlopen(request)
-            self.assertTrue(any(str_to_check in s for s in response.readlines()))
 
-            # by default the uploaded layer is
+            # by default the uploaded layer is published
             self.assertTrue(layer.is_published, True)
+            self.assertTrue(any(str_to_check in s for s in response.readlines()))
         finally:
             # Clean up and completely delete the layer
             layer.delete()
@@ -1345,6 +1413,10 @@ class GeoNodeGeoServerSync(GeoNodeLiveTestSupport):
     Tests GeoNode/GeoServer syncronization
     """
 
+    def setUp(self):
+        super(GeoNodeLiveTestSupport, self).setUp()
+        settings.OGC_SERVER['default']['GEOFENCE_SECURITY_ENABLED'] = True
+
     @on_ogc_backend(geoserver.BACKEND_PACKAGE)
     @timeout_decorator.timeout(LOCAL_TIMEOUT)
     def test_set_attributes_from_geoserver(self):
@@ -1397,6 +1469,10 @@ class GeoNodeGeoServerCapabilities(GeoNodeLiveTestSupport):
     Tests GeoNode/GeoServer GetCapabilities per layer, user, category and map
     """
 
+    def setUp(self):
+        super(GeoNodeLiveTestSupport, self).setUp()
+        settings.OGC_SERVER['default']['GEOFENCE_SECURITY_ENABLED'] = True
+
     @on_ogc_backend(geoserver.BACKEND_PACKAGE)
     @timeout_decorator.timeout(LOCAL_TIMEOUT)
     def test_capabilities(self):
@@ -1438,23 +1514,28 @@ class GeoNodeGeoServerCapabilities(GeoNodeLiveTestSupport):
             overwrite=True,
         )
         try:
+            namespaces = {'wms': 'http://www.opengis.net/wms',
+                          'xlink': 'http://www.w3.org/1999/xlink',
+                          'xsi': 'http://www.w3.org/2001/XMLSchema-instance'}
+
             # 0. test capabilities_layer
             url = reverse('capabilities_layer', args=[layer1.id])
             resp = self.client.get(url)
             layercap = etree.fromstring(resp.content)
             rootdoc = etree.ElementTree(layercap)
-            layernodes = rootdoc.findall('./[Name]')
+            layernodes = rootdoc.findall('./[wms:Name]', namespaces)
             layernode = layernodes[0]
 
             self.assertEquals(1, len(layernodes))
-            self.assertEquals(layernode.find('Name').text, layer1.name)
+            self.assertEquals(layernode.find('wms:Name', namespaces).text,
+                              '%s:%s' % ('geonode', layer1.name))
 
             # 1. test capabilities_user
             url = reverse('capabilities_user', args=[norman.username])
             resp = self.client.get(url)
             layercap = etree.fromstring(resp.content)
             rootdoc = etree.ElementTree(layercap)
-            layernodes = rootdoc.findall('./[Name]')
+            layernodes = rootdoc.findall('./[wms:Name]', namespaces)
 
             # norman has 2 layers
             self.assertEquals(1, len(layernodes))
@@ -1462,9 +1543,9 @@ class GeoNodeGeoServerCapabilities(GeoNodeLiveTestSupport):
             # the norman two layers are named layer1 and layer2
             count = 0
             for layernode in layernodes:
-                if layernode.find('Name').text == layer1.name:
+                if layernode.find('wms:Name', namespaces).text == '%s:%s' % ('geonode', layer1.name):
                     count += 1
-                elif layernode.find('Name').text == layer2.name:
+                elif layernode.find('wms:Name', namespaces).text == '%s:%s' % ('geonode', layer2.name):
                     count += 1
             self.assertEquals(1, count)
 
@@ -1473,7 +1554,7 @@ class GeoNodeGeoServerCapabilities(GeoNodeLiveTestSupport):
             resp = self.client.get(url)
             layercap = etree.fromstring(resp.content)
             rootdoc = etree.ElementTree(layercap)
-            layernodes = rootdoc.findall('./[Name]')
+            layernodes = rootdoc.findall('./[wms:Name]', namespaces)
 
             # category is in two layers
             self.assertEquals(1, len(layernodes))
@@ -1481,9 +1562,9 @@ class GeoNodeGeoServerCapabilities(GeoNodeLiveTestSupport):
             # the layers for category are named layer1 and layer3
             count = 0
             for layernode in layernodes:
-                if layernode.find('Name').text == layer1.name:
+                if layernode.find('wms:Name', namespaces).text == '%s:%s' % ('geonode', layer1.name):
                     count += 1
-                elif layernode.find('Name').text == layer3.name:
+                elif layernode.find('wms:Name', namespaces).text == '%s:%s' % ('geonode', layer3.name):
                     count += 1
             self.assertEquals(1, count)
 
@@ -1663,7 +1744,12 @@ class LayersStylesApiInteractionTests(
         # Take default style url from Layer detail info
 
         default_style_url = obj['default_style']
-        resp = self.api_client.get(default_style_url)
+        try:
+            resp = self.api_client.get(default_style_url)
+            if resp.status_code != 200:
+                return
+        except BaseException:
+            return
         self.assertValidJSONResponse(resp)
         obj = self.deserialize(resp)
         style_body = obj['body']

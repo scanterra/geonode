@@ -6989,8 +6989,10 @@ article.tab-pane {
   margin-left: 10px;
 }
 .navbar-brand {
-  background: url(../img/logo.png) 0 10px no-repeat;
-  background-size: 100%;
+  background: url(../img/logo.png);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
   text-indent: -9999px;
   height: 65px;
   width: 200px;
@@ -7016,6 +7018,7 @@ article.tab-pane {
   padding-bottom: 0;
 }
 .home .jumbotron {
+  position: relative;
   background: #2c689c;
   color: white;
   margin-bottom: 0;
@@ -7074,7 +7077,7 @@ article.tab-pane {
 }
 .home .big-search .search .fa-search {
   position: absolute;
-  top: 10px;
+  top: 3px;
   left: 15px;
 }
 .home .big-search .btn-default {
@@ -7171,6 +7174,12 @@ article.tab-pane {
 .home-facets a:hover {
   color: #2c689c;
   text-decoration: none;
+}
+.partner_logo {
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  height: 250px;
 }
 /* Items
 ----------------------- */
@@ -7287,6 +7296,9 @@ article.tab-pane {
 .item-details .item-meta .item-category {
   font-size: 12px;
   text-transform: uppercase;
+}
+.item-details h4 a {
+  word-wrap: break-word;
 }
 .item-details .btn-sm {
   margin-right: -17px;
@@ -7552,6 +7564,10 @@ nav.filter li a {
 #upload-button {
   margin-top: 20px;
 }
+/* overwrite bootstrap styling, save updates */
+#id_metadata_uploaded_preserve {
+  margin-left: 5px;
+}
 /* Upload Documents
 ----------------------- */
 #upload_form input[type="text"] {
@@ -7648,6 +7664,20 @@ footer a:hover {
 }
 footer form {
   color: #333333;
+}
+/* Copyright
+----------------------- */
+.footer-copyright {
+  padding: 30px 0;
+}
+.footer-copyright .copyright {
+  color: #fff;
+  text-align: center;
+  text-transform: uppercase;
+}
+.footer-copyright .copyright small {
+  text-transform: uppercase;
+  font-size: 14px;
 }
 /* Etc
 ----------------------- */
