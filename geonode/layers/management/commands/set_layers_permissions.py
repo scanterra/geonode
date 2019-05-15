@@ -21,6 +21,7 @@
 from django.core.management.base import BaseCommand
 from argparse import RawTextHelpFormatter
 from geonode.layers.models import Layer
+from django.db.models import Q
 from django.contrib.auth.models import Group
 from django.contrib.auth import get_user_model
 
@@ -132,7 +133,7 @@ class Command(BaseCommand):
             resources = Layer.objects.all()
         else:
             try:
-                resources = Layer.objects.filter(title__in=resources_names)
+                resources = Layer.objects.filter(Q(title__in=resources_names) | Q(name__in=resources_names))
             except Layer.DoesNotExist:
                 self.stdout.write(
                     'Warning - No resources have been found with these names: %s.' % (
@@ -218,26 +219,28 @@ class Command(BaseCommand):
                                     "Initial permissions info for the resource %s:\n%s" % (resource.title, str(perm_spec))
                                 )
                                 for u in users:
+                                    uname = u.username
                                     # Add permissions
                                     if not delete_flag:
                                         # Check the permission already exists
-                                        if u not in perm_spec["users"]:
-                                            perm_spec["users"][u] = permissions
+                                        if uname not in perm_spec["users"]:
+                                            perm_spec["users"][uname] = permissions
                                         else:
-                                            u_perms_list = perm_spec["users"][u]
+                                            u_perms_list = perm_spec["users"][uname]
                                             base_set = set(u_perms_list)
                                             target_set = set(permissions)
-                                            perm_spec["users"][u] = list(base_set | target_set)
+                                            perm_spec["users"][uname] = list(base_set | target_set)
                                     # Delete permissions
                                     else:
                                         # Skip resource owner
                                         if u != resource.owner:
-                                            if u in perm_spec["users"]:
+                                            uname = u.username
+                                            if uname in perm_spec["users"]:
                                                 u_perms_set = set()
-                                                for up in perm_spec["users"][u]:
+                                                for up in perm_spec["users"][uname]:
                                                     if up not in permissions:
                                                         u_perms_set.add(up)
-                                                perm_spec["users"][u] = list(u_perms_set)
+                                                perm_spec["users"][uname] = list(u_perms_set)
                                             else:
                                                 self.stdout.write(
                                                     "Warning! - The user %s does not have "
@@ -251,24 +254,25 @@ class Command(BaseCommand):
                                                 "It has been skipped." % (u, resource.title)
                                             )
                                 for g in groups:
+                                    gname = g.name
                                     # Add permissions
                                     if not delete_flag:
                                         # Check the permission already exists
-                                        if g not in perm_spec["groups"]:
-                                            perm_spec["groups"][g] = permissions
+                                        if gname not in perm_spec["groups"]:
+                                            perm_spec["groups"][gname] = permissions
                                         else:
-                                            g_perms_list = perm_spec["groups"][g]
+                                            g_perms_list = perm_spec["groups"][gname]
                                             base_set = set(g_perms_list)
                                             target_set = set(permissions)
-                                            perm_spec["groups"][g] = list(base_set | target_set)
+                                            perm_spec["groups"][gname] = list(base_set | target_set)
                                     # Delete permissions
                                     else:
-                                        if g in perm_spec["groups"]:
+                                        if gname in perm_spec["groups"]:
                                             g_perms_set = set()
-                                            for gp in perm_spec["groups"][g]:
+                                            for gp in perm_spec["groups"][gname]:
                                                 if gp not in permissions:
                                                     g_perms_set.add(gp)
-                                            perm_spec["groups"][g] = list(g_perms_set)
+                                            perm_spec["groups"][gname] = list(g_perms_set)
                                         else:
                                             self.stdout.write(
                                                 "Warning! - The group %s does not have any permission on the layer %s. "
