@@ -94,8 +94,14 @@ def grab(src, dest, name):
             block_size = 1024
             wrote = 0
             with open('output.bin', 'wb') as f:
-                for data in tqdm(r.iter_content(block_size), total=math.ceil(total_size//block_size) , unit='KB', unit_scale=False):
-                    wrote = wrote  + len(data)
+                for data in tqdm(
+                        r.iter_content(block_size),
+                        total=math.ceil(
+                            total_size //
+                            block_size),
+                        unit='KB',
+                        unit_scale=False):
+                    wrote = wrote + len(data)
                     f.write(data)
             print(" total_size [%d] / wrote [%d] " % (total_size, wrote))
             if total_size != 0 and wrote != total_size:
@@ -210,7 +216,7 @@ def _robust_rmtree(path, logger=None, max_retries=5):
         try:
             shutil.rmtree(path)
             return
-        except OSError as e:
+        except OSError:
             if logger:
                 info('Unable to remove path: %s' % path)
                 info('Retrying after %d seconds' % i)
@@ -381,7 +387,7 @@ def updategeoip(options):
 
 @task
 @cmdopts([
-    ('settings', 's', 'Specify custom DJANGO_SETTINGS_MODULE')
+    ('settings=', 's', 'Specify custom DJANGO_SETTINGS_MODULE')
 ])
 def sync(options):
     """
@@ -470,7 +476,7 @@ def package(options):
     ('bind=', 'b', 'Bind server to provided IP address and port number.'),
     ('java_path=', 'j', 'Full path to java install for Windows'),
     ('foreground', 'f', 'Do not run in background but in foreground'),
-    ('settings', 's', 'Specify custom DJANGO_SETTINGS_MODULE')
+    ('settings=', 's', 'Specify custom DJANGO_SETTINGS_MODULE')
 ], share_with=['start_django', 'start_geoserver'])
 def start():
     """
@@ -507,8 +513,8 @@ def stop_geoserver():
         # awk '{print $2}'",
         proc = subprocess.Popen(
             "ps -ef | grep -i -e 'geoserver' | awk '{print $2}'",
-                                shell=True,
-                                stdout=subprocess.PIPE)
+            shell=True,
+            stdout=subprocess.PIPE)
         for pid in proc.stdout:
             info('Stopping geoserver (process number %s)' % int(pid))
             os.kill(int(pid), signal.SIGKILL)
@@ -519,7 +525,7 @@ def stop_geoserver():
                 os.kill(int(pid), 0)
                 # raise Exception("""wasn't able to kill the process\nHINT:use
                 # signal.SIGKILL or signal.SIGABORT""")
-            except OSError as ex:
+            except OSError:
                 continue
     except Exception as e:
         info(e)
@@ -798,7 +804,7 @@ def test_javascript(options):
 @task
 @cmdopts([
     ('name=', 'n', 'Run specific tests.'),
-    ('settings', 's', 'Specify custom DJANGO_SETTINGS_MODULE')
+    ('settings=', 's', 'Specify custom DJANGO_SETTINGS_MODULE')
 ])
 def test_integration(options):
     """
@@ -888,7 +894,8 @@ def run_tests(options):
     """
     if options.get('coverage'):
         prefix = 'coverage run --branch --source=geonode \
-            --omit="*/management/*,*/test*,*/wsgi*,*/middleware*,*/context_processors*,geonode/qgis_server/*,geonode/contrib/*,geonode/upload/*"'
+            --omit="*/management/*,*/__init__*,*/views*,*/signals*,*/tasks*,*/test*,*/wsgi*,*/middleware*,\
+                */migrations*,*/context_processors*,geonode/qgis_server/*,geonode/contrib/*,geonode/upload/*"'
     else:
         prefix = 'python'
     local = options.get('local', 'false')  # travis uses default to false
@@ -925,7 +932,7 @@ def _reset():
     from geonode import settings
     sh("rm -rf {path}".format(
         path=os.path.join(settings.PROJECT_ROOT, 'development.db')
-        )
+    )
     )
     sh("rm -rf geonode/development.db")
     sh("rm -rf geonode/uploaded/*")
@@ -943,7 +950,7 @@ def reset_hard():
 @task
 @cmdopts([
     ('type=', 't', 'Import specific data type ("vector", "raster", "time")'),
-    ('settings', 's', 'Specify custom DJANGO_SETTINGS_MODULE')
+    ('settings=', 's', 'Specify custom DJANGO_SETTINGS_MODULE')
 ])
 def setup_data():
     """
