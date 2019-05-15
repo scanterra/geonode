@@ -135,7 +135,7 @@ class Command(BaseCommand):
                 resources = Layer.objects.filter(title__in=resources_names)
             except Layer.DoesNotExist:
                 self.stdout.write(
-                    'Warning - No resources have been found with these names: {}.'.format(
+                    'Warning - No resources have been found with these names: %s.' % (
                         ", ".join(resources_names)
                     )
                 )
@@ -215,8 +215,7 @@ class Command(BaseCommand):
                                 # Existing permissions on the resource
                                 perm_spec = resource.get_all_level_info()
                                 self.stdout.write(
-                                    "Initial permissions info for the resource {}:\n{}".format(
-                                        resource.title, str(perm_spec))
+                                    "Initial permissions info for the resource %s:\n%s" % (resource.title, str(perm_spec))
                                 )
                                 for u in users:
                                     # Add permissions
@@ -241,15 +240,15 @@ class Command(BaseCommand):
                                                 perm_spec["users"][u] = list(u_perms_set)
                                             else:
                                                 self.stdout.write(
-                                                    "Warning! - The user {} does not have "
-                                                    "any permission on the layer {}. "
-                                                    "It has been skipped.".format(u, resource.title)
+                                                    "Warning! - The user %s does not have "
+                                                    "any permission on the layer %s. "
+                                                    "It has been skipped." % (u, resource.title)
                                                 )
                                         else:
                                             self.stdout.write(
-                                                "Warning! - The user {} is the layer {} owner, "
+                                                "Warning! - The user %s is the layer %s owner, "
                                                 "so its permissions can't be changed. "
-                                                "It has been skipped.".format(u, resource.title)
+                                                "It has been skipped." % (u, resource.title)
                                             )
                                 for g in groups:
                                     # Add permissions
@@ -272,13 +271,13 @@ class Command(BaseCommand):
                                             perm_spec["groups"][g] = list(g_perms_set)
                                         else:
                                             self.stdout.write(
-                                                "Warning! - The group {} does not have any permission on the layer {}. "
-                                                "It has been skipped.".format(g, resource.title)
+                                                "Warning! - The group %s does not have any permission on the layer %s. "
+                                                "It has been skipped." % (g, resource.title)
                                             )
                                 # Set final permissions
                                 resource.set_permissions(perm_spec)
                                 self.stdout.write(
-                                    "Final permissions info for the resource {}:\n"
-                                    "{}".format(resource.title, str(perm_spec))
+                                    "Final permissions info for the resource %s:\n"
+                                    "%s" % (resource.title, str(perm_spec))
                                 )
                             self.stdout.write("Permissions successfully updated!")
