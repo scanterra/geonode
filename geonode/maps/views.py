@@ -71,6 +71,7 @@ from geonode.documents.models import get_related_documents
 from geonode.people.forms import ProfileForm
 from geonode.base.views import batch_modify
 from .tasks import delete_map
+from geonode.monitoring import register_event
 from requests.compat import urljoin
 
 if check_ogc_backend(geoserver.BACKEND_PACKAGE):
@@ -112,7 +113,6 @@ def _resolve_map(request, id, permission='base.change_resourcebase',
 
 
 # BASIC MAP VIEWS #
-
 def map_detail(request, mapid, snapshot=None, template='maps/map_detail.html'):
     '''
     The view that show details of each map
@@ -134,6 +134,9 @@ def map_detail(request, mapid, snapshot=None, template='maps/map_detail.html'):
         config = map_obj.viewer_json(request)
     else:
         config = snapshot_config(snapshot, map_obj, request)
+
+    if settings.MONITORING_ENABLED:
+        request.register_event('view', 'map', map_obj.title)
 
     config = json.dumps(config)
     layers = MapLayer.objects.filter(map=map_obj.id)
@@ -173,6 +176,8 @@ def map_detail(request, mapid, snapshot=None, template='maps/map_detail.html'):
         if getattr(settings, 'FAVORITE_ENABLED', False):
             from geonode.favorite.utils import get_favorite_info
             context_dict["favorite_info"] = get_favorite_info(request.user, map_obj)
+
+    register_event(request, 'view', request.path)
 
     return render(request, template, context=context_dict)
 
@@ -255,6 +260,7 @@ def map_metadata(
         map_obj.category = new_category
         map_obj.save()
 
+        register_event(request, 'change_metadata', map_obj)
         if not ajax:
             return HttpResponseRedirect(
                 reverse(
@@ -326,6 +332,7 @@ def map_metadata(
                 map_form.fields['is_approved'].widget.attrs.update(
                     {'disabled': 'true'})
 
+    register_event(request, 'view_metadata', map_obj)
     return render(request, template, context={
         "config": json.dumps(config),
         "resource": map_obj,
@@ -365,7 +372,26 @@ def map_remove(request, mapid, template='maps/map_remove.html'):
             "map": map_obj
         })
     elif request.method == 'POST':
-        delete_map.delay(object_id=map_obj.id)
+        if getattr(settings, 'SLACK_ENABLED', False):
+            slack_message = None
+            try:
+                from geonode.contrib.slack.utils import build_slack_message_map
+                slack_message = build_slack_message_map("map_delete", map_obj)
+            except BaseException:
+                logger.error("Could not build slack message for delete map.")
+
+            delete_map.delay(object_id=map_obj.id)
+
+            try:
+                from geonode.contrib.slack.utils import send_slack_messages
+                send_slack_messages(slack_message)
+            except BaseException:
+                logger.error("Could not send slack message for delete map.")
+        else:
+            delete_map.delay(object_id=map_obj.id)
+
+        register_event(request, 'remove', map_obj)
+
         return HttpResponseRedirect(reverse("maps_browse"))
 
 
@@ -390,6 +416,7 @@ def map_embed(
             config = snapshot_config(
                 snapshot, map_obj, request)
 
+        register_event(request, 'view', map_obj)
     return render(request, template, context={
         'config': json.dumps(config)
     })
@@ -472,6 +499,7 @@ def map_embed_widget(request, mapid,
         'map_bbox': map_bbox,
         'map_layers': layers
     }
+    register_event(request, 'view', map_obj)
     message = render(request, template, context)
     return HttpResponse(message)
 
@@ -519,6 +547,7 @@ def map_view(request, mapid, snapshot=None, layer_name=None,
         config = add_layers_to_map_config(
             request, map_obj, (layer_name, ), False)
 
+    register_event(request, 'view', request.path)
     return render(request, template, context={
         'config': json.dumps(config),
         'map': map_obj,
@@ -579,6 +608,7 @@ def map_json(request, mapid, snapshot=None):
                 map=map_obj,
                 user=request.user)
 
+            register_event(request, 'change', map_obj)
             return HttpResponse(
                 json.dumps(
                     map_obj.viewer_json(request)))
@@ -700,6 +730,7 @@ def new_map_json(request):
         except ValueError as e:
             return HttpResponse(str(e), status=400)
         else:
+            register_event(request, 'upload', map_obj)
             return HttpResponse(
                 json.dumps({'id': map_obj.id}),
                 status=200,
@@ -1135,6 +1166,7 @@ def map_wms(request, mapid):
                 layerGroupName=layerGroupName,
                 ows=getattr(ogc_server_settings, 'ows', ''),
             )
+            register_event(request, 'publish', map_obj)
             return HttpResponse(
                 json.dumps(response),
                 content_type="application/json")
@@ -1357,6 +1389,7 @@ def map_metadata_detail(
         except GroupProfile.DoesNotExist:
             group = None
     site_url = settings.SITEURL.rstrip('/') if settings.SITEURL.startswith('http') else settings.SITEURL
+    register_event(request, 'view_metadata', map_obj)
     return render(request, template, context={
         "resource": map_obj,
         "group": group,

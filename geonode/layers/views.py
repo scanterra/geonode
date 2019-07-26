@@ -85,6 +85,7 @@ from geonode.utils import build_social_links
 from geonode.base.views import batch_modify
 from geonode.base.models import Thesaurus
 from geonode.maps.models import Map
+from geonode.monitoring import register_event
 from geonode.geoserver.helpers import (gs_catalog,
                                        ogc_server_settings,
                                        set_layer_style)  # cascading_delete
@@ -294,8 +295,10 @@ def layer_upload(request, template='upload/layer_upload.html'):
             out['errormsgs'] = errormsgs
         if out['success']:
             status_code = 200
+            register_event(request, 'upload', saved_layer)
         else:
             status_code = 400
+
         if settings.MONITORING_ENABLED:
             layer_name = None
             if saved_layer and hasattr(saved_layer, 'alternate'):
@@ -759,6 +762,8 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
             from geonode.favorite.utils import get_favorite_info
             context_dict["favorite_info"] = get_favorite_info(request.user, layer)
 
+    register_event(request, 'view', layer)
+
     return TemplateResponse(
         request, template, context=context_dict)
 
@@ -851,6 +856,7 @@ def layer_feature_catalogue(
         'attributes': attributes,
         'metadata': settings.PYCSW['CONFIGURATION']['metadata:main']
     }
+    register_event(request, 'view', layer)
     return render(
         request,
         template,
@@ -875,6 +881,7 @@ def layer_metadata(
         extra=0,
         form=LayerAttributeForm,
     )
+
     topic_category = layer.category
 
     poc = layer.poc
@@ -936,6 +943,7 @@ def layer_metadata(
         la for la in default_map_config(request)[1] if la.ows_url is None]
 
     if request.method == "POST":
+
         if layer.metadata_uploaded_preserve:  # layer metadata cannot be edited
             out = {
                 'success': False,
@@ -1120,12 +1128,14 @@ def layer_metadata(
                             logger.error(tb)
 
             layer.tkeywords.add(*tkeywords_to_add)
+            register_event(request, 'change_metadata', layer)
         except BaseException:
             tb = traceback.format_exc()
             logger.error(tb)
 
         return HttpResponse(json.dumps({'message': message}))
 
+    register_event(request, 'view_metadata', layer)
     if settings.ADMIN_MODERATE_UPLOADS:
         if not request.user.is_superuser:
             layer_form.fields['is_published'].widget.attrs.update(
@@ -1211,16 +1221,13 @@ def layer_metadata_advanced(request, layername):
 def layer_change_poc(request, ids, template='layers/layer_change_poc.html'):
     layers = Layer.objects.filter(id__in=ids.split('_'))
 
-    if settings.MONITORING_ENABLED:
-        for _l in layers:
-            if hasattr(_l, 'alternate'):
-                request.add_resource('layer', _l.alternate)
     if request.method == 'POST':
         form = PocForm(request.POST)
         if form.is_valid():
             for layer in layers:
                 layer.poc = form.cleaned_data['contact']
                 layer.save()
+
             # Process the data in form.cleaned_data
             # ...
             # Redirect after POST
@@ -1316,6 +1323,7 @@ def layer_replace(request, layername, template='layers/layer_replace.html'):
 
         if out['success']:
             status_code = 200
+            register_event(request, 'change', layer)
         else:
             status_code = 400
         return HttpResponse(
@@ -1366,6 +1374,8 @@ def layer_remove(request, layername, template='layers/layer_remove.html'):
             messages.error(request, message)
             return render(
                 request, template, context={"layer": layer})
+
+        register_event(request, 'remove', layer)
         return HttpResponseRedirect(reverse("layer_browse"))
     else:
         return HttpResponse("Not allowed", status=403)
@@ -1513,6 +1523,8 @@ def layer_metadata_detail(
         except GroupProfile.DoesNotExist:
             group = None
     site_url = settings.SITEURL.rstrip('/') if settings.SITEURL.startswith('http') else settings.SITEURL
+
+    register_event(request, 'view_metadata', layer)
 
     return render(request, template, context={
         "resource": layer,
