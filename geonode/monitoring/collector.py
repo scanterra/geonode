@@ -25,7 +25,6 @@ from decimal import Decimal
 from itertools import chain
 
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.db import models
 from django.utils.html import strip_tags
 from django.template.loader import get_template
@@ -428,7 +427,7 @@ class CollectorAPI(object):
             q = []
             row = requests.aggregate(value=models.Max(column_name),
                                      samples=models.Count(column_name))
-            row['label'] = v # TODO: v could be undefined
+            row['label'] = v  # TODO: v could be undefined
             q.append(row)
         else:
             raise ValueError("Unsupported metric type: {}".format(metric.type))
@@ -445,7 +444,7 @@ class CollectorAPI(object):
                                   'value_num': value if isinstance(value, (int, float, long, Decimal,)) else None})
             # log.debug(MetricValue.add(**metric_values))
 
-            if value: # TODO: why this?
+            if value:  # TODO: why this?
                 print MetricValue.add(**metric_values)
             else:
                 MetricValue.add(**metric_values)

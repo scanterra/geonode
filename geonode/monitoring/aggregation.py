@@ -17,6 +17,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 #########################################################################
+
 from datetime import datetime, timedelta, time
 from decimal import Decimal
 import logging
@@ -29,7 +30,7 @@ from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
 from geonode.monitoring.utils import generate_periods
 from geonode.monitoring.models import (Metric, MetricValue, ServiceTypeMetric,
-                                               MonitoredResource, MetricLabel, EventType,)
+                                       MonitoredResource, MetricLabel, EventType,)
 
 
 log = logging.getLogger(__name__)
