@@ -485,7 +485,7 @@ class CollectorAPI(object):
         defaults = {'valid_from': valid_from,
                     'valid_to': valid_to,
                     'resource': resource,
-                    'ows_service': event_type,
+                    'event_type': event_type,
                     'metric': 'response.error.count',
                     'samples_count': requests.count(),
                     'label': 'count',
@@ -822,6 +822,10 @@ class CollectorAPI(object):
             if resource_type:
                 q_where.append(' and mr.type = %(resource_type)s ')
                 params['resource_type'] = resource_type
+
+        if event_type:
+            q_where.append(' and mv.event_type_id = %(event_type)s ')
+            params['event_type'] = event_type.id
 
         if q_group:
             q_group = [' group by ', ','.join(q_group)]

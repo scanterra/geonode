@@ -299,15 +299,6 @@ def layer_upload(request, template='upload/layer_upload.html'):
         else:
             status_code = 400
 
-        if settings.MONITORING_ENABLED:
-            layer_name = None
-            if saved_layer and hasattr(saved_layer, 'alternate'):
-                layer_name = saved_layer.alternate
-            elif name:
-                layer_name = name
-            if layer_name:
-                request.add_resource('layer', layer_name)
-
         # null-safe charset
         layer_charset = 'UTF-8'
         if saved_layer and hasattr(saved_layer, 'charset'):

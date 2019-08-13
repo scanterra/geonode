@@ -39,7 +39,7 @@ from django.test.utils import override_settings
 from geonode.monitoring.models import (
     RequestEvent, Host, Service, ServiceType,
     populate, ExceptionEvent, MetricNotificationCheck,
-    MetricValue, NotificationCheck, Metric, OWSService,
+    MetricValue, NotificationCheck, Metric, EventType,
     MonitoredResource, MetricLabel,
     NotificationMetricDefinition,)
 from geonode.monitoring.models import do_autoconfigure
@@ -154,15 +154,18 @@ class RequestsTestCase(GeoNodeBaseTestSupport):
                             args=(_l.alternate,
                                   )),
                     **{"HTTP_USER_AGENT": self.ua})
-        requests = RequestEvent.objects.all()
 
-        c = CollectorAPI()
-        q = requests.order_by('created')
-        c.process_requests(
-            self.service,
-            requests,
-            q.last().created,
-            q.first().created)
+        # Works only with Postgres
+        # requests = RequestEvent.objects.all()
+
+        # c = CollectorAPI()
+        # q = requests.order_by('created')
+        # c.process_requests(
+        #     self.service,
+        #     requests,
+        #     q.first().created,
+        #     q.last().created)
+
         interval = self.service.check_interval
         now = datetime.utcnow().replace(tzinfo=pytz.utc)
 
@@ -290,7 +293,7 @@ class MonitoringChecksTestCase(GeoNodeBaseTestSupport):
         # sanity check
         self.assertTrue(start_aligned < start < end_aligned)
 
-        ows_service = OWSService.objects.get(name='WFS')
+        event_type = EventType.objects.get(name='OWS:WFS')
         resource, _ = MonitoredResource.objects.get_or_create(
             type='layer', name='test:test')
         resource2, _ = MonitoredResource.objects.get_or_create(
@@ -340,11 +343,11 @@ class MonitoringChecksTestCase(GeoNodeBaseTestSupport):
                         value_raw=10,
                         value_num=10,
                         value=10,
-                        ows_service=ows_service)
+                        event_type=event_type)
 
         mc.min_value = 11
         mc.max_value = None
-        mc.ows_service = ows_service
+        mc.event_type = event_type
         mc.save()
 
         with self.assertRaises(mc.MetricValueError):
@@ -358,7 +361,7 @@ class MonitoringChecksTestCase(GeoNodeBaseTestSupport):
                         resource=resource)
         mc.min_value = 1
         mc.max_value = 10
-        mc.ows_service = None
+        mc.event_type = None
         mc.resource = resource
         mc.save()
 
@@ -527,7 +530,7 @@ class MonitoringChecksTestCase(GeoNodeBaseTestSupport):
         end_aligned = start_aligned + self.service.check_interval
 
         # for (metric_name, field_opt, use_service,
-        #     use_resource, use_label, use_ows_service,
+        #     use_resource, use_label, use_event_type,
         #     minimum, maximum, thresholds,) in thresholds:
 
         notifications_config = ('geonode is not working',

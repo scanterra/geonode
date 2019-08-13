@@ -35,8 +35,6 @@ documents_list = register_url_event()(TemplateView.as_view(
 
 urlpatterns = [  # 'geonode.documents.views',
     url(r'^$',
-        TemplateView.as_view(
-            template_name='documents/document_list.html'),
         documents_list,
         {'facet_type': 'documents'},
         name='document_browse'

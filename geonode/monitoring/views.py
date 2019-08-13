@@ -494,7 +494,7 @@ class MetricNotificationCheckForm(forms.ModelForm):
         return self._get_clean_model(MetricLabel, 'label')
 
     def clean_event_type(self):
-        return self._get_clean_model(EventType, 'ows_service')
+        return self._get_clean_model(EventType, 'event_type')
 
     def clean_resource(self):
         val = self.cleaned_data.get('resource')

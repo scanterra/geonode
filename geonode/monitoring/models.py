@@ -532,6 +532,7 @@ class RequestEvent(models.Model):
     def _get_ua_family(ua):
         return str(user_agents.parse(ua))
 
+    @classmethod
     def _get_user_agent(cls, ua):
         ua_family = cls._get_ua_family(ua)
         return {'user_agent': ua,
