@@ -774,22 +774,20 @@ class CollectorAPI(object):
 
         if group_by not in ('event_type', 'event_type_on_label',) and event_type is None:
             event_type = EventType.get(EventType.EVENT_ALL)
+
+        if event_type:
             q_where.append(' and mv.event_type_id = %(event_type)s ')
             params['event_type'] = event_type.id
 
         if label:
             q_where.append(' and ml.id = %(label)s')
             params['label'] = label.id
-        if not group_by and not resource:
-            resource = MonitoredResource.get('', '', or_create=True)
+        # if not group_by and not resource:
+        #     resource = MonitoredResource.get('', '', or_create=True)
         if resource and not group_by:
             q_from.append('join monitoring_monitoredresource mr on '
                           '(mv.resource_id = mr.id and mr.id = %(resource_id)s) ')
             params['resource_id'] = resource.id
-
-            if resource_type:
-                q_where.append(' and mr.type = %(resource_type)s ')
-                params['resource_type'] = resource_type
 
         if label and has_agg:
             q_group.extend(['ml.name'])
@@ -818,13 +816,12 @@ class CollectorAPI(object):
             else:
                 q_group.extend(group_by_cfg['select'])
             grouper = group_by_cfg['grouper']
-            if resource_type:
-                q_where.append(' and mr.type = %(resource_type)s ')
-                params['resource_type'] = resource_type
 
-        if event_type:
-            q_where.append(' and mv.event_type_id = %(event_type)s ')
-            params['event_type'] = event_type.id
+        if resource_type:
+            if not resource:
+                q_from.append('join monitoring_monitoredresource mr on mv.resource_id = mr.id ')
+            q_where.append(' and mr.type = %(resource_type)s ')
+            params['resource_type'] = resource_type
 
         if q_group:
             q_group = [' group by ', ','.join(q_group)]

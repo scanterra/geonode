@@ -72,6 +72,7 @@ from geonode.people.forms import ProfileForm
 from geonode.base.views import batch_modify
 from .tasks import delete_map
 from geonode.monitoring import register_event
+from geonode.monitoring.models import EventType
 from requests.compat import urljoin
 
 if check_ogc_backend(geoserver.BACKEND_PACKAGE):
@@ -177,7 +178,7 @@ def map_detail(request, mapid, snapshot=None, template='maps/map_detail.html'):
             from geonode.favorite.utils import get_favorite_info
             context_dict["favorite_info"] = get_favorite_info(request.user, map_obj)
 
-    register_event(request, 'view', request.path)
+    register_event(request, EventType.EVENT_VIEW, request.path)
 
     return render(request, template, context=context_dict)
 
@@ -1119,6 +1120,9 @@ def map_download(request, mapid, template='maps/map_download.html'):
                             [_l for _l in downloadable_layers if _l.name == lyr.name]) == 0:
                         downloadable_layers.append(lyr)
     site_url = settings.SITEURL.rstrip('/') if settings.SITEURL.startswith('http') else settings.SITEURL
+
+    register_event(request, Eve, map_obj)
+
     return render(request, template, context={
         "geoserver": ogc_server_settings.PUBLIC_LOCATION,
         "map_status": map_status,
