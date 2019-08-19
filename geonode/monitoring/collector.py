@@ -818,7 +818,7 @@ class CollectorAPI(object):
             grouper = group_by_cfg['grouper']
 
         if resource_type:
-            if not resource:
+            if not [mr for mr in q_from if 'monitoring_monitoredresource' in mr]:
                 q_from.append('join monitoring_monitoredresource mr on mv.resource_id = mr.id ')
             q_where.append(' and mr.type = %(resource_type)s ')
             params['resource_type'] = resource_type
