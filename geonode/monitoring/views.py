@@ -287,6 +287,28 @@ class ResourcesList(FilteredView):
         return q
 
 
+class ResourceTypesList(FilteredView):
+
+    output_name = 'resource_types'
+
+    def get(self, request, *args, **kwargs):
+        if self.filter_form:
+            f = self.filter_form(data=request.GET)
+            if not f.is_valid():
+                return json_response({'success': False,
+                                      'status': 'errors',
+                                      'errors': f.errors},
+                                     status=400)
+        out = [{"name": mrt[0], "type": mrt[1]} for mrt in MonitoredResource.TYPES]
+        data = {self.output_name: out,
+                'success': True,
+                'errors': {},
+                'status': 'ok'}
+        if self.output_name != 'data':
+            data['data'] = {'key': self.output_name}
+        return json_response(data)
+
+
 class LabelsList(FilteredView):
 
     filter_form = LabelsFilterForm
@@ -701,6 +723,7 @@ api_services = ServicesList.as_view()
 api_hosts = HostsList.as_view()
 api_labels = LabelsList.as_view()
 api_resources = ResourcesList.as_view()
+api_resource_types = ResourceTypesList.as_view()
 api_event_types = EventTypeList.as_view()
 api_metric_data = MetricDataView.as_view()
 api_metric_collect = CollectMetricsView.as_view()
