@@ -524,7 +524,7 @@ class CollectorAPI(object):
 
         def push_metric_values(srequests, **mdefaults):
 
-            count = requests.count()
+            count = srequests.count()
             count_mdefaults = mdefaults.copy()
             count_mdefaults['value'] = count
             count_mdefaults['label'] = 'Count'
