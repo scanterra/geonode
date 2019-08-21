@@ -444,10 +444,7 @@ class CollectorAPI(object):
                                   'value_num': value if isinstance(value, (int, float, long, Decimal,)) else None})
             # log.debug(MetricValue.add(**metric_values))
 
-            if value:  # TODO: why this?
-                print MetricValue.add(**metric_values)
-            else:
-                MetricValue.add(**metric_values)
+            print MetricValue.add(**metric_values)
 
     def process(self, service, data, valid_from, valid_to, *args, **kwargs):
         if service.is_hostgeonode:

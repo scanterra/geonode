@@ -125,7 +125,7 @@ class MonitoringMiddleware(object):
         if settings.USER_ANALYTICS_ENABLED:
             meta.update({
                 'user_identifier': hashlib.sha256(request.session.session_key or '').hexdigest(),
-                'user_anonymous': not request.user.is_authenticated()
+                'user_username': request.user.username if request.user.is_authenticated() else None
             })
 
         request._monitoring = meta

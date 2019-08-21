@@ -484,9 +484,11 @@ class RequestEvent(models.Model):
         default=None,
         blank=True,
         db_index=True)
-    user_anonymous = models.BooleanField(
-        null=False,
-        default=True)
+    user_username = models.CharField(
+        max_length=150,
+        default=None,
+        null=True,
+        blank=True)
 
     @classmethod
     def _get_resources(cls, type_name, resources_list):
@@ -588,8 +590,8 @@ class RequestEvent(models.Model):
         rqmeta = getattr(request, '_monitoring', {})
         if rqmeta.get('user_identifier'):
             out['user_identifier'] = rqmeta.get('user_identifier')
-        if rqmeta.get('user_anonymous') is not None:
-            out['user_anonymous'] = rqmeta.get('user_anonymous')
+        if rqmeta.get('user_username'):
+            out['user_username'] = rqmeta.get('user_username')
 
         ua = request.META.get('HTTP_USER_AGENT') or ''
         ua_data = cls._get_user_agent(ua)
@@ -672,8 +674,8 @@ class RequestEvent(models.Model):
                 'created': created,
                 'host': request.get_host(),
                 'service': service,
-                'user_anonymous': True,
-                'user_identifier': '',
+                'user_identifier': None,
+                'user_username': None,
                 'event_type': event_type,
                 'request_path': request.get_full_path(),
                 'request_method': request.method,
@@ -886,6 +888,8 @@ class MetricValue(models.Model):
         related_name='metric_values')
     resource = models.ForeignKey(
         MonitoredResource,
+        null=True,
+        blank=True,
         related_name='metric_values')
     label = models.ForeignKey(MetricLabel, related_name='metric_values')
     value = models.CharField(max_length=255, null=False, blank=False)
@@ -945,9 +949,9 @@ class MetricValue(models.Model):
         if event_type:
             if not isinstance(event_type, EventType):
                 event_type = EventType.get(event_type)
-        if not resource:
-            resource, _ = MonitoredResource.objects.get_or_create(
-                type=MonitoredResource.TYPE_EMPTY, name='')
+        # if not resource:
+        #     resource, _ = MonitoredResource.objects.get_or_create(
+        #         type=MonitoredResource.TYPE_EMPTY, name='')
         try:
             inst = cls.objects.get(valid_from=valid_from,
                                    valid_to=valid_to,
