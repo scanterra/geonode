@@ -13,6 +13,7 @@
 {% endblock %}
 
 {% block body_outer %}
+
 <div class="page-header">
   <a href="{% url "layer_browse" %}?limit={{ CLIENT_RESULTS_LIMIT }}" class="btn btn-primary pull-right">{% trans "Explore Layers" %}</a>
   <h2 class="page-title">{% trans "Upload Layers" %}</h2>
@@ -134,7 +135,8 @@
   geogig_enabled = {{ GEOGIG_ENABLED|lower  }},
   time_enabled = {{ TIME_ENABLED|lower  }},
   mosaic_enabled = {{ MOSAIC_ENABLED|lower  }},
-  userLookup = "{% url "account_ajax_lookup" %}"
+  userLookup = "{% url "account_ajax_lookup" %}",
+  CSRF_COOKIE_NAME = "{{ CSRF_COOKIE_NAME }}"
 
 {% endautoescape %}
 

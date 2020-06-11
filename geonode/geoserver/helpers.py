@@ -928,7 +928,7 @@ def set_styles(layer, gs_catalog):
             # make sure we are not using a defaul SLD (which won't be editable)
             if not default_style.workspace or default_style.workspace != layer.workspace:
                 sld_body = default_style.sld_body
-                gs_catalog.create_style(layer.name, sld_body, raw=True, workspace=layer.workspace)
+                gs_catalog.create_style(layer.name, sld_body, overwrite=True, raw=True, workspace=layer.workspace)
                 style = gs_catalog.get_style(layer.name, workspace=layer.workspace)
             else:
                 style = default_style
