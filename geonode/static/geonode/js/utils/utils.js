@@ -13,7 +13,7 @@ $(function() {
 
 $(function(){
   $(document).ajaxSend(function(event, xhr, settings) {
-    function getCookie(name) {
+      function getCookie(name) {
         var cookieValue = null;
       if (document.cookie && document.cookie !== '') {
             var cookies = document.cookie.split(';');
@@ -45,8 +45,8 @@ $(function(){
         return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
     }
 
-    if (!safeMethod(settings.type) && sameOrigin(settings.url)) {
-        xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+      if (!safeMethod(settings.type) && sameOrigin(settings.url)) {
+        xhr.setRequestHeader("X-CSRFToken", getCookie(CSRF_COOKIE_NAME));
     }
   });
 });

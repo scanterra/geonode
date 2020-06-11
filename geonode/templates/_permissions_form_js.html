@@ -1,7 +1,7 @@
 {% load i18n %}
 
 <script type="text/javascript">
-
+  CSRF_COOKIE_NAME = "{{ CSRF_COOKIE_NAME }}"
   function permissionsString(form, type) {
     var permissions = {
       'users': {},
