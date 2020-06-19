@@ -58,7 +58,7 @@ class Command(BaseCommand):
         import requests
         import math
         # Streaming, so we can iterate over the response.
-        r = requests.get(options['url'], stream=True, timeout=10)
+        r = requests.get(options['url'], stream=True, timeout=10, verify=False)
         # Total size in bytes.
         total_size = int(r.headers.get('content-length', 0))
         logger.info("Requesting %s", options['url'])
