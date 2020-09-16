@@ -246,14 +246,17 @@ def geoserver_post_save_local(instance, *args, **kwargs):
     instance.workspace = gs_resource.store.workspace.name
     instance.store = gs_resource.store.name
 
-    bbox = gs_resource.native_bbox
+    try:
+        bbox = gs_resource.native_bbox
 
-    # Set bounding box values
-    instance.bbox_x0 = bbox[0]
-    instance.bbox_x1 = bbox[1]
-    instance.bbox_y0 = bbox[2]
-    instance.bbox_y1 = bbox[3]
-    instance.srid = bbox[4]
+        # Set bounding box values
+        instance.bbox_x0 = bbox[0]
+        instance.bbox_x1 = bbox[1]
+        instance.bbox_y0 = bbox[2]
+        instance.bbox_y1 = bbox[3]
+        instance.srid = bbox[4]
+    except Exception as e:
+        logger.exception(e)
 
     if instance.srid:
         instance.srid_url = "http://www.spatialreference.org/ref/" + \
