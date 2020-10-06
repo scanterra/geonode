@@ -1599,7 +1599,11 @@ def do_autoconfigure():
     # get list of services
     wsite = urlparse(settings.SITEURL)
     # default host
-    hosts = [(wsite.hostname, gethostbyname(wsite.hostname),)]
+    try:
+        _host_by_name = gethostbyname(wsite.hostname)
+    except BaseException:
+        _host_by_name = '127.0.0.1'
+    hosts = [(wsite.hostname, _host_by_name,)]
     # default geonode
     geonode_name = settings.MONITORING_SERVICE_NAME or '{}-geonode'.format(
         wsite.hostname)
