@@ -10,7 +10,7 @@ Es el CORE de la App utilizada por **Geonode Generic**
 
 Se integra en el build de la imagen **Scanagromepresa Geonode Generic**
 
-Esta versión es una replica de la que actualmente esta funcionando en los servidores de PROD.
+Esta versión es una replica de la versión modificada del framework Geonode para Scanterra que actualmente esta funcionando en los servidores de PROD.
 
 ## README comunidad
 
