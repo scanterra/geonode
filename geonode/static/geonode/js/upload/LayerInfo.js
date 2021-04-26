@@ -586,7 +586,17 @@ define(function (require, exports) {
                 if (jqXHR === null) {
                     self.markError(gettext('Unexpected Error'));
                 } else {
-                    self.markError(jqXHR);
+                    const TIMEOUT_TEXT = '504 Gateway Time-out';
+                    if (typeof jqXHR === 'string' && jqXHR.includes(TIMEOUT_TEXT)) {
+                        console.log('DEBUG: Geonode shows an error when a layer is uploaded successfully');
+                        self.logStatus({
+                            msg: '<p>' + gettext('Layer files uploaded, configuring in GeoServer') + '</p>',
+                            level: 'alert-success',
+                            empty: 'true'
+                        });
+                    } else {
+                        self.markError(jqXHR);
+                    }
                 }
             },
             success: function (resp, status) {
